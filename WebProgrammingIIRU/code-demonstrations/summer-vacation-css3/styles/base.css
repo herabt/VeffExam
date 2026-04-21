@@ -1,0 +1,297 @@
+:root {
+  --navigation-bar-height: 100px;
+  --hero-section-height: 800px;
+  --features-height: 500px;
+  --promo-section-height: auto;
+  --cta-section-height: 400px;
+  --hero-section-image-height: 700px;
+  --info-section-item-width: 250px;
+  --promo-image-height: 400px;
+
+  --main-blue-color: #63B4D1;
+  --secondary-blue-color: #7699D4;
+  --main-white-color: #ffffff;
+  --main-purple-color: #9448BC;
+  --secondary-purple-color: #480355;
+  --main-green-color: #90FCF9;
+}
+
+body {
+  display: grid;
+  grid-template-rows:
+    var(--navigation-bar-height)
+    var(--hero-section-height)
+    var(--features-height)
+    var(--promo-section-height)
+    var(--promo-section-height)
+    var(--cta-section-height);
+}
+
+/* Navigation bar ++ */
+
+.nav {
+  display: grid;
+  background-color: var(--main-blue-color);
+}
+
+.nav .nav__list {
+  display: grid;
+  list-style: none;
+  padding-left: 0;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  grid-template-columns: repeat(auto-fit, 100px);
+}
+
+.nav .nav__list .nav__item {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  height: 100%;
+}
+
+.nav__item:hover {
+  cursor: pointer;
+}
+
+.nav__item:hover:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--main-white-color);
+  animation: from-bottom .3s ease-in-out 1 both;
+  z-index: 1;
+}
+
+.nav__link-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-self: center;
+  text-align: center;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+/* Navigation bar -- */
+
+/* Hero section ++ */
+
+.hero {
+  background-image: url(../resources/hero.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: var(--hero-section-image-height);
+}
+
+/* Hero section -- */
+
+/* Features section ++ */
+
+.features {
+  background-color: var(--main-blue-color);
+  border-top: solid 8px var(--secondary-blue-color);
+  display: grid;
+  grid-template-columns: repeat(3, var(--info-section-item-width));
+  justify-content: space-around;
+  align-items: center;
+  overflow: hidden;
+}
+
+.features__item {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  position: relative;
+  top: -100%;
+}
+
+.features__image {
+  border-radius: 50%;
+  background-color: var(--main-white-color);
+  padding: 10px;
+}
+
+.features__title {
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+.from-top {
+  animation: from-top .5s ease-in-out 1 both;
+}
+
+/* Features section -- */
+
+/* Promo section ++ */
+
+.promo {
+  display: grid;
+  padding: 50px;
+  grid-template-columns: 1fr 2fr;
+  overflow: hidden;
+}
+
+.promo__image {
+  position: relative;
+  height: var(--promo-image-height);
+  left: -100%;
+}
+
+.promo__content {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  font-size: 1.2em;
+  position: relative;
+  top: -100%;
+}
+
+.promo__title {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.promo--purple {
+  border-top: solid 8px var(--secondary-purple-color);
+  background-color: var(--main-purple-color);
+}
+
+.promo--reverse {
+  grid-template-columns: 2fr 1fr;
+  color: var(--main-white-color);
+}
+
+.promo--reverse .promo__image {
+  left: auto;
+  right: -100%;
+}
+
+.from-left {
+  animation: from-left .5s ease-in-out 1 both;
+  animation-delay: .7s;
+}
+
+.from-right {
+  animation: from-right .5s ease-in-out 1 both;
+  animation-delay: .7s;
+}
+
+/* Promo section -- */
+
+/* CTA section ++ */
+
+.cta {
+  display: grid;
+  background-color: var(--main-green-color);
+  align-items: center;
+  justify-content: center;
+}
+
+.cta__button {
+  padding: 10px 20px;
+  border: solid 3px var(--main-white-color);
+  text-transform: uppercase;
+  font-family: 'Bitter', serif;
+  font-size: 1.3em;
+  color: var(--main-white-color);
+  background-color: transparent;
+  position: relative;
+
+  transition: transform 1s;
+}
+
+.cta__button:hover {
+  cursor: pointer;
+  transform: perspective(400px) rotateY(30deg) scale(1.1);
+}
+
+.cta__button:hover:after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background: 
+    linear-gradient(var(--secondary-blue-color), var(--secondary-blue-color)),
+    linear-gradient(var(--secondary-blue-color), var(--secondary-blue-color)),
+    linear-gradient(var(--secondary-blue-color), var(--secondary-blue-color)),
+    linear-gradient(var(--secondary-blue-color), var(--secondary-blue-color));
+  background-size: 0 3px, 3px 0, 0 3px, 3px 0;
+  background-position: left top, right top, right bottom, left bottom;
+  background-repeat: no-repeat;
+
+  animation: button-hover .7s linear 1 both;
+}
+
+/* CTA section -- */
+
+/* Button section ++ */
+
+/* Button section -- */
+
+/* Animations ++ */
+
+@keyframes from-bottom {
+  from {
+    top: 100%;
+  }
+  to {
+    top: 0;
+  }
+}
+
+@keyframes from-top {
+  from {
+    top: -100%;
+  }
+  to {
+    top: 0;
+  }
+}
+
+@keyframes from-left {
+  0% {
+    left: -100%;
+  }
+  60% {
+    left: 30%;
+  }
+  100% {
+    left: 0;
+  }
+}
+
+@keyframes from-right {
+  0% {
+    right: -100%;
+  }
+  60% {
+    right: 30%;
+  }
+  100% {
+    right: 0;
+  }
+}
+
+@keyframes button-hover {
+  0% {
+    background-size: 0 3px, 3px 0, 0 3px, 3px 0;
+  }
+  25% {
+    background-size: 100% 3px, 3px 0, 0 3px, 3px 0;
+  }
+  50% {
+    background-size: 100% 3px, 3px 100%, 0 3px, 3px 0;
+  }
+  75% {
+    background-size: 100% 3px, 3px 100%, 100% 3px, 3px 0;
+  }
+  100% {
+    background-size: 100% 3px, 3px 100%, 100% 3px, 3px 100%;
+  }
+}
+
+/* Animations -- */

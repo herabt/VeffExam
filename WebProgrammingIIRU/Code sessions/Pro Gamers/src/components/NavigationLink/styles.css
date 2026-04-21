@@ -1,0 +1,16 @@
+.navigation-link {
+  display: flex;
+  align-items: center;
+}
+
+.navigation-link a {
+  text-decoration: none;
+}
+
+.navigation-bar.dark .navigation-link a {
+  color: white;
+}
+
+.navigation-bar.light .navigation-link a {
+  color: black;
+}
