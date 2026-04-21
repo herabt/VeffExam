@@ -452,12 +452,12 @@ register("email", { pattern: { value: /regex/, message: "msg" } })</pre></div>
 
 <div class="cb"><pre>const onSubmit = (data: FormData) =&gt; {
   // data is fully typed and validated
-  console.log(data); // { name: "Alice", email: "alice@example.com", ... }
+  console.log('form submitted:', data);
 };
 
 const onError = (errors: FieldErrors&lt;FormData&gt;) =&gt; {
   // called only when validation fails
-  console.log(errors);
+  console.log('validation errors:', errors);
 };
 
 &lt;form onSubmit={handleSubmit(onSubmit, onError)}&gt;</pre></div>
@@ -745,39 +745,49 @@ register("password", {
 
 <h2 class="g-h2">8. Controller — for Controlled Components</h2>
 
-<p><code>Controller</code> is used when you need to integrate a <strong>controlled</strong> third-party component (like a custom Select, DatePicker, or UI library component) that doesn't expose a native <code>ref</code>.</p>
+<p><code>Controller</code> is used when you need to integrate a <strong>controlled</strong> component — either a third-party UI component or a native input that needs explicit value/onChange management (such as a styled radio group). The teacher's concert-arena demo uses <code>Controller</code> for a custom radio-button ticket-type selector.</p>
 
 <h3 class="g-h3">Why Controller exists:</h3>
-<p><code>register()</code> works by attaching a ref to a native HTML input. Some components (Radix UI, MUI, React Select, etc.) do not forward refs properly or need their own <code>value</code>/<code>onChange</code> props. <code>Controller</code> bridges this gap.</p>
+<p><code>register()</code> works by attaching a ref to a native HTML input. Some components (Radix UI, MUI, React Select, custom radio groups, etc.) do not forward refs properly or need their own <code>value</code>/<code>onChange</code> props. <code>Controller</code> bridges this gap.</p>
 
 <div class="cb"><pre>import { Controller } from 'react-hook-form';
 
-// Usage with a custom component:
+// Teacher pattern: Controller for a custom radio-button group
+// (register() alone can't track which radio is selected via value/onChange)
+&lt;Controller
+  control={control}
+  name="ticketType"
+  render={({ field }) =&gt; (
+    &lt;div&gt;
+      {ticketTypes.map((type) =&gt; (
+        &lt;label key={type.value}&gt;
+          &lt;input
+            type="radio"
+            value={type.value}
+            checked={field.value === type.value}
+            onChange={() =&gt; field.onChange(type.value)}
+          /&gt;
+          {type.label}
+        &lt;/label&gt;
+      ))}
+    &lt;/div&gt;
+  )}
+/&gt;
+{errors.ticketType &amp;&amp; &lt;p className="field-error"&gt;{errors.ticketType.message}&lt;/p&gt;}
+
+// Usage with a third-party component (e.g. React Select):
 &lt;Controller
   name="country"
-  control={control}  // from useForm()
+  control={control}
   rules={{ required: "Please select a country" }}
-  render={({ field, fieldState }) =&gt; (
+  render={({ field }) =&gt; (
     &lt;Select
       {...field}                    // spreads value, onChange, onBlur, ref
       options={countryOptions}
-      error={fieldState.error?.message}
     /&gt;
   )}
 /&gt;
-
-// Usage with a native select (you could also just use register, but this is an example):
-&lt;Controller
-  name="role"
-  control={control}
-  defaultValue="user"
-  render={({ field }) =&gt; (
-    &lt;select {...field}&gt;
-      &lt;option value="user"&gt;User&lt;/option&gt;
-      &lt;option value="admin"&gt;Admin&lt;/option&gt;
-    &lt;/select&gt;
-  )}
-/&gt;</pre></div>
+{errors.country &amp;&amp; &lt;p className="field-error"&gt;{errors.country.message}&lt;/p&gt;}</pre></div>
 
 <h3 class="g-h3">Controller vs register:</h3>
 <div class="tw"><table>
@@ -1103,18 +1113,15 @@ const { register } = useForm&lt;FormData&gt;({
 
 <h2 class="g-h2">12. Error Display Patterns</h2>
 
-<h3 class="g-h3">Pattern 1: Inline below the field (most common):</h3>
+<h3 class="g-h3">Pattern 1: Inline below the field (teacher pattern — <code>&lt;p&gt;</code> under each input):</h3>
 <div class="cb"><pre>&lt;div&gt;
   &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
   &lt;input
     id="email"
     {...register("email", { required: "Email is required" })}
-    aria-invalid={!!errors.email}
   /&gt;
   {errors.email &amp;&amp; (
-    &lt;span role="alert" style={{ color: "red" }}&gt;
-      {errors.email.message}
-    &lt;/span&gt;
+    &lt;p className="field-error"&gt;{errors.email.message}&lt;/p&gt;
   )}
 &lt;/div&gt;</pre></div>
 
@@ -1134,7 +1141,7 @@ const schema = z.object({
 });
 
 // errors.email.message will be "Invalid email format"
-{errors.email &amp;&amp; &lt;span&gt;{errors.email.message}&lt;/span&gt;}</pre></div>
+{errors.email &amp;&amp; &lt;p className="field-error"&gt;{errors.email.message}&lt;/p&gt;}</pre></div>
 
 <h3 class="g-h3">Pattern 4: Summary of all errors:</h3>
 <div class="cb"><pre>{Object.keys(errors).length &gt; 0 &amp;&amp; (
@@ -1330,6 +1337,7 @@ export function SignupForm() {
 
   // 3. Submit handler
   const onSubmit = async (data: SignupFormData) =&gt; {
+    console.log('form submitted:', data);
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -1367,9 +1375,8 @@ export function SignupForm() {
           id="name"
           type="text"
           {...register("name")}
-          aria-invalid={!!errors.name}
         /&gt;
-        {errors.name &amp;&amp; &lt;span role="alert"&gt;{errors.name.message}&lt;/span&gt;}
+        {errors.name &amp;&amp; &lt;p className="field-error"&gt;{errors.name.message}&lt;/p&gt;}
       &lt;/div&gt;
 
       {/* Email field */}
@@ -1379,9 +1386,8 @@ export function SignupForm() {
           id="email"
           type="email"
           {...register("email")}
-          aria-invalid={!!errors.email}
         /&gt;
-        {errors.email &amp;&amp; &lt;span role="alert"&gt;{errors.email.message}&lt;/span&gt;}
+        {errors.email &amp;&amp; &lt;p className="field-error"&gt;{errors.email.message}&lt;/p&gt;}
       &lt;/div&gt;
 
       {/* Password field */}
@@ -1391,10 +1397,9 @@ export function SignupForm() {
           id="password"
           type="password"
           {...register("password")}
-          aria-invalid={!!errors.password}
         /&gt;
         {errors.password &amp;&amp; (
-          &lt;span role="alert"&gt;{errors.password.message}&lt;/span&gt;
+          &lt;p className="field-error"&gt;{errors.password.message}&lt;/p&gt;
         )}
       &lt;/div&gt;
 
@@ -1405,10 +1410,9 @@ export function SignupForm() {
           id="confirmPassword"
           type="password"
           {...register("confirmPassword")}
-          aria-invalid={!!errors.confirmPassword}
         /&gt;
         {errors.confirmPassword &amp;&amp; (
-          &lt;span role="alert"&gt;{errors.confirmPassword.message}&lt;/span&gt;
+          &lt;p className="field-error"&gt;{errors.confirmPassword.message}&lt;/p&gt;
         )}
       &lt;/div&gt;
 
@@ -1568,8 +1572,8 @@ async function registerUser(data: unknown) {
 <div class="cb"><pre>const { register, handleSubmit, formState: { errors } } = useForm&lt;FormData&gt;({
   resolver: zodResolver(schema),
 });
-// Display error:
-{errors.email &amp;&amp; &lt;span&gt;{errors.email.message}&lt;/span&gt;}</pre></div>
+// Display error (teacher pattern — p element per field):
+{errors.email &amp;&amp; &lt;p className="field-error"&gt;{errors.email.message}&lt;/p&gt;}</pre></div>
 <p>Key methods: <code>useForm</code>, <code>register</code>, <code>handleSubmit</code>, <code>formState.errors</code>.</p>
 
 <p><strong>Part b) Server Action vs API Route:</strong><br>
@@ -1614,7 +1618,7 @@ HANDLE SUBMIT:
   &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
 
 SHOW ERRORS:
-  {errors.fieldName &amp;&amp; &lt;span&gt;{errors.fieldName.message}&lt;/span&gt;}
+  {errors.fieldName &amp;&amp; &lt;p className="field-error"&gt;{errors.fieldName.message}&lt;/p&gt;}
 
 VALID RULES:        required, minLength, maxLength, min, max, pattern, validate
 INVALID RULES:      type, sanitize, format   ← NOT real rules
@@ -1627,7 +1631,7 @@ MODE:
 RESOLVER (Zod):
   resolver: zodResolver(z.object({ email: z.string().email() }))
 
-CONTROLLER (for non-native inputs):
+CONTROLLER (for custom radio groups or third-party components without forwardRef):
   &lt;Controller name="x" control={control} render={({ field }) =&gt; &lt;CustomInput {...field} /&gt;} /&gt;
 
 WATCH:    const val = watch("fieldName")
@@ -1691,7 +1695,7 @@ SERVER VALIDATION: Always required — client can be bypassed with curl/DevTools
     </tr>
     <tr>
       <td>What does <code>Controller</code> do?</td>
-      <td>Wraps third-party controlled components</td>
+      <td>Wraps custom radio groups or third-party controlled components that don't expose a native ref</td>
     </tr>
     <tr>
       <td>What prop does <code>Controller</code> need?</td>

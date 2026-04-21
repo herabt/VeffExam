@@ -79,9 +79,15 @@ const element = React.createElement('h1', { className: 'title' }, 'Hello');</pre
 &lt;UserCard name="Tomas" age={22} isAdmin={true} /&gt;
 
 // Child receives props
-function UserCard({ name, age, isAdmin }: { name: string; age: number; isAdmin: boolean }) {
+interface UserCardProps {
+  name: string;
+  age: number;
+  isAdmin: boolean;
+}
+
+const UserCard = ({ name, age, isAdmin }: UserCardProps) =&gt; {
   return &lt;div&gt;{name} ({age}) {isAdmin &amp;&amp; '— Admin'}&lt;/div&gt;;
-}</pre></div>
+};</pre></div>
 
 <p><strong>Critical rule:</strong> Props are <strong>read-only</strong>. A component must never modify its own props.</p>
 <p><strong>Prop drilling:</strong> Passing props through many intermediate components that don't need them. This is an <strong>anti-pattern</strong> — use Context API to solve it.</p>
@@ -352,6 +358,7 @@ setItems(prev =&gt; [...prev, newItem]);</pre></div>
 <h3 class="g-h3">Example</h3>
 <div class="cb"><pre>function Counter() {
   const [count, setCount] = useState(0);
+  console.log('Counter rendered, count=', count);
 
   return (
     &lt;div&gt;
@@ -386,14 +393,17 @@ function Clock() {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
 
   useEffect(() =&gt; {
+    console.log('Clock mounted, starting interval');
     const id = setInterval(() =&gt; {
       setTime(new Date().toLocaleTimeString());
     }, 1000);
-    return () =&gt; clearInterval(id); // cleanup on unmount
+    return () =&gt; {
+      console.log('Clock unmounted, clearing interval');
+      clearInterval(id);
+    };
   }, []); // &lt;-- only runs once
 
   return &lt;p&gt;Time: {time}&lt;/p&gt;;
-  // Renders: "Time: 12:34:56" — updates every second
 }
 
 // Variant 3: [dep] — runs on mount + whenever dep changes
@@ -401,13 +411,13 @@ function UserCard({ userId }: { userId: number }) {
   const [name, setName] = useState('');
 
   useEffect(() =&gt; {
+    console.log('UserCard effect: fetching user', userId);
     fetch(`/api/users/${userId}`)
       .then(r =&gt; r.json())
       .then(u =&gt; setName(u.name));
   }, [userId]); // re-fetches whenever userId changes
 
   return &lt;p&gt;User: {name}&lt;/p&gt;;
-  // Renders: "User: Alice" (or whoever userId points to)
 }</pre></div>
 
 <h3 class="g-h3">The three dependency array variants — KNOW ALL THREE</h3>
@@ -712,7 +722,6 @@ function Tooltip({ text }: { text: string }) {
     &lt;/div&gt;
   );
 }
-// Renders: a tooltip that auto-adjusts to stay inside the viewport.
 // If useEffect were used here the tooltip would flash in the wrong spot first.</pre></div>
 
 <h2 class="g-h2" id="r9-useref">9. useRef</h2>
@@ -745,13 +754,16 @@ function Tooltip({ text }: { text: string }) {
 <div class="cb"><pre>function Timer() {
   const [seconds, setSeconds] = useState(0);
   const intervalRef = useRef&lt;ReturnType&lt;typeof setInterval&gt; | null&gt;(null);
+  console.log('Timer rendered, seconds=', seconds);
 
   useEffect(() =&gt; {
+    console.log('Timer effect: starting interval');
     intervalRef.current = setInterval(() =&gt; {
       setSeconds(prev =&gt; prev + 1); // functional updater, no stale closure
     }, 1000);
 
     return () =&gt; {
+      console.log('Timer effect cleanup: clearing interval');
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
@@ -927,6 +939,7 @@ function useTheme() {
 // 3. Provider component that owns the state
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState&lt;'light' | 'dark'&gt;('light');
+  console.log('ThemeProvider rendered, theme=', theme);
   const toggle = () =&gt; setTheme(t =&gt; (t === 'light' ? 'dark' : 'light'));
   return (
     &lt;ThemeContext.Provider value={{ theme, toggle }}&gt;
@@ -938,6 +951,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 // 4. Any nested consumer — no prop drilling needed
 function Header() {
   const { theme, toggle } = useTheme();
+  console.log('Header rendered, theme=', theme);
   return (
     &lt;header style={{ background: theme === 'dark' ? '#333' : '#fff' }}&gt;
       &lt;button onClick={toggle}&gt;Switch to {theme === 'dark' ? 'light' : 'dark'}&lt;/button&gt;
@@ -953,9 +967,7 @@ export default function App() {
       &lt;main&gt;Content here&lt;/main&gt;
     &lt;/ThemeProvider&gt;
   );
-}
-// Renders: a header whose background color toggles light/dark on button click.
-// Header accesses context directly — no props passed from App.</pre></div>
+}</pre></div>
 
 <h3 class="g-h3">Context API Limitations — EXAM IMPORTANT</h3>
 <div class="tw"><table>
@@ -1021,6 +1033,7 @@ function reducer(state: State, action: Action): State {
 
 function Counter() {
   const [state, dispatch] = useReducer(reducer, { count: 0, error: null });
+  console.log('Counter (useReducer) rendered, state=', state);
 
   return (
     &lt;div&gt;
@@ -1068,6 +1081,7 @@ const Button = memo(function Button({ onClick }: { onClick: () =&gt; void }) {
 function Parent() {
   const [count, setCount] = useState(0);
   const [name, setName] = useState('');
+  console.log('Parent rendered, count=', count, 'name=', name);
 
   // Without useCallback: new function on every render → Button always re-renders
   // With useCallback: function reference stable → Button skips re-render when name changes
@@ -1193,6 +1207,7 @@ const doubled = count * 2;</pre></div>
   const [error, setError] = useState&lt;string | null&gt;(null);
 
   useEffect(() =&gt; {
+    console.log('useFetch effect: fetching', url);
     let cancelled = false;
     setLoading(true);
 
@@ -1203,18 +1218,23 @@ const doubled = count * 2;</pre></div>
       })
       .then(data =&gt; {
         if (!cancelled) {
+          console.log('useFetch: data received', data);
           setData(data);
           setLoading(false);
         }
       })
       .catch(err =&gt; {
         if (!cancelled) {
+          console.log('useFetch: error', err.message);
           setError(err.message);
           setLoading(false);
         }
       });
 
-    return () =&gt; { cancelled = true; };
+    return () =&gt; {
+      console.log('useFetch cleanup: request for', url, 'cancelled');
+      cancelled = true;
+    };
   }, [url]);
 
   return { data, loading, error };
@@ -1262,9 +1282,7 @@ function NameForm() {
       &lt;p&gt;Saved name: {name || '(none)'}&lt;/p&gt;
     &lt;/div&gt;
   );
-}
-// Renders: an input whose value survives page refresh — stored in localStorage.
-// Type the name, refresh the page — it's still there.</pre></div>
+}</pre></div>
 
 <h2 class="g-h2" id="r15-rules">15. RULES OF HOOKS</h2>
 <p><strong>These are strict rules — violating them causes bugs.</strong></p>
@@ -1345,8 +1363,7 @@ function GoodList({ items }: { items: string[] }) {
       {items.map((item, i) =&gt; &lt;CheckItem key={i} label={item} /&gt;)}
     &lt;/ul&gt;
   );
-}
-// Renders: a checklist where each row independently tracks its checked state.</pre></div>
+}</pre></div>
 
 <h2 class="g-h2" id="r16-lifecycle">16. COMPONENT LIFECYCLE WITH HOOKS</h2>
 <p>Class components had lifecycle methods. Function components replicate them with <code>useEffect</code>:</p>
@@ -1568,6 +1585,7 @@ function TemperatureConverter() {
 <h4 class="g-h4">Example — Parent + Child1 + Child2 sharing state via lifting</h4>
 <div class="cb"><pre>// Child1: displays the current count
 function Display({ count }: { count: number }) {
+  console.log('Display rendered, count=', count);
   return &lt;p&gt;Current count: &lt;strong&gt;{count}&lt;/strong&gt;&lt;/p&gt;;
 }
 
@@ -1576,6 +1594,7 @@ function Controls({ onIncrement, onReset }: {
   onIncrement: () =&gt; void;
   onReset: () =&gt; void;
 }) {
+  console.log('Controls rendered');
   return (
     &lt;div&gt;
       &lt;button onClick={onIncrement}&gt;+1&lt;/button&gt;
@@ -1587,6 +1606,7 @@ function Controls({ onIncrement, onReset }: {
 // Parent: owns the state and passes it down to both children
 function CounterApp() {
   const [count, setCount] = useState(0);
+  console.log('CounterApp rendered, count=', count);
 
   return (
     &lt;div&gt;
@@ -1599,11 +1619,7 @@ function CounterApp() {
       /&gt;
     &lt;/div&gt;
   );
-}
-// Renders: "Current count: 0" with +1 and Reset buttons.
-// Clicking +1 updates both Display (re-renders) and Controls (re-renders),
-// because the parent re-renders and passes new props to both.
-// State lives in ONE place — the parent — keeping things in sync.</pre></div>
+}</pre></div>
 
 <h2 class="g-h2" id="r18-controlled">18. PATTERNS: CONTROLLED VS UNCONTROLLED COMPONENTS</h2>
 
@@ -2015,7 +2031,6 @@ function LoginForm() {
     &lt;/form&gt;
   );
 }
-// Renders: a labelled input. Clicking "Focus email field" moves cursor into it.
 // Without forwardRef, passing ref to StyledInput would silently do nothing.</pre></div>
 
 <h3 class="g-h3">useImperativeHandle</h3>
@@ -2150,6 +2165,7 @@ function Dashboard() {
     { id: 1, label: 'Users', count: 42 },
     { id: 2, label: 'Orders', count: 7 },
   ]);
+  console.log('Dashboard rendered, tick=', tick);
 
   // Simulate a parent state change unrelated to data
   // e.g. a clock tick or a dark-mode toggle
@@ -2165,10 +2181,7 @@ function Dashboard() {
       &lt;/ul&gt;
     &lt;/div&gt;
   );
-}
-// Renders: two list rows and a Tick button.
-// Clicking Tick increments the counter but MemoRow rows stay silent in the console.
-// If you replace MemoRow with ExpensiveRow you'll see logs on every click.</pre></div>
+}</pre></div>
 
 <h2 class="g-h2" id="r25-examq">25. LIKELY EXAM QUESTIONS WITH ANSWERS</h2>
 

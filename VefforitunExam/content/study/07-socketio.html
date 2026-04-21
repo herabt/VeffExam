@@ -336,7 +336,7 @@ io.on('connection', (socket) =&gt; {
   });
 });
 
-httpServer.listen(4567);</pre></div>
+httpServer.listen(4567, () =&gt; console.log('Socket.io server listening on port 4567'));</pre></div>
 
 <p>Key points:</p>
 <ul>
@@ -367,11 +367,11 @@ socket.on('disconnect', () =&gt; console.log('Disconnected'));</pre></div>
 
 <h3 class="g-h3">Client Setup as a React Service (course pattern)</h3>
 
-<div class="cb"><pre>// src/services/socketService.js
+<div class="cb"><pre>// src/services/socketService.js  — from signup-sheet demo
 import { io } from 'socket.io-client';
 
 const URL = 'http://localhost:4567';
-export default io(URL);  // singleton — same socket everywhere</pre></div>
+export default io(URL);  // singleton — auto-connects, same socket everywhere</pre></div>
 
 <p>Then in a component:</p>
 
@@ -386,6 +386,35 @@ useEffect(() =&gt; {
     // update local state
   });
   return () =&gt; socket.off('usersignup');  // cleanup!
+}, []);</pre></div>
+
+<h3 class="g-h3">Deferred connect pattern (avatorium course pattern)</h3>
+
+<p>When you need to pass auth data before connecting (e.g. a user selects their avatar first), create the socket with <code>autoConnect: false</code>, then attach auth and call <code>connect()</code> manually:</p>
+
+<div class="cb"><pre>// src/reducers/socketReducer.js  — from avatorium demo
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8080', { autoConnect: false });
+
+export default function socketReducer(state = socket, action) {
+  return state;
+}</pre></div>
+
+<div class="cb"><pre>// In a component — attach auth then connect
+const onChooseAvatarURL = (avatarURL) =&gt; {
+  socket.auth = { avatar: avatarURL };  // set auth data
+  socket.connect();                     // now establish the connection
+};
+
+// On reconnect — restore session so server can match the user
+useEffect(() =&gt; {
+  socket.on('session', (session) =&gt; {
+    socket.auth = { sessionID: session.sessionID };  // persist for reconnects
+    localStorage.setItem('sessionID', session.sessionID);
+    dispatch(addSession(session));
+  });
+  return () =&gt; socket.off('session');
 }, []);</pre></div>
 
 <h3 class="g-h3">The <code>connect</code> / <code>disconnect</code> lifecycle</h3>
@@ -915,6 +944,8 @@ io.use((socket, next) =&gt; {
 
 <h3 class="g-h3">How the client sends auth data</h3>
 
+<p><strong>Option A — pass auth in the <code>io()</code> call</strong> (token-based pattern):</p>
+
 <div class="cb"><pre>// Client passes auth data in the handshake
 const socket = io('http://localhost:4567', {
   auth: {
@@ -922,6 +953,22 @@ const socket = io('http://localhost:4567', {
     sessionID: localStorage.getItem('sessionID')
   }
 });</pre></div>
+
+<p><strong>Option B — deferred auth then <code>socket.connect()</code></strong> (avatorium course pattern):</p>
+
+<div class="cb"><pre>// Socket created with autoConnect: false so no connection yet
+const socket = io('http://localhost:8080', { autoConnect: false });
+
+// Later, when the user provides their avatar / credentials:
+socket.auth = { avatar: 'https://example.com/avatar.png' };
+socket.connect();  // connection attempt starts now, middleware reads socket.handshake.auth
+
+// On subsequent page loads — restore existing session
+const savedSessionID = localStorage.getItem('sessionID');
+if (savedSessionID) {
+  socket.auth = { sessionID: savedSessionID };
+  socket.connect();
+}</pre></div>
 
 <h3 class="g-h3">What happens on rejection</h3>
 
@@ -1174,14 +1221,29 @@ io.on('connection', (socket) =&gt; {
   socket.join(socket.userID);
 });</pre></div>
 
-<h3 class="g-h3">Client stores the session</h3>
+<h3 class="g-h3">Client stores the session (avatorium pattern)</h3>
 
-<div class="cb"><pre>socket.on('session', ({ sessionID, userID, avatar }) =&gt; {
-  // Store for future reconnections
-  socket.auth = { sessionID };
-  localStorage.setItem('sessionID', sessionID);
-  // Save userID to Redux/Zustand store
-  dispatch(addSession({ sessionID, userID, avatar }));
+<div class="cb"><pre>// In useEffect — listen for the 'session' event the server sends on connect
+useEffect(() =&gt; {
+  socket.on('session', (session) =&gt; {
+    // Persist sessionID so the NEXT connect attempt restores this user
+    socket.auth = { sessionID: session.sessionID };
+    localStorage.setItem('sessionID', session.sessionID);
+    // Dispatch to Redux so components can read sessionID / userID / avatar
+    dispatch(addSession(session));
+    history.push('/dashboard');  // navigate after session confirmed
+  });
+
+  return () =&gt; socket.off('session');
+}, []);</pre></div>
+
+<p>The server also emits this as the very first event after a successful connection:</p>
+
+<div class="cb"><pre>// Server — runs inside io.on('connection', socket => { ... })
+socket.emit('session', {
+  sessionID: socket.sessionID,
+  userID: socket.userID,
+  avatar: socket.avatar
 });</pre></div>
 
 <h2 class="g-h2">11. Integration with Express / Next.js</h2>

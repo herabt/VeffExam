@@ -100,14 +100,17 @@ let nothing: null = null;
 let anything: any = "works"; anything = 42; // no error
 let safe: unknown = getData();
 // safe.toUpperCase(); // ERROR — must narrow first
-if (typeof safe === "string") safe.toUpperCase(); // OK
+if (typeof safe === "string") {
+  console.log(safe.toUpperCase()); // OK — narrowed to string
+}
 
 function crash(): never {
   throw new Error("boom");
 }
 function greet(): void {
   console.log("hi");
-}</pre></div>
+}
+greet(); // "hi"</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">2. Type Annotations vs Type Inference</h2>
@@ -130,14 +133,15 @@ city2 = 42; // ERROR: Type 'number' is not assignable to type 'string'
 // Inference also works for return types:
 function add(a: number, b: number) {
   return a + b; // return type inferred as number
-}</pre></div>
+}
+console.log(add(3, 4)); // 7</pre></div>
 
 <p>When TypeScript cannot infer the type <strong>and</strong> no annotation is given, it falls back to <code>any</code>. With <code>noImplicitAny: true</code> in tsconfig, this becomes an error.</p>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">3. <code>interface</code> vs <code>type</code></h2>
 
-<p>Both describe the <em>shape</em> of an object. The differences matter at the edges.</p>
+<p>Both describe the <em>shape</em> of an object. The differences matter at the edges. In the course, <code>interface</code> is the default choice for object/class contracts; <code>type</code> is used for unions, literal strings, and derived types.</p>
 
 <div class="tw"><table>
   <thead><tr>
@@ -190,7 +194,7 @@ function add(a: number, b: number) {
 </figure>
 
 <h4 class="g-h4">Example</h4>
-<div class="cb"><pre>// interface
+<div class="cb"><pre>// interface — preferred for object shapes and class contracts
 interface User {
   id: number;
   name: string;
@@ -198,21 +202,23 @@ interface User {
 interface User { email: string; } // declaration merging — valid!
 // User is now { id, name, email }
 
-// type
-type Result = "success" | "error" | "loading"; // union — interface cannot do this
-type ID = string | number;
-type Point = { x: number; y: number };
-
-// Extending
+// Extending an interface (extends keyword):
 interface Admin extends User { role: string; }
-type AdminT = User &amp; { role: string }; // same result with type
 
 // Both work with implements:
 class RegularUser implements User {
   id = 1;
   name = "Arnar";
   email = "a@a.is";
-}</pre></div>
+}
+
+// type — preferred for unions, literal strings, and derived shapes
+type Result = "success" | "error" | "loading"; // union — interface cannot do this
+type ID = string | number;
+type Point = { x: number; y: number };
+
+// Extending with type uses intersection (&amp;):
+type AdminT = User &amp; { role: string }; // same shape as Admin above</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">4. Union and Intersection Types</h2>
@@ -267,19 +273,21 @@ function printId(id: ID) {
     console.log(id.toFixed(2));    // number branch
   }
 }
-printId("abc"); // "ABC"
-printId(42);    // "42.00"
+printId("abc");
+printId(42);
 
 // Nullable union (common pattern)
 function greet(name: string | null) {
   if (name === null) return "Hello, stranger!";
   return `Hello, ${name}!`;
 }
+console.log(greet("Arnar")); // "Hello, Arnar!"
+console.log(greet(null));    // "Hello, stranger!"
 
 // Intersection — merged shape
 type Timestamped = { createdAt: Date };
 type WithId = { id: number };
-type Record = Timestamped &amp; WithId; // { createdAt: Date; id: number }</pre></div>
+type TimestampedWithId = Timestamped &amp; WithId; // { createdAt: Date; id: number }</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">5. Literal Types and Narrowing</h2>
@@ -343,19 +351,21 @@ type Record = Timestamped &amp; WithId; // { createdAt: Date; id: number }</pre>
 </figure>
 
 <h4 class="g-h4">Example</h4>
-<div class="cb"><pre>// Literal type
+<div class="cb"><pre>// Literal type — only these exact strings are valid
 type Direction = "left" | "right" | "up" | "down";
 function move(dir: Direction) {
-  console.log(dir); // only those 4 strings are valid
+  console.log(dir);
 }
-move("left"); // OK
-move("diagonal"); // ERROR
+move("left");      // "left"
+// move("diagonal"); // ERROR: not in the literal union
 
 // Narrowing with typeof
 function format(val: string | number): string {
   if (typeof val === "string") return val.toUpperCase(); // string here
   return val.toFixed(2);                                 // number here
 }
+console.log(format("hello")); // "HELLO"
+console.log(format(3.14));    // "3.14"
 
 // Narrowing with equality check
 function handleStatus(status: "open" | "closed") {
@@ -364,7 +374,9 @@ function handleStatus(status: "open" | "closed") {
   } else {
     console.log("closed"); // TypeScript knows it must be "closed"
   }
-}</pre></div>
+}
+handleStatus("open");   // "still open"
+handleStatus("closed"); // "closed"</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">6. Optional (<code>?</code>) and <code>readonly</code> Properties</h2>
@@ -418,14 +430,14 @@ function log(msg: string): void {
 <div class="cb"><pre>function greet(name: string, greeting: string = "Hello"): string {
   return `${greeting}, ${name}!`;
 }
-greet("Arnar");          // "Hello, Arnar!"
-greet("Arnar", "Hi");   // "Hi, Arnar!"</pre></div>
+console.log(greet("Arnar"));          // "Hello, Arnar!"
+console.log(greet("Arnar", "Hi"));   // "Hi, Arnar!"</pre></div>
 
 <h3 class="g-h3">Rest parameters</h3>
 <div class="cb"><pre>function sum(...nums: number[]): number {
   return nums.reduce((a, b) =&gt; a + b, 0);
 }
-sum(1, 2, 3, 4); // 10</pre></div>
+console.log(sum(1, 2, 3, 4)); // 10</pre></div>
 
 <h3 class="g-h3">Function overloads</h3>
 <p>Declare multiple signatures for different argument patterns. The implementation signature (last one) handles all cases but is not directly callable.</p>
@@ -437,8 +449,8 @@ function format(val: string | number): string {
   if (typeof val === "string") return val.toUpperCase();
   return val.toFixed(2);
 }
-format("hello"); // "HELLO"
-format(3.14);    // "3.14"</pre></div>
+console.log(format("hello")); // "HELLO"
+console.log(format(3.14));    // "3.14"</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">8. Generics</h2>
@@ -500,9 +512,9 @@ format(3.14);    // "3.14"</pre></div>
 <div class="cb"><pre>function identity&lt;T&gt;(value: T): T {
   return value;
 }
-identity&lt;string&gt;("hello"); // returns string
-identity&lt;number&gt;(42);      // returns number
-identity("hello");          // T inferred as string</pre></div>
+console.log(identity&lt;string&gt;("hello")); // "hello"
+console.log(identity&lt;number&gt;(42));      // 42
+console.log(identity("hello"));          // T inferred as string</pre></div>
 
 <h3 class="g-h3">Generic interface / type</h3>
 <div class="cb"><pre>interface ApiResponse&lt;T&gt; {
@@ -515,7 +527,8 @@ const userRes: ApiResponse&lt;User&gt; = {
   data: { id: 1, name: "Arnar" },
   status: 200,
   message: "OK",
-};</pre></div>
+};
+console.log(userRes.data.name); // "Arnar"</pre></div>
 
 <h3 class="g-h3">Generic class</h3>
 <div class="cb"><pre>class Box&lt;T&gt; {
@@ -524,7 +537,9 @@ const userRes: ApiResponse&lt;User&gt; = {
   get(): T { return this.value; }
 }
 const strBox = new Box("hello");  // Box&lt;string&gt;
-const numBox = new Box(42);       // Box&lt;number&gt;</pre></div>
+const numBox = new Box(42);       // Box&lt;number&gt;
+console.log(strBox.get()); // "hello"
+console.log(numBox.get()); // 42</pre></div>
 
 <h3 class="g-h3">Constraints with <code>extends</code></h3>
 <div class="cb"><pre>// T must have a .length property
@@ -533,7 +548,7 @@ function logLength&lt;T extends { length: number }&gt;(val: T): void {
 }
 logLength("hello");   // 5
 logLength([1, 2, 3]); // 3
-logLength(42);        // ERROR: number has no .length</pre></div>
+// logLength(42);     // ERROR: number has no .length</pre></div>
 
 <h3 class="g-h3"><code>keyof</code> constraint</h3>
 <div class="cb"><pre>// K must be a key of T
@@ -541,19 +556,19 @@ function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
   return obj[key];
 }
 const user = { id: 1, name: "Arnar" };
-getProperty(user, "name"); // type: string
-getProperty(user, "id");   // type: number
-getProperty(user, "age");  // ERROR: not a key of user</pre></div>
+console.log(getProperty(user, "name")); // "Arnar"
+console.log(getProperty(user, "id"));   // 1
+// getProperty(user, "age");            // ERROR: not a key of user</pre></div>
 
 <h3 class="g-h3"><code>infer</code> (advanced)</h3>
 <div class="cb"><pre>// infer captures a type variable inside a conditional type
 type UnpackPromise&lt;T&gt; = T extends Promise&lt;infer U&gt; ? U : T;
-type A = UnpackPromise&lt;Promise&lt;string&gt;&gt;; // string
-type B = UnpackPromise&lt;number&gt;;          // number (not a Promise, returns as-is)</pre></div>
+// UnpackPromise&lt;Promise&lt;string&gt;&gt; resolves to string
+// UnpackPromise&lt;number&gt;          resolves to number (not a Promise, returns as-is)</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">9. Utility Types</h2>
-<p>TypeScript ships built-in generic types that transform existing types. These are exam favourites.</p>
+<p>TypeScript ships built-in generic types that transform existing types. The core ones (<code>Partial</code>, <code>Pick</code>, <code>Omit</code>, <code>Record</code>, <code>Required</code>, <code>Readonly</code>) are exam favourites. Ones marked <strong>bonus</strong> are less commonly covered in class.</p>
 
 <h3 class="g-h3">Base type used in examples below</h3>
 <div class="cb"><pre>interface User {
@@ -579,9 +594,9 @@ type B = UnpackPromise&lt;number&gt;;          // number (not a Promise, returns
     <tr><td><code>Exclude&lt;T, U&gt;</code></td><td>Remove types from a union</td><td><code>Exclude&lt;"a"|"b"|"c", "a"&gt;</code> → <code>"b" | "c"</code></td></tr>
     <tr><td><code>Extract&lt;T, U&gt;</code></td><td>Keep only types that appear in both</td><td><code>Extract&lt;"a"|"b"|"c", "a"|"c"&gt;</code> → <code>"a" | "c"</code></td></tr>
     <tr><td><code>NonNullable&lt;T&gt;</code></td><td>Remove null and undefined from a union</td><td><code>NonNullable&lt;string|null|undefined&gt;</code> → <code>string</code></td></tr>
-    <tr><td><code>ReturnType&lt;T&gt;</code></td><td>The return type of a function type</td><td><code>ReturnType&lt;typeof add&gt;</code> → <code>number</code></td></tr>
-    <tr><td><code>Parameters&lt;T&gt;</code></td><td>Tuple of parameter types of a function</td><td><code>Parameters&lt;typeof add&gt;</code> → <code>[number, number]</code></td></tr>
-    <tr><td><code>Awaited&lt;T&gt;</code></td><td>Unwrap a Promise type recursively</td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code> → <code>string</code></td></tr>
+    <tr><td><code>ReturnType&lt;T&gt;</code> <em>(bonus)</em></td><td>The return type of a function type</td><td><code>ReturnType&lt;typeof add&gt;</code> → <code>number</code></td></tr>
+    <tr><td><code>Parameters&lt;T&gt;</code> <em>(bonus)</em></td><td>Tuple of parameter types of a function</td><td><code>Parameters&lt;typeof add&gt;</code> → <code>[number, number]</code></td></tr>
+    <tr><td><code>Awaited&lt;T&gt;</code> <em>(bonus)</em></td><td>Unwrap a Promise type recursively</td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code> → <code>string</code></td></tr>
   </tbody>
 </table></div>
 
@@ -645,32 +660,38 @@ type B = UnpackPromise&lt;number&gt;;          // number (not a Promise, returns
 <h4 class="g-h4">Example</h4>
 <div class="cb"><pre>// Partial — useful for update/patch functions
 function updateUser(id: number, updates: Partial&lt;User&gt;): void {
-  // only send fields that changed
+  console.log(`Updating user ${id}:`, updates);
 }
 updateUser(1, { name: "New Name" }); // OK — no need to pass all fields
 
 // Pick — expose a limited view
 type UserPreview = Pick&lt;User, "id" | "name"&gt;;
 // { id: number; name: string }
+const preview: UserPreview = { id: 1, name: "Arnar" };
+console.log(preview); // { id: 1, name: "Arnar" }
 
 // Omit — hide sensitive fields
 type PublicUser = Omit&lt;User, "email"&gt;;
 // { id: number; name: string; age: number }
 
-// Record — map of users by string key
+// Record — map of users by string key (used heavily in the course)
 const cache: Record&lt;string, User&gt; = {};
 cache["u1"] = { id: 1, name: "Arnar", email: "a@a.is", age: 30 };
+console.log(cache["u1"].name); // "Arnar"
 
-// ReturnType / Parameters
+// Required — reverses Partial (all fields mandatory again)
+type StrictUser = Required&lt;Partial&lt;User&gt;&gt;; // same as User
+
+// Bonus: ReturnType / Parameters
 function add(a: number, b: number): number { return a + b; }
 type AddReturn = ReturnType&lt;typeof add&gt;;     // number
 type AddParams = Parameters&lt;typeof add&gt;;     // [number, number]
 
-// NonNullable
+// Bonus: NonNullable
 type MaybeName = string | null | undefined;
 type DefiniteName = NonNullable&lt;MaybeName&gt;;  // string
 
-// Awaited
+// Bonus: Awaited
 type FetchResult = Awaited&lt;Promise&lt;User[]&gt;&gt;; // User[]</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
@@ -682,7 +703,9 @@ type FetchResult = Awaited&lt;Promise&lt;User[]&gt;&gt;; // User[]</pre></div>
     return val.toUpperCase(); // string here
   }
   return val.toFixed(2);     // number here
-}</pre></div>
+}
+console.log(process("hello")); // "HELLO"
+console.log(process(3.14));    // "3.14"</pre></div>
 
 <h3 class="g-h3"><code>instanceof</code> guard</h3>
 <div class="cb"><pre>class Cat { meow() { return "meow"; } }
@@ -693,7 +716,9 @@ function speak(animal: Cat | Dog) {
     return animal.meow(); // Cat here
   }
   return animal.bark();   // Dog here
-}</pre></div>
+}
+console.log(speak(new Cat())); // "meow"
+console.log(speak(new Dog())); // "woof"</pre></div>
 
 <h3 class="g-h3"><code>in</code> guard</h3>
 <div class="cb"><pre>interface Fish { swim(): void; }
@@ -716,7 +741,9 @@ function process(val: unknown) {
   if (isString(val)) {
     console.log(val.toUpperCase()); // string here — TypeScript trusts the guard
   }
-}</pre></div>
+}
+process("hello"); // "HELLO"
+process(42);      // (no output — not a string)</pre></div>
 
 <h3 class="g-h3">Discriminated unions</h3>
 <p>A pattern where each member of a union has a literal <em>discriminant</em> property (e.g., <code>kind</code> or <code>type</code>). TypeScript narrows automatically by checking that property.</p>
@@ -729,7 +756,9 @@ function area(shape: Shape): number {
     case "square": return shape.side ** 2;   // Square here
     case "circle": return Math.PI * shape.radius ** 2; // Circle here
   }
-}</pre></div>
+}
+console.log(area({ kind: "square", side: 4 }));         // 16
+console.log(area({ kind: "circle", radius: 5 }));       // ~78.54</pre></div>
 
 <figure class="fig-dia">
   <svg viewBox="0 0 710 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Discriminated union narrowing diagram: a Shape union with kind discriminator is narrowed in each switch case to Circle, Square, or Triangle">
@@ -823,16 +852,19 @@ el2.innerHTML = "hi"; // ERROR: Object is possibly 'null'</pre></div>
   Left,  // 2
   Right  // 3
 }
-const move = Direction.Up;  // 0
-console.log(Direction[0]);  // "Up" — reverse mapping (unique to numeric enums)</pre></div>
+const move = Direction.Up;
+console.log(move);           // 0
+console.log(Direction[0]);   // "Up" — reverse mapping (unique to numeric enums)</pre></div>
 
 <h3 class="g-h3">String enum</h3>
+<p>Preferred in real-world code — values are readable strings, not numbers. The course uses string enums (e.g., for thumbnail sizes, notification types).</p>
 <div class="cb"><pre>enum Status {
   Pending  = "PENDING",
   Active   = "ACTIVE",
   Inactive = "INACTIVE",
 }
-const s: Status = Status.Active; // "ACTIVE"
+const s: Status = Status.Active;
+console.log(s); // "ACTIVE"
 // No reverse mapping for string enums</pre></div>
 
 <h3 class="g-h3">Const enum (inlined at compile time)</h3>
@@ -942,7 +974,8 @@ class Circle extends Shape {
 
 // new Shape(); // ERROR: Cannot create an instance of an abstract class
 const c = new Circle(5);
-console.log(c.describe()); // "Area: 78.54..."</pre></div>
+console.log(c.describe());  // "Area: 78.53981633974483"
+console.log(c.getArea());   // 78.53981633974483</pre></div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">15. Module System &amp; Declaration Files</h2>
@@ -1070,11 +1103,13 @@ function badProcess(input: any) {
 
 // unknown — type-safe; must narrow before use
 function safeProcess(input: unknown) {
-  input.toUpperCase(); // ERROR — cannot use unknown without narrowing
+  // input.toUpperCase(); // ERROR — cannot use unknown without narrowing
   if (typeof input === "string") {
-    input.toUpperCase(); // OK — narrowed
+    console.log(input.toUpperCase()); // OK — narrowed
   }
-}</pre></div>
+}
+safeProcess("hello"); // "HELLO"
+safeProcess(42);      // (no output — not a string)</pre></div>
 
 <h3 class="g-h3">Type space vs value space</h3>
 <p>Types and interfaces only exist at <em>compile time</em> (type space). They are erased and cannot be used as runtime values. <code>class</code> and <code>enum</code> exist in both spaces.</p>
@@ -1223,8 +1258,8 @@ function Wrapper({ children }: { children: React.ReactNode }) {
     <tr><td>Pick&lt;T,K&gt;</td><td><code>Pick&lt;User, "id"|"name"&gt;</code></td><td>Keep keys</td></tr>
     <tr><td>Omit&lt;T,K&gt;</td><td><code>Omit&lt;User, "email"&gt;</code></td><td>Remove keys</td></tr>
     <tr><td>Record&lt;K,V&gt;</td><td><code>Record&lt;string, User&gt;</code></td><td>Object map type</td></tr>
-    <tr><td>ReturnType&lt;T&gt;</td><td><code>ReturnType&lt;typeof fn&gt;</code></td><td>Return type of fn</td></tr>
-    <tr><td>Awaited&lt;T&gt;</td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code></td><td>Unwrap Promise</td></tr>
+    <tr><td>ReturnType&lt;T&gt; <em>(bonus)</em></td><td><code>ReturnType&lt;typeof fn&gt;</code></td><td>Return type of fn</td></tr>
+    <tr><td>Awaited&lt;T&gt; <em>(bonus)</em></td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code></td><td>Unwrap Promise</td></tr>
     <tr><td>Enum (numeric)</td><td><code>enum Dir { Up, Down }</code></td><td>0-indexed, has reverse mapping</td></tr>
     <tr><td>Enum (string)</td><td><code>enum S { A = "A" }</code></td><td>No reverse mapping</td></tr>
     <tr><td>Const enum</td><td><code>const enum C { A = 1 }</code></td><td>Inlined — no JS object</td></tr>

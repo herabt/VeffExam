@@ -123,12 +123,12 @@ function showColor() {
     console.log(this.color);
 }
 
-showColor(); // Output: "red"  (this = window, window.color = "red")
+console.log('showColor (global this.color):', showColor()); // "red" — this = window, window.color attached via var
 
 // In strict mode:
 'use strict';
 function showColorStrict() {
-    console.log(this); // Output: undefined
+    console.log(this); // undefined — strict mode, no implicit global
     // console.log(this.color); // TypeError: Cannot read property of undefined
 }
 showColorStrict();</pre></div>
@@ -165,12 +165,12 @@ a.b.greet(); // this = a.b (the object immediately left of the dot) → "B"</pre
     }
 };
 
-console.log(library.shelf.getSection()); // Output: "Fiction"
+console.log('shelf section (implicit this):', library.shelf.getSection()); // "Fiction" — this = library.shelf
 // this = library.shelf (the object directly before the dot)
 // library.section is NEVER accessed
 
 const extracted = library.shelf.getSection;
-console.log(extracted()); // Output: undefined (this = window, window.section is undef)</pre></div>
+console.log('extracted (this lost):', extracted()); // undefined — this = window, window.section is undef</pre></div>
 
 <h3 class="g-h3">Rule 3: Explicit Binding — call, apply, bind</h3>
 
@@ -212,17 +212,17 @@ const alice = { name: 'Alice' };
 const bob   = { name: 'Bob' };
 
 // .call — args individually, executes NOW
-console.log(greet.call(alice, 'Hello', '!')); // Output: "Hello, I am Alice!"
+console.log(greet.call(alice, 'Hello', '!')); // "Hello, I am Alice!"
 
 // .apply — args as array, executes NOW
-console.log(greet.apply(bob, ['Hi', '?']));   // Output: "Hi, I am Bob?"
+console.log(greet.apply(bob, ['Hi', '?']));   // "Hi, I am Bob?"
 
 // .bind — returns a new function, this PERMANENTLY = alice
 const greetAlice = greet.bind(alice, 'Hey');
-console.log(greetAlice('...'));               // Output: "Hey, I am Alice..."
+console.log(greetAlice('...'));               // "Hey, I am Alice..."
 
 // bind CANNOT be overridden
-console.log(greetAlice.call(bob, '!'));       // Output: "Hey, I am Alice!" (bob IGNORED)</pre></div>
+console.log(greetAlice.call(bob, '!'));       // "Hey, I am Alice!" — bob is IGNORED</pre></div>
 
 <h3 class="g-h3">Rule 4: <code>new</code> Binding (Constructor)</h3>
 <p>When <code>new</code> is used, JavaScript:</p>
@@ -260,8 +260,8 @@ Person.prototype.fullName = function() {
 const p1 = new Person('Jon', 'Snow');
 const p2 = new Person('Arya', 'Stark');
 
-console.log(p1.fullName()); // Output: "Jon Snow"
-console.log(p2.fullName()); // Output: "Arya Stark"
+console.log('p1 full name:', p1.fullName()); // "Jon Snow"
+console.log('p2 full name:', p2.fullName()); // "Arya Stark"
 
 // p1.__proto__ === Person.prototype   → true
 // p1 instanceof Person               → true
@@ -369,7 +369,7 @@ function Timer() {
     this.seconds = 0;
     setInterval(function() {
         this.seconds++; // this = window, NOT the Timer instance!
-        console.log(this.seconds); // Output: NaN (window.seconds is undefined)
+        console.log(this.seconds); // NaN — this = window, window.seconds is undefined
     }, 1000);
 }
 
@@ -378,7 +378,7 @@ function TimerFixed() {
     this.seconds = 0;
     setInterval(() =&gt; {
         this.seconds++; // this = TimerFixed instance (lexically captured)
-        console.log(this.seconds); // Output: 1, 2, 3, 4 ...
+        console.log(this.seconds); // 1, 2, 3, 4 ... — lexically captured this = TimerFixed instance
     }, 1000);
 }
 
@@ -544,26 +544,26 @@ Bike.prototype.constructor = Bike;
 const myBike = new Bike('red');
 
 // --- __proto__ chain lookup ---
-console.log(myBike.color);      // Output: "red"       ← own property
-console.log(myBike.type);       // Output: "bike"      ← own property (set by Vehicle.call)
-console.log(myBike.category);   // Output: "transport" ← found on Vehicle.prototype (2 hops up)
-console.log(myBike.describe()); // Output: "I am a bike" ← found on Vehicle.prototype
+console.log('myBike.color (own):', myBike.color);           // "red"       ← own property
+console.log('myBike.type (own):', myBike.type);             // "bike"      ← own property (set by Vehicle.call)
+console.log('myBike.category (inherited):', myBike.category); // "transport" ← found on Vehicle.prototype (2 hops up)
+console.log('myBike.describe (inherited):', myBike.describe()); // "I am a bike" ← found on Vehicle.prototype
 
 // Verify the chain:
-console.log(myBike.__proto__ === Bike.prototype);            // Output: true
-console.log(myBike.__proto__.__proto__ === Vehicle.prototype); // Output: true
-console.log(myBike.__proto__.__proto__.__proto__ === Object.prototype); // Output: true
-console.log(myBike.__proto__.__proto__.__proto__.__proto__);  // Output: null  (end of chain)
+console.log('myBike.__proto__ === Bike.prototype:', myBike.__proto__ === Bike.prototype);                         // true
+console.log('....__proto__ === Vehicle.prototype:', myBike.__proto__.__proto__ === Vehicle.prototype);             // true
+console.log('....__proto__ === Object.prototype:', myBike.__proto__.__proto__.__proto__ === Object.prototype);    // true
+console.log('end of chain is null:', myBike.__proto__.__proto__.__proto__.__proto__);                              // null
 
 // --- Overriding (shadowing) a prototype property ---
 // The instance gets its OWN property that SHADOWS the prototype's
 myBike.category = 'sports';      // adds 'category' directly to myBike
-console.log(myBike.category);    // Output: "sports"    ← own property wins
-console.log(myBike.hasOwnProperty('category')); // Output: true
+console.log('myBike.category after shadowing:', myBike.category);               // "sports" ← own property wins
+console.log('myBike.hasOwnProperty category:', myBike.hasOwnProperty('category')); // true
 
 // Vehicle.prototype.category is untouched:
 const other = new Bike('blue');
-console.log(other.category);     // Output: "transport" ← still inherited, not shadowed</pre></div>
+console.log('other.category (still inherited):', other.category); // "transport" ← still inherited, not shadowed</pre></div>
 
 <h3 class="g-h3">Key Terms</h3>
 <div class="tw"><table>
@@ -806,9 +806,9 @@ const fetchProfile = Promise.resolve({ bio: 'Developer' });
 
 Promise.all([fetchUser, fetchPosts, fetchProfile])
     .then(([user, posts, profile]) =&gt; {
-        console.log(user.name);     // Output: "Alice"
-        console.log(posts.length);  // Output: 2
-        console.log(profile.bio);   // Output: "Developer"
+        console.log('user.name:', user.name);       // "Alice"
+        console.log('posts.length:', posts.length); // 2
+        console.log('profile.bio:', profile.bio);   // "Developer"
     });
 
 // ONE fails scenario:
@@ -1055,8 +1055,8 @@ async function getUser(id) {
 async function main() {
     const user = await getUser(1);
     if (user) {
-        console.log('Name:', user.name);   // Output: "Name: Leanne Graham"
-        console.log('Email:', user.email); // Output: "Email: Sincere@april.biz"
+        console.log('Name:', user.name);   // "Name: Leanne Graham"
+        console.log('Email:', user.email); // "Email: Sincere@april.biz"
     } else {
         console.log('Could not load user');
     }
@@ -1620,7 +1620,7 @@ function dangerousAny(value: any) {
     const n: number = value; // OK — any is assignable to anything
 }
 
-dangerousAny('hello');    // Output: "HELLO" then runtime error
+dangerousAny('hello');    // "HELLO" then runtime error on nonExistentMethod
 dangerousAny(42);         // Runtime error: toUpperCase is not a function
 
 
@@ -1639,9 +1639,9 @@ function safeUnknown(value: unknown) {
     }
 }
 
-safeUnknown('hello');  // Output: "HELLO"
-safeUnknown(3.14159);  // Output: "3.14"
-safeUnknown(true);     // Output: "Unknown type: boolean"
+safeUnknown('hello');  // "HELLO"
+safeUnknown(3.14159);  // "3.14"
+safeUnknown(true);     // "Unknown type: boolean"
 
 
 // --- never: a type that can NEVER have a value ---
@@ -1666,9 +1666,9 @@ function getArea(shape: Shape, size: number): number {
     }
 }
 
-console.log(getArea('circle',   5)); // Output: 78.53...
-console.log(getArea('square',   4)); // Output: 16
-console.log(getArea('triangle', 6)); // Output: 15.58...</pre></div>
+console.log('circle area r=5:', getArea('circle',   5)); // ~78.54
+console.log('square area s=4:', getArea('square',   4)); // 16
+console.log('triangle area s=6:', getArea('triangle', 6)); // ~15.59</pre></div>
 
 <h3 class="g-h3">Arrays and Tuples</h3>
 <div class="cb"><pre>// Two equivalent array syntaxes:
@@ -1792,11 +1792,11 @@ function firstItem&lt;T&gt;(arr: T[]): T | undefined {
 }
 
 const first1 = firstItem([10, 20, 30]);      // TypeScript infers T = number
-console.log(first1);                          // Output: 10
+console.log('first of numbers:', first1);     // 10
 const first2 = firstItem(['a', 'b', 'c']);   // T = string
-console.log(first2);                          // Output: "a"
+console.log('first of strings:', first2);     // "a"
 const first3 = firstItem([]);                 // T = never (empty)
-console.log(first3);                          // Output: undefined
+console.log('first of empty:', first3);       // undefined
 
 
 // --- 2. Generic class: a type-safe stack ---
@@ -1813,14 +1813,14 @@ const numStack = new Stack&lt;number&gt;();
 numStack.push(1);
 numStack.push(2);
 numStack.push(3);
-console.log(numStack.peek()); // Output: 3
-console.log(numStack.pop());  // Output: 3
-console.log(numStack.pop());  // Output: 2
+console.log('numStack.peek():', numStack.peek()); // 3
+console.log('numStack.pop():', numStack.pop());   // 3
+console.log('numStack.pop():', numStack.pop());   // 2
 
 const strStack = new Stack&lt;string&gt;();
 strStack.push('hello');
 // strStack.push(42);           // ERROR: number is not string
-console.log(strStack.pop());  // Output: "hello"
+console.log('strStack.pop():', strStack.pop()); // "hello"
 
 
 // --- 3. Constrained generic: T must have certain shape ---
@@ -1831,9 +1831,9 @@ function logLength&lt;T extends HasLength&gt;(value: T): T {
     return value;
 }
 
-logLength('hello');          // Output: "Length: 5"   (string has .length)
-logLength([1, 2, 3, 4]);     // Output: "Length: 4"   (array has .length)
-logLength({ length: 10, extra: true }); // Output: "Length: 10" (object with .length)
+logLength('hello');          // "Length: 5"   (string has .length)
+logLength([1, 2, 3, 4]);     // "Length: 4"   (array has .length)
+logLength({ length: 10, extra: true }); // "Length: 10" (object with .length)
 // logLength(42);            // ERROR: number has no .length property
 
 
@@ -1843,8 +1843,8 @@ function pluck&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
 }
 
 const car = { make: 'Toyota', year: 2022, electric: false };
-console.log(pluck(car, 'make'));     // Output: "Toyota"  (type: string)
-console.log(pluck(car, 'year'));     // Output: 2022       (type: number)
+console.log('car.make:', pluck(car, 'make')); // "Toyota"  (TS infers return type: string)
+console.log('car.year:', pluck(car, 'year')); // 2022      (TS infers return type: number)
 // pluck(car, 'color');              // ERROR: 'color' does not exist on car</pre></div>
 
 <h3 class="g-h3">Utility Types (Exam Favorites)</h3>
@@ -1972,6 +1972,8 @@ type RoleMap = Record&lt;'admin' | 'user' | 'guest', string[]&gt;;
 // Becomes: { admin: string[]; user: string[]; guest: string[] }
 const roles: RoleMap = { admin: ['alice'], user: ['bob'], guest: ['anon'] };
 
+// --- BONUS: utility types below are not in teacher's workshop demos ---
+
 // Exclude&lt;U, E&gt; — from a union, remove types assignable to E
 type Status = 'active' | 'inactive' | 'banned';
 type VisibleStatus = Exclude&lt;Status, 'banned'&gt;;
@@ -1995,7 +1997,7 @@ type AddReturn = ReturnType&lt;typeof add&gt;;
 type AddParams = Parameters&lt;typeof add&gt;;
 // Becomes: [a: number, b: number]
 const args: AddParams = [3, 4];
-console.log(add(...args)); // Output: 7</pre></div>
+console.log('add via spread:', add(...args)); // 7</pre></div>
 
 <h3 class="g-h3">Union Types &amp; Type Narrowing</h3>
 <div class="cb"><pre>function formatId(id: string | number): string {

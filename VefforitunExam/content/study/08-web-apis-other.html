@@ -168,6 +168,7 @@
 <div class="cb"><pre>// GET — no body, just retrieve
 const res = await fetch('/api/users/42');
 const user = await res.json();
+console.log('user data:', user);
 
 // POST — create a new resource, send JSON body
 const res = await fetch('/api/users', {
@@ -197,7 +198,7 @@ const res = await fetch('/api/users/42', { method: 'DELETE' });
 
 // HEAD — same as GET but response has no body (check if resource exists)
 const res = await fetch('/api/users/42', { method: 'HEAD' });
-console.log(res.status); // 200 or 404
+console.log('response status:', res.status, res.ok ? 'ok' : 'error');
 
 // OPTIONS — preflight; browser sends this automatically (rarely called manually)
 const res = await fetch('/api/users', { method: 'OPTIONS' });</pre></div>
@@ -501,11 +502,17 @@ const response = await fetch('/api/users', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ name: 'Alice', email: 'alice@example.com' }),
 });
+if (!response.ok) { return {}; }
+const created = await response.json();
+console.log('created user:', created);
 
-// With credentials (cookies sent cross-origin)
-const response = await fetch('/api/data', {
-  credentials: 'include',
-});</pre></div>
+// With credentials (cookies sent automatically — used with session-based auth)
+const result = await fetch('/api/data', {
+  credentials: 'include',  // sends session cookie with the request
+});
+if (!result.ok) { return null; }
+const data = await result.json();
+console.log('data:', data);</pre></div>
 
 <h3 class="g-h3">fetch in the Event Loop</h3>
 
@@ -780,18 +787,23 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 // Server verifies this — if tampered, signature won't match
 
 // Sending the JWT in a request:
-fetch('/api/profile', {
+const profileRes = await fetch('/api/profile', {
   headers: { 'Authorization': 'Bearer eyJhbGci...' },
-});</pre></div>
+});
+if (!profileRes.ok) { return null; }
+const profile = await profileRes.json();
+console.log('profile:', profile);</pre></div>
 
 <div class="cb"><pre>1. User POSTs credentials
 2. Server validates, creates JWT with payload: { userId: 42, role: "admin" }
-3. Server returns JWT (stored in localStorage or httpOnly cookie)
+3. Server returns JWT (client stores it — see storage options below)
 4. Client sends JWT in Authorization header: Bearer &lt;token&gt;
 5. Server validates signature — no DB lookup needed</pre></div>
 
 <p><strong>Pros:</strong> Stateless, scalable, works cross-domain<br>
 <strong>Cons:</strong> Cannot invalidate before expiry, payload is readable (don't put secrets in it)</p>
+
+<p><strong>Note — teacher's auth approach:</strong> In the code sessions the teacher uses <strong>session-based OAuth</strong> (Passport.js + <code>express-session</code>) where the server stores the session and sends a session cookie. The client calls <code>fetch</code> with <code>credentials: 'include'</code> so the cookie is sent automatically. JWT/localStorage is covered as an alternative pattern for the exam — know both.</p>
 
 <!-- DIAGRAM 5: Session vs Token auth -->
 <figure class="fig-dia">
@@ -874,7 +886,7 @@ fetch('/api/profile', {
       <td><strong>localStorage</strong></td>
       <td>Yes (JS can read it)</td>
       <td>No (not auto-sent)</td>
-      <td>Convenient but XSS-vulnerable</td>
+      <td>Common exam answer; XSS-vulnerable (bonus: use HttpOnly cookie instead)</td>
     </tr>
     <tr>
       <td><strong>sessionStorage</strong></td>
@@ -886,7 +898,7 @@ fetch('/api/profile', {
       <td><strong>httpOnly Cookie</strong></td>
       <td>No (JS cannot read)</td>
       <td>Yes (auto-sent)</td>
-      <td>Most secure; pair with CSRF token</td>
+      <td>Bonus best-practice — pair with SameSite=Strict or CSRF token</td>
     </tr>
     <tr>
       <td><strong>Memory (JS variable)</strong></td>
@@ -1132,19 +1144,19 @@ localStorage.clear();</pre></div>
 <h4 class="g-h4">Example — localStorage vs sessionStorage side by side</h4>
 <div class="cb"><pre>// ── localStorage — survives tab close, browser restart ────────────────────
 localStorage.setItem('theme', 'dark');
-console.log(localStorage.getItem('theme'));  // "dark" — still there tomorrow
+console.log('theme:', localStorage.getItem('theme'));  // "dark" — still there tomorrow
 
 // Storing an object (must stringify):
 localStorage.setItem('user', JSON.stringify({ id: 42, name: 'Alice' }));
 const user = JSON.parse(localStorage.getItem('user'));
-console.log(user.name);  // "Alice"
+console.log('user from storage:', user.name);  // "Alice"
 
 localStorage.removeItem('theme');  // remove one key
 localStorage.clear();              // wipe everything
 
 // ── sessionStorage — cleared when the tab closes ──────────────────────────
 sessionStorage.setItem('wizardStep', '3');
-console.log(sessionStorage.getItem('wizardStep'));  // "3"
+console.log('wizard step:', sessionStorage.getItem('wizardStep'));  // "3"
 
 // Open a NEW tab → sessionStorage is empty there (not shared across tabs)
 // Close this tab → data is gone
@@ -1361,12 +1373,13 @@ customElements.define('my-card', MyCard);</pre></div>
 const worker = new Worker('worker.js');
 worker.postMessage({ data: largeArray });
 worker.onmessage = (event) =&gt; {
-  console.log('Result:', event.data);
+  console.log('worker result:', event.data);
 };
 
 // worker.js
 self.onmessage = (event) =&gt; {
   const result = heavyComputation(event.data.data);
+  console.log('worker computed:', result);
   self.postMessage(result);
 };</pre></div>
 
@@ -2341,19 +2354,15 @@ jest.mock('./api', () =&gt; ({
 
 <p><strong>Philosophy:</strong> Test behavior from the user's perspective, not implementation details.</p>
 
-<div class="cb"><pre>import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+<div class="cb"><pre>// Teacher's pattern: fireEvent (from @testing-library/react) — used in code sessions
+import { render, screen, fireEvent } from '@testing-library/react';
 
 describe('Counter', () =&gt; {
-  it('increments when button is clicked', async () =&gt; {
-    const user = userEvent.setup();
+  it('increments when button is clicked', () =&gt; {
     render(&lt;Counter /&gt;);
 
-    // Query by role (preferred) or text
     const button = screen.getByRole('button', { name: /increment/i });
-    const count = screen.getByText('Count: 0');
-
-    await user.click(button);
+    fireEvent.click(button);
 
     expect(screen.getByText('Count: 1')).toBeInTheDocument();
   });
@@ -2375,12 +2384,34 @@ describe('Counter', () =&gt; {
   <li><code>findBy...</code> — async, waits for element to appear</li>
 </ul>
 
-<h4 class="g-h4">Example — full React Testing Library test of a button component</h4>
-<div class="cb"><pre>// ── The component under test ──────────────────────────────────────────────
-// LikeButton.tsx
+<h4 class="g-h4">Example — full React Testing Library test matching teacher's pattern</h4>
+<div class="cb"><pre>// ── Teacher's test style: .spec.jsx files, fireEvent, getByLabelText ──────
+// (from Code sessions/Pro Gamers/src/components/SearchBar/SearchBar.spec.jsx)
+
+// SearchBar.spec.jsx
+import { SearchBar } from './SearchBar';
+import { fireEvent, render, screen } from '@testing-library/react';
+
+describe('SearchBar', () =&gt; {
+  it('should contain the correct value when written to', () =&gt; {
+    const onChange = jest.fn();
+    render(&lt;SearchBar value="Test" onChange={onChange} /&gt;);
+
+    const input = screen.getByLabelText('Search');
+    const newEvent = { target: { value: 'New test' } };
+
+    fireEvent.change(input, newEvent);
+
+    expect(screen.getByDisplayValue('Test')).toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledWith(newEvent.target.value);
+  });
+});
+
+// ── The component under test ──────────────────────────────────────────────
+// LikeButton.jsx  (same pattern, fireEvent)
 import { useState } from 'react';
 
-export function LikeButton({ initialCount = 0 }: { initialCount?: number }) {
+export function LikeButton({ initialCount = 0 }) {
   const [count, setCount] = useState(initialCount);
   return (
     &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;
@@ -2390,29 +2421,24 @@ export function LikeButton({ initialCount = 0 }: { initialCount?: number }) {
 }
 
 // ── The test file ─────────────────────────────────────────────────────────
-// LikeButton.test.tsx
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+// LikeButton.spec.jsx
+import { render, screen, fireEvent } from '@testing-library/react';
 import { LikeButton } from './LikeButton';
 
 describe('LikeButton', () =&gt; {
   it('shows initial count', () =&gt; {
     render(&lt;LikeButton initialCount={5} /&gt;);
-    // getByRole is preferred — uses accessible role + name
     expect(screen.getByRole('button', { name: /like \(5\)/i })).toBeInTheDocument();
   });
 
-  it('increments count when clicked', async () =&gt; {
-    const user = userEvent.setup();  // userEvent simulates real browser events
+  it('increments count when clicked', () =&gt; {
     render(&lt;LikeButton /&gt;);
 
     const btn = screen.getByRole('button', { name: /like \(0\)/i });
-    await user.click(btn);
-    await user.click(btn);
+    fireEvent.click(btn);
+    fireEvent.click(btn);
 
-    // After two clicks the text should update
     expect(screen.getByRole('button', { name: /like \(2\)/i })).toBeInTheDocument();
-    // Confirm the old text is gone
     expect(screen.queryByText('Like (0)')).not.toBeInTheDocument();
   });
 
@@ -2437,7 +2463,9 @@ describe('LikeButton', () =&gt; {
 
 <div class="cb"><pre>// Register a service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.error('SW registration failed:', err));
 }
 
 // In sw.js — intercept fetches and respond from cache
@@ -2532,9 +2560,9 @@ self.addEventListener('fetch', (event) =&gt; {
 
 <p>After scanning all 15 practice exams, the following topics appear but are NOT covered in the other 7 study guide areas (CSS, JS/TS, React, State, Next.js, Forms, Socket.io):</p>
 
-<h3 class="g-h3">JavaScript Design Patterns (Practice Exam 11)</h3>
+<h3 class="g-h3">JavaScript Design Patterns (Practice Exam 11, Workshop 6)</h3>
 
-<p>These patterns appeared in exam 11 and may appear on the final:</p>
+<p>These patterns appeared in exam 11 and in workshop 6 (Observer + Strategy implemented in TypeScript with React). Observer and Strategy are the two patterns you are most likely to be asked about.</p>
 
 <div class="tw"><table>
   <thead>
@@ -2545,6 +2573,16 @@ self.addEventListener('fetch', (event) =&gt; {
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td><strong>Observer/Pub-Sub</strong> ⭐</td>
+      <td>Objects subscribe to events; publishers notify all subscribers</td>
+      <td>Redux, event emitters; w6: <code>NotificationEmitter</code> with <code>subscribe()</code></td>
+    </tr>
+    <tr>
+      <td><strong>Strategy</strong> ⭐</td>
+      <td>Define a family of algorithms; swap them at runtime without changing the client</td>
+      <td>w6: <code>ToastStrategy</code>, <code>BannerStrategy</code>, <code>ConsoleStrategy</code> — all implement <code>deliver()</code></td>
+    </tr>
     <tr>
       <td><strong>Factory</strong></td>
       <td>Interface for creating objects; subclasses decide which class to instantiate</td>
@@ -2571,11 +2609,6 @@ self.addEventListener('fetch', (event) =&gt; {
       <td>30 copies of one book — store book data once, checkout data 30 times</td>
     </tr>
     <tr>
-      <td><strong>Observer/Pub-Sub</strong></td>
-      <td>Objects subscribe to events; publishers notify all subscribers</td>
-      <td>Redux is heavily dependent on Observer pattern</td>
-    </tr>
-    <tr>
       <td><strong>Mediator</strong></td>
       <td>Central hub that all objects communicate through</td>
       <td>Reduces N*(N-1) connections to N connections</td>
@@ -2591,8 +2624,8 @@ self.addEventListener('fetch', (event) =&gt; {
 <p><strong>Observer pattern core operations:</strong></p>
 <ol>
   <li><code>subscribe</code> — register interest in an event</li>
-  <li><code>publish</code> — broadcast notification to all subscribers</li>
-  <li><code>unsubscribe</code> — remove a subscription</li>
+  <li><code>publish</code> / <code>notify</code> — broadcast notification to all subscribers</li>
+  <li><code>unsubscribe</code> — remove a subscription (returns an unsubscribe function in w6)</li>
 </ol>
 
 <p><strong>Observer pros/cons:</strong></p>
@@ -2600,6 +2633,74 @@ self.addEventListener('fetch', (event) =&gt; {
   <li>Pro: Loosely coupled modules</li>
   <li>Con: Hard to trace data flow, publishers don't know if subscribers fail</li>
 </ul>
+
+<p><strong>Strategy pattern:</strong> define an interface, provide multiple implementations, swap at runtime via <code>setStrategy()</code>. The <em>context</em> holds a reference to the current strategy and delegates to it.</p>
+
+<h4 class="g-h4">Example — Observer pattern (from Workshop 6)</h4>
+<div class="cb"><pre>// Emitter maintains listeners and notifies them on changes
+class NotificationEmitter {
+  private listeners = [];
+
+  subscribe(listener) {
+    this.listeners.push(listener);
+    // Returns an unsubscribe function — call it to clean up
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
+  }
+
+  notify(message, type) {
+    const notification = { id: crypto.randomUUID(), message, type };
+    this.listeners.forEach(l => l(notification));
+    console.log('notification sent:', notification);
+  }
+}
+
+export const notificationEmitter = new NotificationEmitter();
+
+// In a React component, subscribe in useEffect:
+useEffect(() => {
+  return notificationEmitter.subscribe(setNotifications);
+  // returned function is called on unmount → auto unsubscribe
+}, []);</pre></div>
+
+<h4 class="g-h4">Example — Strategy pattern (from Workshop 6)</h4>
+<div class="cb"><pre>// Interface: every strategy must implement deliver()
+interface NotificationStrategy {
+  deliver(notification): void;
+}
+
+class ToastStrategy implements NotificationStrategy {
+  deliver(n) {
+    console.log('toast notification:', n.message);
+    // show toast UI
+  }
+}
+
+class ConsoleStrategy implements NotificationStrategy {
+  deliver(n) {
+    if (n.type === 'error') console.error(n.message);
+    else console.log(n.message);
+  }
+}
+
+// Context: holds a strategy and delegates to it
+class NotificationManager {
+  constructor(private strategy: NotificationStrategy) {}
+
+  setStrategy(strategy: NotificationStrategy) {
+    this.strategy = strategy;  // swap at runtime
+  }
+
+  notify(message, type) {
+    this.strategy.deliver({ id: crypto.randomUUID(), message, type });
+  }
+}
+
+const manager = new NotificationManager(new ToastStrategy());
+manager.notify('Saved!', 'success');
+manager.setStrategy(new ConsoleStrategy()); // swap — no code change in caller
+manager.notify('Error!', 'error');</pre></div>
 
 <p><strong>Decorator pattern — MacBook cost example:</strong></p>
 
@@ -2694,8 +2795,7 @@ const p = new Promise((resolve, reject) =&gt; {
   console.log('Z');  // prints SECOND (sync — resolve doesn't stop execution!)
 });
 p.then(val =&gt; console.log(val));  // prints FOURTH (microtask)
-console.log('W');                  // prints THIRD (sync)
-// Output: X, Z, W, Y</pre></div>
+console.log('W');                  // prints THIRD (sync)</pre></div>
 
 <p><strong><code>.finally()</code> receives NO arguments</strong> — it runs regardless of outcome but gets no value.</p>
 
@@ -2890,8 +2990,7 @@ network error → REJECTS</pre></div>
 <div class="cb"><pre>console.log('1'); // sync
 setTimeout(() =&gt; console.log('2'), 0); // macrotask
 Promise.resolve().then(() =&gt; console.log('3')); // microtask
-console.log('4'); // sync
-// Output: 1, 4, 3, 2</pre></div>
+console.log('4'); // sync</pre></div>
 
 <h3 class="g-h3">this Binding Rules</h3>
 

@@ -269,6 +269,7 @@ export default async function BlogIndexPage() {
   const posts: Post[] = await fetch('https://cms.example.com/posts', {
     next: { revalidate: 300 }, // ISR: revalidate every 5 minutes
   }).then((r) =&gt; r.json());
+  console.log('[BlogIndexPage] posts fetched:', posts);
 
   return (
     &lt;main&gt;
@@ -409,9 +410,10 @@ export default function ShopTemplate({ children }: { children: React.ReactNode }
 <h3 class="g-h3">Server Components</h3>
 <p><strong>Default in App Router — no directive needed.</strong></p>
 <div class="cb"><pre>// app/products/page.tsx — Server Component (no 'use client' needed)
-async function ProductsPage() {
+export default async function ProductsPage() {
   // Fetch data DIRECTLY — no useEffect, no useState
   const products = await db.product.findMany();
+  console.log('[ProductsPage] products fetched:', products);
 
   return (
     &lt;ul&gt;
@@ -420,9 +422,7 @@ async function ProductsPage() {
       ))}
     &lt;/ul&gt;
   );
-}
-
-export default ProductsPage;</pre></div>
+}</pre></div>
 <p><strong>Can do:</strong></p>
 <ul>
   <li><code>async/await</code> at component level</li>
@@ -504,6 +504,7 @@ import UserCardClient from './UserCardClient';
 
 export default async function UserCardServer({ userId }: { userId: string }) {
   const user = await db.user.findUnique({ where: { id: userId } });
+  console.log('[UserCardServer] user fetched:', user);
   return &lt;UserCardClient name={user?.name} email={user?.email} /&gt;; // pass plain data
 }
 
@@ -583,6 +584,7 @@ export default async function BlogPost({
 }) {
   const { slug } = await params; // params is now a Promise in Next.js 15+
   const post = await getPostBySlug(slug);
+  console.log('[BlogPost] post fetched for slug', slug, ':', post);
 
   if (!post) notFound();
 
@@ -1089,6 +1091,7 @@ export default async function ProductsPage() {
   const products = await fetch('https://api.example.com/products', {
     next: { revalidate: 60 }, // revalidate every 60 seconds (ISR)
   }).then((r) =&gt; r.json());
+  console.log('[ProductsPage] products fetched:', products);
 
   return (
     &lt;ul&gt;
@@ -1115,6 +1118,7 @@ export default async function DashboardPage() {
     cache: 'no-store', // SSR: bypass all caches, fetch fresh each time
     headers: { Authorization: `Bearer ${token}` },
   }).then((r) =&gt; r.json());
+  console.log('[DashboardPage] stats fetched:', stats);
 
   return (
     &lt;div&gt;
@@ -1238,7 +1242,7 @@ export default function Page() {
 <p><strong>Server-side reasons:</strong> Initial page load data, SEO-critical content, private/sensitive data, direct database access.<br>
 <strong>Client-side reasons:</strong> User interactions (search, filters), real-time updates, dynamic data after initial load.</p>
 
-<h2 class="g-h2">8. Server Actions</h2>
+<h2 class="g-h2">8. Server Actions <span style="font-size:0.75em;font-weight:normal;color:var(--fg-muted)">(bonus — not used in teacher workshops)</span></h2>
 
 <figure class="fig-dia">
   <svg viewBox="0 0 713.01 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Server Action round-trip: form submit to server action to revalidatePath to new HTML">
@@ -1830,6 +1834,7 @@ export default function DashboardPage() {
 // app/dashboard/UserGreeting.tsx — Server Component, fast
 export default async function UserGreeting() {
   const user = await db.user.findFirst(); // ~50ms
+  console.log('[UserGreeting] user fetched:', user);
   return &lt;p&gt;Welcome back, {user?.name}!&lt;/p&gt;;
 }
 
@@ -1838,6 +1843,7 @@ export default async function RecentOrders() {
   const orders = await fetch('https://slow-api.example.com/orders', {
     cache: 'no-store',
   }).then((r) =&gt; r.json()); // ~1200ms — but does not block UserGreeting
+  console.log('[RecentOrders] orders fetched:', orders);
 
   return (
     &lt;ul&gt;
@@ -2164,6 +2170,7 @@ import { db } from '@/lib/db';
 
 export async function GET() {
   const restaurants = await db.restaurant.findMany();
+  console.log('[GET /api/restaurants] restaurants fetched:', restaurants);
   return NextResponse.json(restaurants);
 }
 

@@ -292,7 +292,7 @@ item final width = base width + (unit × item's flex-grow)</pre></div>
 .c { flex-grow: 1; }
 /* remaining = 300px shared by B and C only (÷ 2 = 150px each)
    A = 100px  B = 250px  C = 250px */</pre></div>
-<p>YOU SEE: The dominant item (flex-grow:3) gets three times as much of the leftover space. Setting flex-grow:0 on one item keeps it frozen at its basis size while siblings share the rest.</p>
+<p>The dominant item (flex-grow:3) gets three times as much of the leftover space. Setting flex-grow:0 on one item keeps it frozen at its basis size while siblings share the rest.</p>
 
 <figure class="fig-dia">
   <svg viewBox="0 0 710 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flex-grow math: 450px extra space distributed as 90/90/270 among items with grow factors 1/1/3">
@@ -367,7 +367,7 @@ item final width = base width - (unit × item's flex-shrink)</pre></div>
    logo = 120px (unchanged)
    main = 300 - 50 = 250px
    aside= 180 - 50 = 130px */
-/* YOU SEE: Logo keeps its exact 120px; the other two squeeze inward */</pre></div>
+/* logo stays at 120px; main and aside absorb the overflow */</pre></div>
 
 <figure class="fig-dia">
   <svg viewBox="0 0 783.85 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flex-shrink before and after: items squeezed proportionally when container is too small">
@@ -692,7 +692,7 @@ grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));</pre></div>
     │          footer (all cols)      │
     └─────────────────────────────────┘
 */</pre></div>
-<p>YOU SEE: A classic three-column page layout — dark blue header and footer spanning the full width, a narrow left nav, a wide flexible main area, and a right sidebar.</p>
+<p>A classic three-column page layout: dark blue header and footer span the full width, narrow left nav, wide flexible main area, right sidebar.</p>
 
 <hr>
 
@@ -891,7 +891,7 @@ They complement each other. Grid is 2D (both rows AND columns); Flexbox is 1D (o
 .card__btn  { display: inline-block; padding: 8px 16px; border-radius: 4px; } /* Element */
 .card__btn--primary  { background: #0077cc; color: white; }  /* Element modifier — blue */
 .card__btn--disabled { background: #ccc; color: #888; cursor: not-allowed; }  /* Element modifier — greyed out */</pre></div>
-<p>YOU SEE: A card with a gold border (featured modifier) and two differently styled buttons — blue for primary, grey for disabled. Each class name tells you exactly what it is and what role it plays.</p>
+<p>A card with a gold border (featured modifier) and two differently styled buttons — blue for primary, grey for disabled. Each BEM class name tells you exactly what element it is and what role it plays.</p>
 
 <h3 class="g-h3">Valid vs Invalid BEM</h3>
 
@@ -931,15 +931,15 @@ They complement each other. Grid is 2D (both rows AND columns); Flexbox is 1D (o
 <h3 class="g-h3">Syntax</h3>
 <div class="cb"><pre>/* Define on :root for global access */
 :root {
-  --primary-color: #63B4D1;
+  --main-blue-color: #63B4D1;
   --navigation-bar-height: 100px;
-  --font-size-base: 16px;
+  --main-white-color: #ffffff;
 }
 
 /* Use with var() */
 .nav {
   height: var(--navigation-bar-height);
-  background-color: var(--primary-color);
+  background-color: var(--main-blue-color);
 }
 
 /* Fallback value */
@@ -1138,7 +1138,7 @@ background: repeating-radial-gradient(
     #29b6f6 100%   /* sky blue at bottom */
   );
 }</pre></div>
-<p>YOU SEE: A rectangle that looks like a sunset sky — red-orange fading through orange and yellow into blue. The percentage stops control exactly where each colour starts.</p>
+<p>A rectangle that looks like a sunset sky — red-orange fading through orange and yellow into blue. The percentage stops control exactly where each colour transition starts.</p>
 
 <h4 class="g-h4">Example — Radial Gradient (Spotlight)</h4>
 <div class="cb"><pre>/* HTML */
@@ -1155,7 +1155,7 @@ background: repeating-radial-gradient(
   );
   background-color: #111;
 }</pre></div>
-<p>YOU SEE: A dark background with a bright white-to-yellow spotlight centred in the upper-left area, fading to black at the edges.</p>
+<p>A dark background with a bright white-to-yellow spotlight centred in the upper-left area, fading to black at the edges.</p>
 
 <h4 class="g-h4">Example — Conic Gradient (Colour Wheel)</h4>
 <div class="cb"><pre>/* HTML */
@@ -1175,7 +1175,7 @@ background: repeating-radial-gradient(
     red 360deg
   );
 }</pre></div>
-<p>YOU SEE: A circle divided into rainbow-coloured wedges radiating from the centre — like a colour wheel or pie chart.</p>
+<p>A circle divided into rainbow-coloured wedges radiating from the centre — like a colour wheel or pie chart.</p>
 
 <h4 class="g-h4">Example — Repeating Linear Gradient (Stripes)</h4>
 <div class="cb"><pre>.stripes {
@@ -1188,7 +1188,7 @@ background: repeating-radial-gradient(
     #fff 20px     /* white stripe 10px wide — pattern repeats every 20px */
   );
 }</pre></div>
-<p>YOU SEE: Diagonal pink-and-white stripes at 45° — like caution tape or a candy cane pattern.</p>
+<p>Diagonal pink-and-white stripes at 45° — like caution tape or a candy cane pattern.</p>
 
 <h3 class="g-h3">Exam Questions — Gradients</h3>
 
@@ -1260,29 +1260,28 @@ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);</pre></div>
 /* Standard drop shadow — 8px right, 8px down, 16px blur, semi-transparent black */
 .card-outer {
   box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.4);
+  /* soft shadow to the bottom-right, like a lifted card */
 }
-/* YOU SEE: Box casts a soft shadow to the bottom-right, like a lifted card */
 
 /* Inset — shadow is INSIDE the box, looks like a pressed button or well */
 .card-inset {
   box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+  /* darker region along the top edge inside the box — looks sunken */
 }
-/* YOU SEE: Darker region along the top edge inside the box — looks sunken */
 
 /* Multiple shadows — layered for a material-style elevation effect */
 .card-multi {
   box-shadow:
     0 1px 3px rgba(0,0,0,0.12),   /* tight ambient shadow */
     0 4px 8px rgba(0,0,0,0.16),   /* medium shadow */
-    0 12px 24px rgba(0,0,0,0.10); /* wide, soft shadow */
+    0 12px 24px rgba(0,0,0,0.10); /* wide, soft shadow — realistic elevation */
 }
-/* YOU SEE: Realistic-looking elevation — box appears to float */
 
 /* Negative spread — shadow smaller than box, with large y-offset (footer shadow trick) */
 .footer-shadow {
   box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.6);
-}
-/* YOU SEE: Only a shadow below the element, no side shadows leaking out */</pre></div>
+  /* shadow appears only below the element, no side leaking */
+}</pre></div>
 
 <h3 class="g-h3">Exam Questions — box-shadow</h3>
 
@@ -1548,7 +1547,7 @@ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);</pre></div>
   transform: scale(1.05);      /* triggers the transform transition */
 }
 </pre></div>
-<p>YOU SEE: When you hover the button it smoothly darkens and grows 5% over 0.3 s and 0.2 s respectively. Remove your cursor and it animates back. The transition ONLY fires when a property changes.</p>
+<p>When you hover the button it smoothly darkens and grows 5% over 0.3 s and 0.2 s respectively. Remove the cursor and it animates back. The transition fires <strong>only</strong> when a property value changes.</p>
 
 <h4 class="g-h4">Example — Keyframe Animation (runs independently, no trigger)</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -1569,7 +1568,7 @@ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);</pre></div>
   animation: spin 1s linear 0s infinite normal;
 }
 </pre></div>
-<p>YOU SEE: A circle with a blue arc that spins continuously — a classic loading indicator. No hover or click needed; the animation starts the moment the element renders.</p>
+<p>A circle with a blue arc that spins continuously — a classic loading indicator. No hover or click needed; the animation starts the moment the element renders.</p>
 
 <h4 class="g-h4">Example — animation-fill-mode Comparison</h4>
 <div class="cb"><pre>@keyframes slideIn {
@@ -1586,7 +1585,7 @@ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);</pre></div>
 /* With backwards: during the 0.5s delay the element is already at from-state (invisible) */
 .back-fill { animation: slideIn 1s ease 0.5s 1 normal backwards; }
 </pre></div>
-<p>YOU SEE: <code>forwards</code> keeps the element visible after it slides in. Without it, the element snaps back to its pre-animation state when the animation ends — usually a jarring flicker.</p>
+<p><code>forwards</code> keeps the element visible after it slides in. Without it, the element snaps back to its pre-animation state when the animation ends — usually a jarring flicker.</p>
 
 <h3 class="g-h3">Exam Questions — Transitions &amp; Animations</h3>
 
@@ -1689,22 +1688,20 @@ transform: translateY(20px) rotate(180deg);
 
 /* translate — moves element; neighbouring elements do NOT shift */
 .t-translate { transform: translate(50px, 20px); }
-/* YOU SEE: Box moved 50px right and 20px down from its normal position */
+/* 50px right and 20px down from its normal position */
 
 /* rotate — spins around transform-origin (default: center) */
 .t-rotate { transform: rotate(45deg); }
-/* YOU SEE: Box tilted 45° clockwise; same as rotateZ(45deg) */
+/* 45° clockwise; same as rotateZ(45deg) */
 
 /* scale — resizes relative to center */
 .t-scale { transform: scale(1.5); }          /* 1.5× bigger */
-/* YOU SEE: Box is 1.5× its original size, growing outward from center */
 
-.t-scale-xy { transform: scale(2, 0.5); }    /* wide and flat */
-/* YOU SEE: Box is twice as wide but half as tall */
+.t-scale-xy { transform: scale(2, 0.5); }    /* twice as wide, half as tall */
 
 /* skew — slants the box */
 .t-skew { transform: skew(20deg, 10deg); }
-/* YOU SEE: Box is slanted like a parallelogram — horizontal AND vertical shear */
+/* slants like a parallelogram — horizontal AND vertical shear */
 /* Note: there is NO skewZ or skew3d */</pre></div>
 
 <h4 class="g-h4">Example — 3D Transforms with Perspective</h4>
@@ -1720,26 +1717,25 @@ transform: translateY(20px) rotate(180deg);
 .card-3d {
   width: 200px; height: 120px;
   background: #e91e63;
-  transform: rotateY(35deg);   /* tilts away from viewer on Y axis */
+  transform: rotateY(35deg);   /* tilts away from viewer on Y axis — right edge looks further away */
 }
-/* YOU SEE: Card appears to lean into the screen — right edge looks further away */
 
 /* translateZ — moves element toward/away from viewer (needs perspective) */
 .floating {
   transform: perspective(500px) translateZ(80px);
-}
-/* YOU SEE: Element appears larger and closer, like it popped out of the page */</pre></div>
+  /* element appears larger and closer — popped out of the page */
+}</pre></div>
 
 <h4 class="g-h4">Example — Transform Order Matters</h4>
 <div class="cb"><pre>.box-a { transform: rotate(180deg) translateY(50px); }
 /* Step 1: rotate 180° — Y-axis now points UP (flipped)
    Step 2: translateY(50px) — moves in the flipped Y direction = moves UP
-   YOU SEE: Box appears 50px ABOVE its original position */
+   Result: box appears 50px ABOVE its original position */
 
 .box-b { transform: translateY(50px) rotate(180deg); }
 /* Step 1: translateY(50px) — moves 50px DOWN
    Step 2: rotate 180° — box rotates in place at its new position
-   YOU SEE: Box is 50px below its original position, then flipped */</pre></div>
+   Result: box is 50px below its original position, then flipped */</pre></div>
 
 <h3 class="g-h3">Exam Questions — Transforms</h3>
 
@@ -2079,34 +2075,31 @@ a[href*="facebook"]:before {
 &lt;input type="submit"&gt;</pre></div>
 <div class="cb"><pre>/* [attr] — element HAS the attribute (any value) */
 a[href] { text-decoration: underline; }
-/* YOU SEE: ALL anchor tags with any href get underlined */
+/* all anchor tags with any href get underlined */
 
 /* [attr="val"] — attribute is EXACTLY this value */
 a[href="mailto:hi@example.com"] { color: green; }
-/* YOU SEE: Only the exact mailto link turns green */
+/* only the exact mailto link turns green */
 
 /* [attr~="word"] — attribute contains "visit" as a WHOLE space-separated word */
 a[title~="visit"] { font-style: italic; }
-/* YOU SEE: The link whose title contains the word "visit" becomes italic
-   "visit example site" contains "visit" as a word — matches!
-   "revisit" would NOT match because it's not a standalone word */
+/* "visit example site" → matches; "revisit" → no match (not a standalone word) */
 
 /* [attr^="val"] — attribute STARTS WITH this string */
 a[href^="https"] { color: #0077cc; }
-/* YOU SEE: Both https links turn blue; the mailto and pdf links stay default */
+/* both https links turn blue; the mailto and pdf links stay default */
 
 /* [attr$="val"] — attribute ENDS WITH this string */
 a[href$=".pdf"]::before { content: "PDF: "; color: red; }
-/* YOU SEE: "PDF: " label prepended only to the PDF link */
+/* "PDF: " label prepended only to the PDF link */
 
 /* [attr*="val"] — attribute CONTAINS this substring anywhere */
 a[href*="facebook"] { font-weight: bold; }
-/* YOU SEE: The Facebook link goes bold — "facebook" appears anywhere in the href */
+/* the Facebook link goes bold — "facebook" appears anywhere in the href */
 
 /* [attr|="val"] — attribute is EXACTLY "en" OR starts with "en-" (language codes) */
 a[lang|="en"] { border-bottom: 2px solid blue; }
-/* YOU SEE: The en-US link gets a blue underline
-   Matches "en", "en-US", "en-GB" — but NOT "english" */</pre></div>
+/* matches "en", "en-US", "en-GB" — but NOT "english" */</pre></div>
 
 <h3 class="g-h3">Exam Questions — Attribute Selectors</h3>
 
@@ -2209,7 +2202,7 @@ p:first-of-type { color: red; }  /* matches "First para" */
 
 /* h2:first-child — DOES match! The h2 IS the first child */
 h2:first-child { text-transform: uppercase; }  /* matches "Heading" */</pre></div>
-<p>YOU SEE: <code>p:first-child</code> is empty because the first child is an <code>h2</code>. <code>p:first-of-type</code> picks the first paragraph regardless of the <code>h2</code> sibling.</p>
+<p><code>p:first-child</code> matches nothing because the first child is an <code>h2</code>. <code>p:first-of-type</code> picks the first paragraph regardless of the <code>h2</code> sibling.</p>
 
 <h4 class="g-h4">Example — :nth-child() Formula Patterns</h4>
 <div class="cb"><pre>&lt;!-- HTML: a list of 8 items --&gt;
@@ -2223,7 +2216,7 @@ li:nth-child(3n)    { font-weight: bold; }    /* items 3,6 — every third      
 li:nth-child(3n+1)  { color: blue; }          /* items 1,4,7 — every third, starting at 1 */
 li:nth-child(n+5)   { opacity: 0.5; }         /* items 5,6,7,8 — from 5th onwards */
 li:nth-child(-n+3)  { border: 2px solid red; }/* items 1,2,3 — first three only */</pre></div>
-<p>YOU SEE: Alternating pink and blue rows, bold every third item, dimmed last four items — all without any JS or extra classes.</p>
+<p>Alternating pink and blue rows, bold every third item, dimmed last four items — all without any JS or extra classes.</p>
 
 <h4 class="g-h4">Example — :not() Negation</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2241,13 +2234,13 @@ nav a.active {
   color: #0077cc;
   font-weight: bold;
 }
-/* YOU SEE: Home and About are grey; Contact is blue and bold */
+/* Home and About are grey; Contact is blue and bold */
 
 /* :not() with pseudo-class */
 li:not(:last-child) {
   border-bottom: 1px solid #eee;
 }
-/* YOU SEE: Every list item gets a divider line EXCEPT the last one — clean list */</pre></div>
+/* every list item gets a divider line EXCEPT the last one */</pre></div>
 
 <h4 class="g-h4">Example — :hover, :focus, and :last-child on Navigation</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2274,8 +2267,7 @@ li:not(:last-child) {
 
 /* :last-child — targets the last li, add a right border as visual separator */
 .nav-list li:last-child { border-right: 3px solid #0077cc; }
-/* YOU SEE: "Contact" link has a blue right border; all links show a blue
-   highlight on hover and a visible outline when tabbed to with keyboard */</pre></div>
+/* "Contact" gets a blue right border; all links highlight on hover and show an outline on tab */</pre></div>
 
 <h3 class="g-h3">Exam Questions — Structural Pseudo-classes</h3>
 
@@ -2365,8 +2357,7 @@ a[href^="http"]::after {
   margin-right: 8px;
   color: #c0392b;
 }
-/* YOU SEE: A huge red "O" that spans 3-4 lines, with the rest of the
-   paragraph text flowing around it — classic magazine drop cap style */</pre></div>
+/* large red initial letter spanning 3-4 lines; text wraps around it — classic drop cap */</pre></div>
 
 <h4 class="g-h4">Example — ::first-line (Style Only the First Line)</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2379,9 +2370,8 @@ because CSS recalculates what constitutes the first rendered line.&lt;/p&gt;</pr
   letter-spacing: 0.08em;
   color: #0077cc;
 }
-/* YOU SEE: The first visible line of text appears in blue small-caps;
-   the remaining lines are styled normally.
-   If you resize the browser, the blue boundary shifts — it's dynamic. */</pre></div>
+/* first rendered line appears in blue small-caps; rest normal.
+   Resize the browser and the blue boundary shifts — it's dynamic. */</pre></div>
 
 <h4 class="g-h4">Example — ::before and ::after (Generated Content)</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2411,7 +2401,7 @@ because CSS recalculates what constitutes the first rendered line.&lt;/p&gt;</pr
   bottom: -30px; right: 5px;
   line-height: 1;
 }
-/* YOU SEE: Large decorative " " marks float behind the blockquote text */
+/* large decorative " " marks float behind the blockquote text */
 
 /* Show URL after external links — useful for print stylesheets */
 .ext-link::after {
@@ -2419,7 +2409,7 @@ because CSS recalculates what constitutes the first rendered line.&lt;/p&gt;</pr
   font-size: 0.8em;
   color: #888;
 }
-/* YOU SEE: Link reads "Visit example (https://example.com)" in the browser */</pre></div>
+/* link renders as: "Visit example (https://example.com)" */</pre></div>
 
 <h4 class="g-h4">Example — ::before for a Tooltip Badge (content: "" with styling)</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2437,8 +2427,7 @@ because CSS recalculates what constitutes the first rendered line.&lt;/p&gt;</pr
   padding: 2px 5px;
   border-radius: 4px;
 }
-/* YOU SEE: A small red "NEW" badge appears in the top-right corner of
-   the span — zero extra HTML elements required */</pre></div>
+/* small red "NEW" badge in the top-right corner — zero extra HTML elements needed */</pre></div>
 
 <h4 class="g-h4">Example — ::selection (Custom Text Selection Colour)</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2452,8 +2441,7 @@ p::selection {
   background-color: #7c4dff;   /* purple for paragraph text specifically */
   color: #fff;
 }
-/* YOU SEE: When you click-drag to select text, it highlights in purple
-   instead of the browser's default blue */</pre></div>
+/* selected text highlights in purple instead of the browser's default blue */</pre></div>
 
 <h4 class="g-h4">Example — ::placeholder (Style Input Placeholder Text)</h4>
 <div class="cb"><pre>&lt;!-- HTML --&gt;
@@ -2467,7 +2455,7 @@ p::selection {
 .fancy-input:focus::placeholder {
   color: transparent;   /* hide placeholder when user starts typing (focused) */
 }
-/* YOU SEE: Placeholder is grey and italic; it fades away when the field is focused */</pre></div>
+/* placeholder is grey and italic; fades away when the field is focused */</pre></div>
 
 <h3 class="g-h3">Exam Questions — Pseudo-elements</h3>
 
@@ -2723,9 +2711,9 @@ total = 100 + 10 + 10 + 10 + 10 = 140px</pre></div>
 /* Separators: __ (element), -- (modifier). All lowercase. Class only. */</pre></div>
 
 <h3 class="g-h3">CSS Variables Quick Reference</h3>
-<div class="cb"><pre>:root { --color: #63B4D1; }           /* define */
-.el { color: var(--color); }          /* use */
-.el { color: var(--color, fallback); } /* with fallback */</pre></div>
+<div class="cb"><pre>:root { --main-blue-color: #63B4D1; }                    /* define */
+.el { color: var(--main-blue-color); }                   /* use */
+.el { color: var(--main-blue-color, #ccc); }             /* with fallback */</pre></div>
 
 <h3 class="g-h3">box-shadow Quick Reference</h3>
 <div class="cb"><pre>/* offset-x | offset-y | blur | spread | color */
