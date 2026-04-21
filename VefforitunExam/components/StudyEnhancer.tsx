@@ -260,6 +260,14 @@ function wireRunnableBlocks(root: HTMLElement) {
     runBtn.textContent = "run ▶";
     runBtn.setAttribute("aria-label", "Run this snippet");
     block.appendChild(runBtn);
+
+    const resetBtn = document.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.className = "reset-btn";
+    resetBtn.textContent = "reset ↺";
+    resetBtn.title = "Restore the original code";
+    resetBtn.setAttribute("aria-label", "Reset snippet to original");
+    block.appendChild(resetBtn);
   });
 
   // Delegate "run" clicks — survives StrictMode / re-mounts.
@@ -268,6 +276,28 @@ function wireRunnableBlocks(root: HTMLElement) {
 
   document.addEventListener("click", async (e) => {
     const target = e.target as HTMLElement | null;
+
+    // Reset button — restore original source, drop output
+    const resetBtn = target?.closest<HTMLButtonElement>(".fragment .cb .reset-btn");
+    if (resetBtn) {
+      e.preventDefault();
+      const block = resetBtn.closest<HTMLDivElement>(".cb");
+      if (!block) return;
+      const src = block.dataset.src ?? "";
+      const ta = block.querySelector<HTMLTextAreaElement>("textarea.code-edit");
+      const hl = block.querySelector<HTMLElement>(".code-hl");
+      if (ta) {
+        ta.value = src;
+        ta.dispatchEvent(new Event("input", { bubbles: true }));
+        ta.focus();
+      } else if (hl) {
+        // No editor yet; nothing to reset.
+      }
+      const out = block.querySelector<HTMLElement>(".code-output");
+      out?.remove();
+      return;
+    }
+
     const btn = target?.closest<HTMLButtonElement>(".fragment .cb .run-btn");
     if (!btn) return;
     e.preventDefault();
@@ -275,13 +305,14 @@ function wireRunnableBlocks(root: HTMLElement) {
     if (!block) return;
 
     const editor = ensureEditor(block);
+    editor.focus({ preventScroll: true });
     const source = editor.value;
 
     btn.disabled = true;
     btn.textContent = "running…";
     const out = ensureOutput(block);
     out.dataset.state = "running";
-    out.innerHTML = '<div class="code-output-title">running…</div>';
+    out.innerHTML = '<div class="code-output-title"><span>running…</span></div>';
 
     const result = await runSnippet(source);
     renderOutput(out, result);

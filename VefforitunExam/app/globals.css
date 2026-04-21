@@ -475,6 +475,25 @@ code {
 .cb .run-btn:focus-visible { opacity: 1; }
 .cb .run-btn:disabled { opacity: 0.6; cursor: wait; }
 
+.cb .reset-btn {
+  position: absolute;
+  top: 8px;
+  right: 108px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  padding: 3px 8px;
+  color: var(--code-fg);
+  background: color-mix(in oklch, var(--code-fg) 15%, transparent);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity var(--dur-micro) var(--ease-out-q),
+              background var(--dur-micro) var(--ease-out-q);
+  font-weight: 500;
+}
+.cb:hover .reset-btn { opacity: 1; }
+.cb .reset-btn:hover { background: color-mix(in oklch, var(--code-fg) 25%, transparent); }
+.cb .reset-btn:focus-visible { opacity: 1; }
+
 /* Dual-element live code editor: highlighted <pre> under a transparent
    <textarea> overlay. Both elements MUST share identical font metrics,
    padding and line-height so characters align. */
@@ -514,6 +533,8 @@ code {
   pointer-events: none;
   word-break: normal;
   letter-spacing: 0;
+  z-index: 1;
+  user-select: none;
 }
 .cb .code-editor textarea.code-edit {
   color: transparent;
@@ -525,6 +546,8 @@ code {
   /* Identical letter metrics to the <pre> so highlighted spans align */
   letter-spacing: 0;
   word-break: normal;
+  z-index: 2;
+  position: relative;
 }
 .cb .code-editor textarea.code-edit::selection {
   background: color-mix(in oklch, var(--accent) 45%, transparent);
