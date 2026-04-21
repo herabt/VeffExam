@@ -186,6 +186,8 @@ function Rectangle(position, width, height) {
 Rectangle.prototype = Object.create(Shape.prototype);  // 2. Link chain (NOT new Shape()!)
 Rectangle.prototype.constructor = Rectangle;            // 3. Fix constructor reference</pre></div>
 
+<p><strong>Method chaining</strong> (from teacher's warrior.js): returning <code>this</code> from every method enables chaining: <code>link.moveRight().moveRight().attack(ganon)</code>.</p>
+
 <p>Step 1 runs parent setup code on the child. Step 2 links the prototype chain — we use <code>Object.create()</code> instead of <code>new Shape()</code> because new would run the constructor (which expects arguments and would create unwanted properties on the prototype). Step 3 is cleanup — without it, <code>Rectangle.prototype.constructor</code> would point to Shape instead of Rectangle.</p>
 
 <p><strong>Objects are mutable and passed by reference</strong> (from slides). <code>var a = obj</code> — both point to the SAME object. Changing <code>a.x</code> changes <code>obj.x</code>.</p>
@@ -332,7 +334,11 @@ abstract class Driver implements IRacer {            // Abstract class
 
 <p><strong>React.memo</strong> — wraps a component to skip re-renders when its props haven't changed (shallow comparison). It only works if the props are actually the same references — that's why you pair it with useCallback (for function props) and useMemo (for object/array props).</p>
 
-<p><strong>useMemo</strong> — caches a computed value. Avoids expensive recalculations on every render. "By default React will re-run the entire body of your component every time it re-renders" (from slides).</p>
+<p><strong>useCallback "betri leid"</strong> (from slides): use functional updater inside useCallback to remove state from dependencies: <code>setCount(prev =&gt; prev + 1)</code> instead of <code>setCount(count + 1)</code>. The callback no longer depends on <code>count</code>, so the dependency array stays <code>[]</code> and the function reference is stable.</p>
+
+<p><strong>useMemo</strong> — caches a computed value. Avoids expensive recalculations on every render. Pattern: <code>const sorted = useMemo(() =&gt; expensiveSort(data), [data])</code> — only re-sorts when <code>data</code> changes. Also stabilizes object/array props for React.memo children: <code>const config = useMemo(() =&gt; ({ theme, lang }), [theme, lang])</code>.</p>
+
+<p><strong>forwardRef</strong> — lets a parent pass a ref into a child component's DOM element. <strong>useImperativeHandle</strong> — customizes what the parent sees through the ref (expose only specific methods like focus(), not the full DOM node).</p>
 
 <p><strong>Rules of Hooks:</strong> (1) Only at the top level — never inside if/loops. React tracks hooks by call order; if a hook is inside an if, it might not run on some renders, shifting the order and causing bugs. (2) Only from function components or custom hooks.</p>
 
@@ -524,11 +530,13 @@ function CartCount() {
 
 <p>Next.js uses <strong>file-system routing</strong>: folders = URL segments. A <code>page.tsx</code> file makes a route publicly accessible.</p>
 
-<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, stays mounted when navigating between child routes — preserves state like sidebar open/closed), <code>loading.tsx</code> (loading UI, wraps page in Suspense), <code>error.tsx</code> (error boundary, must be "use client"), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint — cannot coexist with page.tsx).</p>
+<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, stays mounted when navigating between child routes — preserves state like sidebar open/closed), <code>loading.tsx</code> (loading UI — automatically wraps page in React <code>&lt;Suspense&gt;</code> boundary so layout renders instantly while page data loads), <code>error.tsx</code> (error boundary, must be "use client", receives a <code>reset()</code> function to retry), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint — cannot coexist with page.tsx).</p>
 
 <p><strong>Component hierarchy:</strong> Layout → Template → Error → Loading → Page. (<code>template.tsx</code> is like layout but creates a new instance on every navigation — does NOT preserve state. Use for enter/exit animations or resetting forms.)</p>
 
 <p><strong>Dynamic routes:</strong> <code>[slug]</code> = one segment. <code>[...slug]</code> = catch-all (1+ segments). <code>[[...slug]]</code> = optional catch-all (0+). Route groups <code>(name)</code> organize routes into folders without adding to the URL. Example: <code>(marketing)/about/page.tsx</code> → URL is just <code>/about</code>. Useful for different layouts per section.</p>
+
+<p><strong>Static vs Dynamic rendering:</strong> By default, routes are statically rendered at build time (cached, served from CDN). Routes become dynamic when they use: <code>cookies()</code>, <code>headers()</code>, <code>searchParams</code>, or uncached data requests.</p>
 
 <p><strong>&lt;Link&gt; vs &lt;a&gt;:</strong> <code>&lt;Link&gt;</code> does <strong>client-side navigation</strong> (no full page reload, preserves React state, prefetches routes). <code>&lt;a&gt;</code> causes a full page reload and destroys all client state.</p>
 
@@ -603,7 +611,7 @@ function ReviewPage() {
 
 <p><strong>Controller</strong> — for non-native inputs (MUI, custom components). <code>register()</code> only works with native HTML inputs. For custom UI: <code>&lt;Controller control={control} name="field" render={({ field }) =&gt; ...} /&gt;</code></p>
 
-<p><strong>Controlled vs Uncontrolled:</strong> Controlled = useState + onChange (re-renders every keystroke). Uncontrolled = refs (no re-render). react-hook-form uses uncontrolled — that's why it's fast.</p>
+<p><strong>Controlled vs Uncontrolled:</strong> Controlled = useState + onChange (re-renders every keystroke). Uncontrolled = useRef (no re-render, read value only on submit). react-hook-form uses uncontrolled — that's why it's fast. Rule from slides: use refs when you only need the value on submit, use state when the UI needs to react to input changes.</p>
 
 <div class="cb"><pre>// FULL FORM — Source: concert-arena/app/booking/personal/page.tsx
 "use client";
@@ -661,6 +669,14 @@ export default function BookingLayout({ children }) {
 
 <p><strong>Creating elements:</strong> <code>createElement()</code> creates, <code>appendChild()</code> adds to end, <code>insertBefore(new, ref)</code> adds before a reference node, <code>removeChild()</code> removes (called on parent), <code>replaceChild(new, old)</code> replaces.</p>
 
+<p><strong>Attributes:</strong> <code>setAttribute("class", "new")</code> / <code>getAttribute("href")</code>. Or dot notation: <code>elem.id = "newId"</code>, <code>elem.className = "newClass"</code>.</p>
+
+<p><strong>data- attributes</strong> (from slides): store custom data in HTML with <code>data-</code> prefix. Access in JS via <code>element.dataset.x</code>. Example: <code>&lt;div data-user-id="42"&gt;</code> → <code>elem.dataset.userId</code>.</p>
+
+<p><strong>classList</strong> (from slides): <code>classList.add('class')</code>, <code>classList.remove('class')</code>, <code>classList.toggle('class')</code>, <code>classList.contains('class')</code>. Better than <code>className</code> which overwrites all classes.</p>
+
+<p><strong>Scripting CSS</strong> (from slides): <code>element.style.backgroundColor = 'red'</code>. CSS names are camelCased in JS. Values MUST be strings with units: <code>element.style.fontSize = '16px'</code>. This only reads/sets INLINE styles. For actual computed styles: <code>window.getComputedStyle(element)</code>.</p>
+
 <div class="cb"><pre>// DOM manipulation basics
 const el = document.querySelector('.card');         // returns first match
 const all = document.querySelectorAll('.card');      // returns static NodeList
@@ -671,7 +687,22 @@ document.body.appendChild(div);                      // add to end
 parent.removeChild(child);                            // remove (called on parent)
 parent.insertBefore(newNode, refNode);                // insert before</pre></div>
 
-<p><strong>Events:</strong> <code>addEventListener(event, handler)</code> attaches a handler. Events <strong>bubble</strong> up from the target to the root. This enables <strong>event delegation</strong>: attach ONE handler to the parent instead of one per child. Use <code>event.target</code> to find which child was clicked. Benefits: works for dynamically added children, uses less memory, simpler to manage. <code>stopPropagation()</code> stops bubbling. <code>preventDefault()</code> prevents default behavior.</p>
+<p><strong>Event phases</strong> (from slides): events flow in 3 phases: (1) <strong>Capturing</strong> — event travels DOWN from document to target, (2) <strong>Target</strong> — event reaches the clicked element, (3) <strong>Bubbling</strong> — event travels back UP to document. <code>addEventListener(event, fn, false)</code> — the third argument <code>false</code> = listen during bubbling (default). <code>true</code> = listen during capturing.</p>
+
+<p><strong>Stopping events:</strong></p>
+<ul>
+<li><code>stopPropagation()</code> — stops event from reaching ancestors, but OTHER handlers on the SAME element still fire</li>
+<li><code>stopImmediatePropagation()</code> — stops EVERYTHING: no more handlers on same element AND no propagation upward</li>
+<li><code>preventDefault()</code> — prevents default browser behavior (form submit, link navigation) but does NOT stop propagation</li>
+</ul>
+
+<p><strong>Event object properties:</strong> <code>event.target</code> = element that was clicked. <code>event.currentTarget</code> = element the handler is attached to (different in delegation). <code>event.type</code> = event name string (e.g., "click"). <code>event.bubbles</code> = boolean.</p>
+
+<p><strong>Event delegation:</strong> Attach ONE handler to the parent instead of one per child. Use <code>event.target</code> to identify which child. Benefits: works for dynamically added children, less memory, simpler. This is an application of the Flyweight pattern.</p>
+
+<p><strong>DOMContentLoaded</strong> (from slides): fires when HTML is parsed and DOM tree is ready, BEFORE images/stylesheets finish loading. Use it to safely manipulate the DOM: <code>document.addEventListener('DOMContentLoaded', function() { ... })</code>. Different from <code>window.onload</code> which waits for everything.</p>
+
+<p><strong>4 ways to register handlers</strong> (from slides): (1) <code>elem.onclick = fn</code> — only ONE handler allowed (overwrites previous), (2) <code>addEventListener</code> — multiple handlers, fires in registration order, (3) <code>attachEvent</code> — IE legacy, random order, (4) <code>onclick="..."</code> in HTML — visible but "dirty".</p>
 
 <hr>
 
@@ -755,13 +786,15 @@ io.on('connection', socket =&gt; {
 
 <h2 class="g-h2">25. Design Patterns</h2>
 
+<p>The slides name the <strong>Constructor Pattern</strong> as a design pattern itself — two sub-patterns: "Basic Constructors" (each instance gets own copy of methods, wastes memory) and "Constructors With Prototypes" (shared methods, memory efficient). See section 8.</p>
+
 <p>Three categories: <strong>Creational</strong> (how objects are created), <strong>Structural</strong> (how objects are composed), <strong>Behavioral</strong> (how objects communicate).</p>
 
 <table class="tw"><tbody>
 <tr><th>Pattern</th><th>Category</th><th>What it does</th><th>Example</th></tr>
-<tr><td>Factory</td><td>Creational</td><td>Creates objects without specifying exact class</td><td>VehicleFactory creates Car or Truck based on input</td></tr>
-<tr><td>Singleton</td><td>Creational</td><td>Only one instance ever exists</td><td>getInstance() checks if already created, returns same instance</td></tr>
-<tr><td>Decorator</td><td>Structural</td><td>Adds behavior to a specific object (not prototype)</td><td>MacBook(997) + Memory(+75) + Insurance(+250) = 1322. Uses closures to wrap cost function.</td></tr>
+<tr><td>Factory</td><td>Creational</td><td>Creates objects without specifying exact class</td><td>VehicleFactory with prototype.vehicleClass. Use when: (1) high complexity setup, (2) different instances per environment, (3) many small objects sharing properties, (4) duck typing for decoupling</td></tr>
+<tr><td>Singleton</td><td>Creational</td><td>Only one instance ever exists</td><td>Three variants: (1) basic object literal, (2) closure with private vars, (3) IIFE + getInstance() with lazy init: <code>if (!instantiated) { instantiated = init(); }</code></td></tr>
+<tr><td>Decorator</td><td>Structural</td><td>Adds behavior to a specific object (not prototype)</td><td>Two approaches: (1) simple — add method to instance with <code>return this</code> for chaining, (2) closure wrapping: MacBook(997)+Memory(+75)+Insurance(+250)=1322. Pros: flexible, avoids subclass explosion. Cons: complicated, many small objects.</td></tr>
 <tr><td>Facade</td><td>Structural</td><td>Simple interface hiding complex code</td><td>One function handles addEventListener/attachEvent/on-event</td></tr>
 <tr><td>Flyweight</td><td>Structural</td><td>Shares data to save memory</td><td>30 copies of same book — <strong>Intrinsic</strong> = shared, unchanging data (title, author, ISBN — same for all 30 copies, stored ONCE). <strong>Extrinsic</strong> = unique per-instance data (checkout date, borrower — stored separately per copy). Saves memory: 30 copies share 1 flyweight object instead of duplicating book data 30 times. Factory checks cache by ISBN before creating.</td></tr>
 <tr><td>Observer</td><td>Behavioral</td><td>Subscribers watch a publisher (Pub/Sub)</td><td>Redux depends on this. Pros: loose coupling. Cons: hard to debug, publishers don't know if subscribers fail.</td></tr>
