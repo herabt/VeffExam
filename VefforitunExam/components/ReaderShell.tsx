@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { ReadingTOC } from "./ReadingTOC";
+import { StudyEnhancer } from "./StudyEnhancer";
 import { markVisit } from "@/lib/session";
 import { topicKey as pKey, updateTopic } from "@/lib/progress";
 import type { TopicKind } from "@/lib/registry";
@@ -75,10 +76,13 @@ export function ReaderShell({ kind, slug }: Props) {
   }, []);
 
   return (
-    <aside className="rail" aria-label="Page navigation">
-      <section className="rail-section">
-        <ReadingTOC />
-      </section>
-    </aside>
+    <>
+      <StudyEnhancer />
+      <aside className="rail" aria-label="Page navigation">
+        <section className="rail-section">
+          <ReadingTOC />
+        </section>
+      </aside>
+    </>
   );
 }

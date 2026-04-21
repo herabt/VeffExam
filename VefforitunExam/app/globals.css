@@ -1028,3 +1028,202 @@ details.ans .ans-body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-pill); border: 2px solid var(--bg); }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   STUDY ENHANCER — reading bar, meta bar, callouts, syntax tokens,
+   focus mode. Appended late so it can override base fragment styles.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Reading progress bar — 2px, fixed top */
+.reading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  background: transparent;
+  pointer-events: none;
+}
+.reading-bar > div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 80ms linear;
+}
+
+/* Focus-mode: dim paragraphs outside the viewport center */
+.focus-mode .fragment > * { transition: opacity var(--dur-ui) var(--ease-out-q); }
+.focus-mode .fragment > p,
+.focus-mode .fragment > ul,
+.focus-mode .fragment > ol,
+.focus-mode .fragment > .cb,
+.focus-mode .fragment > .tw,
+.focus-mode .fragment > .callout {
+  opacity: 0.35;
+}
+.focus-mode .fragment > p:hover,
+.focus-mode .fragment > ul:hover,
+.focus-mode .fragment > ol:hover,
+.focus-mode .fragment > .cb:hover,
+.focus-mode .fragment > .tw:hover,
+.focus-mode .fragment > .callout:hover { opacity: 1; }
+.focus-mode .fragment > h2,
+.focus-mode .fragment > h3,
+.focus-mode .fragment > h4 { opacity: 1; }
+
+.focus-toast {
+  position: fixed;
+  bottom: var(--s-4);
+  right: var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-btn);
+  padding: 6px 12px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+  box-shadow: var(--shadow-2);
+  z-index: 50;
+}
+
+/* Meta bar — injected under the first h2 */
+.meta-bar {
+  margin: calc(var(--s-5) * -1) 0 var(--s-6);
+  padding-top: var(--s-3);
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.meta-stats {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+.meta-chip {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  color: var(--fg-muted);
+  background: var(--surface);
+}
+.meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.meta-chiplink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg-raised);
+  text-decoration: none;
+  transition: background var(--dur-micro) var(--ease-out-q),
+              color var(--dur-micro) var(--ease-out-q),
+              border-color var(--dur-micro) var(--ease-out-q);
+}
+.meta-chiplink:hover {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: var(--border-strong);
+  text-decoration: none;
+}
+.meta-chiplink .meta-n {
+  font-size: 9.5px;
+  color: var(--fg-subtle);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+/* Callout boxes */
+.callout {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  margin: var(--s-3) 0;
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--r-card);
+  background: var(--bg-raised);
+}
+.callout-icon {
+  font-size: 16px;
+  line-height: 1.2;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-weight: 700;
+  color: var(--fg-muted);
+  margin-top: 1px;
+}
+.callout-body > p:last-child,
+.callout-body > ul:last-child,
+.callout-body > ol:last-child,
+.callout-body > div:last-child { margin-bottom: 0; }
+.callout-body > p:first-child { margin-top: 0; }
+
+.callout-warn    { border-left-color: var(--warning); background: color-mix(in oklch, var(--warning) 10%, var(--bg)); }
+.callout-warn .callout-icon { color: var(--warning); }
+[data-theme="dark"] .callout-warn { background: color-mix(in oklch, var(--warning) 15%, var(--bg)); }
+
+.callout-tip     { border-left-color: var(--accent); background: color-mix(in oklch, var(--accent) 8%, var(--bg)); }
+.callout-tip .callout-icon { color: var(--accent); }
+
+.callout-note    { border-left-color: var(--fg-muted); background: var(--bg-raised); }
+.callout-note .callout-icon { color: var(--fg-muted); }
+
+.callout-key     { border-left-color: var(--danger); background: color-mix(in oklch, var(--danger) 8%, var(--bg)); }
+.callout-key .callout-icon { color: var(--danger); }
+
+.callout-example { border-left-color: var(--success); background: color-mix(in oklch, var(--success) 7%, var(--bg)); }
+.callout-example .callout-icon { color: var(--success); }
+
+.callout-def     { border-left-color: oklch(0.55 0.12 280); background: color-mix(in oklch, oklch(0.55 0.12 280) 7%, var(--bg)); }
+.callout-def .callout-icon { color: oklch(0.55 0.12 280); }
+
+/* Code block file-path label */
+.cb-label {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  background: var(--code-bg);
+  color: color-mix(in oklch, var(--code-fg) 65%, transparent);
+  border-radius: var(--r-card) var(--r-card) 0 0;
+  margin: 0;
+  border-bottom: 1px solid color-mix(in oklch, var(--code-fg) 15%, transparent);
+}
+.cb-label + pre { border-top-left-radius: 0; border-top-right-radius: 0; margin-top: 0; }
+
+/* ─────────── Syntax highlighting tokens ─────────── */
+.cb pre .tk-k { color: oklch(0.70 0.18 310); font-weight: 500; }     /* keywords (const, function, if) – violet */
+.cb pre .tk-g { color: oklch(0.72 0.13 200); }                         /* globals (console, useState) – teal */
+.cb pre .tk-t { color: oklch(0.78 0.14 80); }                          /* types / PascalCase – amber */
+.cb pre .tk-s { color: oklch(0.72 0.14 145); }                         /* strings – green */
+.cb pre .tk-n { color: oklch(0.75 0.14 30); }                          /* numbers – orange */
+.cb pre .tk-c { color: oklch(0.58 0.02 240); font-style: italic; }     /* comments – muted */
+.cb pre .tk-o { color: oklch(0.78 0.08 25); }                          /* operators – warm */
+.cb pre .tk-p { color: oklch(0.70 0.01 240); }                         /* punctuation – neutral */
+
+/* Light mode: re-balance tokens for adequate contrast against dark code bg */
+/* (same palette works because code-bg stays dark in both themes, intentional) */
+
+/* Responsive meta bar on mobile */
+@media (max-width: 700px) {
+  .meta-bar { margin-top: 0; }
+  .meta-chips { gap: 3px; }
+  .meta-chiplink { font-size: 11px; padding: 3px 7px; }
+  .callout { padding: var(--s-2) var(--s-3); grid-template-columns: 22px 1fr; }
+}

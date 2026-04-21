@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Atkinson_Hyperlegible, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import { AppShell } from "@/components/AppShell";
 import { THEME_PREFLIGHT } from "@/lib/theme";
 import "./globals.css";
@@ -24,11 +25,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${body.variable} ${mono.variable}`}>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_PREFLIGHT }} />
-      </head>
+    <html lang="en" className={`${body.variable} ${mono.variable}`} suppressHydrationWarning>
       <body>
+        <Script id="theme-preflight" strategy="beforeInteractive">
+          {THEME_PREFLIGHT}
+        </Script>
         <AppShell>{children}</AppShell>
       </body>
     </html>
