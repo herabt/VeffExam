@@ -1,0 +1,260 @@
+/* ───────── Reset ───────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+body {
+  font-family: Georgia, serif;
+  background: #fff;
+  color: #222;
+  line-height: 1.7;
+  font-size: 15px;
+}
+a { color: #0f3460; }
+a:hover { color: #1a1a2e; }
+
+/* ───────── Topbar ───────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 2px solid #ddd;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.topbar .brand {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #555;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+}
+.topbar .brand:hover { color: #0f3460; }
+.topbar select,
+.topbar input[type="text"] {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 13px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+.topbar input[type="text"] { width: 220px; }
+
+/* ───────── Layout ───────── */
+.container { max-width: 900px; margin: 0 auto; padding: 20px 40px 60px; }
+
+/* ───────── Headings ───────── */
+.g-h2 { font-size: 22px; margin: 35px 0 12px; padding: 8px 0; border-bottom: 2px solid #333; color: #1a1a2e; scroll-margin-top: 80px; }
+.g-h3 { font-size: 17px; margin: 25px 0 8px; color: #0f3460; border-left: 3px solid #0f3460; padding-left: 10px; scroll-margin-top: 80px; }
+.g-h4 { font-size: 15px; margin: 18px 0 6px; color: #555; scroll-margin-top: 80px; }
+
+/* ───────── Inline code / blocks ───────── */
+code { font-family: "Courier New", monospace; background: #f4f4f4; padding: 1px 4px; border-radius: 2px; font-size: 13px; }
+.cb { margin: 10px 0; }
+.cb pre {
+  background: #2d2d2d;
+  color: #f8f8f2;
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-family: "Fira Code", "Courier New", monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+strong { font-weight: bold; color: #c0392b; }
+
+ul, ol { margin: 6px 0 6px 20px; }
+li { margin: 3px 0; font-size: 14px; }
+
+/* ───────── Tables ───────── */
+.tw { overflow-x: auto; margin: 10px 0; }
+.tw table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: "Segoe UI", sans-serif; }
+.tw th { background: #1a1a2e; color: #fff; padding: 8px 10px; text-align: left; font-size: 12px; }
+.tw td { padding: 7px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+.tw td:first-child { font-weight: 600; color: #0f3460; white-space: nowrap; }
+.tw tr:hover td { background: #f5f8ff; }
+
+mark { background: #fff3cd; padding: 1px 2px; border-radius: 2px; }
+
+/* ───────── Diagram blocks used by glossary panels ───────── */
+.diagram { background: #f3f3f3; padding: 8px 10px; border-radius: 6px; margin: 10px 0 16px; }
+.dt { font-family: "Segoe UI", sans-serif; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.fd { display: flex; background: #e8e8e8; padding: 6px; border-radius: 4px; min-height: 50px; gap: 4px; }
+.fi { padding: 8px 14px; border-radius: 3px; font-family: "Segoe UI", sans-serif; font-size: 12px; font-weight: 600; color: #fff; text-align: center; }
+.fi1 { background: #5b8db8; }
+.fi2 { background: #8db85b; }
+.fi3 { background: #b85b5b; }
+
+/* ───────── Answer details (readonly panels) ───────── */
+details.ans {
+  margin: 10px 0;
+  border-left: 3px solid #0f3460;
+  background: #f6f9ff;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+details.ans > summary {
+  cursor: pointer;
+  color: #0f3460;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: "Segoe UI", sans-serif;
+  padding: 4px 0;
+  list-style: none;
+}
+details.ans > summary::-webkit-details-marker { display: none; }
+details.ans[open] > summary { color: #2e7d32; }
+details.ans .ans-body { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #c0d0e8; }
+
+/* ───────── Interactive exam UI ───────── */
+.qa-bar {
+  position: sticky;
+  top: 52px;
+  z-index: 50;
+  background: #fff8e1;
+  border: 1px solid #f1c40f;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.qa-btn {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid #0f3460;
+  background: #0f3460;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.qa-btn:hover { background: #1a1a2e; }
+.qa-btn.qa-clr { background: #c0392b; border-color: #c0392b; }
+.qa-btn.qa-clr:hover { background: #922b21; }
+.qa-btn.qa-toggle { background: #546e7a; border-color: #546e7a; }
+.qa-btn.qa-toggle:hover { background: #37474f; }
+.qa-status {
+  font-size: 12px;
+  color: #555;
+  font-family: "Segoe UI", sans-serif;
+  margin-left: auto;
+}
+
+.qa-answer-box {
+  background: #f9fcff;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0;
+}
+.qa-answer-box label {
+  display: block;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f3460;
+  margin-bottom: 4px;
+}
+.qa-answer-box textarea {
+  width: 100%;
+  min-height: 60px;
+  font-family: "Fira Code", "Courier New", monospace;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid #b0bec5;
+  border-radius: 4px;
+  resize: vertical;
+  box-sizing: border-box;
+  background: #fff;
+}
+.qa-answer-box textarea:focus {
+  outline: none;
+  border-color: #0f3460;
+}
+
+/* ───────── Landing page ───────── */
+.home-header {
+  text-align: center;
+  padding: 40px 20px 20px;
+}
+.home-header h1 {
+  font-size: 32px;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+.home-header p {
+  color: #666;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.home-section { margin: 30px 0; }
+.home-section h2 {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 18px;
+  color: #0f3460;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+}
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.home-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #0f3460;
+  padding: 12px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+  font-family: "Segoe UI", sans-serif;
+}
+.home-card:hover {
+  border-color: #0f3460;
+  box-shadow: 0 2px 8px rgba(15, 52, 96, 0.12);
+  transform: translateY(-1px);
+}
+.home-card .title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+.home-card .subtitle {
+  font-size: 12px;
+  color: #666;
+}
+.home-card.interactive .title::after {
+  content: " ⚡";
+  font-size: 12px;
+}
+
+/* ───────── Responsive ───────── */
+@media (max-width: 600px) {
+  .container { padding: 10px 15px; }
+  .tw td:first-child { white-space: normal; }
+  .topbar input[type="text"] { width: 140px; }
+}
+
+/* ───────── Print (so students can print answer-filled exams) ───────── */
+@media print {
+  .topbar, .qa-bar { display: none !important; }
+  details.ans { break-inside: avoid; }
+  details.ans[open] > summary { display: none; }
+}

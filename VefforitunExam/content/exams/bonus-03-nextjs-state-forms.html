@@ -1,0 +1,905 @@
+<h2 class="g-h2">Bonus Questions — Next.js, State &amp; Forms</h2>
+
+<h2 class="g-h2">SECTION A: Next.js App Router — Routing &amp; Special Files</h2>
+
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>In the Next.js App Router, which file defines the UI that is shared across a route segment and its children, and persists across navigations without re-mounting?</p>
+<ul>
+  <li>A) <code>template.tsx</code></li>
+  <li>B) <code>page.tsx</code></li>
+  <li>C) <code>layout.tsx</code></li>
+  <li>D) <code>default.tsx</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> <code>layout.tsx</code> wraps a segment and all its children. Unlike <code>template.tsx</code>, a layout preserves its state and does <em>not</em> re-mount on navigation. <code>template.tsx</code> is the same shape but creates a <em>new</em> instance on every navigation — useful when you need fresh state or lifecycle effects per visit.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Fill in the Blanks</h3>
+<p>Match each App Router special file to its purpose:</p>
+<p>
+  1. ________ — shown while a route segment and its children are loading (enables streaming).<br>
+  2. ________ — shown when an unhandled error is thrown inside a segment (must be a Client Component).<br>
+  3. ________ — shown when <code>notFound()</code> is called or a segment has no match.<br>
+  4. ________ — handles HTTP methods (GET, POST, etc.) for an API endpoint inside the <code>app/</code> directory.<br>
+  5. ________ — re-creates its subtree on every navigation, unlike a layout.
+</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>loading.tsx</code></p>
+  <p><strong>2.</strong> <code>error.tsx</code></p>
+  <p><strong>3.</strong> <code>not-found.tsx</code></p>
+  <p><strong>4.</strong> <code>route.ts</code></p>
+  <p><strong>5.</strong> <code>template.tsx</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Select All That Apply</h3>
+<p>Which of the following are valid dynamic segment conventions in the Next.js App Router?</p>
+<ul>
+  <li>[ ] <code>[slug]</code> — matches a single dynamic segment</li>
+  <li>[ ] <code>[...slug]</code> — catch-all, matches one or more segments</li>
+  <li>[ ] <code>[[...slug]]</code> — optional catch-all, matches zero or more segments</li>
+  <li>[ ] <code>{slug}</code> — curly-brace syntax for dynamic segments</li>
+  <li>[ ] <code>(*slug)</code> — wildcard syntax</li>
+  <li>[ ] <code>(slug)</code> — route group, does NOT create a URL segment</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[x] <code>[slug]</code> — single dynamic segment</li>
+    <li>[x] <code>[...slug]</code> — catch-all (one or more)</li>
+    <li>[x] <code>[[...slug]]</code> — optional catch-all (zero or more; the route also matches with no segment)</li>
+    <li>[ ] <code>{slug}</code> — <strong>FALSE</strong>, not a valid convention</li>
+    <li>[ ] <code>(*slug)</code> — <strong>FALSE</strong>, not a valid convention</li>
+    <li>[x] <code>(slug)</code> — route group; parentheses exclude the folder name from the URL but still organize the file system. <em>Note: this is a route group, not a dynamic segment.</em></li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Written Answer</h3>
+<p>Explain the difference between a <strong>parallel route</strong> and an <strong>intercepting route</strong> in Next.js. Give a concrete use-case for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Parallel routes</strong> (<code>@slot</code> folders) allow multiple pages to be rendered simultaneously in the same layout. They are defined with the <code>@folderName</code> convention and are passed as props to the parent layout. Example use-case: a dashboard with <code>@analytics</code> and <code>@team</code> panels side-by-side that can load and navigate independently.</p>
+  <p><strong>Intercepting routes</strong> (<code>(.)folder</code>, <code>(..)folder</code>, etc.) let you render a route in the context of the current layout, intercepting navigation. Classic use-case: clicking a photo in a feed shows it in a modal (intercepted route) while a direct URL or page-refresh shows it on its own dedicated page (the real route).</p>
+  <p>Folder prefixes: <code>(.)</code> same level, <code>(..)</code> one level up, <code>(...)</code> from root.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Multiple Choice</h3>
+<p>You create the file <code>app/(marketing)/about/page.tsx</code>. What URL does this page respond to?</p>
+<ul>
+  <li>A) <code>/marketing/about</code></li>
+  <li>B) <code>/(marketing)/about</code></li>
+  <li>C) <code>/about</code></li>
+  <li>D) <code>/marketing</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> Parenthesised folders are <em>route groups</em> — they organise files but are excluded from the URL path. Therefore <code>(marketing)</code> is invisible in the URL and the route resolves to <code>/about</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Multiple Choice</h3>
+<p>Which file inside <code>app/</code> is used to define a <strong>Route Handler</strong> (API endpoint) that responds to HTTP requests?</p>
+<ul>
+  <li>A) <code>api.ts</code></li>
+  <li>B) <code>handler.ts</code></li>
+  <li>C) <code>route.ts</code></li>
+  <li>D) <code>endpoint.ts</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> Route Handlers live in <code>route.ts</code> (or <code>route.js</code>) files. They export named functions matching HTTP verbs: <code>export async function GET(request: Request) {}</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, etc. A <code>route.ts</code> and a <code>page.tsx</code> cannot coexist in the same folder.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION B: Server vs Client Components</h2>
+
+<h3 class="g-h3">Question 7 — Multiple Choice</h3>
+<p>Which of the following is the correct reason to add <code>"use client"</code> at the top of a file in Next.js App Router?</p>
+<ul>
+  <li>A) To enable SSR for the component so it renders on the server</li>
+  <li>B) To mark the component and all its imported subtree as client-side, allowing React hooks and browser APIs</li>
+  <li>C) To prevent the component from being included in the server bundle</li>
+  <li>D) To opt out of automatic static generation for that page</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>"use client"</code> declares a <em>client boundary</em>. The directive applies to the file and every module it imports. This makes React hooks (<code>useState</code>, <code>useEffect</code>, etc.) and browser-only APIs available. Without this directive, components are Server Components by default in the App Router.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Select All That Apply</h3>
+<p>Which of the following can a <strong>Server Component</strong> do that a Client Component cannot?</p>
+<ul>
+  <li>[ ] Access a database or filesystem directly without an API layer</li>
+  <li>[ ] Use <code>useState</code> and <code>useEffect</code></li>
+  <li>[ ] Keep sensitive credentials (API keys) out of the client bundle</li>
+  <li>[ ] Use event handlers like <code>onClick</code></li>
+  <li>[ ] Fetch data with <code>async/await</code> at the component level</li>
+  <li>[ ] Use the browser <code>localStorage</code> API</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct (Server Component can do these):</strong></p>
+  <ul>
+    <li>[x] Access a database or filesystem directly</li>
+    <li>[ ] <code>useState</code> / <code>useEffect</code> — <strong>FALSE</strong>, only Client Components</li>
+    <li>[x] Keep sensitive credentials out of the client bundle</li>
+    <li>[ ] <code>onClick</code> — <strong>FALSE</strong>, only Client Components</li>
+    <li>[x] Fetch data with <code>async/await</code> at component level</li>
+    <li>[ ] <code>localStorage</code> — <strong>FALSE</strong>, browser-only</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Written Answer</h3>
+<p>A team-mate imports a Server Component inside a Client Component and gets a build error. Explain why this happens and describe two ways to resolve it.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Why:</strong> When a Server Component is imported inside a <code>"use client"</code> module, it is pulled across the client boundary and becomes part of the client bundle. Server Components can contain server-only code (Node APIs, secrets, async DB calls) that cannot run in the browser, so Next.js throws an error.</p>
+  <p><strong>Resolution 1 — Pass as <code>children</code> prop:</strong> Keep the Server Component in the parent (server) layout and pass it into the Client Component as <code>children</code> or another prop. The Server Component stays on the server; only its rendered output is sent to the client.</p>
+  <p><strong>Resolution 2 — Move the Server Component higher:</strong> Restructure so the Client Component is a leaf and the Server Component wraps or sits alongside it rather than being imported by it.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Multiple Choice</h3>
+<p>What does the <code>server-only</code> npm package do when imported in a module?</p>
+<ul>
+  <li>A) It polyfills Node.js APIs for the browser environment</li>
+  <li>B) It throws a build-time error if the module is accidentally imported in a Client Component</li>
+  <li>C) It automatically adds <code>"use server"</code> to every export in the file</li>
+  <li>D) It disables tree-shaking for that module</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> Importing <code>server-only</code> at the top of a module causes Next.js to emit a build error if that module ends up in the client bundle, acting as a guard for server-only utilities (e.g., database helpers, secrets).</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION C: Data Fetching, Caching &amp; Rendering Strategies</h2>
+
+<h3 class="g-h3">Question 11 — Fill in the Blanks</h3>
+<p>Complete the following fetch option descriptions:</p>
+<p>
+  1. <code>fetch(url, { cache: '________' })</code> — never caches; always fetches fresh data (equivalent to SSR).<br>
+  2. <code>fetch(url, { next: { revalidate: ________ } })</code> — revalidates the cached response after N seconds (ISR / time-based revalidation).<br>
+  3. <code>fetch(url, { cache: '________' })</code> — caches indefinitely (default behaviour; equivalent to SSG).<br>
+  4. <code>fetch(url, { next: { tags: ['________'] } })</code> — tags the cache entry so it can be purged on demand.
+</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>no-store</code></p>
+  <p><strong>2.</strong> A number, e.g. <code>60</code> (seconds)</p>
+  <p><strong>3.</strong> <code>force-cache</code></p>
+  <p><strong>4.</strong> A tag string, e.g. <code>'posts'</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>You want to purge all cached fetch calls tagged with <code>'products'</code> after a product is updated via a Server Action. Which Next.js function do you call?</p>
+<ul>
+  <li>A) <code>revalidateTag('products')</code></li>
+  <li>B) <code>clearCache('products')</code></li>
+  <li>C) <code>revalidatePath('/products')</code></li>
+  <li>D) <code>unstable_cache.clear('products')</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: A</strong></p>
+  <p><strong>Explanation:</strong> <code>revalidateTag(tag)</code> (from <code>next/cache</code>) invalidates all cached fetch requests that were tagged with that string. <code>revalidatePath(path)</code> also exists but invalidates by route path, not by tag. Both can only be called in Server Actions or Route Handlers.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Written Answer</h3>
+<p>Compare SSR, SSG, ISR, and CSR in Next.js. For each strategy, state: (a) when the HTML is generated, (b) the corresponding fetch cache option, and (c) the ideal use-case.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <div class="tw"><table>
+    <thead><tr><th>Strategy</th><th>When HTML is generated</th><th>Cache option</th><th>Ideal use-case</th></tr></thead>
+    <tbody>
+      <tr><td>SSG</td><td>Build time</td><td><code>force-cache</code> (default)</td><td>Marketing pages, docs, content that rarely changes</td></tr>
+      <tr><td>ISR</td><td>Build time + background revalidation</td><td><code>{ next: { revalidate: N } }</code></td><td>Blog posts, product pages — fresh enough but still cached</td></tr>
+      <tr><td>SSR</td><td>Per request on the server</td><td><code>no-store</code></td><td>Personalised pages, real-time data (dashboards, carts)</td></tr>
+      <tr><td>CSR</td><td>In the browser after JS loads</td><td>Client-side fetch (e.g., SWR, React Query)</td><td>Highly interactive widgets, data that doesn't need SEO</td></tr>
+    </tbody>
+  </table></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Multiple Choice</h3>
+<p>What does <code>generateStaticParams</code> do in a dynamic route like <code>app/blog/[slug]/page.tsx</code>?</p>
+<ul>
+  <li>A) It validates URL params at runtime to prevent 404s</li>
+  <li>B) It returns an array of param objects so Next.js pre-renders those routes at build time (SSG)</li>
+  <li>C) It restricts which slugs are allowed in production</li>
+  <li>D) It generates TypeScript types for the <code>params</code> prop</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>generateStaticParams</code> is the App Router replacement for <code>getStaticPaths</code>. It exports an async function that returns an array like <code>[{ slug: 'hello' }, { slug: 'world' }]</code>. Next.js renders each combination as a static HTML file at build time. Routes not in the list can still be served on demand (depending on <code>dynamicParams</code> setting).</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Multiple Choice</h3>
+<p>How does <code>loading.tsx</code> create a streaming experience in Next.js App Router?</p>
+<ul>
+  <li>A) It uses a Web Worker to fetch data in the background</li>
+  <li>B) Next.js automatically wraps the route segment in a React <code>&lt;Suspense&gt;</code> boundary, sending the loading UI immediately while the async page resolves</li>
+  <li>C) It defers all JavaScript until after the first paint</li>
+  <li>D) It enables HTTP/2 server push for the page assets</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> When you create a <code>loading.tsx</code> file, Next.js wraps the corresponding <code>page.tsx</code> (and its layout children) in a <code>&lt;Suspense&gt;</code> boundary automatically. The loading UI is streamed to the browser immediately, and the actual page content replaces it once the async work is done.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16 — Written Answer</h3>
+<p>Explain how you would use <code>&lt;Suspense&gt;</code> manually to stream parts of a page independently, without relying on <code>loading.tsx</code>. Write a short example.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>Wrap any async Server Component in <code>&lt;Suspense fallback={...}&gt;</code>. The fallback renders instantly while the async component resolves on the server and is then streamed in.</p>
+  <div class="cb"><pre>// app/dashboard/page.tsx (Server Component)
+import { Suspense } from 'react'
+import RevenueChart from './RevenueChart'
+import RecentOrders from './RecentOrders'
+
+export default function DashboardPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;Suspense fallback={&lt;p&gt;Loading chart...&lt;/p&gt;}&gt;
+        &lt;RevenueChart /&gt;
+      &lt;/Suspense&gt;
+      &lt;Suspense fallback={&lt;p&gt;Loading orders...&lt;/p&gt;}&gt;
+        &lt;RecentOrders /&gt;
+      &lt;/Suspense&gt;
+    &lt;/main&gt;
+  )
+}</pre></div>
+  <p>Each component fetches its own data in parallel. Whichever resolves first is streamed to the client first, reducing time-to-interactive.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION D: Server Actions, Metadata &amp; Middleware</h2>
+
+<h3 class="g-h3">Question 17 — Multiple Choice</h3>
+<p>Where must the <code>"use server"</code> directive appear to define a Server Action?</p>
+<ul>
+  <li>A) Only at the top of a <code>page.tsx</code> file</li>
+  <li>B) At the top of a separate file (making all exports Server Actions), or at the top of an <code>async</code> function body inside a Server Component</li>
+  <li>C) Inside a <code>"use client"</code> component above the function body</li>
+  <li>D) In <code>next.config.js</code> under the <code>serverActions</code> key</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>"use server"</code> can be placed at the top of a file (file-level directive, every exported async function becomes a Server Action) or at the top of an individual <code>async</code> function inside a Server Component. It cannot appear inside a Client Component function directly — instead, you import Server Actions from a <code>"use server"</code> file into Client Components.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 — Written Answer</h3>
+<p>Explain what <code>useActionState</code> (formerly <code>useFormState</code>) and <code>useFormStatus</code> do in the context of Server Actions. What are the rules about where each can be used?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>useActionState(action, initialState)</code></strong> — a React hook that wraps a Server Action. It returns <code>[state, formAction, isPending]</code>. <code>state</code> holds the value returned by the last action invocation. Must be used in a <strong>Client Component</strong> (<code>"use client"</code>). Enables progressive enhancement — the form works even without JS.</p>
+  <p><strong><code>useFormStatus()</code></strong> — returns <code>{ pending, data, method, action }</code> about the nearest parent <code>&lt;form&gt;</code>'s submission. Must be used in a Client Component that is a <em>child</em> of the form, not the form component itself. Typically used in a separate <code>&lt;SubmitButton&gt;</code> component to disable/show a spinner while the action is pending.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 19 — Multiple Choice</h3>
+<p>You want to define static metadata for a page in the App Router. Which is the correct approach?</p>
+<ul>
+  <li>A) Export a <code>Head</code> component from <code>page.tsx</code></li>
+  <li>B) Export a <code>metadata</code> object from <code>page.tsx</code> or <code>layout.tsx</code></li>
+  <li>C) Add a <code>&lt;meta&gt;</code> tag inside the JSX of the page</li>
+  <li>D) Use <code>next/head</code> inside the component</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> In the App Router, metadata is exported as a named <code>metadata</code> constant or via an async <code>generateMetadata</code> function from any <code>page.tsx</code> or <code>layout.tsx</code>. Next.js collects metadata from all segments and merges them. The old <code>next/head</code> pattern is from the Pages Router.</p>
+  <div class="cb"><pre>// Static
+export const metadata = { title: 'My Page', description: '...' }
+
+// Dynamic
+export async function generateMetadata({ params }) {
+  const product = await fetchProduct(params.id)
+  return { title: product.name }
+}</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 20 — Written Answer</h3>
+<p>What is Next.js Middleware and where does the <code>middleware.ts</code> file live? Describe two practical use-cases and explain what <code>NextResponse.redirect()</code> vs <code>NextResponse.rewrite()</code> do.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Location:</strong> <code>middleware.ts</code> goes at the <em>root</em> of the project (same level as <code>app/</code> or <code>pages/</code>), not inside <code>app/</code>.</p>
+  <p><strong>What it does:</strong> Runs on the Edge runtime <em>before</em> a request reaches the route handler/page, allowing inspection and transformation of requests and responses.</p>
+  <p><strong>Use-cases:</strong></p>
+  <ul>
+    <li>Authentication — check a session cookie; redirect unauthenticated users to <code>/login</code>.</li>
+    <li>Internationalisation — detect the user's locale from <code>Accept-Language</code> header and rewrite the URL to <code>/en/...</code>.</li>
+  </ul>
+  <p><strong><code>NextResponse.redirect(url)</code></strong> — sends a 3xx response to the client; the browser navigates to the new URL (URL changes in address bar).</p>
+  <p><strong><code>NextResponse.rewrite(url)</code></strong> — serves content from a different URL while keeping the original URL in the address bar (transparent proxy).</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION E: Redux &amp; Redux Toolkit</h2>
+
+<h3 class="g-h3">Question 21 — Fill in the Blanks</h3>
+<p>Complete the three core principles of Redux:</p>
+<p>
+  1. ________ — the entire application state is stored in a single object tree within one store.<br>
+  2. ________ — state is read-only; the only way to change state is to dispatch an action (a plain object).<br>
+  3. ________ — changes are made with pure functions called reducers that take <code>(state, action)</code> and return a new state.
+</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> Single source of truth</p>
+  <p><strong>2.</strong> State is read-only</p>
+  <p><strong>3.</strong> Changes are made with pure functions (reducers)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 22 — Multiple Choice</h3>
+<p>Which Redux Toolkit function replaces the need to write action creators, action type strings, and a reducer switch statement manually?</p>
+<ul>
+  <li>A) <code>configureStore</code></li>
+  <li>B) <code>createSlice</code></li>
+  <li>C) <code>createAction</code></li>
+  <li>D) <code>createReducer</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>createSlice</code> accepts a <code>name</code>, <code>initialState</code>, and a <code>reducers</code> object. It auto-generates action creators and action type strings, and produces a reducer — eliminating all the boilerplate. <code>configureStore</code> sets up the store with good defaults (Redux DevTools, <code>redux-thunk</code> middleware). <code>createAction</code> and <code>createReducer</code> are lower-level helpers used individually.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 23 — Written Answer</h3>
+<p>Explain how Redux Toolkit uses <strong>Immer</strong> inside <code>createSlice</code> reducers. Why is it safe to write <code>state.value += 1</code> in a reducer even though Redux requires immutable updates?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>RTK integrates <strong>Immer</strong> into every reducer created by <code>createSlice</code> (and <code>createReducer</code>). Immer wraps the state in a <em>Proxy</em> object. When you mutate the proxy (e.g., <code>state.value += 1</code>), Immer tracks all changes and produces a new immutable state snapshot behind the scenes — the original state object is never actually mutated.</p>
+  <p>This means you can write straightforward "mutable-style" code in your reducers while Redux still receives a brand-new state reference, triggering proper re-renders. You must either mutate the proxy <em>or</em> return a new value — not both.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 24 — Multiple Choice</h3>
+<p>What does <code>createAsyncThunk</code> automatically dispatch around an async operation?</p>
+<ul>
+  <li>A) Only a <code>fulfilled</code> action when the promise resolves</li>
+  <li>B) Three actions: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code></li>
+  <li>C) A single <code>loading</code> action followed by a <code>done</code> action</li>
+  <li>D) Nothing automatically — you dispatch actions manually inside the thunk</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>createAsyncThunk('slice/action', async (arg) =&gt; ...)</code> generates three action creators: <code>action.pending</code>, <code>action.fulfilled</code>, and <code>action.rejected</code>. These are dispatched automatically at the start, on success, and on error respectively. You handle them in <code>extraReducers</code> inside <code>createSlice</code> to update loading state, data, and error fields.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 25 — Select All That Apply</h3>
+<p>Which of the following are features provided by <strong>RTK Query</strong>?</p>
+<ul>
+  <li>[ ] Automatic caching and cache invalidation via tags</li>
+  <li>[ ] Generated React hooks like <code>useGetPostsQuery</code> and <code>useAddPostMutation</code></li>
+  <li>[ ] Polling support with <code>pollingInterval</code></li>
+  <li>[ ] Built-in pagination using <code>createPaginatedQuery</code></li>
+  <li>[ ] Optimistic updates via <code>onQueryStarted</code></li>
+  <li>[ ] Automatic store setup (no <code>configureStore</code> needed)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct:</strong></p>
+  <ul>
+    <li>[x] Automatic caching and cache invalidation via tags</li>
+    <li>[x] Generated React hooks (<code>useGetPostsQuery</code>, <code>useAddPostMutation</code>)</li>
+    <li>[x] Polling with <code>pollingInterval</code></li>
+    <li>[ ] <code>createPaginatedQuery</code> — <strong>FALSE</strong>, pagination is done manually via query args</li>
+    <li>[x] Optimistic updates via <code>onQueryStarted</code></li>
+    <li>[ ] Automatic store setup — <strong>FALSE</strong>, you still call <code>configureStore</code> and add the API slice's reducer and middleware</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 26 — Written Answer</h3>
+<p>Describe the unidirectional data flow in Redux. What are the four steps from a user interaction to a UI update?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ol>
+    <li><strong>Event / User interaction</strong> — e.g., a button click in the UI triggers a call to <code>dispatch(action)</code>.</li>
+    <li><strong>Dispatch</strong> — the action (a plain object with a <code>type</code> field and optional <code>payload</code>) is sent to the Redux store.</li>
+    <li><strong>Reducer</strong> — the store calls the root reducer with <code>(currentState, action)</code>. The reducer is a pure function; it returns a new state without mutating the old one.</li>
+    <li><strong>Store update + re-render</strong> — the store saves the new state. React components subscribed via <code>useSelector</code> receive the new state and re-render with the updated data.</li>
+  </ol>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION F: Context API &amp; Zustand</h2>
+
+<h3 class="g-h3">Question 27 — Multiple Choice</h3>
+<p>What is the main performance pitfall when using React Context for frequently-changing state?</p>
+<ul>
+  <li>A) Context values are stored in the DOM and reading them is slow</li>
+  <li>B) Every consumer of the context re-renders whenever the context value changes, even if it only uses part of the value</li>
+  <li>C) Context does not work with concurrent React features</li>
+  <li>D) Context values cannot hold objects, only primitives</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> React Context has no built-in selector mechanism. Any time the context value object reference changes, <em>all</em> consumers re-render — even those that only use an unrelated slice of the value. This makes Context unsuitable for high-frequency state (e.g., mouse position, real-time data). It is best suited for low-frequency, globally-shared state like theme or authentication.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 28 — Written Answer</h3>
+<p>Compare the Zustand <code>useStore</code> selector pattern to naive Context usage. Why do Zustand selectors prevent unnecessary re-renders?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>Zustand's <code>useStore(selector)</code> hook subscribes a component only to the <em>slice of state</em> returned by the selector function. Zustand performs a shallow (or strict equality) comparison between the previous and next selector result. If the result is the same, the component is <em>not</em> re-rendered, even if other parts of the store changed.</p>
+  <div class="cb"><pre>// Only re-renders when bears count changes
+const bears = useStore((state) =&gt; state.bears)
+
+// vs Context: re-renders whenever ANY value in the provider changes</pre></div>
+  <p>Context consumers re-render on every provider value change because React only does a reference equality check on the entire context value. Zustand solves this with per-component, fine-grained subscriptions — similar to Redux's <code>useSelector</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 29 — Multiple Choice</h3>
+<p>Which Zustand middleware persists the store to <code>localStorage</code> (or another storage) and rehydrates it on page load?</p>
+<ul>
+  <li>A) <code>devtools</code></li>
+  <li>B) <code>immer</code></li>
+  <li>C) <code>persist</code></li>
+  <li>D) <code>subscribeWithSelector</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> The <code>persist</code> middleware from <code>zustand/middleware</code> automatically serialises the store to a storage engine (default: <code>localStorage</code>) and restores it when the app reloads. You can configure which keys to persist with the <code>partialize</code> option.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 30 — Select All That Apply</h3>
+<p>Which of the following are valid reasons to choose <strong>Zustand</strong> over <strong>Redux Toolkit</strong>?</p>
+<ul>
+  <li>[ ] Zustand requires no store provider wrapping the app</li>
+  <li>[ ] Zustand has significantly less boilerplate for simple global state</li>
+  <li>[ ] Zustand includes a built-in devtools extension with time-travel debugging by default</li>
+  <li>[ ] Zustand supports React Server Components out of the box</li>
+  <li>[ ] Zustand is better suited for extremely complex state with many interconnected slices managed by a large team</li>
+  <li>[ ] Zustand's tiny bundle size makes it attractive for small to medium apps</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ul>
+    <li>[x] No provider wrapping needed — Zustand uses a module-level store</li>
+    <li>[x] Less boilerplate for simple use-cases</li>
+    <li>[ ] Built-in devtools <strong>by default</strong> — <strong>FALSE</strong>, you opt in via the <code>devtools</code> middleware</li>
+    <li>[ ] Supports RSC out of the box — <strong>FALSE</strong>, Zustand is client-side state; it does not run in Server Components</li>
+    <li>[ ] Better for large team / complex state — <strong>FALSE</strong>, Redux's strict patterns and middleware ecosystem scale better in those scenarios</li>
+    <li>[x] Tiny bundle size (~1 KB) is attractive for smaller apps</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 31 — Multiple Choice</h3>
+<p>When is the React <strong>Context API</strong> the most appropriate tool for shared state, compared to Redux or Zustand?</p>
+<ul>
+  <li>A) When state changes very frequently, such as tracking mouse movement</li>
+  <li>B) When you need time-travel debugging</li>
+  <li>C) When the state is low-frequency and widely needed, such as the current theme, locale, or authenticated user</li>
+  <li>D) When you need optimistic updates in a large e-commerce app</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> Context shines for <em>stable</em>, app-wide values (theme, locale, auth). Because it re-renders all consumers on value change, using it for high-frequency updates causes performance problems. For complex or frequently-updated state, Redux Toolkit or Zustand are better choices.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION G: react-hook-form</h2>
+
+<h3 class="g-h3">Question 32 — Multiple Choice</h3>
+<p>Why does react-hook-form (RHF) use <strong>uncontrolled</strong> inputs by default rather than controlled inputs?</p>
+<ul>
+  <li>A) Browsers do not support controlled inputs</li>
+  <li>B) Uncontrolled inputs avoid re-rendering the component on every keystroke, resulting in better performance</li>
+  <li>C) Uncontrolled inputs are required for server-side rendering</li>
+  <li>D) <code>useState</code> cannot store string values</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> In a controlled input pattern, every keystroke calls <code>setState</code>, which triggers a re-render of the whole form. RHF registers inputs with a ref (<code>register</code>), reads values from the DOM directly, and only triggers re-renders when necessary (e.g., on validation or submit). This makes large forms dramatically faster.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 33 — Fill in the Blanks</h3>
+<p>Complete the descriptions of key <code>useForm</code> return values:</p>
+<p>
+  1. <code>________</code> — a function that connects an input to RHF (returns <code>ref</code>, <code>name</code>, <code>onChange</code>, <code>onBlur</code>).<br>
+  2. <code>________</code> — wraps your submit callback; calls validation before invoking your handler.<br>
+  3. <code>________</code> — an object containing <code>errors</code>, <code>isSubmitting</code>, <code>isDirty</code>, <code>isValid</code>, etc.<br>
+  4. <code>________</code> — programmatically sets the value of a field.<br>
+  5. <code>________</code> — resets the form to default values (or a new set of values).
+</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>register</code></p>
+  <p><strong>2.</strong> <code>handleSubmit</code></p>
+  <p><strong>3.</strong> <code>formState</code></p>
+  <p><strong>4.</strong> <code>setValue</code></p>
+  <p><strong>5.</strong> <code>reset</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 34 — Written Answer</h3>
+<p>When should you use the <code>Controller</code> component from react-hook-form, and how does it work? Give an example with a UI library input.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>When to use:</strong> <code>Controller</code> is needed for <em>controlled</em> third-party components that do not expose a native <code>ref</code> (e.g., custom dropdowns, date-pickers from MUI, Radix UI selects, or React-Select). These components require <code>value</code> and <code>onChange</code> props rather than a DOM ref.</p>
+  <p><code>Controller</code> acts as a bridge: it wraps the component, subscribes to RHF's store, and passes <code>field.value</code>, <code>field.onChange</code>, and <code>field.onBlur</code> to the inner component.</p>
+  <div class="cb"><pre>import { useForm, Controller } from 'react-hook-form'
+import Select from 'react-select'
+
+function MyForm() {
+  const { control, handleSubmit } = useForm()
+
+  return (
+    &lt;form onSubmit={handleSubmit(console.log)}&gt;
+      &lt;Controller
+        name="country"
+        control={control}
+        rules={{ required: true }}
+        render={({ field }) =&gt; (
+          &lt;Select
+            {...field}
+            options={[{ value: 'is', label: 'Iceland' }]}
+          /&gt;
+        )}
+      /&gt;
+    &lt;/form&gt;
+  )
+}</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 35 — Select All That Apply</h3>
+<p>Which of the following are valid built-in validation rules for the <code>register</code> function in react-hook-form?</p>
+<ul>
+  <li>[ ] <code>required</code></li>
+  <li>[ ] <code>minLength</code></li>
+  <li>[ ] <code>pattern</code></li>
+  <li>[ ] <code>validate</code> (custom function)</li>
+  <li>[ ] <code>type</code></li>
+  <li>[ ] <code>max</code> / <code>min</code> (for numeric inputs)</li>
+  <li>[ ] <code>unique</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ul>
+    <li>[x] <code>required</code></li>
+    <li>[x] <code>minLength</code> (also <code>maxLength</code>)</li>
+    <li>[x] <code>pattern</code> — RegExp</li>
+    <li>[x] <code>validate</code> — custom function or object of functions</li>
+    <li>[ ] <code>type</code> — <strong>FALSE</strong>, not a built-in rule (type is an HTML attribute)</li>
+    <li>[x] <code>max</code> / <code>min</code> — for numeric and date inputs</li>
+    <li>[ ] <code>unique</code> — <strong>FALSE</strong>, not built-in; implement with <code>validate</code></li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 36 — Multiple Choice</h3>
+<p>You want to integrate <strong>Zod</strong> for schema validation with react-hook-form. Which package provides the resolver glue between them?</p>
+<ul>
+  <li>A) <code>zod-form</code></li>
+  <li>B) <code>@hookform/resolvers</code></li>
+  <li>C) <code>react-zod-form</code></li>
+  <li>D) No extra package — RHF supports Zod natively</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>@hookform/resolvers</code> provides adapters for Zod, Yup, Joi, Valibot, and others. You pass <code>resolver: zodResolver(schema)</code> to <code>useForm</code>. RHF then runs the Zod schema on submit (and optionally on change/blur) and maps errors back to the <code>formState.errors</code> object.</p>
+  <div class="cb"><pre>import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const schema = z.object({
+  email: z.string().email(),
+  age: z.number().min(18),
+})
+
+const { register, handleSubmit, formState: { errors } } = useForm({
+  resolver: zodResolver(schema),
+})</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 37 — Written Answer</h3>
+<p>Explain the difference between <code>watch</code> and <code>getValues</code> in react-hook-form. When should you use each?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>watch(fieldName)</code></strong> — subscribes the component to re-render whenever the watched field changes. Use it when the UI needs to react to a field value in real-time, e.g., showing a conditional section when a checkbox is ticked or computing a live preview.</p>
+  <p><strong><code>getValues(fieldName?)</code></strong> — reads the current value(s) from the form store <em>without</em> subscribing to updates and <em>without</em> triggering a re-render. Use it inside event handlers or effects where you just need to read the value once (e.g., "copy shipping to billing" button, validating one field relative to another in a <code>validate</code> function).</p>
+  <p>Rule of thumb: if you need the value in JSX / render output → <code>watch</code>. If you need it in a callback → <code>getValues</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 38 — Multiple Choice</h3>
+<p>After a successful form submission you want to reset all fields to their original default values. Which RHF call achieves this?</p>
+<ul>
+  <li>A) <code>clearErrors()</code></li>
+  <li>B) <code>setValue('', '')</code> for each field</li>
+  <li>C) <code>reset()</code> or <code>reset(newDefaults)</code></li>
+  <li>D) <code>unregister()</code> all fields</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> <code>reset()</code> resets values, errors, and dirty/touched state back to <code>defaultValues</code>. You can also pass a new values object to <code>reset(newValues)</code> to set new defaults — useful when populating an edit form from a server response. <code>clearErrors()</code> only clears validation errors, it does not reset field values.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 39 — Written Answer</h3>
+<p>You have a form with a field named <code>email</code>. Describe how to display a custom error message for (a) a required error, (b) a pattern error, and (c) a server-side error returned after submission.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Setup:</strong></p>
+  <div class="cb"><pre>const { register, handleSubmit, formState: { errors }, setError } = useForm()
+
+&lt;input {...register('email', {
+  required: 'Email is required',
+  pattern: { value: /^\S+@\S+$/, message: 'Invalid email format' }
+})} /&gt;
+
+{errors.email &amp;&amp; &lt;p&gt;{errors.email.message}&lt;/p&gt;}</pre></div>
+  <p><strong>(a) Required error:</strong> When the field is empty, <code>errors.email.type === 'required'</code> and <code>errors.email.message === 'Email is required'</code>.</p>
+  <p><strong>(b) Pattern error:</strong> When the value does not match the regex, <code>errors.email.type === 'pattern'</code> and <code>errors.email.message === 'Invalid email format'</code>.</p>
+  <p><strong>(c) Server-side error:</strong> After a failed API call in the submit handler, call <code>setError('email', { type: 'server', message: 'This email is already registered' })</code>. RHF stores it in <code>errors.email</code> and the same <code>{errors.email.message}</code> JSX renders it.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 40 — Select All That Apply</h3>
+<p>Which statements about <code>formState</code> in react-hook-form are correct?</p>
+<ul>
+  <li>[ ] <code>isDirty</code> is true if any field value differs from its <code>defaultValue</code></li>
+  <li>[ ] <code>isSubmitting</code> is true while the <code>handleSubmit</code> async callback is running</li>
+  <li>[ ] <code>isValid</code> reflects whether all validations currently pass (requires <code>mode</code> other than <code>'onSubmit'</code> for live accuracy)</li>
+  <li>[ ] <code>errors</code> is populated as soon as the form mounts, before any user interaction</li>
+  <li>[ ] <code>touchedFields</code> tracks which fields the user has interacted with and blurred</li>
+  <li>[ ] <code>submitCount</code> tracks how many times the form has been submitted</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ul>
+    <li>[x] <code>isDirty</code> — correct</li>
+    <li>[x] <code>isSubmitting</code> — correct</li>
+    <li>[x] <code>isValid</code> — correct (in <code>'onSubmit'</code> mode it only updates after a submit attempt; use <code>mode: 'onChange'</code> or <code>'onBlur'</code> for live validation)</li>
+    <li>[ ] <code>errors</code> populated on mount — <strong>FALSE</strong>, errors appear after validation triggers (by default, on submit)</li>
+    <li>[x] <code>touchedFields</code> — correct</li>
+    <li>[x] <code>submitCount</code> — correct</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION H: Mixed / Applied Questions</h2>
+
+<h3 class="g-h3">Question 41 — Written Answer</h3>
+<p>You are building a Next.js App Router application. Describe a complete architecture decision process: when would you reach for (a) Server Component data fetching, (b) RTK Query, (c) Zustand, and (d) react-hook-form, and how can they coexist?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>(a) Server Component data fetching</strong> — for any data needed to render the initial page that does not require user interaction or real-time updates (product listings, blog posts, user profile on a settings page). Fetch directly in the Server Component; no client-side state library needed.</p>
+  <p><strong>(b) RTK Query</strong> — for data that must be fetched and mutated from the <em>client side</em>, especially when multiple components need the same cached data (e.g., a shopping cart, notifications badge, or any CRUD UI). RTK Query handles loading/error/cache states automatically.</p>
+  <p><strong>(c) Zustand</strong> — for lightweight <em>client-side UI state</em> that doesn't map directly to server data: modal open/close, sidebar state, wizard step, or cross-component ephemeral state that doesn't warrant the overhead of Redux.</p>
+  <p><strong>(d) react-hook-form</strong> — for all form state: field values, validation errors, dirty/touched tracking, submission state. RHF keeps form state out of React state and out of global stores — it is self-contained per form instance.</p>
+  <p><strong>Coexistence example:</strong> A "Create Order" page uses a Server Component to fetch product options. A Client Component renders the form (RHF). On submit, the form calls an RTK Query mutation to POST the order. On success, Zustand updates a global notification store.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 42 — Multiple Choice</h3>
+<p>In a Next.js Route Handler (<code>route.ts</code>), you export a <code>POST</code> function. What is the correct return type for a JSON response?</p>
+<ul>
+  <li>A) <code>return { json: data }</code></li>
+  <li>B) <code>return Response.json(data)</code> or <code>return NextResponse.json(data)</code></li>
+  <li>C) <code>return new HTMLResponse(data)</code></li>
+  <li>D) <code>res.json(data)</code> (Express-style)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> App Router Route Handlers use the standard Web <code>Response</code> API. <code>Response.json(data, { status: 200 })</code> or the Next.js helper <code>NextResponse.json(data, { status: 201 })</code> both work. Express-style <code>res.json()</code> does not exist in the App Router.</p>
+  <div class="cb"><pre>// app/api/products/route.ts
+export async function POST(request: Request) {
+  const body = await request.json()
+  const product = await db.create(body)
+  return Response.json(product, { status: 201 })
+}</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 43 — Written Answer</h3>
+<p>A colleague adds <code>"use client"</code> to every component "just to be safe". Explain the performance implications and describe the correct strategy for deciding where to place the client boundary.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Performance implications:</strong></p>
+  <ul>
+    <li>Every <code>"use client"</code> component (and everything it imports) ships to the browser as JavaScript, inflating the client bundle.</li>
+    <li>Server Components have zero JavaScript cost on the client — they render on the server and send HTML. Making everything a Client Component eliminates this advantage.</li>
+    <li>Server-side data fetching, direct DB access, and secret keys are also lost — they cannot live in Client Components.</li>
+  </ul>
+  <p><strong>Correct strategy — push the boundary to the leaves:</strong></p>
+  <ol>
+    <li>Start with Server Components by default.</li>
+    <li>Only add <code>"use client"</code> to the smallest component that actually needs interactivity (hooks, event handlers, browser APIs).</li>
+    <li>Keep data-fetching and layout at the server level; pass data down as props to small client leaves.</li>
+    <li>Or use the <code>children</code> composition pattern to thread Server Component output through a Client Component wrapper.</li>
+  </ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 44 — Multiple Choice</h3>
+<p>You call <code>revalidatePath('/blog')</code> inside a Server Action. What exactly gets invalidated?</p>
+<ul>
+  <li>A) Only the <code>/blog</code> page's HTML cache</li>
+  <li>B) The cached data and rendered output associated with the <code>/blog</code> route (and optionally its sub-paths, depending on the type parameter)</li>
+  <li>C) All routes in the entire application</li>
+  <li>D) Only the <code>fetch</code> requests that were made on <code>/blog</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>revalidatePath(path, type?)</code> purges the router cache and Data Cache for the specified path. The optional <code>type</code> argument can be <code>'page'</code> (default, exact path) or <code>'layout'</code> (invalidates the path and all routes that share its layout). It does not affect every route in the app.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 45 — Written Answer</h3>
+<p>Explain how to implement optimistic UI updates using RTK Query's <code>onQueryStarted</code> lifecycle. Walk through the rollback pattern if the server request fails.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>RTK Query mutations expose <code>onQueryStarted(arg, { dispatch, queryFulfilled, getState })</code> in the endpoint definition. You can patch the cache optimistically before the request completes:</p>
+  <div class="cb"><pre>updatePost: builder.mutation({
+  query: (patch) =&gt; ({ url: `/posts/${patch.id}`, method: 'PATCH', body: patch }),
+  async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
+    // 1. Optimistically update the cache
+    const patchResult = dispatch(
+      postsApi.util.updateQueryData('getPosts', undefined, (draft) =&gt; {
+        const post = draft.find((p) =&gt; p.id === id)
+        if (post) Object.assign(post, patch)
+      })
+    )
+    try {
+      // 2. Wait for the real response
+      await queryFulfilled
+    } catch {
+      // 3. Roll back on failure
+      patchResult.undo()
+    }
+  },
+})</pre></div>
+  <p>The <code>updateQueryData</code> utility (powered by Immer) creates an optimistic patch and returns an <code>undo</code> function. If <code>queryFulfilled</code> rejects, calling <code>patchResult.undo()</code> reverses the optimistic change, restoring the previous cache state.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 46 — Multiple Choice</h3>
+<p>In react-hook-form, what is the default validation trigger (<code>mode</code>)?</p>
+<ul>
+  <li>A) <code>'onChange'</code> — validates on every keystroke</li>
+  <li>B) <code>'onBlur'</code> — validates when the field loses focus</li>
+  <li>C) <code>'onSubmit'</code> — validates only when the form is submitted</li>
+  <li>D) <code>'all'</code> — validates on change, blur, and submit</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> The default <code>mode</code> is <code>'onSubmit'</code>. Errors only appear after the first submit attempt. After the first submit, RHF switches to <code>onChange</code> re-validation for already-errored fields. You can override with <code>useForm({ mode: 'onBlur' })</code>, <code>'onChange'</code>, or <code>'all'</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 47 — Written Answer</h3>
+<p>Describe the complete flow of a form submission using a Next.js <strong>Server Action</strong> without any client-side JavaScript (progressive enhancement). What must be true for this to work?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Flow:</strong></p>
+  <ol>
+    <li>The form has a native HTML <code>&lt;form action={serverAction}&gt;</code>. No <code>onSubmit</code> JS handler needed.</li>
+    <li>When the user submits, the browser serialises the form fields as <code>multipart/form-data</code> and POSTs to the Next.js Server Action endpoint.</li>
+    <li>Next.js invokes the Server Action with a <code>FormData</code> object on the server.</li>
+    <li>The action reads data via <code>formData.get('fieldName')</code>, validates, and performs the mutation.</li>
+    <li>The server re-renders the page with updated state (or calls <code>redirect()</code>).</li>
+  </ol>
+  <p><strong>Requirements for progressive enhancement:</strong></p>
+  <ul>
+    <li>Use a real <code>&lt;form&gt;</code> element with a native submit button (<code>&lt;button type="submit"&gt;</code>).</li>
+    <li>Pass the Server Action to the <code>action</code> attribute, not <code>onSubmit</code>.</li>
+    <li>The action must be defined with <code>"use server"</code>.</li>
+    <li>All form fields must have <code>name</code> attributes so they appear in <code>FormData</code>.</li>
+  </ul>
+  <p>When JS is available, React intercepts the submit and calls the action without a full page reload (enhanced behaviour). Without JS, the form still works via standard browser form submission.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 48 — Multiple Choice</h3>
+<p>You have a <code>createSlice</code> with a reducer that returns a new state object instead of mutating the Immer draft. Which of the following is true?</p>
+<ul>
+  <li>A) This is forbidden — you must always mutate the draft</li>
+  <li>B) This is valid — you can either mutate the draft OR return a new value, but not both</li>
+  <li>C) Returning a new value from a reducer causes a TypeScript error in RTK</li>
+  <li>D) Immer ignores returned values and always uses the mutated draft</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> Immer supports two patterns in a reducer: (1) mutate the proxy draft directly and return nothing, or (2) return a completely new value (bypassing Immer). You cannot do both — if you mutate the draft AND return a new value, Immer throws an error. Returning a new value is useful when you want to replace the entire state slice (e.g., resetting to initial state).</p>
+  <div class="cb"><pre>// Pattern 1 — mutate draft (Immer handles immutability)
+increment(state) { state.count += 1 }
+
+// Pattern 2 — return new value
+reset() { return initialState }
+
+// INVALID — do not do both
+broken(state) { state.count += 1; return { count: 0 } }</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 49 — Written Answer</h3>
+<p>What is the difference between <code>generateStaticParams</code> and <code>generateMetadata</code> in Next.js App Router? Can they both be exported from the same file?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>generateStaticParams</code></strong> — exported from a dynamic <code>page.tsx</code> (e.g., <code>app/blog/[slug]/page.tsx</code>). Returns an array of <code>params</code> objects that Next.js should pre-render as static pages at build time. Replaces <code>getStaticPaths</code> from the Pages Router.</p>
+  <p><strong><code>generateMetadata</code></strong> — exported from any <code>page.tsx</code> or <code>layout.tsx</code>. Returns a <code>Metadata</code> object (title, description, OpenGraph, etc.) optionally after fetching data. Replaces the static <code>metadata</code> export when the metadata depends on route params or remote data. Replaces <code>getServerSideProps</code>-based head injection from the Pages Router.</p>
+  <p><strong>Can they coexist?</strong> Yes. Both can be exported from the same <code>page.tsx</code> file. Next.js deduplicates any shared <code>fetch</code> calls between them automatically using the built-in request memoisation (React's <code>cache</code>).</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 50 — Multiple Choice</h3>
+<p>You need to access a user's authentication token stored in a cookie inside a Next.js Server Component. Which API do you use?</p>
+<ul>
+  <li>A) <code>document.cookie</code></li>
+  <li>B) <code>cookies()</code> from <code>'next/headers'</code></li>
+  <li>C) <code>getServerSideProps</code> context</li>
+  <li>D) <code>useContext(CookieContext)</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> Next.js provides <code>cookies()</code> (and <code>headers()</code>) from <code>'next/headers'</code> for reading incoming request cookies/headers in Server Components, Server Actions, and Route Handlers. <code>document.cookie</code> is browser-only. <code>getServerSideProps</code> is Pages Router only. Hooks like <code>useContext</code> cannot run in Server Components.</p>
+  <div class="cb"><pre>import { cookies } from 'next/headers'
+
+export default async function ProfilePage() {
+  const token = cookies().get('auth-token')?.value
+  const user = await fetchUser(token)
+  return &lt;div&gt;{user.name}&lt;/div&gt;
+}</pre></div>
+</div>
+</details>

@@ -1,0 +1,581 @@
+<h2 class="g-h2">Practice Exam 14 — Advanced Redux, Async Patterns, and State Management Comparison</h2>
+
+<hr>
+
+<h2 class="g-h2">Part 1: createAsyncThunk (3 questions)</h2>
+
+<h3 class="g-h3">Question 1 (3 points)</h3>
+<p>The slides describe a recommended data fetching pattern when using thunks. Describe the three steps of this pattern in order, and explain what each step does.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The three steps of the recommended data fetching pattern:</p>
+<ol>
+<li><strong>A "start" action is dispatched</strong> before the request to indicate that the request is in progress. This may be used to track loading state, to allow skipping duplicate requests, or show loading indicators in the UI.</li>
+<li><strong>The async request is made</strong> (the actual fetch/API call).</li>
+<li><strong>Depending on the result</strong>, the async logic dispatches either a "success" action containing the result data, or a "failure" action containing error details. The reducer logic clears the loading state in both cases, and either processes the result data from the success case, or stores the error value for potential display.</li>
+</ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 (4 points)</h3>
+<p>Look at the following code using <code>createAsyncThunk</code> and <code>extraReducers</code> with the builder pattern:</p>
+<div class="cb"><pre>import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { userAPI } from './userAPI'
+
+const fetchUserById = createAsyncThunk(
+  'users/fetchByIdStatus',
+  async (userId, thunkAPI) =&gt; {
+    const response = await userAPI.fetchById(userId)
+    return response.data
+  }
+)
+
+const usersSlice = createSlice({
+  name: 'users',
+  initialState: { entities: [], loading: 'idle' },
+  reducers: {},
+  extraReducers: (builder) =&gt; {
+    builder.addCase(fetchUserById.fulfilled, (state, action) =&gt; {
+      state.entities.push(action.payload)
+    })
+  },
+})
+
+dispatch(fetchUserById(123))</pre></div>
+
+<p><strong>a)</strong> What two parameters does <code>createAsyncThunk</code> accept?</p>
+<p><strong>b)</strong> Why is <code>extraReducers</code> used instead of <code>reducers</code> here?</p>
+<p><strong>c)</strong> What does <code>fetchUserById.fulfilled</code> refer to? Name the other two lifecycle states that <code>createAsyncThunk</code> automatically generates.</p>
+<p><strong>d)</strong> Why is it safe to write <code>state.entities.push(action.payload)</code> even though <code>push</code> mutates the array?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>createAsyncThunk</code> accepts two parameters: a <strong>single string for the action type</strong> (e.g. <code>'users/fetchByIdStatus'</code>) and a <strong>payload creator function</strong> (an async callback that performs the actual logic and returns the data).</p>
+
+<p><strong>b)</strong> <code>extraReducers</code> is used because <code>createAsyncThunk</code> generates its own action types (pending, fulfilled, rejected) that are <strong>external to the slice</strong>. Regular <code>reducers</code> only handle actions defined within the slice itself. <code>extraReducers</code> allows the slice to respond to actions defined outside of it.</p>
+
+<p><strong>c)</strong> <code>fetchUserById.fulfilled</code> refers to the action type dispatched when the async thunk <strong>resolves successfully</strong>. The other two lifecycle states are:</p>
+<ul>
+<li><code>fetchUserById.pending</code> (dispatched when the thunk starts)</li>
+<li><code>fetchUserById.rejected</code> (dispatched when the thunk throws an error)</li>
+</ul>
+
+<p><strong>d)</strong> It is safe because the function passed to <code>createSlice</code> (and <code>createReducer</code>) <strong>uses Immer automatically</strong>. Immer tracks the "mutations" and performs safe, immutable operations under the hood. The <code>state.push()</code> is actually creating a new array immutably behind the scenes.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 (3 points)</h3>
+<p>The slides state: "Because writing data fetching logic can be tedious, RTK offers a function called <code>createAsyncThunk</code> which handles most of the heavy lifting."</p>
+<p>Compare the following two approaches by listing one advantage of each:</p>
+<p><strong>Approach A — Manual thunk with separate action creators:</strong></p>
+<div class="cb"><pre>const getRepoDetailsStarted = () =&gt; ({
+  type: 'repoDetails/fetchStarted',
+})
+const getRepoDetailsSuccess = (repoDetails) =&gt; ({
+  type: 'repoDetails/fetchSucceeded',
+  payload: repoDetails,
+})
+const getRepoDetailsFailed = (error) =&gt; ({
+  type: 'repoDetails/fetchFailed',
+  error,
+})
+
+const fetchIssuesCount = (org, repo) =&gt; async (dispatch) =&gt; {
+  dispatch(getRepoDetailsStarted())
+  try {
+    const repoDetails = await getRepoDetails(org, repo)
+    dispatch(getRepoDetailsSuccess(repoDetails))
+  } catch (err) {
+    dispatch(getRepoDetailsFailed(err.toString()))
+  }
+}</pre></div>
+
+<p><strong>Approach B — createAsyncThunk:</strong></p>
+<div class="cb"><pre>const fetchUserById = createAsyncThunk(
+  'users/fetchByIdStatus',
+  async (userId, thunkAPI) =&gt; {
+    const response = await userAPI.fetchById(userId)
+    return response.data
+  }
+)</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Approach A (manual thunk) advantage:</strong> You have full, explicit control over every action that is dispatched. Each action creator is clearly defined with its own type, making the flow very transparent.</p>
+
+<p><strong>Approach B (createAsyncThunk) advantage:</strong> It dramatically reduces boilerplate. Instead of having to dispatch multiple actions manually and define separate action creators for started/success/failed, you only need to provide a single string for the action type and a payload creator function. <code>createAsyncThunk</code> handles most of the heavy lifting — automatically generating pending/fulfilled/rejected action types.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">Part 2: RTK Query (3 questions)</h2>
+
+<h3 class="g-h3">Question 4 (3 points)</h3>
+<p>The slides quote the official documentation:</p>
+<blockquote>
+<p>"RTK Query is a powerful data fetching and caching tool. It is designed to simplify common cases for loading data in a web application, eliminating the need to hand-write data fetching &amp; caching logic yourself."</p>
+</blockquote>
+<p><strong>a)</strong> Is RTK Query mandatory when using Redux Toolkit?</p>
+<p><strong>b)</strong> RTK Query takes inspiration from which two other libraries mentioned in the slides?</p>
+<p><strong>c)</strong> What does it mean that RTK Query is "UI-agnostic"?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> No. The slides explicitly state: "RTK Query is an addition to the Redux Toolkit, and not mandatory to use when using RTK."</p>
+
+<p><strong>b)</strong> RTK Query takes inspiration from <strong>React Query</strong> and <strong>SWR</strong>.</p>
+
+<p><strong>c)</strong> RTK Query is UI-agnostic meaning that it will work for <strong>all JS solutions which have compatibility to use RTK</strong>, e.g. React for web and React Native for apps. It is not tied to a specific UI framework.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 (4 points)</h3>
+<p>Study the following RTK Query setup from the slides:</p>
+<div class="cb"><pre>import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import type { Pokemon } from './types'
+
+export const pokemonApi = createApi({
+  reducerPath: 'pokemonApi',
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
+  endpoints: (builder) =&gt; ({
+    getPokemonByName: builder.query&lt;Pokemon, string&gt;({
+      query: (name) =&gt; `pokemon/${name}`,
+    }),
+  }),
+})
+
+export const { useGetPokemonByNameQuery } = pokemonApi</pre></div>
+
+<p><strong>a)</strong> What is the role of <code>createApi</code> in RTK Query?</p>
+<p><strong>b)</strong> What does <code>fetchBaseQuery</code> do, and what is <code>baseUrl</code> used for?</p>
+<p><strong>c)</strong> How is the hook <code>useGetPokemonByNameQuery</code> generated? Did the developer write that hook manually?</p>
+<p><strong>d)</strong> Show how this hook would be used in a component, including what values it returns.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>createApi</code> is used to <strong>define a service using a base URL and expected endpoints</strong>. It is the core function of RTK Query that sets up the API configuration including the base query, reducer path, and all the endpoint definitions.</p>
+
+<p><strong>b)</strong> <code>fetchBaseQuery</code> is a lightweight fetch wrapper that handles making HTTP requests. The <code>baseUrl</code> parameter sets the root URL that all endpoint queries will be relative to (in this case <code>'https://pokeapi.co/api/v2/'</code>).</p>
+
+<p><strong>c)</strong> The hook <code>useGetPokemonByNameQuery</code> is <strong>auto-generated based on the defined endpoints</strong>. The developer did NOT write it manually. RTK Query automatically creates hooks following the pattern <code>use[EndpointName]Query</code> for each endpoint defined in <code>createApi</code>. The developer simply exports it from the API object:</p>
+<div class="cb"><pre>export const { useGetPokemonByNameQuery } = pokemonApi</pre></div>
+
+<p><strong>d)</strong> Usage in a component (from the slides):</p>
+<div class="cb"><pre>import { useGetPokemonByNameQuery } from './services/pokemon'
+
+export default function Pokemon() {
+  // Using a query hook automatically fetches data and returns query values
+  const { data, error, isLoading } = useGetPokemonByNameQuery('bulbasaur')
+
+  // rendering logic
+}</pre></div>
+<p>The hook returns <code>data</code>, <code>error</code>, and <code>isLoading</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 (3 points)</h3>
+<p>When integrating RTK Query into the Redux store, the slides show the following pattern:</p>
+<div class="cb"><pre>export const store = configureStore({
+  reducer: {
+    [pokemonApi.reducerPath]: pokemonApi.reducer,
+  },
+  middleware: getDefaultMiddleware =&gt;
+    getDefaultMiddleware().concat(pokemonApi.middleware)
+})</pre></div>
+
+<p><strong>a)</strong> Why is <code>pokemonApi.reducer</code> added to the store using a computed property name <code>[pokemonApi.reducerPath]</code>?</p>
+<p><strong>b)</strong> Why must <code>pokemonApi.middleware</code> be added to the store's middleware? What features does it enable?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> The computed property name <code>[pokemonApi.reducerPath]</code> is used so the reducer is added at the key matching the <code>reducerPath</code> string defined in <code>createApi</code> (in this case <code>'pokemonApi'</code>). This ensures the reducer is <strong>added as a specific top-level slice</strong> in the store with the correct name.</p>
+
+<p><strong>b)</strong> Adding <code>pokemonApi.middleware</code> to the store <strong>enables caching, invalidation, polling, and other useful features of RTK Query</strong>. Without the middleware, RTK Query would not be able to manage its cache lifecycle or automatically handle data refetching.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">Part 3: Immutability in Redux (3 questions)</h2>
+
+<h3 class="g-h3">Question 7 (3 points)</h3>
+<p>The slides define immutability as follows: "If objects are immutable they can never be changed - so instead of changing an object, a new object should be created instead."</p>
+<p><strong>a)</strong> Are objects in JavaScript immutable or mutable by default?</p>
+<p><strong>b)</strong> Give two techniques for achieving immutability in JavaScript, as mentioned in the slides.</p>
+<p><strong>c)</strong> Why does the following code violate immutability principles in a Redux reducer?</p>
+<div class="cb"><pre>// Inside a reducer
+state.value = 123</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Objects in JavaScript are <strong>mutable by default</strong>, meaning that fields can be changed in an object and entries can be changed in an array.</p>
+
+<p><strong>b)</strong> Two techniques mentioned in the slides:</p>
+<ol>
+<li>Usage of <strong>spread operators</strong> (<code>...state</code>)</li>
+<li><strong>Returning a new instance</strong> of an object/array</li>
+</ol>
+
+<p><strong>c)</strong> <code>state.value = 123</code> directly mutates the existing state object. The slide explicitly marks this as "Illegal - by default, this will mutate the state!" The safe approach is to return a new object:</p>
+<div class="cb"><pre>return {
+  ...state,
+  value: 123,
+}</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 (3 points)</h3>
+<p>The slides state that Immer is "a library, available using NPM, that simplifies the process of writing immutable update logic."</p>
+<p><strong>a)</strong> What function does Immer provide, and what two parameters does it accept?</p>
+<p><strong>b)</strong> The slides say: "It gives you the imitation that you are mutating, but in reality immutable operations are being performed instead." Explain what this means in practice.</p>
+<p><strong>c)</strong> How does Redux Toolkit use Immer? Does the developer need to import Immer separately when using <code>createSlice</code>?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Immer provides a function called <strong><code>produce</code></strong>, which accepts two parameters: <strong>your original state</strong> and <strong>a callback function</strong>.</p>
+
+<p><strong>b)</strong> Within the callback function you can write code that looks like it mutates the state (e.g. <code>state.push(...)</code>, <code>state.value = ...</code>), but Immer <strong>tracks the changes and performs the operations using safe, immutable operations instead</strong>. The developer writes mutation-style syntax, but behind the scenes new immutable copies are being created.</p>
+
+<p><strong>c)</strong> The function passed to <code>createReducer</code> or when working with a slice (via <code>createSlice</code>) <strong>uses Immer automatically</strong>. The developer does NOT need to import Immer separately. Within the reducer function, state can be "mutated" directly and Immer handles the immutability. For example:</p>
+<div class="cb"><pre>const todosSlice = createSlice({
+  name: 'todos',
+  initialState: [],
+  reducers: {
+    todoAdded(state, action) {
+      state.push(action.payload)  // Safe! Immer handles this
+    },
+  },
+})</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 (3 points)</h3>
+<p>Look at the following reducer code that handles deeply nested immutable updates without Immer:</p>
+<div class="cb"><pre>function handwrittenReducer(state, action) {
+  return {
+    ...state,
+    first: {
+      ...state.first,
+      second: {
+        ...state.first.second,
+        [action.someId]: {
+          ...state.first.second[action.someId],
+          fourth: action.someValue,
+        },
+      },
+    },
+  }
+}</pre></div>
+
+<p><strong>a)</strong> According to the slides, what is the "most common mistake Redux users do" related to immutability?</p>
+<p><strong>b)</strong> Now write the equivalent update using <code>createSlice</code> (which uses Immer automatically). How many lines does it take?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> According to the slides: "The most common mistake Redux users do is accidentally mutating the Redux state - simply because it quickly becomes too complex." As nested objects and other more complex structures come into play, manually maintaining immutability becomes unmaintainable.</p>
+
+<p><strong>b)</strong> Using <code>createSlice</code> with Immer, the equivalent is just:</p>
+<div class="cb"><pre>const mySlice = createSlice({
+  name: 'mySlice',
+  initialState: { first: { second: {} } },
+  reducers: {
+    updateFourth(state, action) {
+      state.first.second[action.payload.someId].fourth = action.payload.someValue
+    },
+  },
+})</pre></div>
+<p>It takes essentially <strong>one line</strong> of update logic (<code>state.first.second[action.payload.someId].fourth = action.payload.someValue</code>) compared to the 15-line deeply nested spread pattern.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">Part 4: Redux Thunk and Middleware (3 questions)</h2>
+
+<h3 class="g-h3">Question 10 (3 points)</h3>
+<p><strong>a)</strong> By default, does Redux know about asynchronous logic? What can it do by default?</p>
+<p><strong>b)</strong> Name three middleware options for handling async logic in Redux that are mentioned in the slides.</p>
+<p><strong>c)</strong> Which one does the course focus on, and why?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> No. "By default Redux knows nothing about asynchronous logic - it only knows how to synchronously dispatch actions, and update the state by calling the root reducer function."</p>
+
+<p><strong>b)</strong> Three middleware options mentioned:</p>
+<ol>
+<li><strong>redux-thunk</strong></li>
+<li><strong>redux-saga</strong></li>
+<li><strong>redux-observable</strong></li>
+</ol>
+
+<p><strong>c)</strong> The course focuses on <strong>redux-thunk</strong> because "that is the most common option."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 (3 points)</h3>
+<p>Study the following thunk example from the slides:</p>
+<div class="cb"><pre>function makeASandwichWithSecretSauce(forPerson) {
+  // We can invert control here by returning a function - the "thunk".
+  // When this function is passed to `dispatch`, the thunk middleware will intercept it,
+  // and call it with `dispatch` and `getState` as arguments.
+  return function (dispatch) {
+    return fetchSecretSauce().then(
+      sauce =&gt; dispatch(makeASandwich(forPerson, sauce)),
+      error =&gt; dispatch(apologize('The Sandwich Shop', forPerson, error))
+    )
+  }
+}</pre></div>
+
+<p><strong>a)</strong> What does the thunk middleware do when a function (instead of a plain action object) is passed to <code>dispatch</code>?</p>
+<p><strong>b)</strong> What two arguments does the middleware pass to the thunk function?</p>
+<p><strong>c)</strong> According to the slides, where must thunks be declared relative to slices, and why?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> When a function (instead of a plain action object) is passed to <code>dispatch</code>, the thunk middleware <strong>intercepts it</strong> and calls it with <code>dispatch</code> and <code>getState</code> as arguments. This gives the thunk function the ability to run some logic and still interact with the store.</p>
+
+<p><strong>b)</strong> The middleware passes <strong><code>dispatch</code></strong> and <strong><code>getState</code></strong> as arguments to the thunk function.</p>
+
+<p><strong>c)</strong> According to the slides: "Thunks are not a part of the regular slice function and therefore must be declared <strong>outside of the slice</strong>." Therefore it is not possible to "slice the thunk" -- thunks live separately from the slice definition.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 (4 points)</h3>
+<p>The slides show the following <code>configureStore</code> setup:</p>
+<div class="cb"><pre>import { configureStore } from '@reduxjs/toolkit'
+import todosReducer from '../reducers/todosReducer'
+
+// Automatically adds the thunk middleware and the Redux DevTools extension
+const store = configureStore({
+  // Automatically calls `combineReducers`
+  reducer: {
+    todos: todosReducer
+  },
+})</pre></div>
+
+<p><strong>a)</strong> According to the slide comments, what two things does <code>configureStore</code> automatically add?</p>
+<p><strong>b)</strong> What does <code>configureStore</code> automatically call when you pass an object to the <code>reducer</code> field?</p>
+<p><strong>c)</strong> If you are using Redux without Redux Toolkit, how would you add the thunk middleware manually? (Name the function mentioned in the slides.)</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>configureStore</code> automatically adds:</p>
+<ol>
+<li><strong>The thunk middleware</strong> (Redux Thunk)</li>
+<li><strong>The Redux DevTools extension</strong></li>
+</ol>
+
+<p><strong>b)</strong> <code>configureStore</code> automatically calls <strong><code>combineReducers</code></strong> when you pass an object to the <code>reducer</code> field.</p>
+
+<p><strong>c)</strong> If using Redux without Redux Toolkit, you would add the thunk middleware manually using the <strong><code>applyMiddleware</code></strong> function.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">Part 5: Context API Issues (3 questions)</h2>
+
+<h3 class="g-h3">Question 13 (3 points)</h3>
+<p>The slides describe the biggest issue with Context API:</p>
+<blockquote>
+<p>"The biggest issue with Context API is that every consumer re-renders when the context changes - <strong>even if they don't use the data</strong>."</p>
+</blockquote>
+<p><strong>a)</strong> What happens when you try to fix this re-render problem by splitting contexts?</p>
+<p><strong>b)</strong> What term do the slides use to describe the result of many nested Providers?</p>
+<p><strong>c)</strong> Show the code example from the slides that illustrates this problem.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Splitting contexts to fix re-renders <strong>leads to deeply nested providers</strong>.</p>
+
+<p><strong>b)</strong> The slides use the term <strong>"Context Hell"</strong>.</p>
+
+<p><strong>c)</strong> The code example from the slides:</p>
+<div class="cb"><pre>&lt;AuthContext.Provider&gt;
+  &lt;ThemeContext.Provider&gt;
+    &lt;CartContext.Provider&gt;
+      &lt;App /&gt;</pre></div>
+<p>This nesting becomes expensive as the app grows and the component tree becomes larger.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 (3 points)</h3>
+<p>The slides list four debugging limitations of the Context API. List all four.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The four debugging limitations of Context API:</p>
+<ol>
+<li><strong>State changes have no structure</strong> therefore no enforced pattern for how updates happen</li>
+<li><strong>No action logs</strong> so nothing tells you what triggered a state change</li>
+<li><strong>No time-travel debugging</strong> and you can't step backwards through state history</li>
+<li><strong>You're limited to basic React DevTools</strong></li>
+</ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 (3 points)</h3>
+<p>The slides describe when Context API is a good choice. List the three categories of good use-cases, including the specific examples given for the first category.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The three categories of good use-cases for Context API:</p>
+<ol>
+<li><strong>State that infrequently changes:</strong>
+   <ul>
+   <li>Authentication information</li>
+   <li>Theme (dark/light)</li>
+   <li>Locale/language selection</li>
+   </ul>
+</li>
+<li><strong>Small to medium size apps</strong> where limitations don't have any effect</li>
+<li><strong>When there are restrictions of external dependencies or bundle size</strong> (Context API has 0KB bundle size since it's built into React)</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">Part 6: Context API vs Redux vs Zustand Comparison (3 questions)</h2>
+
+<h3 class="g-h3">Question 16 (4 points)</h3>
+<p>Fill in the following comparison table from the slides with the exact values:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>Context API</th>
+<th>Redux (RTK)</th>
+<th>Zustand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bundle size</td>
+<td>0KB</td>
+<td>~14KB</td>
+<td>~1-3KB</td>
+</tr>
+<tr>
+<td>Learning curve</td>
+<td>Low</td>
+<td>Medium-High</td>
+<td>Very low</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Poor for frequent updates</td>
+<td>Good with selectors</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Auth, theme, locale</td>
+<td>Large teams &amp; enterprise apps</td>
+<td>Most apps — pragmatic default</td>
+</tr>
+</tbody>
+</table></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>See the filled-in table above.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 (4 points)</h3>
+<p>The slides present a decision flowchart for choosing a state management solution. Complete the following decision tree with the correct answers:</p>
+<ol>
+<li>Is your app small with minimal shared state?
+   <ul>
+   <li>Yes &rarr; ?</li>
+   <li>No &rarr; Continue</li>
+   </ul>
+</li>
+<li>Does your state change frequently? (e.g. cart, real-time data, UI state)
+   <ul>
+   <li>Yes &rarr; ?</li>
+   <li>No &rarr; ?</li>
+   </ul>
+</li>
+<li>Is your team large (5+ devs) or is strict structure/conventions important?
+   <ul>
+   <li>Yes &rarr; ?</li>
+   <li>No &rarr; Continue</li>
+   </ul>
+</li>
+<li>Do you need advanced debugging? (action logs, time-travel)
+   <ul>
+   <li>Yes &rarr; ?</li>
+   <li>No &rarr; Continue</li>
+   </ul>
+</li>
+<li>Do you have complex async flows or business logic?
+   <ul>
+   <li>Yes &rarr; ?</li>
+   <li>No &rarr; ?</li>
+   </ul>
+</li>
+</ol>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li>Is your app small with minimal shared state?
+   <ul>
+   <li>Yes &rarr; <strong>Context API</strong></li>
+   </ul>
+</li>
+<li>Does your state change frequently?
+   <ul>
+   <li>Yes &rarr; <strong>Context API is out of race due to re-render issues. Continue to next question</strong></li>
+   <li>No &rarr; <strong>Context API</strong></li>
+   </ul>
+</li>
+<li>Is your team large (5+ devs) or is strict structure/conventions important?
+   <ul>
+   <li>Yes &rarr; <strong>Redux</strong> with enforced patterns, powerful DevTools and scales across large teams</li>
+   </ul>
+</li>
+<li>Do you need advanced debugging? (action logs, time-travel)
+   <ul>
+   <li>Yes &rarr; <strong>Redux</strong></li>
+   </ul>
+</li>
+<li>Do you have complex async flows or business logic?
+   <ul>
+   <li>Yes &rarr; <strong>Redux using createAsyncThunk and middlewares</strong></li>
+   <li>No &rarr; <strong>Zustand</strong></li>
+   </ul>
+</li>
+</ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 (3 points)</h3>
+<p>Compare the debugging capabilities of Redux versus Zustand based on the slides.</p>
+<p>For <strong>Redux</strong>, list the four debugging capabilities mentioned.</p>
+<p>For <strong>Zustand</strong>, list the four debugging characteristics mentioned and explain why the slides consider Zustand's debugging "less powerful than Redux."</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Redux debugging capabilities (4 points):</strong></p>
+<ol>
+<li>Best-in-class Redux DevTools</li>
+<li>Full action log with type and payload</li>
+<li>State diff on every change</li>
+<li>Time-travel — step forwards and backwards through state history</li>
+</ol>
+
+<p><strong>Zustand debugging characteristics (4 points):</strong></p>
+<ol>
+<li>Integrates with Redux DevTools</li>
+<li>Action log is less descriptive than Redux (no enforced action types)</li>
+<li>No time-travel debugging</li>
+<li>React DevTools shows component-level state</li>
+</ol>
+
+<p>Zustand's debugging is considered "less powerful than Redux" because it lacks enforced action types (making action logs less descriptive), has no time-travel debugging capability, and only provides component-level state visibility through React DevTools rather than the full action/state history that Redux DevTools provides.</p>
+</div>
+</details>

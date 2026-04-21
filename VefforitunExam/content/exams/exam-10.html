@@ -1,0 +1,257 @@
+<h2 class="g-h2">Practice Exam 10 — TypeScript</h2>
+
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>According to the slides, why is JavaScript described as problematic when it comes to catching errors?</p>
+<ul>
+<li>A) JavaScript does not support functions</li>
+<li>B) JavaScript is a compiled, statically typed language that catches all errors at build time</li>
+<li>C) JavaScript is an interpreted, dynamic programming language, meaning you can write code that contains "build" errors and run the code which results in an exception during execution</li>
+<li>D) JavaScript cannot run in the browser</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong></p>
+<p><strong>Explanation:</strong> The slides state: "JavaScript is an interpreted, dynamic programming language. This means that you can write code that contains 'build' errors and run the code which results in an exception during execution."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Multiple Choice</h3>
+<p>Given the following code from the slides, which questions do we need to ask ourselves when writing VanillaJS?</p>
+<div class="cb"><pre>message.toLowerCase();
+message();</pre></div>
+<ul>
+<li>A) Is <code>message</code> a string? Does it have a <code>length</code> property?</li>
+<li>B) Is <code>message</code> callable? Does <code>message</code> have a property called <code>toLowerCase</code>? If so, is <code>toLowerCase</code> callable? If both are callable, what do they return?</li>
+<li>C) Is <code>message</code> defined in the global scope? Is <code>toLowerCase</code> a built-in method?</li>
+<li>D) Does <code>message</code> return a number? Is <code>toLowerCase</code> deprecated?</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides list these exact questions: Is <code>message</code> callable? Does <code>message</code> have a property called <code>toLowerCase</code>? If so, is <code>toLowerCase</code> callable? If both these values are callable, what do they return?</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Multiple Choice</h3>
+<p>According to the slides, what is one key benefit of TypeScript's explicit declaration of types, arguments, and return values?</p>
+<ul>
+<li>A) It makes the code run faster in the browser</li>
+<li>B) It reduces the file size of the application</li>
+<li>C) Our code editor can provide us with auto-complete features and suggestions to make our developer environment more productive</li>
+<li>D) It eliminates the need for testing</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong></p>
+<p><strong>Explanation:</strong> The slides state: "Because of explicit declaration of types, arguments and return values, our code editor can provide us with auto-complete features and suggestions to make our developer environment more productive."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Multiple Choice</h3>
+<p>How is TypeScript designed to be adopted in an existing JavaScript project?</p>
+<ul>
+<li>A) The entire codebase must be rewritten to TypeScript at once</li>
+<li>B) TypeScript is built to integrate gradually to an existing JavaScript application, by replacing chunks at a time from VanillaJS to TypeScript</li>
+<li>C) TypeScript can only be used for new projects, not existing ones</li>
+<li>D) TypeScript requires a separate runtime environment from JavaScript</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "TypeScript is built to integrate gradually to an existing JavaScript application, by replacing chunks at a time from VanillaJS to TypeScript."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Multiple Choice</h3>
+<p>Which two commands from the slides are used to set up TypeScript via NPM?</p>
+<ul>
+<li>A) <code>npm install -g typescript</code> (global) and <code>npm install typescript --save-dev</code> (per project)</li>
+<li>B) <code>npm install ts</code> and <code>npm install ts --global</code></li>
+<li>C) <code>yarn add typescript</code> and <code>npm run typescript</code></li>
+<li>D) <code>npx create-typescript-app</code> and <code>npm install tsc</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: A</strong></p>
+<p><strong>Explanation:</strong> The slides show two setup options: <code>npm install -g typescript</code> for global setup (one TS version) and <code>npm install typescript --save-dev</code> for setup per project (multiple versions).</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Multiple Choice</h3>
+<p>What happens when you run <code>tsc hello.ts</code> according to the slides?</p>
+<ul>
+<li>A) It runs the TypeScript file directly in Node.js</li>
+<li>B) First TypeScript evaluates <code>hello.ts</code> and makes sure all the code is correct according to TypeScript. Second a file is created called <code>hello.js</code>, which is a valid VanillaJS containing the functionality setup in <code>hello.ts</code></li>
+<li>C) It deletes the original <code>.ts</code> file and replaces it with a <code>.js</code> file</li>
+<li>D) It only checks for errors but does not produce any output</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides explain: "First of all TypeScript evaluates hello.ts and makes sure that all the code is correct according to TypeScript. Second a file is created called hello.js, which is a valid VanillaJS containing the functionality setup in hello.ts."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Multiple Choice</h3>
+<p>Which of the following are the four capabilities provided by the <code>tsc</code> / <code>npx tsc</code> command, as listed in the slides?</p>
+<ul>
+<li>A) Types by inference, Type definitions, Type composition (Unions, Generics), Structural type system</li>
+<li>B) Type checking, Type casting, Type coercion, Type narrowing</li>
+<li>C) Interfaces, Enums, Decorators, Modules</li>
+<li>D) Static analysis, Runtime checking, Code generation, Bundling</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: A</strong></p>
+<p><strong>Explanation:</strong> The slides list exactly: Types by inference, Type definitions, Type composition (Unions, Generics), and Structural type system.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>What does "types by inference" mean according to the slides?</p>
+<div class="cb"><pre>let helloWorld = 'Hello world'; // string
+let x = 3; // number</pre></div>
+<ul>
+<li>A) You must always declare the type explicitly for every variable</li>
+<li>B) TypeScript requires a special configuration file to infer types</li>
+<li>C) By default TypeScript provides functionality without setting anything up. This works because TypeScript understands JavaScript and can therefore interpret certain things without explicit definitions</li>
+<li>D) Type inference only works for string variables</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong></p>
+<p><strong>Explanation:</strong> The slides state: "By default TypeScript provides functionality without setting anything up. This works because TypeScript understands JavaScript and can therefore interpret certain things without explicit definitions."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Multiple Choice</h3>
+<p>According to the slides, when do we need to provide a "type definition" using an interface?</p>
+<ul>
+<li>A) For every variable in the program</li>
+<li>B) Only for numbers and strings</li>
+<li>C) When we have a complex type, TypeScript cannot guess how it should be structured, therefore we need to provide an interface for the complex type</li>
+<li>D) Only when using generics</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong></p>
+<p><strong>Explanation:</strong> The slides state: "When we have a complex type, TypeScript cannot guess how it should be structured, therefore we need to provide an interface for the complex type, this is called a type definition."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Multiple Choice</h3>
+<p>Given the following slide example about structural type system, which call will FAIL and why?</p>
+<div class="cb"><pre>interface Point {
+  x: number;
+  y: number;
+}
+
+function logPoint(p: Point) { console.log(`${p.x}, ${p.y}`); }
+
+const point3d = { x: 1, y: 2, z: 3 };
+logPoint(point3d); // logs "1, 2"
+
+const rect = { x: 1, y: 2, width: 30, height: 40 };
+logPoint(rect); // logs "1, 2"
+
+const animal = { type: 'cow', name: 'Fred' };
+logPoint(animal); // fails</pre></div>
+<ul>
+<li>A) <code>logPoint(point3d)</code> fails because it has an extra <code>z</code> property</li>
+<li>B) <code>logPoint(rect)</code> fails because it has <code>width</code> and <code>height</code> properties</li>
+<li>C) <code>logPoint(animal)</code> fails because <code>animal</code> does not have <code>x</code> and <code>y</code> properties -- the shape-matching only requires a subset of the object's fields to match, but the object must declare the required properties</li>
+<li>D) All three calls succeed</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong></p>
+<p><strong>Explanation:</strong> <code>logPoint(animal)</code> fails because <code>animal</code> has <code>{ type, name }</code> but no <code>x</code> or <code>y</code> properties. The slides explain that shape-matching only requires a subset of the object's fields to match, so <code>point3d</code> (has <code>x, y, z</code>) and <code>rect</code> (has <code>x, y, width, height</code>) both pass because they include <code>x</code> and <code>y</code>. But <code>animal</code> does not have the required <code>x</code> and <code>y</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Multiple Choice</h3>
+<p>What error does TypeScript produce in the following slide example, and what happens to the output <code>.js</code> file?</p>
+<div class="cb"><pre>function greet(person, date) {
+  console.log(`Hello ${person}, today is ${date}`);
+}
+
+greet('Zorban');</pre></div>
+<ul>
+<li>A) No error is produced and no <code>.js</code> file is generated</li>
+<li>B) "Expected 2 arguments, but got 1." -- but a <code>hello.js</code> file is still generated with VanillaJS, because TypeScript is built with migration in mind</li>
+<li>C) "Expected 2 arguments, but got 1." -- and no <code>.js</code> file is generated because of the error</li>
+<li>D) "Unexpected token" -- the entire compilation fails</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides show the error "Expected 2 arguments, but got 1." and explain: "Although TypeScript generates errors, we still see an output in our generated .js files" because "TypeScript is built with migration in mind."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>What is the purpose of explicit types in the following slide example, and why does the second call produce an error?</p>
+<div class="cb"><pre>function greet(person: string, date: Date) {
+  console.log(`Hello ${person}, today is ${date.toDateString()}!`);
+}
+
+// This will show errors because "03/03/2023" is of type string
+// but the expected type is Date
+greet("Michelangelo", "03/03/2023");</pre></div>
+<ul>
+<li>A) Explicit types make the code run faster</li>
+<li>B) Explicit types provide type safety and enforce consistent usage of the function -- <code>"03/03/2023"</code> is of type <code>string</code> but the expected type is <code>Date</code></li>
+<li>C) Explicit types are only for documentation and have no effect</li>
+<li>D) The error is caused by the function name, not the types</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides state that explicit types provide "type safety and enforce a consistent usage of the function." The error occurs because <code>"03/03/2023"</code> is of type <code>string</code> but the expected type is <code>Date</code>. The correct call is <code>greet("Michelangelo", new Date("03/03/2023"))</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Multiple Choice</h3>
+<p>According to the slides, what two things happen during TypeScript compilation (erased types and downleveling)?</p>
+<ul>
+<li>A) Comments are removed and variables are renamed</li>
+<li>B) All type annotations are stripped out, and the template literals syntax is changed to using the <code>concat()</code> method instead</li>
+<li>C) Only type annotations are removed; everything else stays the same</li>
+<li>D) The code is minified and obfuscated</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides state two things happened: "1. All type annotations were stripped out. 2. The template literals syntax was changed to using the concat() method instead."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Multiple Choice</h3>
+<p>Why are type annotations stripped out and template literals converted to <code>concat()</code> during compilation, according to the slides?</p>
+<ul>
+<li>A) To make the code smaller</li>
+<li>B) 1) Type annotations are not a part of JS and therefore browsers are not equipped to handle TypeScript code -- therefore non-JS features are stripped out during compilation. 2) By default TypeScript targets ES3 (an old version of JS) which during compilation transpiles all JS code to ES3 standards</li>
+<li>C) To improve runtime performance</li>
+<li>D) Because <code>concat()</code> is faster than template literals</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong></p>
+<p><strong>Explanation:</strong> The slides explain: "1. Type annotations are not a part of JS and therefore browsers aren't equipped to handle TypeScript code. Therefore non-JS features are stripped out during compilation. 2. By default TypeScript targets ES3 (an old version of JS) which during compilation transpiles all JS code ES3 standards."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Multiple Choice</h3>
+<p>According to the slides, how does the <code>tsconfig.json</code> file control strictness in TypeScript?</p>
+<ul>
+<li>A) It has no effect on TypeScript behavior</li>
+<li>B) It only controls which files are compiled</li>
+<li>C) By setting a flag called "strict" in the <code>tsconfig.json</code> file, you enable all strict mode family options, e.g. <code>noImplicitAny</code>, <code>noImplicitThis</code>, <code>strictFunctionTypes</code>, etc. You can also opt-out to them explicitly by setting the configuration</li>
+<li>D) Strictness can only be set via command-line flags, not in <code>tsconfig.json</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong></p>
+<p><strong>Explanation:</strong> The slides state: "By setting a flag called 'strict' in the tsconfig.json file, you enable all strict mode family options, e.g. noImplicitAny, noImplicitThis, strictFunctionTypes, etc. You can also opt-out to them explicitly by setting the configuration."</p>
+</div>
+</details>

@@ -1,0 +1,480 @@
+<h2 class="g-h2">Practice Exam 3 — <code>this</code> Binding, Redux, Socket.io &amp; Web APIs</h2>
+
+<hr>
+
+<h2 class="g-h2">SECTION A: JAVASCRIPT <code>this</code> BINDING (DEEP DIVE)</h2>
+
+<h3 class="g-h3">Question 1 — Code Analysis (8 pts)</h3>
+<p>Study the following code carefully:</p>
+<div class="cb"><pre>function Hero(name) {
+    this.name = name;
+    console.log(this);   // logged in constructor
+}
+
+Hero.prototype.attack = function() {
+    console.log('Attack!');
+    console.log(this);
+};
+
+function SuperHero(name, power) {
+    Hero.call(this, name);
+    this.power = power;
+    console.log(this);
+}
+
+SuperHero.prototype = Object.create(Hero.prototype);
+SuperHero.prototype.constructor = SuperHero;
+
+SuperHero.prototype.fly = function() {
+    console.log(this.name + ' flies!');
+    console.log(this);
+};
+
+var nobody = {};
+
+// Execute the following lines:
+var h1 = Hero('Thor');                    // 1. What is this?
+var h2 = new Hero('Iron Man');            // 2. What is this?
+var h3 = new SuperHero('Spider-Man', 'web'); // 3. What is this? (TWO logs)
+h2.attack();                              // 4. What is this?
+h2.attack.call(nobody);                   // 5. What is this?
+var attackFn = h2.attack;
+attackFn();                               // 6. What is this?
+setTimeout(h3.fly, 500);                  // 7. What is this?
+h3.fly.bind(h2)();                        // 8. What is this?
+</pre></div>
+<p>For each numbered line, state what <code>this</code> will be. Possible answers: <code>window</code>, <code>nobody</code>, <code>h1</code>, <code>h2</code>, <code>h3</code>, or describe the object.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>window</code> — <code>Hero('Thor')</code> called without <code>new</code>, so <code>this</code> = window in non-strict mode</p>
+<p><strong>2.</strong> <code>Hero { name: 'Iron Man' }</code> — called with <code>new</code>, <code>this</code> = new instance (h2)</p>
+<p><strong>3.</strong> First log (from Hero.call): <code>SuperHero { name: 'Spider-Man' }</code> — Hero.call(this, name) uses the SuperHero instance as <code>this</code>. Second log: <code>SuperHero { name: 'Spider-Man', power: 'web' }</code> — same instance now with <code>power</code> added (h3)</p>
+<p><strong>4.</strong> <code>Hero { name: 'Iron Man' }</code> — method called on h2, so <code>this</code> = h2</p>
+<p><strong>5.</strong> <code>{}</code> (nobody) — <code>.call(nobody)</code> explicitly sets <code>this</code> to <code>nobody</code></p>
+<p><strong>6.</strong> <code>window</code> — function reference extracted, called without context, <code>this</code> = window</p>
+<p><strong>7.</strong> <code>window</code> — setTimeout loses context, and in the callback <code>this.name</code> is <code>undefined</code>, so it logs "undefined flies!" and <code>this</code> = window</p>
+<p><strong>8.</strong> <code>Hero { name: 'Iron Man' }</code> — <code>.bind(h2)</code> permanently sets <code>this</code> to h2, so it logs "Iron Man flies!" and <code>this</code> = h2</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Multiple Choice</h3>
+<p>What happens when you call a constructor function WITHOUT the <code>new</code> keyword?</p>
+<ul>
+<li>A) JavaScript automatically adds <code>new</code> and creates the object correctly</li>
+<li>B) <code>this</code> refers to the global <code>window</code> object, and properties are set on <code>window</code></li>
+<li>C) An error is thrown because constructor functions require <code>new</code></li>
+<li>D) <code>this</code> is <code>undefined</code> and the function returns <code>null</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong> — <code>this</code> refers to <code>window</code>, properties are set on the global object</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Select All That Apply</h3>
+<p>Which of the following statements about <code>this</code> binding are correct?</p>
+<ul>
+<li>[ ] Arrow functions inherit <code>this</code> from their enclosing lexical scope</li>
+<li>[ ] <code>.bind()</code> returns a new function; <code>.call()</code> invokes the function immediately</li>
+<li>[ ] <code>new</code> overrides <code>.bind()</code> — a bound function called with <code>new</code> will use the new instance as <code>this</code></li>
+<li>[ ] In strict mode, <code>this</code> in a regular function call is <code>undefined</code> instead of <code>window</code></li>
+<li>[ ] <code>.call()</code> can override a function that was already bound with <code>.bind()</code></li>
+<li>[ ] <code>setTimeout</code> preserves the <code>this</code> context of the function passed to it</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct statements:</strong></p>
+<ul>
+<li>[x] Arrow functions inherit <code>this</code> from lexical scope</li>
+<li>[x] <code>.bind()</code> returns new function, <code>.call()</code> invokes immediately</li>
+<li>[x] <code>new</code> overrides <code>.bind()</code></li>
+<li>[x] In strict mode, <code>this</code> is <code>undefined</code> instead of <code>window</code></li>
+<li>[ ] <code>.call()</code> can override <code>.bind()</code> — <strong>FALSE</strong> (bind is permanent, call cannot override it)</li>
+<li>[ ] <code>setTimeout</code> preserves context — <strong>FALSE</strong> (it loses <code>this</code> context)</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Written Answer (4 pts)</h3>
+<p>Explain the difference between these four patterns of calling a function with respect to <code>this</code>:</p>
+<div class="cb"><pre>greet();                    // Pattern 1
+obj.greet();                // Pattern 2
+greet.call(otherObj);       // Pattern 3
+new greet();                // Pattern 4
+</pre></div>
+<p>For each pattern, state what <code>this</code> will be and why.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Pattern 1 <code>greet()</code>:</strong> Regular function call. <code>this</code> = <code>window</code> (global object) in non-strict mode, <code>undefined</code> in strict mode. There's no object context.</p>
+<p><strong>Pattern 2 <code>obj.greet()</code>:</strong> Method call. <code>this</code> = <code>obj</code>. The object before the dot becomes <code>this</code>.</p>
+<p><strong>Pattern 3 <code>greet.call(otherObj)</code>:</strong> Explicit binding. <code>this</code> = <code>otherObj</code>. <code>.call()</code> explicitly sets <code>this</code> to the first argument.</p>
+<p><strong>Pattern 4 <code>new greet()</code>:</strong> Constructor call. <code>this</code> = a brand new empty object that inherits from <code>greet.prototype</code>. The <code>new</code> keyword creates the object and sets <code>this</code> to it.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION B: REDUX IN DEPTH</h2>
+
+<h3 class="g-h3">Question 5 — Fill in the blanks</h3>
+<p>Complete the following sentences about Redux:</p>
+<p>In Redux, the entire application state is held in a single 1. ________, Changes to state are triggered by dispatching 2. ________, which are plain objects with a <code>type</code> property. The 3. ________ is a pure function that takes the current state and an action, and returns a new state. In Redux Toolkit, a 4. ________ bundles the reducer logic and action creators for a single feature. To read state in a functional component, you use the 5. ________ hook. To dispatch actions, you use the 6. ________ hook.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>store</code></p>
+<p><strong>2.</strong> <code>actions</code></p>
+<p><strong>3.</strong> <code>reducer</code></p>
+<p><strong>4.</strong> <code>slice</code></p>
+<p><strong>5.</strong> <code>useSelector</code></p>
+<p><strong>6.</strong> <code>useDispatch</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Code Analysis (4 pts)</h3>
+<p>Study this Redux Toolkit slice:</p>
+<div class="cb"><pre>import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+interface CounterState {
+    value: number;
+    history: number[];
+}
+
+const initialState: CounterState = {
+    value: 0,
+    history: [],
+};
+
+const counterSlice = createSlice({
+    name: 'counter',
+    initialState,
+    reducers: {
+        increment(state) {
+            state.history.push(state.value);
+            state.value += 1;
+        },
+        decrement(state) {
+            state.history.push(state.value);
+            state.value -= 1;
+        },
+        incrementByAmount(state, action: PayloadAction&lt;number&gt;) {
+            state.history.push(state.value);
+            state.value += action.payload;
+        },
+        reset(state) {
+            state.value = 0;
+            state.history = [];
+        },
+    },
+});
+</pre></div>
+<p>a) A student says: "These reducers are impure because they mutate <code>state.value</code> directly!" Is the student correct? Explain why or why not. (2 pts)</p>
+<p>b) If the current state is <code>{ value: 5, history: [0, 1, 3] }</code> and we dispatch <code>incrementByAmount(10)</code>, what will the new state be? (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> The student is <strong>incorrect</strong>. While the code looks like it's mutating state directly (<code>state.value += 1</code>), Redux Toolkit uses <strong>Immer</strong> under the hood. Immer creates a draft proxy of the state — you write "mutating" code, but Immer produces an immutable update behind the scenes. This is one of RTK's biggest benefits: simpler reducer syntax while maintaining immutability guarantees.</p>
+<p><strong>b)</strong> New state: <code>{ value: 15, history: [0, 1, 3, 5] }</code></p>
+<ul>
+<li><code>state.history.push(state.value)</code> → pushes current value (5) to history: <code>[0, 1, 3, 5]</code></li>
+<li><code>state.value += action.payload</code> → 5 + 10 = 15</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Written Answer (4 pts)</h3>
+<p>Explain the complete Redux data flow using a concrete example of a user adding a product to a shopping cart. Describe each step from user action to UI update, mentioning: the component, the action, dispatch, the reducer, the store, and how the component gets the updated data.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Complete flow example — user clicks "Add to Cart" on a product:</strong></p>
+<p><strong>1. Component (View):</strong> User clicks "Add to Cart" button on <code>&lt;ProductCard&gt;</code> component</p>
+<p><strong>2. Action Creator:</strong> The click handler calls <code>dispatch(addToCart({ id: 42, name: "Book", price: 29.99 }))</code>. This creates an action object: <code>{ type: 'cart/addToCart', payload: { id: 42, name: 'Book', price: 29.99 } }</code></p>
+<p><strong>3. Dispatch:</strong> The <code>dispatch()</code> function sends this action to the Redux store</p>
+<p><strong>4. Reducer:</strong> The store passes the current state and the action to the cart reducer. The reducer matches the action type <code>'cart/addToCart'</code> and returns a new state with the product added to the cart array</p>
+<p><strong>5. Store:</strong> The store updates its state tree with the new state returned by the reducer</p>
+<p><strong>6. Component Update:</strong> Components that use <code>useSelector</code> to read cart state are notified. The <code>&lt;CartIcon&gt;</code> component re-renders showing the updated count. The <code>&lt;CartPage&gt;</code> shows the new item.</p>
+<p>This is the <strong>Flux pattern:</strong> View → Action → Dispatch → Reducer → Store → View (unidirectional)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>Which of the following best describes why Redux Toolkit (RTK) was created?</p>
+<ul>
+<li>A) To replace React Context API entirely</li>
+<li>B) To reduce the boilerplate code required by traditional Redux (manual action types, action creators, immutable update logic)</li>
+<li>C) To enable server-side rendering with Redux</li>
+<li>D) To make Redux work with TypeScript</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: B</strong> — Reduce boilerplate from traditional Redux</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION C: SOCKET.IO</h2>
+
+<h3 class="g-h3">Question 9 — Fill in the blanks</h3>
+<p>Complete the following sentences about Socket.io:</p>
+<p>Socket.io enables 1. ________, bidirectional communication between client and server. To send an event from the server to ALL connected clients, you use 2. ________. To send an event to all clients EXCEPT the sender, you use 3. ________. To listen for events, both client and server use the 4. ________ method. Socket.io 5. ________ are functions that run before a connection is established, often used for authentication.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>real-time</code></p>
+<p><strong>2.</strong> <code>io.emit()</code></p>
+<p><strong>3.</strong> <code>socket.broadcast.emit()</code></p>
+<p><strong>4.</strong> <code>.on()</code> (or <code>socket.on()</code>)</p>
+<p><strong>5.</strong> <code>middleware</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Select All That Apply</h3>
+<p>Which of the following are true about Socket.io?</p>
+<ul>
+<li>[ ] Socket.io uses WebSockets as its primary transport but can fall back to HTTP long-polling</li>
+<li>[ ] Socket.io and raw WebSockets are the same thing</li>
+<li>[ ] Socket.io supports automatic reconnection when the connection drops</li>
+<li>[ ] Socket.io rooms allow you to group sockets and send events to specific groups</li>
+<li>[ ] <code>socket.emit()</code> sends an event to ALL connected clients</li>
+<li>[ ] Socket.io middleware can be used to authenticate connections before they complete</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct statements:</strong></p>
+<ul>
+<li>[x] Uses WebSockets with HTTP long-polling fallback</li>
+<li>[ ] Same as raw WebSockets — <strong>FALSE</strong> (Socket.io adds rooms, auto-reconnect, fallbacks, etc.)</li>
+<li>[x] Supports automatic reconnection</li>
+<li>[x] Rooms allow grouping sockets</li>
+<li>[ ] <code>socket.emit()</code> sends to ALL clients — <strong>FALSE</strong> (sends to that specific socket only)</li>
+<li>[x] Middleware can authenticate before connection completes</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Written Answer (4 pts)</h3>
+<p>You are building a real-time chat application with Socket.io. Explain the difference between these three server-side emit methods and when you would use each:</p>
+<div class="cb"><pre>io.emit('message', data);
+socket.emit('message', data);
+socket.broadcast.emit('message', data);
+</pre></div>
+<p>Give a concrete chat-app example for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong><code>io.emit('message', data)</code></strong> — sends to ALL connected clients (including sender). Use case: system-wide announcement. <em>Example: "Server maintenance in 5 minutes" broadcast to every user.</em></p>
+<p><strong><code>socket.emit('message', data)</code></strong> — sends only to the specific client that this socket represents. Use case: private acknowledgment. <em>Example: Sending a "message delivered" confirmation back to only the sender.</em></p>
+<p><strong><code>socket.broadcast.emit('message', data)</code></strong> — sends to ALL clients EXCEPT the sender. Use case: notifying others about a new message. <em>Example: When user A sends a chat message, everyone else sees it appear, but user A already has it locally — no need to echo back.</em></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Code Analysis (4 pts)</h3>
+<p>Study this Socket.io server code:</p>
+<div class="cb"><pre>const io = require('socket.io')(server);
+
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (isValidToken(token)) {
+        socket.userId = getUserId(token);
+        next();
+    } else {
+        next(new Error('Authentication failed'));
+    }
+});
+
+io.on('connection', (socket) => {
+    console.log(`User ${socket.userId} connected`);
+
+    socket.join(`user:${socket.userId}`);
+
+    socket.on('sendMessage', (data) => {
+        io.to(data.roomId).emit('newMessage', {
+            from: socket.userId,
+            text: data.text,
+            timestamp: Date.now()
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`User ${socket.userId} disconnected`);
+    });
+});
+</pre></div>
+<p>a) What does the <code>io.use()</code> middleware do in this code? What happens if authentication fails? (2 pts)</p>
+<p>b) Explain what <code>socket.join()</code> and <code>io.to()</code> do. Why is this useful in a chat application? (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> The <code>io.use()</code> middleware intercepts every new connection BEFORE it completes. It extracts the auth token from <code>socket.handshake.auth.token</code>, validates it, and if valid, attaches the <code>userId</code> to the socket and calls <code>next()</code> to allow the connection. If authentication fails, it calls <code>next(new Error('...'))</code> which rejects the connection — the client receives a <code>connect_error</code> event.</p>
+<p><strong>b)</strong> <code>socket.join('user:${socket.userId}')</code> adds the socket to a named room. Rooms are virtual groups of sockets. <code>io.to(data.roomId).emit(...)</code> sends an event to ALL sockets in that specific room. This is useful in chat because you can have rooms for different chat channels/conversations — when someone sends a message to "room:general", only users who joined that room receive it, not everyone on the server.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION D: WEB COMPONENTS &amp; HTML5 APIs</h2>
+
+<h3 class="g-h3">Question 13 — Fill in the blanks</h3>
+<p>Complete the following sentences about Web Components:</p>
+<p>To define a custom HTML element, you use the method 1. ________. The 2. ________ provides encapsulated DOM and CSS that doesn't leak into the rest of the page. The lifecycle callback 3. ________ is called when the element is added to the DOM. Custom element tag names must contain a 4. ________ (character) to distinguish them from standard HTML elements.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>customElements.define()</code></p>
+<p><strong>2.</strong> <code>Shadow DOM</code></p>
+<p><strong>3.</strong> <code>connectedCallback</code></p>
+<p><strong>4.</strong> <code>hyphen</code> (dash, <code>-</code>)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Multiple Choice</h3>
+<p>Which of the following correctly describes Web Workers?</p>
+<ul>
+<li>A) They run JavaScript on the main thread but in a separate execution context</li>
+<li>B) They run JavaScript in a background thread and can directly access and modify the DOM</li>
+<li>C) They run JavaScript in a background thread and communicate with the main thread via <code>postMessage()</code></li>
+<li>D) They are a replacement for async/await for handling concurrent operations</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Answer: C</strong> — Background thread, communicates via <code>postMessage()</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Select All That Apply</h3>
+<p>Which of the following are true about Web Storage (localStorage and sessionStorage)?</p>
+<ul>
+<li>[ ] localStorage data persists even after the browser is closed</li>
+<li>[ ] sessionStorage data persists even after the browser is closed</li>
+<li>[ ] Both use the same API: <code>setItem()</code>, <code>getItem()</code>, <code>removeItem()</code></li>
+<li>[ ] localStorage can store JavaScript objects directly without serialization</li>
+<li>[ ] Web Storage is limited to the same origin (protocol + domain + port)</li>
+<li>[ ] localStorage has a storage limit of approximately 5MB</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct statements:</strong></p>
+<ul>
+<li>[x] localStorage persists after browser close</li>
+<li>[ ] sessionStorage persists after browser close — <strong>FALSE</strong> (cleared when tab/session ends)</li>
+<li>[x] Both use same API: <code>setItem()</code>, <code>getItem()</code>, <code>removeItem()</code></li>
+<li>[ ] Can store objects directly — <strong>FALSE</strong> (must use <code>JSON.stringify()</code> / <code>JSON.parse()</code>)</li>
+<li>[x] Same-origin policy applies</li>
+<li>[x] ~5MB storage limit</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16 — Written Answer (4 pts)</h3>
+<p>Explain the Drag and Drop API in HTML5. What attributes and events are involved? Describe the minimum setup needed to make an element draggable and a target element that accepts drops.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Drag and Drop setup:</strong></p>
+<p><strong>1. Make element draggable:</strong> Add <code>draggable="true"</code> attribute to the HTML element</p>
+<p><strong>2. Handle <code>dragstart</code>:</strong> On the draggable element, listen for <code>dragstart</code> event. Use <code>event.dataTransfer.setData('text/plain', id)</code> to set the data being dragged</p>
+<p><strong>3. Handle <code>dragover</code>:</strong> On the drop target, listen for <code>dragover</code> and call <code>event.preventDefault()</code> — this is REQUIRED or the drop won't work (default behavior is to NOT allow drops)</p>
+<p><strong>4. Handle <code>drop</code>:</strong> On the drop target, listen for <code>drop</code> event. Call <code>event.preventDefault()</code>, then use <code>event.dataTransfer.getData('text/plain')</code> to retrieve the dragged data and handle the logic</p>
+<div class="cb"><pre>&lt;div draggable="true" ondragstart="drag(event)" id="item"&gt;Drag me&lt;/div&gt;
+&lt;div ondragover="allowDrop(event)" ondrop="drop(event)"&gt;Drop here&lt;/div&gt;</pre></div>
+<div class="cb"><pre>function drag(e) { e.dataTransfer.setData('text', e.target.id); }
+function allowDrop(e) { e.preventDefault(); }  // MUST prevent default
+function drop(e) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text');
+    e.target.appendChild(document.getElementById(id));
+}
+</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Select All That Apply</h3>
+<p>Which of the following are correct about Web Workers?</p>
+<ul>
+<li>[ ] They can access the DOM directly</li>
+<li>[ ] They communicate with the main thread using <code>postMessage()</code></li>
+<li>[ ] They run on a separate thread from the main JavaScript thread</li>
+<li>[ ] They share memory with the main thread by default</li>
+<li>[ ] They are useful for CPU-intensive calculations that would block the UI</li>
+<li>[ ] They can use <code>fetch()</code> to make network requests</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct statements:</strong></p>
+<ul>
+<li>[ ] Can access DOM — <strong>FALSE</strong> (no DOM access in workers)</li>
+<li>[x] Communicate via <code>postMessage()</code></li>
+<li>[x] Run on separate thread</li>
+<li>[ ] Share memory by default — <strong>FALSE</strong> (separate memory; can use SharedArrayBuffer explicitly)</li>
+<li>[x] Useful for CPU-intensive calculations</li>
+<li>[x] Can use <code>fetch()</code> (workers can make network requests)</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION E: MIXED REVIEW</h2>
+
+<h3 class="g-h3">Question 18 — Written Answer (6 pts)</h3>
+<p>For each of the following scenarios, recommend the most appropriate technology/approach and explain why:</p>
+<p>a) You need to display real-time stock prices that update every second to all connected users. (2 pts)</p>
+<p>b) You need to build a multi-step registration form with complex validation rules and conditional fields. (2 pts)</p>
+<p>c) You need to render a dashboard page that fetches data from a database, but the page has an interactive filter dropdown. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <strong>Socket.io</strong> — real-time stock prices need bidirectional, push-based communication. The server needs to push updates to all clients every second. HTTP polling would be wasteful; WebSocket/Socket.io provides persistent connections for efficient real-time data streaming.</p>
+<p><strong>b)</strong> <strong>react-hook-form</strong> with Zod resolver — complex multi-step forms benefit from react-hook-form's uncontrolled input approach (performance), built-in validation rules, and the <code>resolver</code> option with Zod for schema-based validation. Use <code>useForm</code> with different validation schemas per step, and <code>watch()</code> for conditional fields.</p>
+<p><strong>c)</strong> <strong>Next.js Server Component + Client Component composition</strong> — the dashboard page itself should be a Server Component that fetches data directly from the database (no API needed, no client JS for the data). The interactive filter dropdown should be a Client Component (uses <code>"use client"</code>, <code>useState</code>, <code>onChange</code>). Pass the filter value up or use a Server Action to re-fetch filtered data.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 19 — Code Analysis (4 pts)</h3>
+<p>What is the output of the following code? Explain the order.</p>
+<div class="cb"><pre>console.log('A');
+
+setTimeout(() =&gt; console.log('B'), 0);
+
+Promise.resolve()
+    .then(() =&gt; console.log('C'))
+    .then(() =&gt; console.log('D'));
+
+queueMicrotask(() =&gt; console.log('E'));
+
+console.log('F');
+</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output order:</strong> <code>A</code>, <code>F</code>, <code>C</code>, <code>E</code>, <code>D</code>, <code>B</code></p>
+<p><strong>Explanation:</strong></p>
+<ol>
+<li><code>A</code> — synchronous, runs first</li>
+<li><code>F</code> — synchronous, runs next (call stack clears)</li>
+<li><code>C</code> — microtask (Promise.then), runs before macrotasks</li>
+<li><code>E</code> — microtask (queueMicrotask), runs in same microtask batch</li>
+<li><code>D</code> — microtask (chained .then from C), runs after C resolves</li>
+<li><code>B</code> — macrotask (setTimeout), runs last after all microtasks</li>
+</ol>
+<p><code>C</code> and <code>E</code> are both microtasks queued during synchronous execution. They run in FIFO order: <code>C</code> first (queued first), then <code>E</code> (queued second). Then <code>D</code> is queued by the resolution of the first <code>.then()</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 20 — Written Answer (4 pts)</h3>
+<p>Explain what components are in React. Answer these three sub-questions:</p>
+<p>1. What is a component? (1 pt)</p>
+<p>2. What principles should a component follow? (1.5 pts)</p>
+<p>3. What are the benefits of using components? (1.5 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1. What is a component?</strong> A component is a reusable, self-contained building block of a React application. It is a function (or class) that accepts inputs (props) and returns React elements (JSX) describing what should appear on screen. Components can be composed together to build complex UIs from simple pieces.</p>
+<p><strong>2. Principles a component should follow:</strong></p>
+<ul>
+<li><strong>Single Responsibility:</strong> Each component should do one thing well</li>
+<li><strong>Reusable:</strong> Designed to be used in multiple places with different data</li>
+<li><strong>Composable:</strong> Can be combined with other components to build larger features</li>
+<li><strong>Declarative:</strong> Describes WHAT the UI should look like, not HOW to update the DOM</li>
+</ul>
+<p><strong>3. Benefits of using components:</strong></p>
+<ul>
+<li><strong>Code reuse:</strong> Write once, use many times across the application</li>
+<li><strong>Easier testing:</strong> Small, isolated units are simpler to test individually</li>
+<li><strong>Separation of concerns:</strong> Each component handles its own logic and presentation</li>
+<li><strong>Maintainability:</strong> Changes to one component don't affect others</li>
+<li><strong>Team collaboration:</strong> Different developers can work on different components simultaneously</li>
+</ul>
+</div>
+</details>

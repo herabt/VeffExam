@@ -1,0 +1,851 @@
+<h2 class="g-h2">TypeScript Quick-Reference Glossary</h2>
+<p>A dedicated reference covering every TypeScript concept tested in Web Programming II. Every entry includes a definition <em>and</em> a short code snippet.</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">1. Basic Types</h2>
+<p>TypeScript adds static types on top of JavaScript. All type annotations are stripped at compile time — they exist only for the developer and the compiler.</p>
+
+<div class="tw"><table>
+  <thead><tr>
+    <th>Type</th>
+    <th>Description</th>
+    <th>Example</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>string</code></td><td>Text values</td><td><code>let name: string = "Arnar";</code></td></tr>
+    <tr><td><code>number</code></td><td>All numbers (int &amp; float)</td><td><code>let age: number = 30;</code></td></tr>
+    <tr><td><code>boolean</code></td><td>true / false</td><td><code>let active: boolean = true;</code></td></tr>
+    <tr><td><code>number[]</code> / <code>Array&lt;number&gt;</code></td><td>Array of numbers (two equivalent syntaxes)</td><td><code>let scores: number[] = [90, 85];</code></td></tr>
+    <tr><td><code>[string, number]</code></td><td>Tuple — fixed length, fixed types per position</td><td><code>let entry: [string, number] = ["age", 30];</code></td></tr>
+    <tr><td><code>enum</code></td><td>Named set of constants</td><td><code>enum Dir { Up, Down }</code></td></tr>
+    <tr><td><code>any</code></td><td>Opts out of type checking entirely — avoid!</td><td><code>let x: any = "hello"; x = 42;</code></td></tr>
+    <tr><td><code>unknown</code></td><td>Like <code>any</code> but safe — must narrow before use</td><td><code>let v: unknown = getData();</code></td></tr>
+    <tr><td><code>never</code></td><td>A value that never occurs (throwing fn, infinite loop)</td><td><code>function fail(): never { throw new Error(); }</code></td></tr>
+    <tr><td><code>void</code></td><td>Function returns nothing (returns <code>undefined</code>)</td><td><code>function log(m: string): void { console.log(m); }</code></td></tr>
+    <tr><td><code>null</code></td><td>Explicitly null (with <code>strictNullChecks</code>)</td><td><code>let n: null = null;</code></td></tr>
+    <tr><td><code>undefined</code></td><td>Explicitly undefined</td><td><code>let u: undefined = undefined;</code></td></tr>
+    <tr><td><code>object</code></td><td>Any non-primitive — rarely used directly</td><td><code>let o: object = { x: 1 };</code></td></tr>
+  </tbody>
+</table></div>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>let name: string = "Arnar";
+let age: number = 30;
+let active: boolean = true;
+let nothing: null = null;
+let anything: any = "works"; anything = 42; // no error
+let safe: unknown = getData();
+// safe.toUpperCase(); // ERROR — must narrow first
+if (typeof safe === "string") safe.toUpperCase(); // OK
+
+function crash(): never {
+  throw new Error("boom");
+}
+function greet(): void {
+  console.log("hi");
+}</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">2. Type Annotations vs Type Inference</h2>
+
+<p><strong>Type annotation</strong> — you explicitly write the type with a colon (<code>: Type</code>).</p>
+<p><strong>Type inference</strong> — TypeScript reads the value and figures out the type automatically. You do not always need to write annotations.</p>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>// Type annotation — explicit
+let city: string = "Reykjavik";
+let count: number = 5;
+
+// Type inference — no annotation needed
+let city2 = "Reykjavik"; // inferred: string
+let count2 = 5;           // inferred: number
+let flag = true;          // inferred: boolean
+
+city2 = 42; // ERROR: Type 'number' is not assignable to type 'string'
+
+// Inference also works for return types:
+function add(a: number, b: number) {
+  return a + b; // return type inferred as number
+}</pre></div>
+
+<p>When TypeScript cannot infer the type <strong>and</strong> no annotation is given, it falls back to <code>any</code>. With <code>noImplicitAny: true</code> in tsconfig, this becomes an error.</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">3. <code>interface</code> vs <code>type</code></h2>
+
+<p>Both describe the <em>shape</em> of an object. The differences matter at the edges.</p>
+
+<div class="tw"><table>
+  <thead><tr>
+    <th>Feature</th>
+    <th><code>interface</code></th>
+    <th><code>type</code></th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Object shapes</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Union types (<code>A | B</code>)</td><td>No</td><td><strong>Yes</strong></td></tr>
+    <tr><td>Primitive aliases</td><td>No</td><td><strong>Yes</strong> (<code>type Name = string</code>)</td></tr>
+    <tr><td>Declaration merging (reopen)</td><td><strong>Yes</strong> — declare twice, they merge</td><td>No — second declaration = error</td></tr>
+    <tr><td>Extension / inheritance</td><td><code>extends</code></td><td><code>&amp;</code> intersection</td></tr>
+    <tr><td><code>implements</code> in classes</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>When to prefer</td><td>Object / class contracts, library APIs</td><td>Unions, computed types, primitives</td></tr>
+  </tbody>
+</table></div>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>// interface
+interface User {
+  id: number;
+  name: string;
+}
+interface User { email: string; } // declaration merging — valid!
+// User is now { id, name, email }
+
+// type
+type Result = "success" | "error" | "loading"; // union — interface cannot do this
+type ID = string | number;
+type Point = { x: number; y: number };
+
+// Extending
+interface Admin extends User { role: string; }
+type AdminT = User &amp; { role: string }; // same result with type
+
+// Both work with implements:
+class RegularUser implements User {
+  id = 1;
+  name = "Arnar";
+  email = "a@a.is";
+}</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">4. Union and Intersection Types</h2>
+
+<p><strong>Union</strong> (<code>A | B</code>) — the value can be <em>one of</em> the listed types. Use <code>|</code>.</p>
+<p><strong>Intersection</strong> (<code>A &amp; B</code>) — the value must satisfy <em>all</em> of the listed types simultaneously. Use <code>&amp;</code>.</p>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>// Union — ID can be string OR number
+type ID = string | number;
+function printId(id: ID) {
+  if (typeof id === "string") {
+    console.log(id.toUpperCase()); // string branch
+  } else {
+    console.log(id.toFixed(2));    // number branch
+  }
+}
+printId("abc"); // "ABC"
+printId(42);    // "42.00"
+
+// Nullable union (common pattern)
+function greet(name: string | null) {
+  if (name === null) return "Hello, stranger!";
+  return `Hello, ${name}!`;
+}
+
+// Intersection — merged shape
+type Timestamped = { createdAt: Date };
+type WithId = { id: number };
+type Record = Timestamped &amp; WithId; // { createdAt: Date; id: number }</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">5. Literal Types and Narrowing</h2>
+
+<p><strong>Literal type</strong> — the type is an exact value, not just a category (e.g., <code>"left"</code> not just <code>string</code>).</p>
+<p><strong>Narrowing</strong> — TypeScript refines the type inside a conditional block based on a type guard.</p>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>// Literal type
+type Direction = "left" | "right" | "up" | "down";
+function move(dir: Direction) {
+  console.log(dir); // only those 4 strings are valid
+}
+move("left"); // OK
+move("diagonal"); // ERROR
+
+// Narrowing with typeof
+function format(val: string | number): string {
+  if (typeof val === "string") return val.toUpperCase(); // string here
+  return val.toFixed(2);                                 // number here
+}
+
+// Narrowing with equality check
+function handleStatus(status: "open" | "closed") {
+  if (status === "open") {
+    console.log("still open");
+  } else {
+    console.log("closed"); // TypeScript knows it must be "closed"
+  }
+}</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">6. Optional (<code>?</code>) and <code>readonly</code> Properties</h2>
+
+<p><strong>Optional property</strong> (<code>prop?: Type</code>) — the property may be present or absent (its type becomes <code>Type | undefined</code>).</p>
+<p><strong>Readonly property</strong> (<code>readonly prop: Type</code>) — the property can be set on creation but cannot be reassigned afterwards.</p>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>interface User {
+  id: number;
+  name: string;
+  email?: string;          // optional — string | undefined
+  readonly createdAt: Date; // can't change after creation
+}
+
+const u: User = { id: 1, name: "Arnar", createdAt: new Date() };
+u.name = "New Name";       // OK — writable
+u.createdAt = new Date();  // ERROR: Cannot assign to 'createdAt' (readonly)
+
+function greet(user: User) {
+  // Must handle possibly-undefined optional
+  if (user.email) {
+    console.log(user.email.toUpperCase());
+  }
+  // Or use optional chaining:
+  console.log(user.email?.toUpperCase());
+}</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">7. Function Types, Overloads, Rest &amp; Default Parameters</h2>
+
+<h3 class="g-h3">Function type annotations</h3>
+<div class="cb"><pre>// Parameter types + return type
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Arrow function type
+const multiply: (x: number, y: number) =&gt; number = (x, y) =&gt; x * y;
+
+// Function type alias
+type Transformer = (input: string) =&gt; string;
+const upper: Transformer = (s) =&gt; s.toUpperCase();
+
+// void return (no meaningful return)
+function log(msg: string): void {
+  console.log(msg);
+}</pre></div>
+
+<h3 class="g-h3">Default parameters</h3>
+<div class="cb"><pre>function greet(name: string, greeting: string = "Hello"): string {
+  return `${greeting}, ${name}!`;
+}
+greet("Arnar");          // "Hello, Arnar!"
+greet("Arnar", "Hi");   // "Hi, Arnar!"</pre></div>
+
+<h3 class="g-h3">Rest parameters</h3>
+<div class="cb"><pre>function sum(...nums: number[]): number {
+  return nums.reduce((a, b) =&gt; a + b, 0);
+}
+sum(1, 2, 3, 4); // 10</pre></div>
+
+<h3 class="g-h3">Function overloads</h3>
+<p>Declare multiple signatures for different argument patterns. The implementation signature (last one) handles all cases but is not directly callable.</p>
+<div class="cb"><pre>// Overload signatures
+function format(val: string): string;
+function format(val: number): string;
+// Implementation signature (not directly callable)
+function format(val: string | number): string {
+  if (typeof val === "string") return val.toUpperCase();
+  return val.toFixed(2);
+}
+format("hello"); // "HELLO"
+format(3.14);    // "3.14"</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">8. Generics</h2>
+
+<p>Generics make components reusable across many types while preserving type safety. The type parameter <code>T</code> is supplied by the caller.</p>
+
+<h3 class="g-h3">Generic function</h3>
+<div class="cb"><pre>function identity&lt;T&gt;(value: T): T {
+  return value;
+}
+identity&lt;string&gt;("hello"); // returns string
+identity&lt;number&gt;(42);      // returns number
+identity("hello");          // T inferred as string</pre></div>
+
+<h3 class="g-h3">Generic interface / type</h3>
+<div class="cb"><pre>interface ApiResponse&lt;T&gt; {
+  data: T;
+  status: number;
+  message: string;
+}
+
+const userRes: ApiResponse&lt;User&gt; = {
+  data: { id: 1, name: "Arnar" },
+  status: 200,
+  message: "OK",
+};</pre></div>
+
+<h3 class="g-h3">Generic class</h3>
+<div class="cb"><pre>class Box&lt;T&gt; {
+  private value: T;
+  constructor(val: T) { this.value = val; }
+  get(): T { return this.value; }
+}
+const strBox = new Box("hello");  // Box&lt;string&gt;
+const numBox = new Box(42);       // Box&lt;number&gt;</pre></div>
+
+<h3 class="g-h3">Constraints with <code>extends</code></h3>
+<div class="cb"><pre>// T must have a .length property
+function logLength&lt;T extends { length: number }&gt;(val: T): void {
+  console.log(val.length);
+}
+logLength("hello");   // 5
+logLength([1, 2, 3]); // 3
+logLength(42);        // ERROR: number has no .length</pre></div>
+
+<h3 class="g-h3"><code>keyof</code> constraint</h3>
+<div class="cb"><pre>// K must be a key of T
+function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+  return obj[key];
+}
+const user = { id: 1, name: "Arnar" };
+getProperty(user, "name"); // type: string
+getProperty(user, "id");   // type: number
+getProperty(user, "age");  // ERROR: not a key of user</pre></div>
+
+<h3 class="g-h3"><code>infer</code> (advanced)</h3>
+<div class="cb"><pre>// infer captures a type variable inside a conditional type
+type UnpackPromise&lt;T&gt; = T extends Promise&lt;infer U&gt; ? U : T;
+type A = UnpackPromise&lt;Promise&lt;string&gt;&gt;; // string
+type B = UnpackPromise&lt;number&gt;;          // number (not a Promise, returns as-is)</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">9. Utility Types</h2>
+<p>TypeScript ships built-in generic types that transform existing types. These are exam favourites.</p>
+
+<h3 class="g-h3">Base type used in examples below</h3>
+<div class="cb"><pre>interface User {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+}</pre></div>
+
+<div class="tw"><table>
+  <thead><tr>
+    <th>Utility</th>
+    <th>What it does</th>
+    <th>Before → After</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>Partial&lt;T&gt;</code></td><td>All properties become optional</td><td><code>User</code> → <code>{ id?: number; name?: string; ... }</code></td></tr>
+    <tr><td><code>Required&lt;T&gt;</code></td><td>All properties become required (reverses Partial)</td><td><code>Partial&lt;User&gt;</code> → <code>User</code></td></tr>
+    <tr><td><code>Readonly&lt;T&gt;</code></td><td>All properties become readonly</td><td><code>User</code> → all fields are readonly</td></tr>
+    <tr><td><code>Pick&lt;T, K&gt;</code></td><td>Keep only the listed keys</td><td><code>Pick&lt;User, "id" | "name"&gt;</code> → <code>{ id, name }</code></td></tr>
+    <tr><td><code>Omit&lt;T, K&gt;</code></td><td>Remove the listed keys</td><td><code>Omit&lt;User, "email"&gt;</code> → <code>{ id, name, age }</code></td></tr>
+    <tr><td><code>Record&lt;K, V&gt;</code></td><td>Object with keys of type K and values of type V</td><td><code>Record&lt;string, User&gt;</code> → <code>{ [key: string]: User }</code></td></tr>
+    <tr><td><code>Exclude&lt;T, U&gt;</code></td><td>Remove types from a union</td><td><code>Exclude&lt;"a"|"b"|"c", "a"&gt;</code> → <code>"b" | "c"</code></td></tr>
+    <tr><td><code>Extract&lt;T, U&gt;</code></td><td>Keep only types that appear in both</td><td><code>Extract&lt;"a"|"b"|"c", "a"|"c"&gt;</code> → <code>"a" | "c"</code></td></tr>
+    <tr><td><code>NonNullable&lt;T&gt;</code></td><td>Remove null and undefined from a union</td><td><code>NonNullable&lt;string|null|undefined&gt;</code> → <code>string</code></td></tr>
+    <tr><td><code>ReturnType&lt;T&gt;</code></td><td>The return type of a function type</td><td><code>ReturnType&lt;typeof add&gt;</code> → <code>number</code></td></tr>
+    <tr><td><code>Parameters&lt;T&gt;</code></td><td>Tuple of parameter types of a function</td><td><code>Parameters&lt;typeof add&gt;</code> → <code>[number, number]</code></td></tr>
+    <tr><td><code>Awaited&lt;T&gt;</code></td><td>Unwrap a Promise type recursively</td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code> → <code>string</code></td></tr>
+  </tbody>
+</table></div>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>// Partial — useful for update/patch functions
+function updateUser(id: number, updates: Partial&lt;User&gt;): void {
+  // only send fields that changed
+}
+updateUser(1, { name: "New Name" }); // OK — no need to pass all fields
+
+// Pick — expose a limited view
+type UserPreview = Pick&lt;User, "id" | "name"&gt;;
+// { id: number; name: string }
+
+// Omit — hide sensitive fields
+type PublicUser = Omit&lt;User, "email"&gt;;
+// { id: number; name: string; age: number }
+
+// Record — map of users by string key
+const cache: Record&lt;string, User&gt; = {};
+cache["u1"] = { id: 1, name: "Arnar", email: "a@a.is", age: 30 };
+
+// ReturnType / Parameters
+function add(a: number, b: number): number { return a + b; }
+type AddReturn = ReturnType&lt;typeof add&gt;;     // number
+type AddParams = Parameters&lt;typeof add&gt;;     // [number, number]
+
+// NonNullable
+type MaybeName = string | null | undefined;
+type DefiniteName = NonNullable&lt;MaybeName&gt;;  // string
+
+// Awaited
+type FetchResult = Awaited&lt;Promise&lt;User[]&gt;&gt;; // User[]</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">10. Type Guards, Discriminated Unions</h2>
+
+<h3 class="g-h3"><code>typeof</code> guard</h3>
+<div class="cb"><pre>function process(val: string | number) {
+  if (typeof val === "string") {
+    return val.toUpperCase(); // string here
+  }
+  return val.toFixed(2);     // number here
+}</pre></div>
+
+<h3 class="g-h3"><code>instanceof</code> guard</h3>
+<div class="cb"><pre>class Cat { meow() { return "meow"; } }
+class Dog { bark() { return "woof"; } }
+
+function speak(animal: Cat | Dog) {
+  if (animal instanceof Cat) {
+    return animal.meow(); // Cat here
+  }
+  return animal.bark();   // Dog here
+}</pre></div>
+
+<h3 class="g-h3"><code>in</code> guard</h3>
+<div class="cb"><pre>interface Fish { swim(): void; }
+interface Bird { fly(): void; }
+
+function move(creature: Fish | Bird) {
+  if ("swim" in creature) {
+    creature.swim(); // Fish here
+  } else {
+    creature.fly();  // Bird here
+  }
+}</pre></div>
+
+<h3 class="g-h3">User-defined type guard (<code>is</code>)</h3>
+<div class="cb"><pre>function isString(val: unknown): val is string {
+  return typeof val === "string";
+}
+
+function process(val: unknown) {
+  if (isString(val)) {
+    console.log(val.toUpperCase()); // string here — TypeScript trusts the guard
+  }
+}</pre></div>
+
+<h3 class="g-h3">Discriminated unions</h3>
+<p>A pattern where each member of a union has a literal <em>discriminant</em> property (e.g., <code>kind</code> or <code>type</code>). TypeScript narrows automatically by checking that property.</p>
+<div class="cb"><pre>interface Square { kind: "square"; side: number; }
+interface Circle { kind: "circle"; radius: number; }
+type Shape = Square | Circle;
+
+function area(shape: Shape): number {
+  switch (shape.kind) {
+    case "square": return shape.side ** 2;   // Square here
+    case "circle": return Math.PI * shape.radius ** 2; // Circle here
+  }
+}</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">11. <code>as</code> Type Assertion, <code>as const</code>, Non-null Assertion <code>!</code></h2>
+
+<h3 class="g-h3"><code>as</code> — type assertion</h3>
+<p>Tells TypeScript "trust me, I know the type." Does <strong>not</strong> change the runtime value.</p>
+<div class="cb"><pre>// DOM query returns HTMLElement | null — assert to specific type
+const input = document.getElementById("name") as HTMLInputElement;
+input.value = "Arnar"; // OK — TypeScript knows it's HTMLInputElement
+
+// Alternative angle-bracket syntax (not allowed in .tsx files):
+const input2 = &lt;HTMLInputElement&gt;document.getElementById("name");
+
+// Double assertion — use sparingly (escape hatch)
+const num = ("42" as unknown) as number;</pre></div>
+
+<h3 class="g-h3"><code>as const</code> — const assertion</h3>
+<p>Makes an object or array deeply readonly and narrows all values to their literal types.</p>
+<div class="cb"><pre>const colors = ["red", "green", "blue"] as const;
+// type: readonly ["red", "green", "blue"]
+// without as const: type would be string[]
+
+const config = { host: "localhost", port: 3000 } as const;
+// type: { readonly host: "localhost"; readonly port: 3000 }
+config.port = 4000; // ERROR: readonly</pre></div>
+
+<h3 class="g-h3">Non-null assertion <code>!</code></h3>
+<p>Tells TypeScript the value is definitely not <code>null</code> or <code>undefined</code>. Use when you are certain — TypeScript cannot verify this at runtime.</p>
+<div class="cb"><pre>const el = document.getElementById("root")!; // asserts non-null
+el.innerHTML = "&lt;p&gt;Hello&lt;/p&gt;"; // OK — no null check needed
+
+// Without !:
+const el2 = document.getElementById("root");
+el2.innerHTML = "hi"; // ERROR: Object is possibly 'null'</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">12. Enums</h2>
+
+<h3 class="g-h3">Numeric enum (default)</h3>
+<div class="cb"><pre>enum Direction {
+  Up,    // 0
+  Down,  // 1
+  Left,  // 2
+  Right  // 3
+}
+const move = Direction.Up;  // 0
+console.log(Direction[0]);  // "Up" — reverse mapping (unique to numeric enums)</pre></div>
+
+<h3 class="g-h3">String enum</h3>
+<div class="cb"><pre>enum Status {
+  Pending  = "PENDING",
+  Active   = "ACTIVE",
+  Inactive = "INACTIVE",
+}
+const s: Status = Status.Active; // "ACTIVE"
+// No reverse mapping for string enums</pre></div>
+
+<h3 class="g-h3">Const enum (inlined at compile time)</h3>
+<div class="cb"><pre>const enum Color {
+  Red   = "red",
+  Blue  = "blue",
+}
+const c = Color.Red; // compiled to: const c = "red";
+// No JavaScript object is generated — purely a compile-time construct</pre></div>
+
+<div class="tw"><table>
+  <thead><tr>
+    <th>Enum type</th>
+    <th>Values</th>
+    <th>Reverse mapping?</th>
+    <th>JS object generated?</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Numeric (default)</td><td>0, 1, 2, …</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>String</td><td>Custom strings</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Const</td><td>Any</td><td>No</td><td>No — inlined</td></tr>
+  </tbody>
+</table></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">13. Tuples (Fixed Length)</h2>
+
+<p>A tuple is an array with a fixed number of elements where each position has a known type.</p>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>// Declare a tuple
+const point: [number, number] = [10, 20];
+const entry: [string, number] = ["age", 30];
+
+// Destructure
+const [x, y] = point; // x: number, y: number
+
+// Wrong order is an error
+const bad: [string, number] = [30, "age"]; // ERROR
+
+// Optional tuple elements (must be at end)
+const opt: [string, number?] = ["hello"]; // second element optional
+
+// Named tuples (TS 4.0+) — documentation only, no runtime effect
+type Range = [start: number, end: number];
+const r: Range = [0, 100];
+
+// useState in React returns a tuple:
+// const [count, setCount] = useState(0); // [number, Dispatch&lt;...&gt;]</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">14. Abstract Classes &amp; Access Modifiers</h2>
+
+<h3 class="g-h3">Access modifiers</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Modifier</th>
+    <th>Accessible in</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>public</code> (default)</td><td>Anywhere</td></tr>
+    <tr><td><code>private</code></td><td>The declaring class only</td></tr>
+    <tr><td><code>protected</code></td><td>The declaring class and subclasses</td></tr>
+    <tr><td><code>readonly</code></td><td>Read from anywhere, write only in constructor</td></tr>
+  </tbody>
+</table></div>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>class Animal {
+  public name: string;          // everyone can access
+  private secret: string = "!"; // class only
+  protected sound: string;       // class + subclasses
+
+  constructor(name: string, sound: string) {
+    this.name = name;
+    this.sound = sound;
+  }
+
+  // Shorthand — declare + assign in constructor params:
+  // constructor(public name: string, private id: number) {}
+}
+
+class Dog extends Animal {
+  constructor(name: string) {
+    super(name, "woof");
+  }
+  speak() {
+    return `${this.name} says ${this.sound}`; // protected OK in subclass
+    // this.secret // ERROR: private
+  }
+}</pre></div>
+
+<h3 class="g-h3">Abstract classes</h3>
+<p>Cannot be instantiated directly. Subclasses <strong>must</strong> implement abstract methods.</p>
+<div class="cb"><pre>abstract class Shape {
+  abstract getArea(): number; // no implementation — must be provided by subclass
+
+  describe(): string {         // concrete method shared by all subclasses
+    return `Area: ${this.getArea()}`;
+  }
+}
+
+class Circle extends Shape {
+  constructor(private radius: number) { super(); }
+  getArea(): number { return Math.PI * this.radius ** 2; }
+}
+
+// new Shape(); // ERROR: Cannot create an instance of an abstract class
+const c = new Circle(5);
+console.log(c.describe()); // "Area: 78.54..."</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">15. Module System &amp; Declaration Files</h2>
+
+<h3 class="g-h3">ES module exports / imports in TypeScript</h3>
+<div class="cb"><pre>// math.ts — named exports
+export function add(a: number, b: number): number { return a + b; }
+export const PI = 3.14159;
+
+// types.ts — exporting types
+export interface User { id: number; name: string; }
+export type ID = string | number;
+
+// main.ts — imports
+import { add, PI } from "./math";
+import type { User } from "./types"; // type-only import (erased at compile time)
+import { User as UserModel } from "./types"; // alias</pre></div>
+
+<h3 class="g-h3">Declaration files (<code>.d.ts</code>)</h3>
+<p>Contain only type information — no executable code. Used to add types for JS libraries that were not written in TypeScript.</p>
+<div class="cb"><pre>// example.d.ts
+declare module "my-js-lib" {
+  export function doThing(x: string): number;
+  export const version: string;
+}
+
+// In tsconfig, @types/* packages from DefinitelyTyped are loaded automatically:
+// npm install --save-dev @types/node
+// npm install --save-dev @types/react</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">16. <code>tsconfig.json</code> Essentials</h2>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>{
+  "compilerOptions": {
+    "target": "ES2017",        // output JS version (default: ES3)
+    "module": "commonjs",      // module system (commonjs, ESNext, etc.)
+    "strict": true,            // enables ALL strict checks at once
+    "noImplicitAny": true,     // error if type is implicitly any
+    "strictNullChecks": true,  // null/undefined are not assignable to other types
+    "outDir": "./dist",        // compiled JS output directory
+    "rootDir": "./src",        // source TypeScript directory
+    "esModuleInterop": true,   // enables default imports from CommonJS modules
+    "skipLibCheck": true       // skip type-checking declaration files
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}</pre></div>
+
+<div class="tw"><table>
+  <thead><tr>
+    <th>Option</th>
+    <th>Effect when <code>true</code></th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>strict</code></td><td>Umbrella flag — enables <code>noImplicitAny</code>, <code>strictNullChecks</code>, <code>strictFunctionTypes</code>, <code>noImplicitThis</code>, and more</td></tr>
+    <tr><td><code>noImplicitAny</code></td><td>Error when TypeScript infers <code>any</code> for a parameter or variable that has no annotation</td></tr>
+    <tr><td><code>strictNullChecks</code></td><td><code>null</code> and <code>undefined</code> are not assignable to other types — you must handle them explicitly</td></tr>
+    <tr><td><code>target</code></td><td>Which JS version to emit (<code>ES3</code>, <code>ES5</code>, <code>ES2017</code>, <code>ESNext</code>…). Older targets cause downleveling (e.g., template literals → concat())</td></tr>
+    <tr><td><code>module</code></td><td>What module syntax to emit (<code>commonjs</code>, <code>ESNext</code>, etc.)</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Downleveling</strong>: By default TypeScript targets ES3. During compilation, modern syntax (template literals, async/await, optional chaining) is transpiled to older equivalent code. Type annotations are also stripped since browsers cannot execute TypeScript.</p>
+<p><strong>Key fact (from slides)</strong>: Even if TypeScript reports type errors, it <em>still emits</em> the <code>.js</code> file — "TypeScript is built with migration in mind."</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">17. Common Gotchas</h2>
+
+<h3 class="g-h3"><code>any</code> vs <code>unknown</code></h3>
+<div class="cb"><pre>// any — disables type checking entirely (avoid!)
+function badProcess(input: any) {
+  input.toUpperCase(); // TypeScript allows this — no safety at all
+}
+
+// unknown — type-safe; must narrow before use
+function safeProcess(input: unknown) {
+  input.toUpperCase(); // ERROR — cannot use unknown without narrowing
+  if (typeof input === "string") {
+    input.toUpperCase(); // OK — narrowed
+  }
+}</pre></div>
+
+<h3 class="g-h3">Type space vs value space</h3>
+<p>Types and interfaces only exist at <em>compile time</em> (type space). They are erased and cannot be used as runtime values. <code>class</code> and <code>enum</code> exist in both spaces.</p>
+<div class="cb"><pre>interface User { id: number; }
+
+// WRONG — interface is not a value
+const x = User; // ERROR: 'User' only refers to a type
+
+// RIGHT — class exists at runtime
+class UserClass { id = 0; }
+const y = UserClass; // OK — class is a value
+
+// typeof works on values, not types:
+type T = typeof UserClass; // the constructor type</pre></div>
+
+<h3 class="g-h3">Structural typing / duck typing</h3>
+<p>TypeScript uses <em>structural</em> typing (not nominal). Two types are compatible if they have the same shape — it doesn't matter what they're called or where they were declared. "If it walks like a duck and quacks like a duck, it is a duck."</p>
+<div class="cb"><pre>interface Point { x: number; y: number; }
+
+function logPoint(p: Point) {
+  console.log(p.x, p.y);
+}
+
+const point3d = { x: 1, y: 2, z: 3 }; // extra property z — still compatible
+logPoint(point3d); // OK — has x and y
+
+const animal = { type: "cow", name: "Fred" }; // no x or y
+logPoint(animal); // ERROR — missing required properties
+
+// GOTCHA: Excess property check on object literals (stricter than structural typing)
+logPoint({ x: 1, y: 2, z: 3 }); // ERROR in object literal — excess property check
+// But assigning to a variable first bypasses this (see point3d above)</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">18. Integration with React</h2>
+
+<h3 class="g-h3"><code>FC</code> and <code>PropsWithChildren</code></h3>
+<div class="cb"><pre>import React, { FC, PropsWithChildren } from "react";
+
+// FC&lt;Props&gt; = FunctionComponent&lt;Props&gt;
+interface ButtonProps {
+  label: string;
+  onClick: () =&gt; void;
+}
+const Button: FC&lt;ButtonProps&gt; = ({ label, onClick }) =&gt; (
+  &lt;button onClick={onClick}&gt;{label}&lt;/button&gt;
+);
+
+// PropsWithChildren adds children: React.ReactNode to your props
+interface CardProps {
+  title: string;
+}
+const Card: FC&lt;PropsWithChildren&lt;CardProps&gt;&gt; = ({ title, children }) =&gt; (
+  &lt;div&gt;
+    &lt;h2&gt;{title}&lt;/h2&gt;
+    {children}
+  &lt;/div&gt;
+);</pre></div>
+
+<h3 class="g-h3">Event types</h3>
+<div class="cb"><pre>// Input change event
+function handleChange(e: React.ChangeEvent&lt;HTMLInputElement&gt;) {
+  console.log(e.target.value); // string
+}
+
+// Form submit event
+function handleSubmit(e: React.FormEvent&lt;HTMLFormElement&gt;) {
+  e.preventDefault();
+}
+
+// Button click event
+function handleClick(e: React.MouseEvent&lt;HTMLButtonElement&gt;) {
+  console.log(e.currentTarget);
+}
+
+// Keyboard event
+function handleKey(e: React.KeyboardEvent&lt;HTMLInputElement&gt;) {
+  console.log(e.key);
+}</pre></div>
+
+<h3 class="g-h3"><code>useState&lt;T&gt;</code></h3>
+<div class="cb"><pre>import { useState } from "react";
+
+const [count, setCount] = useState&lt;number&gt;(0);
+const [name, setName] = useState&lt;string&gt;("");
+const [user, setUser] = useState&lt;User | null&gt;(null); // nullable state
+
+// TypeScript infers T when initial value is provided:
+const [flag, setFlag] = useState(false); // boolean inferred</pre></div>
+
+<h3 class="g-h3"><code>useRef&lt;T&gt;</code></h3>
+<div class="cb"><pre>import { useRef } from "react";
+
+// DOM element reference — must start as null
+const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+// inputRef.current is HTMLInputElement | null
+
+// Mutable value reference (not null)
+const timerRef = useRef&lt;number | null&gt;(null);
+
+// Usage in JSX:
+// &lt;input ref={inputRef} /&gt;
+// then: inputRef.current?.focus();</pre></div>
+
+<h3 class="g-h3">Typing component props inline</h3>
+<div class="cb"><pre>// Inline prop type (no separate interface needed for simple components)
+function Greeting({ name, age }: { name: string; age: number }) {
+  return &lt;p&gt;Hello {name}, age {age}&lt;/p&gt;;
+}
+
+// With children (React 18+)
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return &lt;div className="wrapper"&gt;{children}&lt;/div&gt;;
+}</pre></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 class="g-h2">TS Quick Cheat Sheet</h2>
+
+<div class="tw"><table>
+  <thead><tr>
+    <th>Pattern</th>
+    <th>Syntax</th>
+    <th>Notes</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Type annotation</td><td><code>let x: string = "hi";</code></td><td>Explicit — always beats inference</td></tr>
+    <tr><td>Type inference</td><td><code>let x = "hi";</code></td><td>TypeScript reads the value</td></tr>
+    <tr><td>Interface</td><td><code>interface Foo { bar: string; }</code></td><td>Extendable, mergeable</td></tr>
+    <tr><td>Type alias</td><td><code>type Foo = string | number;</code></td><td>Unions, primitives, computed types</td></tr>
+    <tr><td>Optional property</td><td><code>name?: string</code></td><td><code>string | undefined</code></td></tr>
+    <tr><td>Readonly property</td><td><code>readonly id: number</code></td><td>Set once, then immutable</td></tr>
+    <tr><td>Union</td><td><code>string | number</code></td><td>One of many types</td></tr>
+    <tr><td>Intersection</td><td><code>A &amp; B</code></td><td>Must satisfy all types</td></tr>
+    <tr><td>Generic function</td><td><code>function id&lt;T&gt;(v: T): T</code></td><td>T is resolved at call site</td></tr>
+    <tr><td>Generic constraint</td><td><code>&lt;T extends { length: number }&gt;</code></td><td>T must have .length</td></tr>
+    <tr><td>keyof</td><td><code>keyof User</code></td><td>"id" | "name" | "email" …</td></tr>
+    <tr><td>Type assertion</td><td><code>val as HTMLInputElement</code></td><td>No runtime effect</td></tr>
+    <tr><td>Non-null assertion</td><td><code>el!</code></td><td>"I promise it's not null"</td></tr>
+    <tr><td>as const</td><td><code>["a","b"] as const</code></td><td>Literal types + readonly</td></tr>
+    <tr><td>typeof guard</td><td><code>typeof x === "string"</code></td><td>Primitive narrowing</td></tr>
+    <tr><td>instanceof guard</td><td><code>x instanceof Cat</code></td><td>Class narrowing</td></tr>
+    <tr><td>in guard</td><td><code>"swim" in x</code></td><td>Property existence narrowing</td></tr>
+    <tr><td>User-defined guard</td><td><code>function isStr(v): v is string</code></td><td>Custom narrowing predicate</td></tr>
+    <tr><td>Partial&lt;T&gt;</td><td><code>Partial&lt;User&gt;</code></td><td>All optional</td></tr>
+    <tr><td>Required&lt;T&gt;</td><td><code>Required&lt;Partial&lt;User&gt;&gt;</code></td><td>All required</td></tr>
+    <tr><td>Pick&lt;T,K&gt;</td><td><code>Pick&lt;User, "id"|"name"&gt;</code></td><td>Keep keys</td></tr>
+    <tr><td>Omit&lt;T,K&gt;</td><td><code>Omit&lt;User, "email"&gt;</code></td><td>Remove keys</td></tr>
+    <tr><td>Record&lt;K,V&gt;</td><td><code>Record&lt;string, User&gt;</code></td><td>Object map type</td></tr>
+    <tr><td>ReturnType&lt;T&gt;</td><td><code>ReturnType&lt;typeof fn&gt;</code></td><td>Return type of fn</td></tr>
+    <tr><td>Awaited&lt;T&gt;</td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code></td><td>Unwrap Promise</td></tr>
+    <tr><td>Enum (numeric)</td><td><code>enum Dir { Up, Down }</code></td><td>0-indexed, has reverse mapping</td></tr>
+    <tr><td>Enum (string)</td><td><code>enum S { A = "A" }</code></td><td>No reverse mapping</td></tr>
+    <tr><td>Const enum</td><td><code>const enum C { A = 1 }</code></td><td>Inlined — no JS object</td></tr>
+    <tr><td>Tuple</td><td><code>[string, number]</code></td><td>Fixed length, typed positions</td></tr>
+    <tr><td>Abstract class</td><td><code>abstract class Shape</code></td><td>Cannot instantiate directly</td></tr>
+    <tr><td>Access: public</td><td><code>public name: string</code></td><td>Accessible everywhere (default)</td></tr>
+    <tr><td>Access: private</td><td><code>private id: number</code></td><td>Class only</td></tr>
+    <tr><td>Access: protected</td><td><code>protected val: string</code></td><td>Class + subclasses</td></tr>
+    <tr><td>React FC</td><td><code>const C: FC&lt;Props&gt; = ...</code></td><td>Typed function component</td></tr>
+    <tr><td>React useState</td><td><code>useState&lt;User | null&gt;(null)</code></td><td>Typed state</td></tr>
+    <tr><td>React useRef</td><td><code>useRef&lt;HTMLInputElement&gt;(null)</code></td><td>Typed DOM ref</td></tr>
+    <tr><td>React event type</td><td><code>React.ChangeEvent&lt;HTMLInputElement&gt;</code></td><td>Input change event</td></tr>
+    <tr><td>structural typing</td><td>(no syntax — built in)</td><td>"If it has the right shape, it is the type"</td></tr>
+    <tr><td>any</td><td><code>let x: any</code></td><td>Opt out of type checking — avoid!</td></tr>
+    <tr><td>unknown</td><td><code>let x: unknown</code></td><td>Safe any — must narrow before use</td></tr>
+    <tr><td>never</td><td><code>function f(): never</code></td><td>Function never returns</td></tr>
+  </tbody>
+</table></div>

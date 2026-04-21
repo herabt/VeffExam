@@ -1,0 +1,356 @@
+<h2 class="g-h2">Practice Exam 11 — JavaScript Design Patterns</h2>
+
+<h3 class="g-h3">Question 1 — Constructor with Prototype</h3>
+<p>What is the key difference between defining <code>toString</code> directly inside a <code>Car</code> constructor function versus defining it on <code>Car.prototype</code>?</p>
+
+<div class="cb"><pre>// Version A: Basic Constructor
+function Car(model, year, miles) {
+  this.model = model;
+  this.year = year;
+  this.miles = miles;
+  this.toString = function () {
+    return this.model + &quot; has done &quot; + this.miles + &quot; miles&quot;;
+  };
+}
+
+// Version B: Constructor with Prototype
+function Car(model, year, miles) {
+  this.model = model;
+  this.year = year;
+  this.miles = miles;
+}
+
+Car.prototype.toString = function () {
+  return this.model + &quot; has done &quot; + this.miles + &quot; miles&quot;;
+};</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>In <strong>Version A</strong>, every time <code>new Car()</code> is called, a brand-new copy of the <code>toString</code> function is created and attached to that specific instance. If you create 1000 cars, you get 1000 separate function objects in memory.</p>
+<p>In <strong>Version B</strong>, <code>toString</code> is defined once on <code>Car.prototype</code>. All instances share the same single function through the prototype chain. This is more memory-efficient and is the idiomatic JavaScript approach. If the method is updated on the prototype, every instance immediately sees the change.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Factory Pattern Definition</h3>
+<p>The Factory Pattern "suggests defining an interface for creating an object where you allow the subclasses to decide which class to instantiate." In the code below, explain how <code>VehicleFactory</code> and <code>TruckFactory</code> demonstrate this principle.</p>
+
+<div class="cb"><pre>function VehicleFactory() {}
+
+VehicleFactory.prototype.vehicleClass = Car;
+
+VehicleFactory.prototype.getVehicle = function (options) {
+  return new this.vehicleClass(options);
+};
+
+function TruckFactory() {}
+TruckFactory.prototype = new VehicleFactory();
+TruckFactory.prototype.vehicleClass = Truck;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><code>VehicleFactory</code> defines a generic interface for creating vehicles. Its <code>getVehicle</code> method calls <code>new this.vehicleClass(options)</code>, which creates an instance of whatever class <code>this.vehicleClass</code> points to. By default it is <code>Car</code>.</p>
+<p><code>TruckFactory</code> inherits from <code>VehicleFactory</code> (via <code>TruckFactory.prototype = new VehicleFactory()</code>) and overrides <code>vehicleClass</code> to <code>Truck</code>. This means <code>TruckFactory.getVehicle()</code> will instantiate a <code>Truck</code> instead of a <code>Car</code>, without changing the <code>getVehicle</code> method itself. The subclass decides which class to instantiate — exactly what the pattern describes.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Factory Pattern Use Cases</h3>
+<p>List four situations where the Factory Pattern is useful according to the slides.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>According to the slides, the Factory Pattern is useful when:</p>
+<ol>
+<li><strong>High complexity setup</strong> — the object creation process is complex</li>
+<li><strong>Different instances per environment</strong> — you need to generate different objects depending on the environment</li>
+<li><strong>Many small objects sharing properties</strong> — working with many small objects that share the same properties</li>
+<li><strong>Duck typing for decoupling</strong> — using duck typing to decouple components (objects only need to satisfy an interface, not inherit from a specific class)</li>
+</ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Singleton Pattern Definition</h3>
+<p>The Singleton Pattern "restricts instantiation of a class to a single object." The slides also state that "many objects use this same object, they always get the same instantiation and therefore the state of the object will remain the same." Given this code, explain how it works:</p>
+
+<div class="cb"><pre>var basicSingleton = {
+  x: 1,
+  y: 2,
+  sum: function () {
+    return this.x + this.y;
+  }
+};</pre></div>
+
+<p>Why is a plain object literal already considered a basic singleton in JavaScript?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>A plain JavaScript object literal is already a singleton because there is only ever one instance of it. You cannot call <code>new basicSingleton()</code> to create another. Every variable that references <code>basicSingleton</code> points to the exact same object. If one part of the code modifies <code>basicSingleton.x</code>, every other reference sees the change — "they always get the same instantiation and therefore the state of the object will remain the same."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Singleton with Closures</h3>
+<p>Consider a Singleton that uses closures to hold private variables. Why would you use a closure-based Singleton instead of the basic object literal approach shown in Question 4?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The closure-based Singleton allows you to have <strong>private variables</strong> that cannot be accessed or modified from outside. The basic object literal exposes all its properties publicly (<code>basicSingleton.x</code> can be read and changed by anyone). With closures, internal state is hidden and only accessible through the methods the Singleton exposes, providing encapsulation and data protection.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Singleton with getInstance</h3>
+<p>Explain the concept of lazy initialization in a Singleton pattern that uses a <code>getInstance()</code> method. What does "lazy" mean in this context?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>Lazy initialization means the Singleton instance is not created until <code>getInstance()</code> is called for the first time. "Lazy" means it defers creation until the moment it is actually needed, rather than creating it eagerly at program startup. On the first call, <code>getInstance()</code> creates and stores the instance; on all subsequent calls it returns the already-created instance. This saves resources if the Singleton is never used, and guarantees only one instance exists.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Decorator Pattern Definition</h3>
+<p>The Decorator Pattern "allows behaviour to be added to an existing object dynamically." The slides also state that "decoration itself isn't essential to base functionality." Explain what this means using a real-world analogy.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>"Allows behaviour to be added to an existing object dynamically" means you can extend an object's capabilities at runtime without modifying its class definition. "Decoration itself isn't essential to base functionality" means the added behavior is optional — the object works fine without it.</p>
+<p><strong>Real-world analogy:</strong> A plain coffee (base object) is perfectly drinkable. Adding milk, sugar, or whipped cream (decorators) enhances it, but none of those additions are essential for it to be coffee.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Simple Decorator</h3>
+<p>Given this simple decorator approach, explain how <code>addCannon</code> adds behavior dynamically to a <code>Vehicle</code> object:</p>
+
+<div class="cb"><pre>function Vehicle(type) {
+  this.type = type || 'car';
+  this.model = 'default';
+  this.license = '00-000';
+}
+
+var car = new Vehicle();
+console.log(car); // { type: 'car', model: 'default', license: '00-000' }
+
+var armoredTank = new Vehicle('tank');
+armoredTank.addCannon = function(cannonName) {
+  if (!this.hasOwnProperty('cannons')) { this.cannons = []; }
+  this.cannons.push({ id: this.cannons.length + 1, name: cannonName });
+  return this;
+};
+
+armoredTank.addCannon('T101').addCannon('T102');
+console.log(armoredTank);
+
+var newCar = new Vehicle();
+console.log(newCar); // { type: 'car', model: 'default', license: '00-000' }</pre></div>
+
+<p>Note: <code>addCannon</code> is added to the <strong>specific instance</strong> <code>armoredTank</code>, NOT to <code>Vehicle.prototype</code>. This is the key point of the Decorator pattern — the behavior is added to one object without affecting others. <code>newCar</code> does NOT have <code>addCannon</code>.</p>
+
+<p><strong>a)</strong> Why is <code>addCannon</code> added to the instance and not the prototype? (from slides)<br />
+<strong>b)</strong> What is the purpose of <code>return this</code>?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><code>addCannon</code> dynamically adds a new property <code>hasCannon = true</code> to the <code>Vehicle</code> instance at runtime. The vehicle works perfectly without a cannon — the cannon is not essential to base functionality.</p>
+<p><code>return this</code> enables <strong>method chaining</strong>, meaning you can write:</p>
+<div class="cb"><pre>var v = new Vehicle(&quot;tank&quot;).addCannon().addArmor();</pre></div>
+<p>Each method returns the object itself, so the next method can be called immediately on the result.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Multiple Decorators (MacBook)</h3>
+<p>Study the following decorator pattern. What is the final cost of a decorated MacBook?</p>
+
+<div class="cb"><pre>function MacBook() {
+  this.cost = function () { return 997; };
+}
+
+function Memory(macbook) {
+  var v = macbook.cost();
+  macbook.cost = function () {
+    return v + 75;
+  };
+}
+
+function Insurance(macbook) {
+  var v = macbook.cost();
+  macbook.cost = function () {
+    return v + 250;
+  };
+}
+
+var mb = new MacBook();
+Memory(mb);
+Insurance(mb);
+console.log(mb.cost());   // ?</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>Step by step:</p>
+<ol>
+<li><code>new MacBook()</code> — <code>cost()</code> returns <strong>997</strong></li>
+<li><code>Memory(mb)</code> — captures <code>v = 997</code>, replaces <code>cost</code> with a function returning <code>997 + 75 = 1072</code></li>
+<li><code>Insurance(mb)</code> — captures <code>v = 1072</code>, replaces <code>cost</code> with a function returning <code>1072 + 250 = 1322</code></li>
+</ol>
+<p><strong>Final answer: <code>mb.cost()</code> returns <code>1322</code>.</strong></p>
+<p>Each decorator wraps the previous cost by capturing its value in a closure, then replacing the <code>cost</code> method with one that adds its own amount.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Decorators Through Interfaces</h3>
+<p>The slides show an approach using <code>Interface.ensureImplements</code> with a <code>MacBookPro</code> that supports decorators like <code>addEngraving</code>, <code>addParallels</code>, and <code>add4GBRam</code>. What is the role of <code>Interface.ensureImplements</code> in this pattern?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><code>Interface.ensureImplements</code> verifies at runtime that an object actually implements a required interface (i.e., has all the expected methods). This provides a safety check: if a decorator is applied to an object that does not have the required methods, an error is thrown immediately rather than failing silently later. It enforces a contract between the base object and its decorators, ensuring decorators like <code>addEngraving</code>, <code>addParallels</code>, and <code>add4GBRam</code> can safely delegate to the underlying object.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Abstract Decorators</h3>
+<p>In the abstract decorator approach, a <code>MacbookDecorator</code> delegates calls to <code>this.macBook</code>. Why is delegation important here, and how does it differ from directly modifying the original object?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>In the abstract decorator approach, <code>MacbookDecorator</code> holds a reference to <code>this.macBook</code> and forwards method calls to it (delegation). This means:</p>
+<ul>
+<li>The <strong>original object is not modified</strong> — its methods remain intact</li>
+<li>The decorator <strong>wraps</strong> the original, intercepting calls and optionally adding behavior before or after delegating</li>
+<li>Multiple decorators can be <strong>stacked</strong> without each one permanently altering the base object</li>
+<li>You can <strong>remove</strong> a decorator layer without side effects</li>
+</ul>
+<p>This differs from directly modifying the original object (as in Question 9), where each decorator permanently overwrites the <code>cost</code> method on the instance itself.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Facade Pattern</h3>
+<p>The Facade Pattern "provides a convenient higher-level interface to a larger body of code, hiding its true underlying complexity." Provide an example of where a Facade is used in everyday front-end development and explain why it is useful.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>A common front-end example is jQuery itself. Instead of writing:</p>
+<div class="cb"><pre>document.getElementById(&quot;myDiv&quot;).style.display = &quot;none&quot;;
+document.getElementById(&quot;myDiv&quot;).style.opacity = &quot;0&quot;;</pre></div>
+<p>you write:</p>
+<div class="cb"><pre>$(&quot;#myDiv&quot;).hide();</pre></div>
+<p>The Facade (<code>$.hide()</code>) provides a convenient higher-level interface that hides the true underlying complexity of cross-browser DOM manipulation, CSS transitions, and event cleanup. It makes the code simpler to write, read, and maintain.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Flyweight Pattern</h3>
+<p>The Flyweight Pattern is described as a "useful classical solution for code that's repetitive, slow and inefficient." The key idea is to separate data into intrinsic and extrinsic states. In the following example:</p>
+
+<ul>
+<li><code>BookFlyweight</code> stores book data (intrinsic)</li>
+<li><code>BookRecordManager</code> stores checkout data (extrinsic)</li>
+</ul>
+
+<p>The slides state: "if we have 30 copies of the same book, we are now only storing it once."</p>
+
+<p>Explain what intrinsic vs. extrinsic state means and why this separation saves memory.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Intrinsic state</strong> is data that is shared and does not change between instances — for books this is: title, author, genre, pageCount, publisherId, isbn (stored in <code>BookFlyweight</code> constructor from slides).</p>
+<p><strong>Extrinsic state</strong> is data unique to each instance — for books this is: checkoutDate, checkoutMember, dueReturnDate, availability (stored in <code>BookRecordManager</code> from slides). The <code>BookFactory</code> checks <code>existingBooks[isbn]</code> and returns a cached flyweight if it exists, or creates a new one.</p>
+<p>If you have 30 copies of "Clean Code," the intrinsic data (title, author, ISBN) is identical for all 30. Without the Flyweight pattern you store this data 30 times. With it, you store the book data once in a single <code>BookFlyweight</code> object and only the checkout-specific data 30 times in the <code>BookRecordManager</code>. This dramatically reduces memory usage.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Iterator Pattern</h3>
+<p>The Iterator Pattern "access elements of an aggregate object sequentially without needing to expose its underlying form." jQuery's <code>$.each()</code> is given as an example. Write a simple iterator function that takes an array and a callback, calling the callback for each element.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<div class="cb"><pre>function each(array, callback) {
+  for (var i = 0; i &lt; array.length; i++) {
+    callback(i, array[i]);
+  }
+}
+
+// Usage
+each([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], function (index, value) {
+  console.log(index + &quot;: &quot; + value);
+});
+// 0: a
+// 1: b
+// 2: c</pre></div>
+<p>The consumer does not need to know the internal structure of the collection (array, linked list, tree, etc.). The iterator handles traversal, exposing only the current element and index — "without needing to expose its underlying form."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Observer / Publish-Subscribe Definition</h3>
+<p>The Observer Pattern "allows an object (subscriber) to watch another object (publisher)." The slides also state that "Redux pattern in React is heavily dependent on the Observer pattern."</p>
+
+<p>Describe the three core operations of the Observer pattern as shown in the slides.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The three core operations shown in the slides are:</p>
+<ol>
+<li><strong>Subscribe (register)</strong> — Subscribers register their interest in a particular event/topic with the publisher</li>
+<li><strong>Publish (broadcast)</strong> — The publisher broadcasts a notification to all registered subscribers when an event occurs</li>
+<li><strong>Unsubscribe</strong> — Subscribers can remove themselves so they no longer receive notifications</li>
+</ol>
+<p>These correspond to the <code>publish</code>, <code>subscribe</code>, and <code>unsubscribe</code> methods shown in the observer object on the slides.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16 — Observer Pattern: Pros and Cons</h3>
+<p>According to the slides, the Observer pattern has these characteristics:</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Loosely coupled modules</li>
+<li>Encourages thinking about relationships between parts</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Difficult to see how things function</li>
+<li>Publishers don't know if subscribers fail</li>
+</ul>
+
+<p>Explain each pro and con in your own words and give a concrete scenario for one of the cons.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Pro — Loosely coupled modules:</strong> Publishers and subscribers do not need to know about each other's internals. A button component can publish a "clicked" event without knowing whether 0 or 50 other modules are listening. This makes modules independently testable and replaceable.</p>
+<p><strong>Pro — Encourages thinking about relationships:</strong> The pattern forces developers to explicitly define which events exist and who cares about them, leading to better-architected systems.</p>
+<p><strong>Con — Difficult to see how things function:</strong> Because communication is indirect (through events rather than direct method calls), it can be hard to trace the flow of data through the application. Debugging becomes harder when you cannot see a direct call stack from publisher to subscriber.</p>
+<p><strong>Con — Publishers don't know if subscribers fail:</strong> If a subscriber throws an error or silently fails to process an event, the publisher has no way of knowing.</p>
+<p><strong>Con — Observers are quite ignorant to the existence of each other</strong> (from slides): Subscribers don't know about other subscribers. They operate independently and cannot coordinate or depend on each other's state.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Mediator Pattern</h3>
+<p>The Mediator Pattern acts as a "neutral party who assists in negotiations and conflict resolution." The slides describe it as a "shared subject in the observer pattern" that "promotes loose coupling" through a central point of communication.</p>
+
+<p>How does the Mediator differ from the Observer pattern? Why might you choose a Mediator over direct Observer connections between many objects?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>In the <strong>Observer pattern</strong>, objects communicate directly through publish/subscribe — any object can observe any other object, potentially creating a complex web of connections.</p>
+<p>The <strong>Mediator</strong> introduces a single central object (the mediator) that all other objects communicate through. Instead of Object A publishing directly to Objects B, C, and D, Object A sends a message to the Mediator, and the Mediator decides who to notify and how. It is a "shared subject" — a single centralized hub.</p>
+<p>You would choose a Mediator over direct Observer connections when you have <strong>many objects that need to communicate with each other</strong>, because:</p>
+<ul>
+<li>Direct connections between N objects can create up to N*(N-1) relationships</li>
+<li>A Mediator reduces this to N relationships (each object connects only to the mediator)</li>
+<li>The Mediator centralizes the communication logic, making it easier to understand and modify</li>
+<li>It "promotes loose coupling" because objects only know about the mediator, not about each other</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 — DOM Layer / Centralized Event Handling</h3>
+<p>The slides mention using bubbling events and <code>this.matches('a.toggle')</code> as a centralized event handling technique. Explain how event bubbling works and why centralized event handling is more efficient than attaching individual listeners to every element.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Event bubbling</strong> means that when an event (like a click) occurs on a child element, it first triggers on that element, then propagates upward through each ancestor element in the DOM tree (child -&gt; parent -&gt; grandparent -&gt; ... -&gt; document).</p>
+<p><strong>Centralized event handling</strong> (also called event delegation) takes advantage of bubbling by attaching a single event listener to a parent element instead of attaching individual listeners to every child. When an event bubbles up, the parent listener checks <code>this.matches('a.toggle')</code> (or similar) to determine if the event originated from a relevant element.</p>
+<p>This is more efficient because:</p>
+<ol>
+<li><strong>Fewer event listeners</strong> — one listener instead of potentially hundreds, reducing memory usage</li>
+<li><strong>Dynamically added elements</strong> — new child elements automatically work without needing to attach new listeners</li>
+<li><strong>Simpler cleanup</strong> — only one listener to remove instead of many</li>
+<li><strong>Better performance</strong> — especially on pages with many interactive elements</li>
+</ol>
+</div>
+</details>
+

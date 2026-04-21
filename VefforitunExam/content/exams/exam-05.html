@@ -1,0 +1,409 @@
+<h2 class="g-h2">Practice Exam 5 — useCallback, useMemo, Forms &amp; Refs</h2>
+
+<p><strong>Topics</strong>: useCallback, useMemo, Forms, Events, Refs, forwardRef, useImperativeHandle</p>
+
+<hr>
+
+<h2 class="g-h2">SECTION A: useCallback (Slides 430-455)</h2>
+
+<h3 class="g-h3">Question 1</h3>
+<p>What is the definition of <code>useCallback</code> according to the slides?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~430)</strong></p>
+<p><code>useCallback</code> is "a React Hook that lets you cache a function definition between re-renders."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2</h3>
+<p>What are the two arguments that <code>useCallback</code> takes? Describe each one.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~432)</strong></p>
+<p><code>useCallback</code> takes two arguments:</p>
+<ol>
+<li><strong>fn</strong> — the function you want to cache. React will return (not call) this function back to you.</li>
+<li><strong>dependencies</strong> — the list of all reactive values referenced inside of the <code>fn</code> code. Reactive values include props, state, and all the variables and functions declared directly inside your component body.</li>
+</ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3</h3>
+<p>What does <code>useCallback</code> return on the initial render vs. on subsequent re-renders?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~433)</strong></p>
+<ul>
+<li>On the <strong>initial render</strong>, <code>useCallback</code> returns the <code>fn</code> function you passed.</li>
+<li>On <strong>subsequent renders</strong>, it will either return an already stored <code>fn</code> function from the last render (if the dependencies haven't changed), or return the <code>fn</code> function you have passed during this render (if dependencies have changed).</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4</h3>
+<p>Look at the following code from the slides (Page/Checkout/Shipping example). Why does wrapping <code>handleShippingChange</code> in <code>useCallback</code> help performance?</p>
+<div class="cb"><pre>&lt;code&gt;function Page() {
+  const [count, setCount] = useState(0);
+
+  const handleShippingChange = useCallback((option: string) =&gt; {
+    console.log('Shipping changed to:', option);
+  }, []);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Increment&lt;/button&gt;
+      &lt;Checkout /&gt;
+      &lt;Shipping onShippingChange={handleShippingChange} /&gt;
+    &lt;/div&gt;
+  );
+}&lt;/code&gt;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~435-438)</strong></p>
+<p>Without <code>useCallback</code>, every time <code>Page</code> re-renders (e.g., when <code>count</code> changes), a new <code>handleShippingChange</code> function object is created. Even though the function logic is identical, React sees it as a different reference. If <code>Shipping</code> is wrapped in <code>React.memo</code>, it would still re-render because its <code>onShippingChange</code> prop changed reference.</p>
+<p>By wrapping it in <code>useCallback</code> with <code>[]</code> dependencies, the function reference stays the same across re-renders, so <code>Shipping</code> (when wrapped in <code>React.memo</code>) can skip re-rendering because its props haven't changed. This is called "skipping re-renders of child components."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5</h3>
+<p>The slides describe a "betri leid" (better way) for updating state from a memoized callback. What is the functional updater pattern, and why is it the better approach?</p>
+<p>Explain the difference between these two approaches:</p>
+<div class="cb"><pre>&lt;code&gt;// Approach A
+const handleAddTodo = useCallback((text: string) =&gt; {
+  setTodos([...todos, { id: nextId++, text }]);
+}, [todos]);
+
+// Approach B - "betri leid"
+const handleAddTodo = useCallback((text: string) =&gt; {
+  setTodos(prev =&gt; [...prev, { id: nextId++, text }]);
+}, []);
+&lt;/code&gt;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~440-442)</strong></p>
+<p>The functional updater pattern (Approach B / "betri leid") is better because:</p>
+<ul>
+<li><strong>Approach A</strong> depends on the current <code>todos</code> state, so <code>todos</code> must be in the dependency array. Every time <code>todos</code> changes, a new function is created, defeating the purpose of <code>useCallback</code>.</li>
+<li><strong>Approach B</strong> uses the functional updater <code>prev =&gt; [...]</code> which receives the previous state as an argument. This means the callback does not need to reference <code>todos</code> at all, so the dependency array can be empty <code>[]</code>. The function reference stays the same across all re-renders.</li>
+</ul>
+<p>The "betri leid" removes the need for state variables in the dependency array by reading state through the updater function argument instead.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6</h3>
+<p>The slides show an example of preventing <code>useEffect</code> from firing too often using <code>useCallback</code>. Explain how wrapping <code>buildQueryParams</code> in <code>useCallback</code> solves the problem.</p>
+<div class="cb"><pre>&lt;code&gt;function SearchPage({ query, filters }: Props) {
+  const buildQueryParams = useCallback(() =&gt; {
+    return new URLSearchParams({
+      q: query,
+      ...filters,
+    }).toString();
+  }, [query, filters]);
+
+  useEffect(() =&gt; {
+    const params = buildQueryParams();
+    fetch(`/api/search?${params}`);
+  }, [buildQueryParams]);
+}
+&lt;/code&gt;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~445-448)</strong></p>
+<p>Without <code>useCallback</code>, <code>buildQueryParams</code> is recreated on every render. Since it is in the <code>useEffect</code> dependency array, the effect runs on every render — even when <code>query</code> and <code>filters</code> haven't changed.</p>
+<p>By wrapping <code>buildQueryParams</code> in <code>useCallback</code> with <code>[query, filters]</code> as dependencies, the function reference only changes when <code>query</code> or <code>filters</code> actually change. This means the <code>useEffect</code> only fires when the search parameters truly change, preventing unnecessary API calls.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7</h3>
+<p>According to the slides, when should you wrap functions in <code>useCallback</code> when building custom hooks? Why?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~450-452)</strong></p>
+<p>When building custom hooks, you should wrap any returned functions in <code>useCallback</code>. This is because you don't know how the consumer of your hook will use the function — they might pass it as a prop to a memoized component or include it in a <code>useEffect</code> dependency array. Wrapping it in <code>useCallback</code> ensures that consumers don't get unnecessary re-renders or effect re-runs. This is part of "optimizing custom hooks."</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION B: useMemo (Slides 455-480)</h2>
+
+<h3 class="g-h3">Question 8</h3>
+<p>What is the definition of <code>useMemo</code> according to the slides? What is this type of caching called?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~455-458)</strong></p>
+<p><code>useMemo</code> is "a React Hook that lets you cache the result of a calculation between re-renders." This type of caching is called "memoisation."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9</h3>
+<p>According to the slides, what does React do with the body of your component by default every time it re-renders?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~460)</strong></p>
+<p>"By default React will re-run the entire body of your component every time it re-renders." This means all calculations, filtering, mapping, and other operations inside the component body run again on every render, even if their inputs haven't changed.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10</h3>
+<p>Look at the following ProductDashboard example from the slides. Why is <code>useMemo</code> used here, and what problem does it solve?</p>
+<div class="cb"><pre>&lt;code&gt;function ProductDashboard({ products, category }: Props) {
+  const filteredProducts = useMemo(() =&gt; {
+    return products.filter(p =&gt; p.category === category);
+  }, [products, category]);
+
+  const stats = useMemo(() =&gt; {
+    return {
+      total: filteredProducts.length,
+      avgPrice: filteredProducts.reduce((sum, p) =&gt; sum + p.price, 0)
+        / filteredProducts.length,
+    };
+  }, [filteredProducts]);
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Stats: {stats.total} products, avg ${stats.avgPrice.toFixed(2)}&lt;/h2&gt;
+      {filteredProducts.map(p =&gt; (
+        &lt;ProductCard key={p.id} product={p} /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+&lt;/code&gt;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~462-466)</strong></p>
+<p><code>useMemo</code> is used here to skip expensive recalculations:</p>
+<ol>
+<li><code>filteredProducts</code> uses <code>useMemo</code> with <code>[products, category]</code> — the filtering only re-runs when the products array or category changes. If the parent re-renders for other reasons (e.g., unrelated state change), the expensive <code>.filter()</code> operation is skipped and the cached result is returned.</li>
+<li><code>stats</code> uses <code>useMemo</code> with <code>[filteredProducts]</code> — the statistics calculation (total count, average price with <code>.reduce()</code>) only re-runs when <code>filteredProducts</code> changes.</li>
+</ol>
+<p>Without <code>useMemo</code>, both the filtering and the statistics calculation would run on every single re-render, which is wasteful when <code>products</code> and <code>category</code> haven't changed.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11</h3>
+<p>What is the difference between <code>useMemo</code> and <code>useCallback</code>? When would you use one over the other?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slides ~455, ~430)</strong></p>
+<ul>
+<li><code>useMemo</code> caches <strong>the result of a calculation</strong> (a value).</li>
+<li><code>useCallback</code> caches <strong>a function definition</strong> (a function reference).</li>
+</ul>
+<p><code>useCallback(fn, deps)</code> is essentially equivalent to <code>useMemo(() =&gt; fn, deps)</code>.</p>
+<p>Use <code>useMemo</code> when you have an expensive computation whose result you want to cache. Use <code>useCallback</code> when you want to cache a function reference to prevent unnecessary re-renders of child components or unnecessary effect re-runs.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12</h3>
+<p>Can <code>useMemo</code> be used to skip re-rendering of components? If so, how does it compare to wrapping a component in <code>React.memo</code>?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~468-470)</strong></p>
+<p>Yes, <code>useMemo</code> can be used to skip re-rendering of components. You can wrap JSX in <code>useMemo</code> to memoize the rendered output. However, the more common approach is to wrap the child component in <code>React.memo</code> and use <code>useCallback</code> for function props and <code>useMemo</code> for object/array props. Both achieve the same goal of preventing unnecessary re-renders when props haven't changed.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION C: Forms, Events &amp; Refs (Slides 620-640)</h2>
+
+<h3 class="g-h3">Question 13</h3>
+<p>According to the slides, why are forms described as "one of the most crucial parts of our applications"?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~620)</strong></p>
+<p>Forms are described as "one of the most crucial parts of our applications" because they are the primary way users interact with and send data to the application — login forms, registration, search, creating/editing content, etc. Nearly every web application relies on forms for data input.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14</h3>
+<p>What is a SyntheticEvent in React? List at least four event handlers mentioned in the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~622-624)</strong></p>
+<p>A SyntheticEvent is React's abstraction of the native DOM event object. It wraps the browser's native event to provide a consistent API across all browsers.</p>
+<p>Event handlers from the slides include:</p>
+<ul>
+<li><code>onClick</code> — fires when an element is clicked</li>
+<li><code>onContextMenu</code> — fires on right-click</li>
+<li><code>onMouseMove</code> — fires when the mouse moves over an element</li>
+<li><code>onSubmit</code> — fires when a form is submitted</li>
+<li><code>onChange</code> — fires when the value of an input changes</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15</h3>
+<p>What is the definition of <code>useRef</code> from the slides? How does it differ from <code>useState</code> when it comes to re-renders?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~628-630)</strong></p>
+<p><code>useRef</code> according to the slides: "Changes made to the reference will not trigger a re-render and the reference can be mutated."</p>
+<p>Key difference from <code>useState</code>:</p>
+<ul>
+<li><code>useState</code> — changing the value triggers a re-render, the value is immutable (you replace it via the setter function).</li>
+<li><code>useRef</code> — changing <code>.current</code> does <strong>not</strong> trigger a re-render, and the reference can be directly mutated.</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16</h3>
+<p>Compare the two approaches to reading text input values from the slides:</p>
+<p><strong>Approach A — Using a ref:</strong></p>
+<div class="cb"><pre>&lt;code&gt;function Form() {
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const value = inputRef.current?.value;
+    console.log('Submitted:', value);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input ref={inputRef} type="text" /&gt;
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+&lt;/code&gt;</pre></div>
+<p><strong>Approach B — Controlled input:</strong></p>
+<div class="cb"><pre>&lt;code&gt;function Form() {
+  const [value, setValue] = useState('');
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    console.log('Submitted:', value);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="text"
+        value={value}
+        onChange={(e) =&gt; setValue(e.target.value)}
+      /&gt;
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+&lt;/code&gt;</pre></div>
+<p>When should you use each approach?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~630-634)</strong></p>
+<p><strong>Approach A (ref / uncontrolled input)</strong>:</p>
+<ul>
+<li>The DOM owns the input value. React reads it only when needed (e.g., on submit).</li>
+<li>No re-render happens as the user types.</li>
+<li>Best for: simple forms where you only need the value on submit, or when integrating with non-React code.</li>
+</ul>
+<p><strong>Approach B (controlled input)</strong>:</p>
+<ul>
+<li>React state owns the input value via <code>value</code> and <code>onChange</code>.</li>
+<li>Every keystroke triggers a re-render because <code>setValue</code> is called.</li>
+<li>Best for: when you need to validate, transform, or react to input changes in real time (e.g., showing character count, live search, conditional rendering based on input).</li>
+</ul>
+<p>The slides show that refs are the simpler approach when you just need to "grab" a value, while controlled inputs give you full control over the input at the cost of more re-renders.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17</h3>
+<p>According to the slides, what does <code>forwardRef</code> do? Why is it described as something that "encapsulates the code"?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~635-636)</strong></p>
+<p><code>forwardRef</code> "encapsulates the code" for passing refs from a parent component to a child component's DOM element. By default, React components do not expose their internal DOM nodes. <code>forwardRef</code> wraps a component so that the parent can pass a <code>ref</code> that gets attached to a specific DOM element inside the child.</p>
+<p>Example:</p>
+<div class="cb"><pre>&lt;code&gt;const FancyInput = forwardRef&lt;HTMLInputElement, Props&gt;((props, ref) =&gt; {
+  return &lt;input ref={ref} className="fancy" {...props} /&gt;;
+});
+
+// Parent can now do:
+const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+&lt;FancyInput ref={inputRef} /&gt;
+&lt;/code&gt;</pre></div>
+<p>This encapsulation means the parent doesn't need to know the internal structure of the child — it just gets access to the ref.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18</h3>
+<p>What does <code>useImperativeHandle</code> do according to the slides? Give an example of when you would use it.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~637-638)</strong></p>
+<p><code>useImperativeHandle</code> lets you "customize the handle exposed as a ref." Instead of exposing the full DOM node, you can expose a custom object with only specific methods.</p>
+<p>Example use case: You have a custom input component and want the parent to only be able to call <code>.focus()</code> and <code>.scrollIntoView()</code>, but not access any other DOM properties:</p>
+<div class="cb"><pre>&lt;code&gt;const CustomInput = forwardRef&lt;{ focus: () =&gt; void }, Props&gt;((props, ref) =&gt; {
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+
+  useImperativeHandle(ref, () =&gt; ({
+    focus() {
+      inputRef.current?.focus();
+    },
+  }));
+
+  return &lt;input ref={inputRef} {...props} /&gt;;
+});
+&lt;/code&gt;</pre></div>
+<p>This gives you control over what the parent component can do with the ref.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 19</h3>
+<p>According to the slides, when should you use refs? Complete the quote: "if your component needs to store some value, but it doesn't impact the ____________"</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~629)</strong></p>
+<p>Complete quote: "if your component needs to store some value, but it doesn't impact the <strong>rendering logic</strong>"</p>
+<p>Examples include: storing timer IDs, DOM element references, or other values that are needed for side effects but should not cause a re-render when they change.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 20</h3>
+<p>Look at this TodoList code. Identify where <code>useRef</code>, controlled inputs, and event handling are used. What would happen if you replaced the <code>useRef</code> with <code>useState</code> for the input?</p>
+<div class="cb"><pre>&lt;code&gt;function TodoList() {
+  const [todos, setTodos] = useState&lt;string[]&gt;([]);
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+
+  function handleAdd() {
+    const text = inputRef.current?.value.trim();
+    if (text) {
+      setTodos(prev =&gt; [...prev, text]);
+      inputRef.current!.value = '';
+      inputRef.current!.focus();
+    }
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;input ref={inputRef} placeholder="New todo" /&gt;
+      &lt;button onClick={handleAdd}&gt;Add&lt;/button&gt;
+      &lt;ul&gt;
+        {todos.map((t, i) =&gt; &lt;li key={i}&gt;{t}&lt;/li&gt;)}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+&lt;/code&gt;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>(Slide ~632-634)</strong></p>
+<p>In this TodoList code:</p>
+<ul>
+<li><strong><code>useRef</code></strong>: <code>inputRef</code> is used to create an uncontrolled input. The DOM manages the input value. We read <code>inputRef.current?.value</code> on button click and clear it with <code>inputRef.current!.value = ''</code>. We also call <code>inputRef.current!.focus()</code> to refocus after adding.</li>
+<li><strong><code>useState</code></strong> (controlled state): <code>todos</code> is managed as React state because it directly affects rendering (the list of <code>&lt;li&gt;</code> elements).</li>
+<li><strong>Event handling</strong>: <code>handleAdd</code> is an event handler attached via <code>onClick</code> on the button.</li>
+</ul>
+<p>If you replaced <code>useRef</code> with <code>useState</code> for the input:</p>
+<ul>
+<li>Every keystroke would trigger a re-render (because <code>setValue</code> calls cause re-renders).</li>
+<li>The input would become a "controlled" input requiring <code>value={inputValue}</code> and <code>onChange={(e) =&gt; setInputValue(e.target.value)}</code>.</li>
+<li>The component would re-render more frequently, but you would gain real-time access to the input value for features like validation or live filtering.</li>
+<li>The current approach with <code>useRef</code> is simpler and avoids unnecessary re-renders since the input value doesn't affect the rendered output until the user clicks "Add."</li>
+</ul>
+</div>
+</details>

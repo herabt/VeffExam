@@ -1,0 +1,1218 @@
+<h2 class="g-h2">06 — FORMS (react-hook-form)</h2>
+<p><em>Web Programming II — Final Exam Study Guide</em><br>
+<em>Target: 100%</em></p>
+
+<h2 class="g-h2">Table of Contents</h2>
+<ol>
+  <li>Controlled vs Uncontrolled Inputs</li>
+  <li>Why react-hook-form Exists</li>
+  <li>Core API: useForm</li>
+  <li>register()</li>
+  <li>handleSubmit()</li>
+  <li>formState: errors, isSubmitting, isDirty, isValid</li>
+  <li>Validation Rules</li>
+  <li>Controller — for Controlled Components</li>
+  <li>watch, setValue, reset</li>
+  <li>Default Values</li>
+  <li>Schema Validation: Zod + Yup via Resolvers</li>
+  <li>Error Display Patterns</li>
+  <li>Form Submission &amp; Async Validation</li>
+  <li>Full Code Example: Signup Form</li>
+  <li>Client vs Server Validation</li>
+  <li>Exam Questions (Exact Match)</li>
+  <li>Cheat Sheet</li>
+</ol>
+
+<h2 class="g-h2">1. Controlled vs Uncontrolled Inputs</h2>
+
+<h3 class="g-h3">The fundamental choice</h3>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Controlled</th>
+      <th>Uncontrolled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Where value lives</strong></td>
+      <td>React state (<code>useState</code>)</td>
+      <td>The DOM itself</td>
+    </tr>
+    <tr>
+      <td><strong>How to read value</strong></td>
+      <td>From state variable</td>
+      <td>Via <code>ref.current.value</code></td>
+    </tr>
+    <tr>
+      <td><strong>Re-renders on each keystroke</strong></td>
+      <td>YES — every character typed triggers <code>setState</code> and a re-render</td>
+      <td>NO — DOM manages it; React is not involved</td>
+    </tr>
+    <tr>
+      <td><strong>Real-time features</strong></td>
+      <td>Easy — value is always in state</td>
+      <td>Harder — must read from ref</td>
+    </tr>
+    <tr>
+      <td><strong>Validation timing</strong></td>
+      <td>Instant (value always known)</td>
+      <td>On demand (read ref when needed)</td>
+    </tr>
+    <tr>
+      <td><strong>react-hook-form uses</strong></td>
+      <td>Optionally via <code>Controller</code></td>
+      <td>By default (uncontrolled)</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Controlled input (useState approach):</h3>
+<div class="cb"><pre>function ControlledForm() {
+  const [email, setEmail] = useState('');
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    console.log('Email:', email); // value always in state
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="email"
+        value={email}                          // React controls the value
+        onChange={(e) =&gt; setEmail(e.target.value)} // re-renders on every keystroke
+      /&gt;
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre></div>
+
+<h3 class="g-h3">Uncontrolled input (useRef approach):</h3>
+<div class="cb"><pre>function UncontrolledForm() {
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const value = inputRef.current?.value; // read from DOM only on submit
+    console.log('Email:', value);
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input ref={inputRef} type="email" /&gt; {/* DOM manages the value */}
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre></div>
+
+<h3 class="g-h3">Key exam point:</h3>
+<blockquote>
+  <p><strong>react-hook-form uses uncontrolled inputs by default.</strong> The <code>register()</code> function attaches a <code>ref</code> to the input — React does NOT manage the value via state. This means there are <strong>no re-renders on each keystroke</strong>, only on validation events. This is the primary performance advantage.</p>
+</blockquote>
+
+<h2 class="g-h2">2. Why react-hook-form Exists</h2>
+
+<h3 class="g-h3">The problem with useState for forms</h3>
+<p>With a 5-field form using <code>useState</code>, every single keystroke in any field re-renders the <strong>entire form component</strong>. On large forms, this is expensive.</p>
+
+<div class="cb"><pre>// BAD: 5 useStates = re-render on every keystroke in every field
+const [name, setName] = useState('');
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
+const [confirmPassword, setConfirmPassword] = useState('');
+const [bio, setBio] = useState('');</pre></div>
+
+<h3 class="g-h3">react-hook-form's solution</h3>
+<ul>
+  <li>Inputs are <strong>uncontrolled</strong> — values live in the DOM, not React state</li>
+  <li>The library reads values from the DOM only when needed (on submit or validation)</li>
+  <li>Re-renders happen only when: <strong>validation triggers</strong>, <strong>error state changes</strong>, or <strong>formState fields change</strong></li>
+</ul>
+
+<h3 class="g-h3">Primary advantage (exam exact answer — Mock Q15):</h3>
+<blockquote>
+  <p><strong>"It reduces unnecessary re-renders by using uncontrolled inputs and only re-renders on validation events."</strong></p>
+</blockquote>
+
+<h2 class="g-h2">3. Core API: useForm</h2>
+
+<div class="cb"><pre>import { useForm } from 'react-hook-form';
+
+type FormData = {
+  name: string;
+  email: string;
+  password: string;
+  age: number;
+};
+
+const {
+  register,
+  handleSubmit,
+  formState,
+  watch,
+  setValue,
+  reset,
+  control,
+} = useForm&lt;FormData&gt;({
+  mode: 'onSubmit',        // when to validate (default)
+  defaultValues: {
+    name: '',
+    email: '',
+    password: '',
+    age: 18,
+  },
+});</pre></div>
+
+<h3 class="g-h3">useForm options</h3>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Values</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>mode</code></td>
+      <td><code>"onSubmit"</code> (default), <code>"onChange"</code>, <code>"onBlur"</code>, <code>"onTouched"</code>, <code>"all"</code></td>
+      <td>When validation triggers</td>
+    </tr>
+    <tr>
+      <td><code>defaultValues</code></td>
+      <td>Object matching form shape</td>
+      <td>Initial values for all fields</td>
+    </tr>
+    <tr>
+      <td><code>resolver</code></td>
+      <td><code>zodResolver(schema)</code>, <code>yupResolver(schema)</code></td>
+      <td>External schema validation</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Default mode is <code>"onSubmit"</code>:</h3>
+<blockquote>
+  <p><strong>Exam note:</strong> The default mode for react-hook-form is <code>"onSubmit"</code>. This means validation only runs when the user tries to submit. To validate as the user types, use <code>mode: "onChange"</code>.</p>
+</blockquote>
+
+<h3 class="g-h3">mode options explained:</h3>
+<ul>
+  <li><code>"onSubmit"</code> — validates only when form is submitted (default, best UX for initial state)</li>
+  <li><code>"onChange"</code> — validates on every keystroke (instant feedback, more re-renders)</li>
+  <li><code>"onBlur"</code> — validates when user leaves the field (good middle ground)</li>
+  <li><code>"onTouched"</code> — validates on blur after first touch, then onChange</li>
+  <li><code>"all"</code> — validates on both blur and change</li>
+</ul>
+
+<h2 class="g-h2">4. register()</h2>
+
+<p><code>register()</code> is how you connect an HTML input to react-hook-form. You spread its return value onto the input element.</p>
+
+<h3 class="g-h3">Basic usage:</h3>
+<div class="cb"><pre>&lt;input {...register("email")} type="email" /&gt;</pre></div>
+
+<h3 class="g-h3">What register() returns:</h3>
+<div class="cb"><pre>// register("email") returns an object like:
+{
+  name: "email",
+  ref: ...,      // internal ref so RHF can read the DOM value
+  onChange: ..., // for validation triggering
+  onBlur: ...,   // for onBlur mode
+}</pre></div>
+
+<h3 class="g-h3">register() with validation rules:</h3>
+<div class="cb"><pre>&lt;input
+  {...register("email", {
+    required: "Email is required",
+    pattern: {
+      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: "Enter a valid email address",
+    },
+    minLength: {
+      value: 5,
+      message: "Email must be at least 5 characters",
+    },
+  })}
+  type="email"
+/&gt;</pre></div>
+
+<h3 class="g-h3">IMPORTANT: Do NOT use <code>type</code> as a validation rule</h3>
+<div class="cb"><pre>// WRONG — "type" is NOT a valid validation rule for register()
+register("email", { type: "email" })  // does nothing
+
+// CORRECT — use "pattern" for format validation
+register("email", { pattern: { value: /regex/, message: "msg" } })</pre></div>
+
+<h2 class="g-h2">5. handleSubmit()</h2>
+
+<p><code>handleSubmit</code> wraps your submit handler. It:</p>
+<ol>
+  <li>Runs all validation</li>
+  <li>If validation passes → calls your <code>onValid</code> function with the form data</li>
+  <li>If validation fails → populates <code>formState.errors</code>, does NOT call <code>onValid</code></li>
+</ol>
+
+<div class="cb"><pre>const onSubmit = (data: FormData) =&gt; {
+  // data is fully typed and validated
+  console.log(data); // { name: "Alice", email: "alice@example.com", ... }
+};
+
+const onError = (errors: FieldErrors&lt;FormData&gt;) =&gt; {
+  // called only when validation fails
+  console.log(errors);
+};
+
+&lt;form onSubmit={handleSubmit(onSubmit, onError)}&gt;</pre></div>
+
+<h3 class="g-h3">Async submit handler:</h3>
+<div class="cb"><pre>const onSubmit = async (data: FormData) =&gt; {
+  try {
+    await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};</pre></div>
+
+<h3 class="g-h3">Exam fill-in-blank answer (Mock Q16 blank 6):</h3>
+<blockquote>
+  <p>The validated data is passed to the function provided to <strong><code>handleSubmit</code></strong>.</p>
+</blockquote>
+
+<h2 class="g-h2">6. formState</h2>
+
+<p><code>formState</code> is an object containing the current state of the form. Destructure only what you need.</p>
+
+<div class="cb"><pre>const {
+  formState: { errors, isSubmitting, isDirty, isValid, touchedFields, dirtyFields }
+} = useForm&lt;FormData&gt;();</pre></div>
+
+<h3 class="g-h3">formState properties:</h3>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>errors</code></td>
+      <td><code>FieldErrors&lt;T&gt;</code></td>
+      <td>Validation errors per field. <strong>Access as <code>formState.errors</code></strong> (NOT bare <code>errors</code> in some contexts)</td>
+    </tr>
+    <tr>
+      <td><code>isSubmitting</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code> while the async submit handler is running</td>
+    </tr>
+    <tr>
+      <td><code>isDirty</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code> if any field has been changed from its default value</td>
+    </tr>
+    <tr>
+      <td><code>isValid</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code> if the form has no errors (only reliable when <code>mode</code> is NOT <code>"onSubmit"</code>)</td>
+    </tr>
+    <tr>
+      <td><code>touchedFields</code></td>
+      <td><code>object</code></td>
+      <td>Which fields have been focused and blurred</td>
+    </tr>
+    <tr>
+      <td><code>dirtyFields</code></td>
+      <td><code>object</code></td>
+      <td>Which fields have been changed</td>
+    </tr>
+    <tr>
+      <td><code>isSubmitSuccessful</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code> after a successful submit</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Accessing errors:</h3>
+<div class="cb"><pre>// formState.errors is an object keyed by field name
+const { formState: { errors } } = useForm&lt;FormData&gt;();
+
+// Access field error:
+errors.email         // the error object for the "email" field
+errors.email?.message  // the error message string
+
+// Exact exam answer (Mock Q16 blank 3):
+// "Validation errors for a field named email are accessed via formState.errors"
+// (NOT just "errors" — the full path is formState.errors)</pre></div>
+
+<h3 class="g-h3">Using isSubmitting for loading state:</h3>
+<div class="cb"><pre>&lt;button type="submit" disabled={isSubmitting}&gt;
+  {isSubmitting ? 'Submitting...' : 'Submit'}
+&lt;/button&gt;</pre></div>
+
+<h3 class="g-h3">Using isDirty to prevent unnecessary submissions:</h3>
+<div class="cb"><pre>&lt;button type="submit" disabled={!isDirty || isSubmitting}&gt;
+  Save Changes
+&lt;/button&gt;</pre></div>
+
+<h2 class="g-h2">7. Validation Rules</h2>
+
+<p>These are the <strong>built-in</strong> validation rules you can pass to <code>register()</code>. Know all of them — the exam tests which ones are real.</p>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Rule</th>
+      <th>Type</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>required</code></td>
+      <td><code>string | boolean | { value: boolean, message: string }</code></td>
+      <td><code>required: "This field is required"</code></td>
+    </tr>
+    <tr>
+      <td><code>minLength</code></td>
+      <td><code>{ value: number, message: string }</code></td>
+      <td><code>minLength: { value: 3, message: "Min 3 chars" }</code></td>
+    </tr>
+    <tr>
+      <td><code>maxLength</code></td>
+      <td><code>{ value: number, message: string }</code></td>
+      <td><code>maxLength: { value: 50, message: "Max 50 chars" }</code></td>
+    </tr>
+    <tr>
+      <td><code>min</code></td>
+      <td><code>{ value: number, message: string }</code></td>
+      <td><code>min: { value: 18, message: "Must be 18+" }</code> — for number inputs</td>
+    </tr>
+    <tr>
+      <td><code>max</code></td>
+      <td><code>{ value: number, message: string }</code></td>
+      <td><code>max: { value: 100, message: "Max 100" }</code> — for number inputs</td>
+    </tr>
+    <tr>
+      <td><code>pattern</code></td>
+      <td><code>{ value: RegExp, message: string }</code></td>
+      <td><code>pattern: { value: /^\d+$/, message: "Numbers only" }</code></td>
+    </tr>
+    <tr>
+      <td><code>validate</code></td>
+      <td><code>function | object of functions</code></td>
+      <td>Custom async or sync validation</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">NOT valid rules (exam trap):</h3>
+<ul>
+  <li><code>type</code> — NOT a validation rule</li>
+  <li><code>sanitize</code> — NOT a validation rule</li>
+  <li><code>format</code> — NOT a validation rule</li>
+</ul>
+
+<h3 class="g-h3">Exact exam answer (Mock Q17 / Practice Exam 2 Q19):</h3>
+<ul>
+  <li>YES: <code>required</code>, <code>minLength</code>, <code>maxLength</code>, <code>pattern</code>, <code>validate</code></li>
+  <li>NO: <code>type</code>, <code>sanitize</code>, <code>format</code></li>
+</ul>
+
+<h3 class="g-h3">validate — custom validation:</h3>
+<div class="cb"><pre>register("username", {
+  validate: async (value) =&gt; {
+    const res = await fetch(`/api/check-username?username=${value}`);
+    const { available } = await res.json();
+    return available || "Username is already taken";
+  }
+})
+
+// Multiple validate functions:
+register("password", {
+  validate: {
+    hasUppercase: (v) =&gt; /[A-Z]/.test(v) || "Must contain uppercase",
+    hasNumber: (v) =&gt; /\d/.test(v) || "Must contain a number",
+    minLength: (v) =&gt; v.length &gt;= 8 || "Min 8 characters",
+  }
+})</pre></div>
+
+<h3 class="g-h3">Full register example with multiple rules:</h3>
+<div class="cb"><pre>&lt;input
+  {...register("password", {
+    required: "Password is required",
+    minLength: { value: 8, message: "At least 8 characters" },
+    maxLength: { value: 128, message: "Max 128 characters" },
+    pattern: {
+      value: /^(?=.*[A-Z])(?=.*\d)/,
+      message: "Must contain uppercase and number",
+    },
+  })}
+  type="password"
+/&gt;</pre></div>
+
+<h2 class="g-h2">8. Controller — for Controlled Components</h2>
+
+<p><code>Controller</code> is used when you need to integrate a <strong>controlled</strong> third-party component (like a custom Select, DatePicker, or UI library component) that doesn't expose a native <code>ref</code>.</p>
+
+<h3 class="g-h3">Why Controller exists:</h3>
+<p><code>register()</code> works by attaching a ref to a native HTML input. Some components (Radix UI, MUI, React Select, etc.) do not forward refs properly or need their own <code>value</code>/<code>onChange</code> props. <code>Controller</code> bridges this gap.</p>
+
+<div class="cb"><pre>import { Controller } from 'react-hook-form';
+
+// Usage with a custom component:
+&lt;Controller
+  name="country"
+  control={control}  // from useForm()
+  rules={{ required: "Please select a country" }}
+  render={({ field, fieldState }) =&gt; (
+    &lt;Select
+      {...field}                    // spreads value, onChange, onBlur, ref
+      options={countryOptions}
+      error={fieldState.error?.message}
+    /&gt;
+  )}
+/&gt;
+
+// Usage with a native select (you could also just use register, but this is an example):
+&lt;Controller
+  name="role"
+  control={control}
+  defaultValue="user"
+  render={({ field }) =&gt; (
+    &lt;select {...field}&gt;
+      &lt;option value="user"&gt;User&lt;/option&gt;
+      &lt;option value="admin"&gt;Admin&lt;/option&gt;
+    &lt;/select&gt;
+  )}
+/&gt;</pre></div>
+
+<h3 class="g-h3">Controller vs register:</h3>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th></th>
+      <th><code>register()</code></th>
+      <th><code>Controller</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Use for</td>
+      <td>Native HTML inputs (<code>input</code>, <code>textarea</code>, <code>select</code>)</td>
+      <td>Third-party controlled components</td>
+    </tr>
+    <tr>
+      <td>Renders as</td>
+      <td>Uncontrolled (ref-based)</td>
+      <td>Controlled (value+onChange)</td>
+    </tr>
+    <tr>
+      <td><code>control</code> prop needed</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">9. watch, setValue, reset</h2>
+
+<h3 class="g-h3">watch() — observe field values:</h3>
+<div class="cb"><pre>const { watch } = useForm&lt;FormData&gt;();
+
+// Watch a single field:
+const password = watch("password");
+
+// Watch multiple fields:
+const [firstName, lastName] = watch(["firstName", "lastName"]);
+
+// Watch all fields:
+const allValues = watch();
+
+// Use case: conditional fields
+const accountType = watch("accountType");
+{accountType === "business" &amp;&amp; (
+  &lt;input {...register("companyName", { required: "Company name required" })} /&gt;
+)}
+
+// Use case: confirm password validation
+register("confirmPassword", {
+  validate: (value) =&gt;
+    value === watch("password") || "Passwords do not match",
+});</pre></div>
+
+<h3 class="g-h3">setValue() — programmatically set a field value:</h3>
+<div class="cb"><pre>const { setValue } = useForm&lt;FormData&gt;();
+
+// Set a value (does NOT trigger validation by default):
+setValue("email", "user@example.com");
+
+// Set with validation:
+setValue("email", "user@example.com", { shouldValidate: true });
+
+// Set and mark dirty:
+setValue("email", "user@example.com", { shouldDirty: true });
+
+// Use case: after fetching user data
+useEffect(() =&gt; {
+  fetch('/api/user').then(r =&gt; r.json()).then(user =&gt; {
+    setValue("name", user.name);
+    setValue("email", user.email);
+  });
+}, []);</pre></div>
+
+<h3 class="g-h3">reset() — reset form to default values:</h3>
+<div class="cb"><pre>const { reset } = useForm&lt;FormData&gt;();
+
+// Reset to original defaultValues:
+reset();
+
+// Reset to new values:
+reset({
+  name: "Alice",
+  email: "alice@example.com",
+});
+
+// Use case: after successful submission
+const onSubmit = async (data: FormData) =&gt; {
+  await saveData(data);
+  reset(); // clear the form
+};
+
+// Use case: edit form — populate with existing data
+useEffect(() =&gt; {
+  if (existingUser) {
+    reset(existingUser); // fills form with server data
+  }
+}, [existingUser]);</pre></div>
+
+<h2 class="g-h2">10. Default Values</h2>
+
+<p>Default values pre-populate the form and define the "clean" state for <code>isDirty</code>.</p>
+
+<div class="cb"><pre>// Option 1: inline in useForm
+const { register } = useForm&lt;FormData&gt;({
+  defaultValues: {
+    name: "",
+    email: "",
+    age: 18,
+    newsletter: false,
+  },
+});
+
+// Option 2: async default values (from API)
+const { register } = useForm&lt;FormData&gt;({
+  defaultValues: async () =&gt; {
+    const res = await fetch('/api/user/profile');
+    return res.json(); // must match FormData shape
+  },
+});</pre></div>
+
+<blockquote>
+  <p><strong>Exam note:</strong> Always set <code>defaultValues</code> for every field. If a field has no default value, it starts as <code>undefined</code>, which can cause issues with <code>isDirty</code> comparison and TypeScript types.</p>
+</blockquote>
+
+<h2 class="g-h2">11. Schema Validation: Zod + Yup</h2>
+
+<p>Instead of defining validation rules on each <code>register()</code> call, you can define a single schema and pass it via the <code>resolver</code> option.</p>
+
+<h3 class="g-h3">Why use a resolver:</h3>
+<ul>
+  <li>Centralized validation logic</li>
+  <li>Same schema can be shared between client and server</li>
+  <li>More expressive validation (cross-field dependencies, transforms)</li>
+  <li>Works with TypeScript to infer types</li>
+</ul>
+
+<h3 class="g-h3">Zod (most common in modern React):</h3>
+<div class="cb"><pre>npm install @hookform/resolvers zod</pre></div>
+
+<div class="cb"><pre>import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+// 1. Define the schema
+const schema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Enter a valid email"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+    .regex(/\d/, "Must contain at least one number"),
+  age: z.number().min(18, "Must be 18 or older").max(120),
+});
+
+// 2. Infer the TypeScript type from the schema
+type FormData = z.infer&lt;typeof schema&gt;;
+
+// 3. Pass schema to useForm via resolver
+const { register, handleSubmit, formState: { errors } } = useForm&lt;FormData&gt;({
+  resolver: zodResolver(schema),
+  defaultValues: {
+    name: "",
+    email: "",
+    password: "",
+    age: 18,
+  },
+});</pre></div>
+
+<h3 class="g-h3">Yup (older, still common):</h3>
+<div class="cb"><pre>npm install @hookform/resolvers yup</pre></div>
+
+<div class="cb"><pre>import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+const schema = yup.object({
+  name: yup.string().min(2).required("Name is required"),
+  email: yup.string().email("Enter a valid email").required(),
+  password: yup.string().min(8).required(),
+});
+
+type FormData = yup.InferType&lt;typeof schema&gt;;
+
+const { register } = useForm&lt;FormData&gt;({
+  resolver: yupResolver(schema),
+});</pre></div>
+
+<h3 class="g-h3">Exam exact answer (Mock Q16 blank 5):</h3>
+<blockquote>
+  <p>To integrate a schema validation library like Zod, you pass it via the <strong><code>resolver</code></strong> option. Usage: <code>resolver: zodResolver(schema)</code>.</p>
+</blockquote>
+
+<h3 class="g-h3">Cross-field validation with Zod:</h3>
+<div class="cb"><pre>const schema = z.object({
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+}).refine(data =&gt; data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"], // attach error to this field
+});</pre></div>
+
+<h2 class="g-h2">12. Error Display Patterns</h2>
+
+<h3 class="g-h3">Pattern 1: Inline below the field (most common):</h3>
+<div class="cb"><pre>&lt;div&gt;
+  &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
+  &lt;input
+    id="email"
+    {...register("email", { required: "Email is required" })}
+    aria-invalid={!!errors.email}
+  /&gt;
+  {errors.email &amp;&amp; (
+    &lt;span role="alert" style={{ color: "red" }}&gt;
+      {errors.email.message}
+    &lt;/span&gt;
+  )}
+&lt;/div&gt;</pre></div>
+
+<h3 class="g-h3">Pattern 2: Helper component:</h3>
+<div class="cb"><pre>function FieldError({ error }: { error?: FieldError }) {
+  if (!error) return null;
+  return &lt;p className="field-error"&gt;{error.message}&lt;/p&gt;;
+}
+
+// Usage:
+&lt;FieldError error={errors.email} /&gt;</pre></div>
+
+<h3 class="g-h3">Pattern 3: With Zod resolver — errors come from schema:</h3>
+<div class="cb"><pre>// The error message comes from Zod, not from register()
+const schema = z.object({
+  email: z.string().email("Invalid email format"),
+});
+
+// errors.email.message will be "Invalid email format"
+{errors.email &amp;&amp; &lt;span&gt;{errors.email.message}&lt;/span&gt;}</pre></div>
+
+<h3 class="g-h3">Pattern 4: Summary of all errors:</h3>
+<div class="cb"><pre>{Object.keys(errors).length &gt; 0 &amp;&amp; (
+  &lt;div className="error-summary"&gt;
+    &lt;ul&gt;
+      {Object.entries(errors).map(([field, error]) =&gt; (
+        &lt;li key={field}&gt;{error?.message}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  &lt;/div&gt;
+)}</pre></div>
+
+<h2 class="g-h2">13. Form Submission &amp; Async Validation</h2>
+
+<h3 class="g-h3">Standard async submission:</h3>
+<div class="cb"><pre>const onSubmit = async (data: FormData) =&gt; {
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Registration failed');
+    }
+
+    reset();
+    router.push('/dashboard');
+  } catch (error) {
+    // Set a server-side error on a specific field using setError
+    setError("email", { message: "This email is already registered" });
+  }
+};</pre></div>
+
+<h3 class="g-h3">setError — set server errors after submission:</h3>
+<div class="cb"><pre>const { setError } = useForm&lt;FormData&gt;();
+
+// In your submit handler, after API call:
+const res = await fetch('/api/register', { ... });
+const json = await res.json();
+
+if (json.error === 'EMAIL_TAKEN') {
+  setError("email", {
+    type: "server",
+    message: "This email is already registered",
+  });
+}</pre></div>
+
+<h3 class="g-h3">Async validate rule (field-level async check):</h3>
+<div class="cb"><pre>register("username", {
+  validate: async (value) =&gt; {
+    if (value.length &lt; 3) return true; // let minLength handle it
+    const res = await fetch(`/api/check-username?q=${encodeURIComponent(value)}`);
+    const { available } = await res.json();
+    return available || "Username already taken";
+  },
+});</pre></div>
+
+<h3 class="g-h3">isSubmitting — disable button during submission:</h3>
+<div class="cb"><pre>// React Hook Form automatically sets isSubmitting to true
+// while your async handleSubmit callback is running
+const { formState: { isSubmitting } } = useForm();
+
+&lt;button type="submit" disabled={isSubmitting}&gt;
+  {isSubmitting ? 'Saving...' : 'Save'}
+&lt;/button&gt;</pre></div>
+
+<h2 class="g-h2">14. Full Code Example: Signup Form</h2>
+
+<p>This is the type of full form example likely to appear in an essay question.</p>
+
+<div class="cb"><pre>"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+// 1. Schema definition
+const signupSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Enter a valid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+      .regex(/\d/, "Must contain at least one number"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) =&gt; data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+// 2. Infer type
+type SignupFormData = z.infer&lt;typeof signupSchema&gt;;
+
+export function SignupForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty },
+    reset,
+    setError,
+  } = useForm&lt;SignupFormData&gt;({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  // 3. Submit handler
+  const onSubmit = async (data: SignupFormData) =&gt; {
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const json = await response.json();
+        if (json.code === "EMAIL_TAKEN") {
+          setError("email", { message: "This email is already registered" });
+          return;
+        }
+        throw new Error("Registration failed");
+      }
+
+      reset();
+      // redirect to login or dashboard
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 4. JSX
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)} noValidate&gt;
+      {/* Name field */}
+      &lt;div&gt;
+        &lt;label htmlFor="name"&gt;Name&lt;/label&gt;
+        &lt;input
+          id="name"
+          type="text"
+          {...register("name")}
+          aria-invalid={!!errors.name}
+        /&gt;
+        {errors.name &amp;&amp; &lt;span role="alert"&gt;{errors.name.message}&lt;/span&gt;}
+      &lt;/div&gt;
+
+      {/* Email field */}
+      &lt;div&gt;
+        &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
+        &lt;input
+          id="email"
+          type="email"
+          {...register("email")}
+          aria-invalid={!!errors.email}
+        /&gt;
+        {errors.email &amp;&amp; &lt;span role="alert"&gt;{errors.email.message}&lt;/span&gt;}
+      &lt;/div&gt;
+
+      {/* Password field */}
+      &lt;div&gt;
+        &lt;label htmlFor="password"&gt;Password&lt;/label&gt;
+        &lt;input
+          id="password"
+          type="password"
+          {...register("password")}
+          aria-invalid={!!errors.password}
+        /&gt;
+        {errors.password &amp;&amp; (
+          &lt;span role="alert"&gt;{errors.password.message}&lt;/span&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* Confirm password field */}
+      &lt;div&gt;
+        &lt;label htmlFor="confirmPassword"&gt;Confirm Password&lt;/label&gt;
+        &lt;input
+          id="confirmPassword"
+          type="password"
+          {...register("confirmPassword")}
+          aria-invalid={!!errors.confirmPassword}
+        /&gt;
+        {errors.confirmPassword &amp;&amp; (
+          &lt;span role="alert"&gt;{errors.confirmPassword.message}&lt;/span&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* Submit button */}
+      &lt;button type="submit" disabled={isSubmitting || !isDirty}&gt;
+        {isSubmitting ? "Creating account..." : "Sign Up"}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre></div>
+
+<h3 class="g-h3">What this example demonstrates:</h3>
+<ul>
+  <li><code>zodResolver</code> for schema-based validation</li>
+  <li><code>z.infer&lt;typeof schema&gt;</code> for TypeScript types</li>
+  <li><code>.refine()</code> for cross-field validation (password matching)</li>
+  <li><code>defaultValues</code> for all fields</li>
+  <li>Spreading <code>{...register("fieldName")}</code> onto each input</li>
+  <li><code>errors.fieldName?.message</code> for error display</li>
+  <li><code>isSubmitting</code> to disable button during async operation</li>
+  <li><code>isDirty</code> to prevent submitting an untouched form</li>
+  <li><code>setError</code> for server-side validation feedback</li>
+  <li><code>reset()</code> after successful submission</li>
+</ul>
+
+<h2 class="g-h2">15. Client vs Server Validation</h2>
+
+<h3 class="g-h3">Why you need BOTH</h3>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Client-side (react-hook-form)</th>
+      <th>Server-side</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Purpose</strong></td>
+      <td>UX — instant feedback, no network round-trip</td>
+      <td>Security — the actual enforcement</td>
+    </tr>
+    <tr>
+      <td><strong>Can be bypassed</strong></td>
+      <td>YES — user can disable JS, use Postman, curl, DevTools</td>
+      <td>NO — server always runs the check</td>
+    </tr>
+    <tr>
+      <td><strong>Should trust it?</strong></td>
+      <td>Never trust client data alone</td>
+      <td>Always the source of truth</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">The key exam argument (Mock Q22c):</h3>
+<blockquote>
+  <p><strong>Client-side validation can be bypassed entirely.</strong> Without server-side validation, an attacker could use <code>curl</code> or Postman to POST <code>{ email: "x", password: "" }</code> directly to the Server Action endpoint, storing an empty password hash in the database. The server must always re-validate.</p>
+</blockquote>
+
+<h3 class="g-h3">Data flow with both:</h3>
+<div class="cb"><pre>User fills form
+    ↓
+react-hook-form validates (client)
+    ↓ fails → show errors to user (stops here)
+    ↓ passes
+Server Action called ("use server")
+    ↓
+Server re-validates with same Zod schema
+    ↓ fails → return error to client
+    ↓ passes
+Save to database</pre></div>
+
+<h3 class="g-h3">Sharing the schema between client and server:</h3>
+<div class="cb"><pre>// lib/schemas/auth.ts
+import { z } from 'zod';
+
+export const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+export type SignupInput = z.infer&lt;typeof signupSchema&gt;;
+
+// Client component — uses zodResolver
+import { signupSchema } from '@/lib/schemas/auth';
+const { register } = useForm({ resolver: zodResolver(signupSchema) });
+
+// Server Action — re-validates the same schema
+import { signupSchema } from '@/lib/schemas/auth';
+async function registerUser(data: unknown) {
+  "use server";
+  const parsed = signupSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.flatten() };
+  // ... save to DB
+}</pre></div>
+
+<h2 class="g-h2">16. Exam Questions (Exact Match)</h2>
+
+<h3 class="g-h3">Fill-in-the-blank (Mock Q16 — memorize these exactly)</h3>
+
+<p><strong>Question:</strong> Complete the following sentences about react-hook-form:</p>
+<ol>
+  <li>The core hook used to initialise a form is __________.</li>
+  <li>To connect an input field to the form, you spread the result of calling __________ with the field name onto the input element.</li>
+  <li>Validation errors for a field named email are accessed via __________.</li>
+  <li>To validate as the user types rather than on submit, you set the mode option to __________.</li>
+  <li>To integrate a schema validation library like Zod, you pass it via the __________ option.</li>
+  <li>When a form is submitted successfully, the validated data is passed to the function provided to __________.</li>
+</ol>
+
+<p><strong>Answers:</strong></p>
+<ol>
+  <li><code>useForm</code></li>
+  <li><code>register</code></li>
+  <li><code>formState.errors</code></li>
+  <li><code>onChange</code></li>
+  <li><code>resolver</code></li>
+  <li><code>handleSubmit</code></li>
+</ol>
+
+<h3 class="g-h3">Multiple choice (Mock Q15)</h3>
+
+<p><strong>Q: What is the primary advantage of react-hook-form over managing form state with useState?</strong></p>
+<p><strong>A: It reduces unnecessary re-renders by using uncontrolled inputs and only re-renders on validation events.</strong></p>
+<p>(NOT: sends data automatically, replaces server validation, only works with TypeScript)</p>
+
+<h3 class="g-h3">Select all that apply (Mock Q17 / Practice Q19)</h3>
+
+<p><strong>Q: Which are valid built-in validation rules for register()?</strong></p>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Rule</th>
+      <th>Valid?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>required</code></td><td>YES</td></tr>
+    <tr><td><code>minLength</code></td><td>YES</td></tr>
+    <tr><td><code>maxLength</code></td><td>YES</td></tr>
+    <tr><td><code>pattern</code></td><td>YES</td></tr>
+    <tr><td><code>validate</code></td><td>YES</td></tr>
+    <tr><td><code>min</code></td><td>YES</td></tr>
+    <tr><td><code>max</code></td><td>YES</td></tr>
+    <tr><td><code>type</code></td><td>NO</td></tr>
+    <tr><td><code>sanitize</code></td><td>NO</td></tr>
+    <tr><td><code>format</code></td><td>NO</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Essay question (Mock Q22 / Practice Exam 2 Q17)</h3>
+
+<p><strong>Q: Building a registration/contact form in Next.js with react-hook-form. Answer:</strong></p>
+
+<p><strong>Part a) react-hook-form implementation:</strong></p>
+<div class="cb"><pre>const { register, handleSubmit, formState: { errors } } = useForm&lt;FormData&gt;({
+  resolver: zodResolver(schema),
+});
+// Display error:
+{errors.email &amp;&amp; &lt;span&gt;{errors.email.message}&lt;/span&gt;}</pre></div>
+<p>Key methods: <code>useForm</code>, <code>register</code>, <code>handleSubmit</code>, <code>formState.errors</code>.</p>
+
+<p><strong>Part b) Server Action vs API Route:</strong><br>
+Use a <strong>Server Action</strong> — the form is internal to the Next.js app; no external client needs a public URL.</p>
+<ol>
+  <li>User submits → client-side Zod validation runs via resolver</li>
+  <li>If valid → Server Action called (<code>"use server"</code>)</li>
+  <li>Server re-validates with same schema, checks DB, hashes password, saves user</li>
+  <li>Returns success → redirect, or returns error → <code>setError()</code> to display to user</li>
+</ol>
+
+<p><strong>Part c) Why server-side validation is still required:</strong><br>
+Client-side validation can be bypassed entirely. A user could use <code>curl</code> or DevTools to POST <code>{ email: "x", password: "" }</code> directly to the Server Action, storing an empty password hash. The server must always re-validate independently.</p>
+
+<h3 class="g-h3">Fill-in-the-blank (Practice Exam 2 Q18)</h3>
+
+<p><strong>Answers:</strong></p>
+<ol>
+  <li><code>useForm</code></li>
+  <li><code>register</code></li>
+  <li><code>onChange</code></li>
+  <li><code>formState.errors</code> (for field "password": <code>formState.errors.password</code>)</li>
+  <li><code>resolver</code></li>
+</ol>
+
+<h2 class="g-h2">17. Cheat Sheet</h2>
+
+<div class="cb"><pre>INSTALL:   npm install react-hook-form @hookform/resolvers zod
+
+SETUP:
+  const { register, handleSubmit, formState: { errors, isSubmitting, isDirty, isValid },
+          watch, setValue, reset, control, setError } = useForm&lt;T&gt;({
+    resolver: zodResolver(schema),   // optional
+    mode: "onSubmit",                // default; use "onChange" or "onBlur" for live validation
+    defaultValues: { ... },
+  });
+
+CONNECT INPUT:
+  &lt;input {...register("fieldName", { required: "msg", minLength: { value: 3, message: "msg" } })} /&gt;
+
+HANDLE SUBMIT:
+  &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+
+SHOW ERRORS:
+  {errors.fieldName &amp;&amp; &lt;span&gt;{errors.fieldName.message}&lt;/span&gt;}
+
+VALID RULES:        required, minLength, maxLength, min, max, pattern, validate
+INVALID RULES:      type, sanitize, format   ← NOT real rules
+
+MODE:
+  "onSubmit"  = validate on submit only (DEFAULT)
+  "onChange"  = validate as user types
+  "onBlur"    = validate when user leaves field
+
+RESOLVER (Zod):
+  resolver: zodResolver(z.object({ email: z.string().email() }))
+
+CONTROLLER (for non-native inputs):
+  &lt;Controller name="x" control={control} render={({ field }) =&gt; &lt;CustomInput {...field} /&gt;} /&gt;
+
+WATCH:    const val = watch("fieldName")
+SETVALUE: setValue("fieldName", "value", { shouldValidate: true })
+RESET:    reset()  or  reset({ name: "new value" })
+
+PRIMARY ADVANTAGE: Uncontrolled inputs = no re-render on every keystroke
+
+DEFAULT MODE: "onSubmit"
+
+FORMSTATE KEY PATHS:
+  formState.errors          = all errors object
+  formState.errors.email    = error for email field
+  formState.errors.email.message = error message string
+  formState.isSubmitting    = true while async handler runs
+  formState.isDirty         = true if any field changed
+  formState.isValid         = true if no errors
+
+SERVER VALIDATION: Always required — client can be bypassed with curl/DevTools</pre></div>
+
+<h3 class="g-h3">Common exam traps summary</h3>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Trap</th>
+      <th>Correct answer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>"errors" vs "formState.errors"</td>
+      <td>Always <code>formState.errors</code> — the exact path matters</td>
+    </tr>
+    <tr>
+      <td>Default mode</td>
+      <td><code>"onSubmit"</code> (NOT onChange)</td>
+    </tr>
+    <tr>
+      <td>Is <code>type</code> a valid rule?</td>
+      <td>NO</td>
+    </tr>
+    <tr>
+      <td>Is <code>sanitize</code> a valid rule?</td>
+      <td>NO</td>
+    </tr>
+    <tr>
+      <td>Does RHF use controlled or uncontrolled by default?</td>
+      <td>Uncontrolled</td>
+    </tr>
+    <tr>
+      <td>Why is RHF faster than useState?</td>
+      <td>No re-render on every keystroke</td>
+    </tr>
+    <tr>
+      <td>Can client validation replace server validation?</td>
+      <td>NEVER — can be bypassed</td>
+    </tr>
+    <tr>
+      <td>What does <code>resolver</code> do?</td>
+      <td>Integrates Zod/Yup schema validation</td>
+    </tr>
+    <tr>
+      <td>What does <code>Controller</code> do?</td>
+      <td>Wraps third-party controlled components</td>
+    </tr>
+    <tr>
+      <td>What prop does <code>Controller</code> need?</td>
+      <td><code>control</code> (from useForm)</td>
+    </tr>
+  </tbody>
+</table></div>

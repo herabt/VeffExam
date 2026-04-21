@@ -1,0 +1,360 @@
+<h2 class="g-h2">Practice Exam 1 — CSS, JavaScript &amp; Async Patterns</h2>
+
+<h2 class="g-h2">SECTION A: CSS FLEXBOX &amp; GRID</h2>
+
+<h3 class="g-h3">Question 1 — Fill in the blanks</h3>
+<p>Complete the following sentences about Flexbox:</p>
+<p>The <code>flex-direction</code> property defaults to 1. ________, which lays items out horizontally. The property <code>align-items</code> defaults to 2. ________, which is why flex items stretch to fill the container's cross-axis. The shorthand property 3. ________ combines both <code>flex-direction</code> and <code>flex-wrap</code> into one declaration. On a flex item, the 4. ________ property overrides the container's <code>align-items</code> for that specific item only.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>row</code></p>
+  <p><strong>2.</strong> <code>stretch</code></p>
+  <p><strong>3.</strong> <code>flex-flow</code></p>
+  <p><strong>4.</strong> <code>align-self</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Multiple Choice</h3>
+<p>What does <code>justify-content</code> control in a flex container?</p>
+<ul>
+<li>A) How flex items are aligned along the cross-axis</li>
+<li>B) How flex items are distributed along the main-axis</li>
+<li>C) How flex lines are distributed when there is extra space</li>
+<li>D) The order in which flex items appear</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — <code>justify-content</code> distributes items along the main-axis</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Select All That Apply</h3>
+<p>Which of the following statements about Flexbox are correct?</p>
+<ul>
+<li>[ ] Flex containers only affect their immediate children, not deeper descendants</li>
+<li>[ ] The <code>float</code> property has an effect on flex items</li>
+<li>[ ] <code>align-content</code> only has an effect when <code>flex-wrap</code> is set to <code>wrap</code></li>
+<li>[ ] By default, flex items will wrap to the next line when they overflow</li>
+<li>[ ] <code>flex-grow: 0</code> means the item will not grow to fill available space</li>
+<li>[ ] <code>vertical-align</code> affects flex items</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+  <li>[x] Flex containers only affect their immediate children, not deeper descendants</li>
+  <li>[ ] The <code>float</code> property has an effect on flex items — <strong>FALSE</strong> (float has no effect on flex items)</li>
+  <li>[x] <code>align-content</code> only has an effect when <code>flex-wrap</code> is set to <code>wrap</code></li>
+  <li>[ ] By default, flex items will wrap — <strong>FALSE</strong> (default is <code>nowrap</code>)</li>
+  <li>[x] <code>flex-grow: 0</code> means the item will not grow to fill available space</li>
+  <li>[ ] <code>vertical-align</code> affects flex items — <strong>FALSE</strong> (no effect on flex items)</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Fill in the blanks</h3>
+<p>Complete the following sentences about CSS Grid:</p>
+<p>The property 1. ________ is used to define named layout regions in a grid container. To make a grid responsive without media queries, you combine <code>repeat()</code> with 2. ________ and <code>minmax()</code> in <code>grid-template-columns</code>. The 3. ________ unit represents a fraction of the available space in a grid container. The property 4. ________ sets the spacing between grid items.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>grid-template-areas</code></p>
+  <p><strong>2.</strong> <code>repeat</code> (from slides: "When you want to repeat a pattern... you can use repeat()". Note: auto-fit/auto-fill are NOT in these slides)</p>
+  <p><strong>3.</strong> <code>fr</code></p>
+  <p><strong>4.</strong> <code>grid-gap</code> (slides use prefixed version)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Multiple Choice</h3>
+<p>You have a 750px wide flex container with three flex items, each 100px wide. The first two items have <code>flex-grow: 1</code> and the third has <code>flex-grow: 3</code>. What will be the final width of the third item?</p>
+<ul>
+<li>A) 250px</li>
+<li>B) 370px</li>
+<li>C) 550px</li>
+<li>D) 450px</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — 370px</p>
+  <ul>
+  <li>Remaining space: 750 - (3 × 100) = 450px</li>
+  <li>Total grow factors: 1 + 1 + 3 = 5</li>
+  <li>Per unit: 450 / 5 = 90px</li>
+  <li>Third item: 100 + (90 × 3) = 370px</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Written Answer (4 pts)</h3>
+<p>Explain the difference between <code>align-items</code> and <code>align-content</code> in Flexbox. When would each be useful? Give a concrete example for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Model answer:</strong></p>
+  <ul>
+  <li><strong>align-items</strong> aligns individual flex <strong>items</strong> along the cross-axis within their flex line. Use it when you want to vertically center items in a row, for example a nav bar where the logo and links should be vertically centered: <code>align-items: center</code>.</li>
+  <li><strong>align-content</strong> aligns the <strong>flex lines themselves</strong> (not individual items) when there is extra space in the cross-axis direction. It only works when <code>flex-wrap: wrap</code> is set and there are multiple lines. Use it when you have a wrapping grid of cards and want to control the spacing between rows: <code>align-content: space-between</code>.</li>
+  <li><strong>Key difference:</strong> align-items = items within a line. align-content = the lines themselves.</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Select All That Apply</h3>
+<p>Which of the following CSS class names correctly follow BEM naming conventions?</p>
+<ul>
+<li>[ ] <code>.nav__item--active</code></li>
+<li>[ ] <code>.nav-item-active</code></li>
+<li>[ ] <code>.Nav__Item--Active</code></li>
+<li>[ ] <code>.navigation__link--disabled</code></li>
+<li>[ ] <code>.navItemActive</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct:</strong> <code>.nav__item--active</code> and <code>.navigation__link--disabled</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Written Answer (4 pts)</h3>
+<p>A colleague says: "CSS Grid and Flexbox do the same thing, just pick one and use it everywhere." Explain why this is incorrect. Describe what each layout system is best suited for and how they complement each other in a real project.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Model answer:</strong></p>
+  <ul>
+  <li><strong>CSS Grid</strong> is a two-dimensional layout system — it handles both rows AND columns simultaneously. Best for page-level layouts like defining header, sidebar, main content, and footer regions using <code>grid-template-areas</code>.</li>
+  <li><strong>Flexbox</strong> is a one-dimensional layout system — it works along a single axis (row OR column). Best for component-level layouts like arranging cards in a row, centering content, or building navigation bars.</li>
+  <li><strong>Complementary use:</strong> Use Grid for the overall page structure, then Flexbox inside individual components. For example, Grid defines the page areas, while Flexbox arranges product cards within the main content area.</li>
+  </ul>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION B: JAVASCRIPT FUNDAMENTALS</h2>
+
+<h3 class="g-h3">Question 9 — Fill in the blanks</h3>
+<p>Complete the following sentences about JavaScript:</p>
+<p>When a function is called with the <code>new</code> keyword, <code>this</code> refers to the 1. ________. The method <code>.bind()</code> returns a 2. ________ with <code>this</code> permanently set to the provided object. When a function is passed to <code>setTimeout</code>, the value of <code>this</code> inside that function will be 3. ________ (in non-strict mode). To call a parent constructor from within a child constructor function, you use 4. ________.call(this, args).</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> newly created object (instance)</p>
+  <p><strong>2.</strong> new function</p>
+  <p><strong>3.</strong> <code>window</code> (global object)</p>
+  <p><strong>4.</strong> Parent (e.g., <code>Animal</code>)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Code Analysis (6 pts)</h3>
+<p>Study the following code:</p>
+<div class="cb"><pre>function Animal(name) {
+    this.name = name;
+    console.log(this);  // Line A
+}
+
+Animal.prototype.speak = function() {
+    console.log('Speak!');
+    console.log(this);  // Line B
+};
+
+function Dog(name, breed) {
+    Animal.call(this, name);
+    this.breed = breed;
+    console.log(this);  // Line C
+}
+
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+var stray = {};
+
+var a = Animal('Cat');           // 1
+var b = new Animal('Parrot');    // 2
+var c = new Dog('Rex', 'Lab');   // 3 (two console.logs)
+b.speak();                       // 4
+b.speak.bind(stray).call();      // 5
+setTimeout(b.speak, 1000);       // 6</pre></div>
+<p>For lines 1-6, state what <code>this</code> refers to at each console.log. Possible answers: <code>window</code>, object <code>a</code>, object <code>b</code>, object <code>c</code>, <code>stray</code>, or describe the object.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>window</code> — <code>Animal('Cat')</code> called without <code>new</code>, so <code>this</code> = window</p>
+  <p><strong>2.</strong> <code>Animal { name: 'Parrot' }</code> — called with <code>new</code>, <code>this</code> = new instance (object <code>b</code>)</p>
+  <p><strong>3.</strong> First log (from Animal.call): <code>Dog { name: 'Rex' }</code> — <code>this</code> is the Dog instance being created. Second log: <code>Dog { name: 'Rex', breed: 'Lab' }</code> — same instance, now with breed added (object <code>c</code>)</p>
+  <p><strong>4.</strong> <code>Animal { name: 'Parrot' }</code> — method called on <code>b</code>, so <code>this</code> = <code>b</code> (object <code>b</code>)</p>
+  <p><strong>5.</strong> <code>{}</code> (the <code>stray</code> object) — <code>.bind(stray)</code> permanently sets <code>this</code> to <code>stray</code>. Even <code>.call()</code> after it can't override <code>bind</code></p>
+  <p><strong>6.</strong> <code>window</code> — setTimeout loses the <code>this</code> context, so it defaults to <code>window</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Multiple Choice</h3>
+<p>What is the difference between <code>.call()</code> and <code>.apply()</code>?</p>
+<ul>
+<li>A) <code>.call()</code> is for constructors; <code>.apply()</code> is for regular functions</li>
+<li>B) <code>.call()</code> takes arguments individually; <code>.apply()</code> takes them as an array</li>
+<li>C) <code>.call()</code> creates a new function; <code>.apply()</code> invokes it immediately</li>
+<li>D) There is no difference; they are aliases</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — <code>.call()</code> takes arguments individually, <code>.apply()</code> takes them as an array</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION C: ASYNC JAVASCRIPT &amp; TYPESCRIPT</h2>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>Which of the following correctly describes the order of execution in the Event Loop?</p>
+<ul>
+<li>A) Macrotasks first, then microtasks, then rendering</li>
+<li>B) Call stack, then macrotasks and microtasks in FIFO order</li>
+<li>C) Call stack empties, then ALL microtasks run, then ONE macrotask runs</li>
+<li>D) Microtasks and macrotasks alternate one-by-one</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>C</strong> — Call stack empties, then ALL microtasks, then ONE macrotask</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Select All That Apply</h3>
+<p>Which of the following statements about Promises are correct?</p>
+<ul>
+<li>[ ] <code>Promise.all()</code> rejects immediately if any one promise rejects</li>
+<li>[ ] <code>Promise.race()</code> resolves when ALL promises have resolved</li>
+<li>[ ] <code>Promise.allSettled()</code> waits for all promises to settle, whether they resolve or reject</li>
+<li>[ ] <code>Promise.any()</code> resolves when the first promise resolves</li>
+<li>[ ] Microtask queue (Promises) is processed before the macrotask queue (setTimeout)</li>
+<li>[ ] <code>await</code> can be used at the top level of any JavaScript file without issues</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct:</strong></p>
+  <ul>
+  <li>[x] <code>Promise.all()</code> rejects immediately if any one promise rejects</li>
+  <li>[ ] <code>Promise.race()</code> resolves when ALL promises have resolved — <strong>FALSE</strong> (first to settle)</li>
+  <li>[x] <code>Promise.allSettled()</code> waits for all promises to settle</li>
+  <li>[x] <code>Promise.any()</code> resolves when the first promise resolves</li>
+  <li>[x] Microtask queue is processed before macrotask queue</li>
+  <li>[ ] <code>await</code> can be used at top level without issues — <strong>FALSE</strong> (needs async context, or top-level await with ES modules)</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Code Analysis (4 pts)</h3>
+<p>Study the following TypeScript code:</p>
+<div class="cb"><pre>async function fetchProducts(category: string) {
+    const response = await fetch(`/api/products/${category}`);
+    const data = response.json();
+    return data.filter(p =&gt; p.price &gt; 0);
+}</pre></div>
+<p>a) Identify <strong>two bugs</strong> in this code and explain why each is a problem. (2 pts)</p>
+<p>b) Rewrite the function correctly with a proper <strong>interface</strong> for the product data shape and appropriate <strong>error handling</strong>. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a) Two bugs:</strong></p>
+  <ol>
+  <li>Missing <code>await</code> before <code>response.json()</code> — <code>.json()</code> returns a Promise, not the data directly. Without <code>await</code>, <code>data</code> is a Promise object, and <code>.filter()</code> will fail.</li>
+  <li>No error handling — if the fetch fails (network error) or returns a non-OK response (404, 500), the function will crash. Should check <code>response.ok</code> and use try/catch.</li>
+  </ol>
+  <p><strong>b) Corrected code:</strong></p>
+  <div class="cb"><pre>interface Product {
+    name: string;
+    price: number;
+    category: string;
+}
+
+async function fetchProducts(category: string): Promise&lt;Product[]&gt; {
+    try {
+        const response = await fetch(`/api/products/${category}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data: Product[] = await response.json();
+        return data.filter(p =&gt; p.price &gt; 0);
+    } catch (error) {
+        console.error('Failed to fetch products:', error);
+        return [];
+    }
+}</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Fill in the blanks</h3>
+<p>Complete the following sentences about TypeScript:</p>
+<p>The keyword 1. ________ defines a contract that a class or object must follow. The utility type 2. ________ makes all properties of a type optional. When you want to tell TypeScript that a value is definitely a certain type, you use a type 3. ________. When a type can be <code>string</code> or <code>null</code>, this is called a 4. ________ type.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>interface</code></p>
+  <p><strong>2.</strong> <code>Partial</code></p>
+  <p><strong>3.</strong> <code>assertion</code> (as in <code>value as Type</code>)</p>
+  <p><strong>4.</strong> <code>nullable</code> (or <code>union</code>)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16 — Written Answer (4 pts)</h3>
+<p>Explain what the Event Loop is and how it processes asynchronous operations. In your answer, describe the roles of:</p>
+<ul>
+<li>The Call Stack</li>
+<li>Web APIs</li>
+<li>The Microtask Queue</li>
+<li>The Macrotask (Callback) Queue</li>
+</ul>
+<p>Give an example showing the order in which <code>console.log</code>, a resolved Promise <code>.then()</code>, and a <code>setTimeout(..., 0)</code> would execute.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Model answer:</strong></p>
+  <p>The Event Loop is the mechanism that allows JavaScript (single-threaded) to handle async operations:</p>
+  <ul>
+  <li><strong>Call Stack</strong>: Where synchronous code executes. Functions are pushed on and popped off (LIFO).</li>
+  <li><strong>Web APIs</strong>: Browser-provided services (setTimeout, fetch, DOM events). When an async operation is called, the browser handles it outside the main thread.</li>
+  <li><strong>Microtask Queue</strong>: Holds resolved Promise callbacks (.then/.catch). Processed COMPLETELY before any macrotask.</li>
+  <li><strong>Macrotask Queue</strong>: Holds setTimeout/setInterval callbacks. ONE macrotask is processed per cycle.</li>
+  </ul>
+  <p><strong>Example order:</strong></p>
+  <div class="cb"><pre>console.log('sync');          // 1st — synchronous, runs immediately
+Promise.resolve().then(...)   // 3rd — microtask, runs after sync code
+setTimeout(..., 0)            // 4th — macrotask, runs after microtasks
+console.log('sync2');         // 2nd — synchronous, runs immediately</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Code Output (4 pts)</h3>
+<p>What will be the output of the following code, and in what order? Explain why.</p>
+<div class="cb"><pre>console.log('1');
+
+setTimeout(() =&gt; {
+    console.log('2');
+}, 0);
+
+Promise.resolve().then(() =&gt; {
+    console.log('3');
+});
+
+console.log('4');</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output order:</strong> <code>1</code>, <code>4</code>, <code>3</code>, <code>2</code></p>
+  <ul>
+  <li><code>1</code> — synchronous, runs first</li>
+  <li><code>4</code> — synchronous, runs next</li>
+  <li><code>3</code> — Promise.then is a microtask, runs before setTimeout</li>
+  <li><code>2</code> — setTimeout is a macrotask, runs last (even with 0ms delay)</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 — Select All That Apply</h3>
+<p>Which of the following are correct about the <code>fetch()</code> API?</p>
+<ul>
+<li>[ ] <code>fetch()</code> returns a Promise</li>
+<li>[ ] <code>response.json()</code> returns the parsed data directly (not a Promise)</li>
+<li>[ ] A 404 response will cause <code>fetch()</code> to reject the Promise</li>
+<li>[ ] You should check <code>response.ok</code> to verify the request succeeded</li>
+<li>[ ] The browser handles <code>fetch()</code> via Web APIs, not the main thread</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct:</strong></p>
+  <ul>
+  <li>[x] <code>fetch()</code> returns a Promise</li>
+  <li>[ ] <code>response.json()</code> returns parsed data directly — <strong>FALSE</strong> (returns a Promise)</li>
+  <li>[ ] A 404 response will cause fetch to reject — <strong>FALSE</strong> (fetch only rejects on network errors, not HTTP errors)</li>
+  <li>[x] You should check <code>response.ok</code> to verify success</li>
+  <li>[x] The browser handles fetch via Web APIs</li>
+  </ul>
+</div>
+</details>

@@ -1,0 +1,2407 @@
+<h1 class="g-h2">CSS &amp; Layout — Complete Study Guide</h1>
+<h2 class="g-h3">Web Programming II Final Exam</h2>
+
+<p>This guide covers every CSS topic from the slides. For each concept: definition, syntax, defaults, gotchas, and exam questions.</p>
+
+<hr>
+
+<h2 class="g-h2">Table of Contents</h2>
+<ul>
+  <li>1. Flexbox</li>
+  <li>2. CSS Grid</li>
+  <li>3. Grid vs Flexbox</li>
+  <li>4. BEM (Block Element Modifier)</li>
+  <li>5. CSS Custom Properties (Variables)</li>
+  <li>6. Background Properties</li>
+  <li>7. Gradients</li>
+  <li>8. Shadows (box-shadow)</li>
+  <li>9. Transitions vs Animations</li>
+  <li>10. Transforms</li>
+  <li>11. Perspective</li>
+  <li>12. Rounded Corners (border-radius)</li>
+  <li>13. Box Sizing</li>
+  <li>14. Attribute Selectors</li>
+  <li>15. Structural Pseudo-classes</li>
+  <li>16. Pseudo-elements</li>
+  <li>17. Key Defaults Table</li>
+  <li>18. Worked Math Examples</li>
+  <li>19. Quick-Reference Cheat Sheet</li>
+</ul>
+
+<hr>
+
+<h2 class="g-h2">1. Flexbox</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>Flexbox makes the once-difficult task of laying out your page, widget, application, or gallery almost simple. It provides functionality for equal-height columns (default behaviour). Before flexbox, developers depended heavily on floats and width/height percentages.</p>
+<p><strong>Key rule:</strong> <code>display: flex</code> only affects <strong>immediate children</strong> — not deeper descendants. Descendants must be made flex containers themselves for further control.</p>
+
+<hr>
+
+<h3 class="g-h3">1.1 The Two Axes</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Axis</th><th>Direction</th><th>Set by</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Main axis</strong></td><td>Where flex items are laid out</td><td><code>flex-direction</code></td></tr>
+    <tr><td><strong>Cross axis</strong></td><td>Perpendicular to main axis</td><td>Determined automatically</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><code>flex-direction: row</code> → main axis = horizontal (left→right), cross axis = vertical (top→down)</li>
+  <li><code>flex-direction: column</code> → main axis = vertical (top→down), cross axis = horizontal</li>
+</ul>
+
+<hr>
+
+<h3 class="g-h3">1.2 Container Properties</h3>
+
+<h4 class="g-h4"><code>display: flex</code></h4>
+<div class="cb"><pre>.container {
+  display: flex;       /* block-level flex container */
+  display: inline-flex; /* inline-level flex container */
+}</pre></div>
+
+<h4 class="g-h4"><code>flex-direction</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Defines the direction of the main axis.</li>
+  <li><strong>Default:</strong> <code>row</code></li>
+  <li><strong>Values:</strong> <code>row</code> | <code>row-reverse</code> | <code>column</code> | <code>column-reverse</code></li>
+</ul>
+<div class="cb"><pre>.container { flex-direction: row; } /* default: left to right */
+.container { flex-direction: column; } /* top to bottom */</pre></div>
+<p><strong>Gotcha:</strong> <code>row-reverse</code> / <code>column-reverse</code> reverse visual order but NOT DOM order.</p>
+
+<h4 class="g-h4"><code>flex-wrap</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Controls whether items are forced onto one line or can wrap.</li>
+  <li><strong>Default:</strong> <code>nowrap</code></li>
+  <li><strong>Values:</strong> <code>nowrap</code> | <code>wrap</code> | <code>wrap-reverse</code></li>
+</ul>
+<div class="cb"><pre>.container { flex-wrap: wrap; }</pre></div>
+<p><strong>Gotcha:</strong> When wrapping, the height of each line is determined by the <strong>tallest and widest</strong> element in that line.</p>
+
+<h4 class="g-h4"><code>flex-flow</code> (shorthand)</h4>
+<ul>
+  <li><strong>Definition:</strong> Shorthand for <code>flex-direction</code> + <code>flex-wrap</code></li>
+  <li><strong>Default:</strong> <code>row nowrap</code></li>
+</ul>
+<div class="cb"><pre>.container { flex-flow: row wrap; }</pre></div>
+
+<h4 class="g-h4"><code>justify-content</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Distributes flex items along the <strong>main axis</strong>.</li>
+  <li><strong>Default:</strong> <code>flex-start</code></li>
+  <li><strong>Values:</strong> <code>flex-start</code> | <code>flex-end</code> | <code>center</code> | <code>space-between</code> | <code>space-around</code> | <code>space-evenly</code></li>
+</ul>
+<div class="cb"><pre>.container { justify-content: space-between; }</pre></div>
+
+<div class="tw"><table>
+  <thead><tr><th>Value</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td><code>flex-start</code></td><td>Items packed at start</td></tr>
+    <tr><td><code>flex-end</code></td><td>Items packed at end</td></tr>
+    <tr><td><code>center</code></td><td>Items centered</td></tr>
+    <tr><td><code>space-between</code></td><td>First at start, last at end, equal gaps between</td></tr>
+    <tr><td><code>space-around</code></td><td>Equal space around each item (half-size at edges)</td></tr>
+    <tr><td><code>space-evenly</code></td><td>Equal space between all items AND edges</td></tr>
+  </tbody>
+</table></div>
+
+<h4 class="g-h4"><code>align-items</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Aligns flex items along the <strong>cross axis</strong> within their flex line.</li>
+  <li><strong>Default:</strong> <code>stretch</code></li>
+  <li><strong>Values:</strong> <code>stretch</code> | <code>flex-start</code> | <code>flex-end</code> | <code>center</code> | <code>baseline</code></li>
+</ul>
+<div class="cb"><pre>.container { align-items: center; }</pre></div>
+
+<h4 class="g-h4"><code>align-content</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Aligns the <strong>flex lines themselves</strong> (not items) when there is extra cross-axis space.</li>
+  <li><strong>Default:</strong> <code>stretch</code></li>
+  <li><strong>Values:</strong> <code>stretch</code> | <code>flex-start</code> | <code>flex-end</code> | <code>center</code> | <code>space-between</code> | <code>space-around</code></li>
+</ul>
+<div class="cb"><pre>.container {
+  display: flex;
+  flex-wrap: wrap;           /* REQUIRED — align-content only works with wrap */
+  align-content: space-between;
+}</pre></div>
+<p><strong>Critical distinction:</strong></p>
+<ul>
+  <li><code>align-items</code> = aligns <strong>items within</strong> their flex line (cross-axis)</li>
+  <li><code>align-content</code> = aligns <strong>the lines themselves</strong> (cross-axis). Has NO effect when there is only one line.</li>
+</ul>
+<p><strong>Gotcha:</strong> <code>align-content</code> only works when <code>flex-wrap: wrap</code> is set and there are multiple lines.</p>
+
+<h4 class="g-h4"><code>gap</code></h4>
+<div class="cb"><pre>.container {
+  gap: 10px;        /* equal row and column gap */
+  gap: 10px 20px;   /* row-gap column-gap */
+}</pre></div>
+
+<hr>
+
+<h3 class="g-h3">1.3 Flex Item Properties</h3>
+
+<h4 class="g-h4"><code>flex-grow</code></h4>
+<ul>
+  <li><strong>Definition:</strong> How much a flex item grows relative to siblings when extra space is available.</li>
+  <li><strong>Default:</strong> <code>0</code> (items do NOT grow by default)</li>
+  <li><strong>Values:</strong> Non-negative number only (cannot be negative)</li>
+</ul>
+<div class="cb"><pre>.item { flex-grow: 1; }</pre></div>
+<p><strong>Calculation (see worked example in Section 18):</strong></p>
+<div class="cb"><pre>remaining space = container width - sum of all item base widths
+1 unit = remaining space / total flex-grow factors
+item final width = base width + (unit × item's flex-grow)</pre></div>
+
+<h4 class="g-h4">Example — flex-grow Scenarios</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;div class="flex-row"&gt;
+  &lt;div class="item a"&gt;A&lt;/div&gt;
+  &lt;div class="item b"&gt;B&lt;/div&gt;
+  &lt;div class="item c"&gt;C&lt;/div&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* SCENARIO 1 — All grow equally (flex-grow: 1 each) */
+.flex-row { display: flex; width: 600px; }
+.item     { flex-basis: 100px; }
+
+/* All items: flex-grow 1 each */
+.a, .b, .c { flex-grow: 1; }
+/* remaining = 600 - 300 = 300px ÷ 3 = 100px each
+   final widths: A=200px  B=200px  C=200px */
+
+/* SCENARIO 2 — Unequal growth */
+.a { flex-grow: 1; }   /* gets 1 share */
+.b { flex-grow: 1; }   /* gets 1 share */
+.c { flex-grow: 3; }   /* gets 3 shares */
+/* remaining = 300px, total factors = 5
+   1 unit = 60px
+   A = 100 + 60  = 160px
+   B = 100 + 60  = 160px
+   C = 100 + 180 = 280px   ← C gets 3× the extra space */
+
+/* SCENARIO 3 — One item does NOT grow */
+.a { flex-grow: 0; }   /* STAYS at 100px no matter how much space there is */
+.b { flex-grow: 1; }
+.c { flex-grow: 1; }
+/* remaining = 300px shared by B and C only (÷ 2 = 150px each)
+   A = 100px  B = 250px  C = 250px */</pre></div>
+<p>YOU SEE: The dominant item (flex-grow:3) gets three times as much of the leftover space. Setting flex-grow:0 on one item keeps it frozen at its basis size while siblings share the rest.</p>
+
+<h4 class="g-h4"><code>flex-shrink</code></h4>
+<ul>
+  <li><strong>Definition:</strong> How much a flex item shrinks relative to siblings when there is not enough space.</li>
+  <li><strong>Default:</strong> <code>1</code> (items shrink equally by default)</li>
+  <li><strong>Values:</strong> Non-negative number. <code>0</code> = item will NOT shrink.</li>
+</ul>
+<div class="cb"><pre>.item { flex-shrink: 0; } /* item never shrinks */</pre></div>
+<p><strong>Calculation:</strong></p>
+<div class="cb"><pre>overflow = sum of all item widths - container width
+1 unit = overflow / total flex-shrink factors
+item final width = base width - (unit × item's flex-shrink)</pre></div>
+
+<h4 class="g-h4">Example — flex-shrink Scenarios</h4>
+<div class="cb"><pre>/* SCENARIO 1 — Equal shrink (default) */
+.flex-row { display: flex; width: 500px; }
+.item     { flex-basis: 200px; flex-shrink: 1; }
+/* total = 600px, container = 500px → overflow = 100px, factors = 3
+   1 unit = 33.33px  each item shrinks by 33.33px
+   All three: 200 - 33 ≈ 167px */
+
+/* SCENARIO 2 — Prevent one item from shrinking */
+.logo  { flex-basis: 120px; flex-shrink: 0; }  /* logo NEVER shrinks */
+.main  { flex-basis: 300px; flex-shrink: 1; }
+.aside { flex-basis: 180px; flex-shrink: 1; }
+/* total = 600px, container = 500px → overflow = 100px
+   Only main and aside share the shrink: 1 unit = 50px
+   logo = 120px (unchanged)
+   main = 300 - 50 = 250px
+   aside= 180 - 50 = 130px */
+/* YOU SEE: Logo keeps its exact 120px; the other two squeeze inward */</pre></div>
+
+<h4 class="g-h4"><code>flex-basis</code></h4>
+<ul>
+  <li><strong>Definition:</strong> The initial/default size of a flex item before remaining space is distributed. Sets the "base" that grow/shrink work from.</li>
+  <li><strong>Default:</strong> <code>auto</code> (looks at the item's <code>width</code> or <code>height</code>)</li>
+  <li><strong>Values:</strong> <code>auto</code> | <code>content</code> | length (<code>200px</code>, <code>50%</code>) | <code>0</code></li>
+</ul>
+<div class="cb"><pre>.item { flex-basis: 200px; }</pre></div>
+<p><strong>Gotcha:</strong> When both <code>flex-basis</code> and <code>width</code> are set on an item, <strong><code>flex-basis</code> wins (trumps width)</strong>.</p>
+
+<h4 class="g-h4"><code>flex</code> (shorthand)</h4>
+<ul>
+  <li><strong>Default:</strong> <code>0 1 auto</code> (grow shrink basis)</li>
+</ul>
+<div class="cb"><pre>.item { flex: 1; }           /* flex-grow: 1, flex-shrink: 1, flex-basis: 0% */
+.item { flex: 1 0 100%; }    /* grow:1, shrink:0, basis:100% */
+.item { flex: 1 1 200px; }   /* grow shrink basis */</pre></div>
+
+<h4 class="g-h4"><code>align-self</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Overrides <code>align-items</code> for an individual flex item.</li>
+  <li><strong>Default:</strong> <code>auto</code> (inherits container's <code>align-items</code>)</li>
+  <li><strong>Values:</strong> <code>auto</code> | <code>flex-start</code> | <code>flex-end</code> | <code>center</code> | <code>baseline</code> | <code>stretch</code></li>
+</ul>
+<div class="cb"><pre>.item:last-child { align-self: flex-end; }</pre></div>
+
+<h4 class="g-h4"><code>order</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Controls the visual order of flex items (does not change DOM order).</li>
+  <li><strong>Default:</strong> <code>0</code></li>
+  <li><strong>Values:</strong> Any integer. Lower values appear first.</li>
+</ul>
+<div class="cb"><pre>.item { order: 2; } /* appears after items with order 0 or 1 */</pre></div>
+
+<hr>
+
+<h3 class="g-h3">1.4 Important Flexbox Rules (from slides)</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td><code>float</code> on flex items</td><td>Has NO effect</td></tr>
+    <tr><td><code>clear</code> on flex items</td><td>Has NO effect</td></tr>
+    <tr><td><code>vertical-align</code> on flex items</td><td>Has NO effect</td></tr>
+    <tr><td><code>absolute positioning</code> on flex items</td><td>Removes them from the flow</td></tr>
+    <tr><td><code>flex-grow</code> values</td><td>Cannot be negative</td></tr>
+    <tr><td><code>flex-basis</code> vs <code>width</code></td><td>flex-basis wins</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Centering with flexbox (modern vs old):</strong></p>
+<div class="cb"><pre>/* Modern flexbox */
+.parent { display: flex; justify-content: center; align-items: center; }
+
+/* Old method */
+.child { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }</pre></div>
+
+<hr>
+
+<h3 class="g-h3">1.5 Likely Exam Questions — Flexbox</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question type</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Default of <code>flex-direction</code></td><td><code>row</code></td></tr>
+    <tr><td>Default of <code>flex-wrap</code></td><td><code>nowrap</code></td></tr>
+    <tr><td>Default of <code>justify-content</code></td><td><code>flex-start</code></td></tr>
+    <tr><td>Default of <code>align-items</code></td><td><code>stretch</code></td></tr>
+    <tr><td>Default of <code>align-content</code></td><td><code>stretch</code></td></tr>
+    <tr><td>Default of <code>flex-grow</code></td><td><code>0</code></td></tr>
+    <tr><td>Default of <code>flex-shrink</code></td><td><code>1</code></td></tr>
+    <tr><td>Default of <code>order</code></td><td><code>0</code></td></tr>
+    <tr><td>Default of <code>align-self</code></td><td><code>auto</code></td></tr>
+    <tr><td><code>flex-flow: row wrap</code> means</td><td><code>flex-direction: row; flex-wrap: wrap;</code></td></tr>
+    <tr><td>When does <code>align-content</code> work?</td><td>Only when <code>flex-wrap: wrap</code> and multiple lines exist</td></tr>
+    <tr><td>What does <code>align-items</code> align?</td><td>Items within their line (cross-axis)</td></tr>
+    <tr><td>What does <code>align-content</code> align?</td><td>The lines themselves (cross-axis)</td></tr>
+    <tr><td>Does float affect flex items?</td><td>No</td></tr>
+    <tr><td>Which takes priority: <code>flex-basis</code> or <code>width</code>?</td><td><code>flex-basis</code></td></tr>
+    <tr><td>What is flex-grow: 0?</td><td>Item will NOT grow (this is the default)</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">2. CSS Grid</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>CSS Grid Layout enables more complex, two-dimensional layouts and gives full control. On the basic level it is similar to flexbox, but it works in both rows AND columns simultaneously.</p>
+<p><code>display: grid</code> only affects <strong>direct children</strong> (grid items), not deeper descendants.</p>
+
+<hr>
+
+<h3 class="g-h3">2.1 Grid Terminology</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Grid container</strong></td><td>Element with <code>display: grid</code> applied</td></tr>
+    <tr><td><strong>Grid item</strong></td><td>Direct child of a grid container</td></tr>
+    <tr><td><strong>Grid line</strong></td><td>The dividing lines that make up the grid structure (horizontal and vertical)</td></tr>
+    <tr><td><strong>Grid track</strong></td><td>The space between two adjacent grid lines — essentially a row or column</td></tr>
+    <tr><td><strong>Grid cell</strong></td><td>Smallest unit — bounded by four grid lines, no lines running through it</td></tr>
+    <tr><td><strong>Grid area</strong></td><td>Any rectangular area bounded by four grid lines; made of one or more cells</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h3 class="g-h3">2.2 Defining the Grid</h3>
+
+<h4 class="g-h4"><code>display: grid</code></h4>
+<div class="cb"><pre>.container { display: grid; }        /* block-level grid */
+.container { display: inline-grid; } /* inline-level grid */</pre></div>
+
+<h4 class="g-h4"><code>grid-template-columns</code> / <code>grid-template-rows</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Defines the columns/rows of the grid.</li>
+  <li><strong>Values:</strong> <code>px</code>, <code>%</code>, <code>auto</code>, <code>fr</code>, <code>minmax()</code>, <code>repeat()</code></li>
+</ul>
+<div class="cb"><pre>.container {
+  grid-template-columns: 200px 200px 200px;   /* 3 fixed columns */
+  grid-template-columns: 1fr 2fr 1fr;          /* fraction-based */
+  grid-template-columns: auto 1fr;             /* auto + remaining */
+  grid-template-rows: 100px auto;
+}</pre></div>
+<p><strong>Named grid lines:</strong></p>
+<div class="cb"><pre>grid-template-columns: [start col-a] 200px [col-b] 50% [col-c] 100px [stop end last];
+/* Multiple names per line are allowed */</pre></div>
+
+<h4 class="g-h4">The <code>fr</code> Unit</h4>
+<ul>
+  <li><strong>Definition:</strong> Stands for "fraction". Represents a fraction of the available space.</li>
+  <li>All <code>fr</code> values are added up, then each <code>fr</code> gets its proportional share.</li>
+</ul>
+<div class="cb"><pre>.container {
+  grid-template-columns: 1fr 2fr 1fr;
+  /* Total = 4 fractions. 1fr = 25%, 2fr = 50%, 1fr = 25% */
+}</pre></div>
+<p><strong>Gotcha:</strong> <code>fr</code> distributes available space AFTER fixed-size tracks are allocated.</p>
+
+<h4 class="g-h4"><code>repeat()</code></h4>
+<div class="cb"><pre>.container {
+  grid-template-columns: repeat(3, 1fr);           /* same as: 1fr 1fr 1fr */
+  grid-template-columns: repeat(3, 1fr 2fr);       /* pattern: 1fr 2fr 1fr 2fr 1fr 2fr */
+  grid-template-columns: 40px repeat(1, 1fr) 40px; /* mixed */
+}</pre></div>
+
+<h4 class="g-h4">Responsive grid (no media queries):</h4>
+<div class="cb"><pre>/* THIS IS A HIGH-PRIORITY EXAM ANSWER */
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));</pre></div>
+
+<div class="tw"><table>
+  <thead><tr><th>Keyword</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td><code>auto-fit</code></td><td>Fits as many columns as possible; expands columns to fill remaining space</td></tr>
+    <tr><td><code>auto-fill</code></td><td>Similar but keeps empty tracks (doesn't collapse them)</td></tr>
+  </tbody>
+</table></div>
+
+<h4 class="g-h4"><code>minmax()</code></h4>
+<div class="cb"><pre>.container {
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
+  /* Each column: minimum 100px, maximum 1fr */
+}</pre></div>
+
+<h4 class="g-h4"><code>min-content</code> / <code>max-content</code></h4>
+<ul>
+  <li><code>max-content</code> — takes up the maximum amount of space needed for content</li>
+  <li><code>min-content</code> — takes up the minimum amount of space needed for content</li>
+</ul>
+
+<hr>
+
+<h3 class="g-h3">2.3 Named Areas</h3>
+
+<h4 class="g-h4"><code>grid-template-areas</code></h4>
+<ul>
+  <li><strong>Definition:</strong> Defines named layout regions.</li>
+  <li>Use <code>.</code> (one or more dots) for empty cells — this is called the <strong>null cell token</strong>.</li>
+  <li><strong>All areas must be rectangular</strong> — non-rectangular shapes will break the layout.</li>
+</ul>
+<div class="cb"><pre>.container {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "sidebar main   main"
+    "footer footer  footer";
+  grid-template-columns: 250px 1fr;
+}
+
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+.footer  { grid-area: footer; }</pre></div>
+<p><strong>Empty cell example:</strong></p>
+<div class="cb"><pre>grid-template-areas:
+  "header header"
+  ".      main"    /* dot = empty cell */
+  "footer footer";</pre></div>
+
+<h4 class="g-h4">Example — Complete Page Layout with Named Grid Areas</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;div class="page"&gt;
+  &lt;header class="page__header"&gt;Header&lt;/header&gt;
+  &lt;nav    class="page__nav"&gt;Nav&lt;/nav&gt;
+  &lt;main   class="page__main"&gt;Main Content&lt;/main&gt;
+  &lt;aside  class="page__aside"&gt;Sidebar&lt;/aside&gt;
+  &lt;footer class="page__footer"&gt;Footer&lt;/footer&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.page {
+  display: grid;
+  /*  Each quoted string = one row. Each word = one column cell.
+      Repeating the same name spans that area across multiple cells.
+      "." = empty/null cell token                                     */
+  grid-template-areas:
+    "header header header"   /* header spans all 3 columns          */
+    "nav    main   aside"    /* nav | main content | sidebar         */
+    "footer footer footer";  /* footer spans all 3 columns           */
+  grid-template-columns: 180px 1fr 220px;   /* fixed | flexible | fixed */
+  grid-template-rows: 60px 1fr 50px;        /* header | content | footer */
+  gap: 10px;
+  min-height: 100vh;
+}
+
+/* Each element references its area by name — ORDER IN HTML DOES NOT MATTER */
+.page__header { grid-area: header; background: #1a237e; color: white; }
+.page__nav    { grid-area: nav;    background: #283593; color: white; }
+.page__main   { grid-area: main;   background: #fff;    padding: 20px; }
+.page__aside  { grid-area: aside;  background: #f5f5f5; padding: 16px; }
+.page__footer { grid-area: footer; background: #1a237e; color: white; }
+
+/*  VISUAL MAP of what you see:
+    ┌─────────────────────────────────┐  ← 60px
+    │          header (180+1fr+220)   │
+    ├──────┬──────────────────┬───────┤  ← 1fr (flexible)
+    │ nav  │   main content   │ aside │
+    │ 180px│      1fr         │ 220px │
+    ├──────┴──────────────────┴───────┤  ← 50px
+    │          footer (all cols)      │
+    └─────────────────────────────────┘
+*/</pre></div>
+<p>YOU SEE: A classic three-column page layout — dark blue header and footer spanning the full width, a narrow left nav, a wide flexible main area, and a right sidebar.</p>
+
+<hr>
+
+<h3 class="g-h3">2.4 Placing Grid Items</h3>
+
+<h4 class="g-h4"><code>grid-column</code> / <code>grid-row</code></h4>
+<div class="cb"><pre>.item {
+  grid-column: 1 / 3;       /* start at line 1, end at line 3 (spans 2 columns) */
+  grid-row: 1 / 2;           /* occupies row 1 */
+
+  grid-column: 1 / span 2;  /* start at line 1, span 2 columns */
+  grid-column: span 2;       /* span 2 columns from auto-placed position */
+}</pre></div>
+
+<h4 class="g-h4"><code>grid-area</code> (item)</h4>
+<div class="cb"><pre>.item {
+  grid-area: header;               /* named area */
+  grid-area: 1 / 1 / 2 / 4;       /* row-start / col-start / row-end / col-end */
+}</pre></div>
+
+<hr>
+
+<h3 class="g-h3">2.5 Auto Placement</h3>
+
+<h4 class="g-h4"><code>grid-auto-flow</code></h4>
+<ul>
+  <li><strong>Default:</strong> <code>row</code></li>
+  <li><strong>Values:</strong> <code>row</code> | <code>column</code> | <code>dense</code> | <code>row dense</code> | <code>column dense</code></li>
+</ul>
+<div class="cb"><pre>.container { grid-auto-flow: column; }       /* fill columns first */
+.container { grid-auto-flow: row dense; }    /* fill holes in the grid */</pre></div>
+
+<hr>
+
+<h3 class="g-h3">2.6 Grid Alignment</h3>
+
+<h4 class="g-h4">On the container (aligns items within their cells):</h4>
+<div class="cb"><pre>.container {
+  justify-items: center;    /* horizontal alignment within cell (default: stretch) */
+  align-items: center;      /* vertical alignment within cell (default: stretch) */
+}</pre></div>
+
+<h4 class="g-h4">On the container (aligns the whole grid):</h4>
+<div class="cb"><pre>.container {
+  justify-content: center;  /* horizontal position of grid in container */
+  align-content: center;    /* vertical position of grid in container */
+}</pre></div>
+
+<h4 class="g-h4">On items (override for individual items):</h4>
+<div class="cb"><pre>.item {
+  justify-self: end;   /* horizontal alignment in its own cell */
+  align-self: start;   /* vertical alignment in its own cell */
+}</pre></div>
+
+<hr>
+
+<h3 class="g-h3">2.7 Grid Spacing</h3>
+
+<div class="cb"><pre>.container {
+  gap: 10px;           /* same gap for rows and columns */
+  gap: 10px 20px;      /* row-gap column-gap */
+  row-gap: 10px;
+  column-gap: 20px;
+}</pre></div>
+<p><strong>Note:</strong> The slides use <code>grid-gap</code>, <code>grid-row-gap</code>, <code>grid-column-gap</code> (prefixed). Modern CSS uses <code>gap</code>. Know both.</p>
+
+<hr>
+
+<h3 class="g-h3">2.8 Things Grid Ignores (from slides)</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Property</th><th>Effect on grid</th></tr></thead>
+  <tbody>
+    <tr><td><code>column</code> properties</td><td>Ignored when applied to grid containers</td></tr>
+    <tr><td><code>::first-line</code></td><td>Ignored when applied to grid containers</td></tr>
+    <tr><td><code>::first-letter</code></td><td>Ignored when applied to grid containers</td></tr>
+    <tr><td><code>float</code></td><td>Ignored when applied to grid items</td></tr>
+    <tr><td><code>clear</code></td><td>Ignored when applied to grid items</td></tr>
+    <tr><td><code>vertical-align</code></td><td>Has no effect on grid items</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h3 class="g-h3">2.9 Likely Exam Questions — Grid</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>What does <code>fr</code> stand for?</td><td>Fraction</td></tr>
+    <tr><td><code>repeat(auto-fit, minmax(250px, 1fr))</code> does what?</td><td>Responsive grid without media queries</td></tr>
+    <tr><td>Difference: <code>auto-fit</code> vs <code>auto-fill</code>?</td><td>auto-fit expands columns to fill space; auto-fill keeps empty tracks</td></tr>
+    <tr><td>What is the null cell token in grid-template-areas?</td><td><code>.</code> (one or more dots)</td></tr>
+    <tr><td>Must grid areas be rectangular?</td><td>Yes — non-rectangular breaks the layout</td></tr>
+    <tr><td><code>grid-column: 1 / 3</code> spans how many columns?</td><td>2 (from line 1 to line 3)</td></tr>
+    <tr><td>Default of <code>grid-auto-flow</code>?</td><td><code>row</code></td></tr>
+    <tr><td>Default of <code>justify-items</code> and <code>align-items</code> in grid?</td><td><code>stretch</code></td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">3. Grid vs Flexbox</h2>
+
+<div class="tw"><table>
+  <thead><tr><th>Feature</th><th>CSS Grid</th><th>Flexbox</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Dimensions</strong></td><td>Two-dimensional (rows AND columns)</td><td>One-dimensional (row OR column)</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Page-level layout (header, sidebar, main, footer)</td><td>Component-level layout (cards, navbars, alignment)</td></tr>
+    <tr><td><strong>Layout direction</strong></td><td>Both axes simultaneously</td><td>One axis at a time</td></tr>
+    <tr><td><strong>Complexity</strong></td><td>More complex layouts, full control</td><td>Simpler flowing content</td></tr>
+    <tr><td><strong>Equal height columns</strong></td><td>Yes (default)</td><td>Yes (default — this is a Flexbox strength)</td></tr>
+    <tr><td><strong>When to use</strong></td><td>Defining page structure with <code>grid-template-areas</code></td><td>Arranging items within a component</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Correct mental model:</strong></p>
+<ul>
+  <li>Use <strong>Grid</strong> for the overall page structure (outer shell)</li>
+  <li>Use <strong>Flexbox</strong> inside components (nav items, card content, buttons)</li>
+</ul>
+
+<p><strong>Exam answer for "Grid and Flexbox do the same thing":</strong><br>
+They complement each other. Grid is 2D (both rows AND columns); Flexbox is 1D (one direction at a time). Use Grid for page layout, Flexbox for component layout.</p>
+
+<hr>
+
+<h2 class="g-h2">4. BEM (Block Element Modifier)</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>BEM is a naming convention for CSS classes. It stands for <strong>Block, Element, Modifier</strong>. Used to maintain consistency in large teams.</p>
+
+<h3 class="g-h3">The Pattern</h3>
+<div class="cb"><pre>.block { }
+.block__element { }
+.block--modifier { }
+.block__element--modifier { }</pre></div>
+
+<h3 class="g-h3">Core Concepts</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Concept</th><th>Definition</th><th>Separator</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Block</strong></td><td>Standalone component with meaning on its own</td><td>(none)</td><td><code>.card</code></td></tr>
+    <tr><td><strong>Element</strong></td><td>Part of a block, semantically tied to it</td><td><code>__</code> (double underscore)</td><td><code>.card__title</code></td></tr>
+    <tr><td><strong>Modifier</strong></td><td>Flag that changes appearance or behaviour</td><td><code>--</code> (double dash)</td><td><code>.card--featured</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Naming Rules</h3>
+<ul>
+  <li><strong>Block names:</strong> lowercase Latin letters, digits, dashes only</li>
+  <li><strong>Element names:</strong> lowercase Latin letters, digits, dashes, underscores</li>
+  <li><strong>Modifier names:</strong> lowercase Latin letters, digits, dashes, underscores</li>
+  <li><strong>Use class name selectors only</strong> — no tag names, no IDs, no dependency on other blocks</li>
+</ul>
+
+<h3 class="g-h3">Full Example (from slides)</h3>
+<div class="cb"><pre>&lt;form class="form form--theme-xmas form--simple"&gt;
+  &lt;input class="form__input" type="text" /&gt;
+  &lt;input class="form__submit form__submit--disabled" type="submit" /&gt;
+&lt;/form&gt;</pre></div>
+<div class="cb"><pre>.form { }                      /* Block */
+.form--theme-xmas { }          /* Block modifier */
+.form--simple { }              /* Block modifier */
+.form__input { }               /* Element */
+.form__submit { }              /* Element */
+.form__submit--disabled { }    /* Element modifier */</pre></div>
+
+<h3 class="g-h3">Button Example (from slides)</h3>
+<div class="cb"><pre>&lt;button class="button"&gt;Normal button&lt;/button&gt;
+&lt;button class="button button--state-success"&gt;Success button&lt;/button&gt;
+&lt;button class="button button--state-danger"&gt;Danger button&lt;/button&gt;</pre></div>
+
+<h4 class="g-h4">Example — Full Card Component in BEM</h4>
+<p>HTML markup: three class names work together — the block, an element, and an element modifier.</p>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;article class="card card--featured"&gt;
+  &lt;img   class="card__image" src="photo.jpg" alt="Photo" /&gt;
+  &lt;div   class="card__body"&gt;
+    &lt;h2  class="card__title"&gt;Article Title&lt;/h2&gt;
+    &lt;p   class="card__text"&gt;Some text here.&lt;/p&gt;
+    &lt;a   class="card__btn card__btn--primary" href="#"&gt;Read more&lt;/a&gt;
+    &lt;a   class="card__btn card__btn--disabled" href="#"&gt;Archived&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/article&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.card { border: 1px solid #ccc; border-radius: 8px; overflow: hidden; } /* Block */
+.card--featured { border-color: gold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); } /* Block modifier — golden border + shadow */
+
+.card__image { width: 100%; display: block; }          /* Element */
+.card__body  { padding: 16px; }                         /* Element */
+.card__title { font-size: 1.4em; margin: 0 0 8px; }    /* Element */
+.card__text  { color: #555; }                           /* Element */
+
+.card__btn  { display: inline-block; padding: 8px 16px; border-radius: 4px; } /* Element */
+.card__btn--primary  { background: #0077cc; color: white; }  /* Element modifier — blue */
+.card__btn--disabled { background: #ccc; color: #888; cursor: not-allowed; }  /* Element modifier — greyed out */</pre></div>
+<p>YOU SEE: A card with a gold border (featured modifier) and two differently styled buttons — blue for primary, grey for disabled. Each class name tells you exactly what it is and what role it plays.</p>
+
+<h3 class="g-h3">Valid vs Invalid BEM</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Class name</th><th>Valid?</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>.card__title--active</code></td><td>YES</td><td>Correct: block__element--modifier</td></tr>
+    <tr><td><code>.navigation__link--disabled</code></td><td>YES</td><td>Correct BEM format</td></tr>
+    <tr><td><code>.cardTitleActive</code></td><td>NO</td><td>camelCase, no separators</td></tr>
+    <tr><td><code>.card-title-active</code></td><td>NO</td><td>Single dashes only — missing __ and --</td></tr>
+    <tr><td><code>.Card__Title</code></td><td>NO</td><td>PascalCase/uppercase — BEM is lowercase only</td></tr>
+    <tr><td><code>.navItemActive</code></td><td>NO</td><td>camelCase, no separators</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Exam Questions — BEM</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Separator for Elements?</td><td><code>__</code> (double underscore)</td></tr>
+    <tr><td>Separator for Modifiers?</td><td><code>--</code> (double dash)</td></tr>
+    <tr><td>Can BEM use tag or ID selectors?</td><td>No — class names only</td></tr>
+    <tr><td>Is <code>.Nav__Item</code> valid BEM?</td><td>No — uppercase not allowed</td></tr>
+    <tr><td>Is <code>.nav-item-active</code> valid BEM?</td><td>No — missing __ and -- separators</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">5. CSS Custom Properties (Variables)</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>CSS variables (cascading variables) are entities defined by CSS authors that represent specific values to be reused throughout a document. They are defined using the <code>--</code> (double dash) prefix.</p>
+<p><strong>Why use them:</strong> Centralizes repeated values. One change updates the whole site. Without variables, changing a brand color requires a global find/replace.</p>
+
+<h3 class="g-h3">Syntax</h3>
+<div class="cb"><pre>/* Define on :root for global access */
+:root {
+  --primary-color: #63B4D1;
+  --navigation-bar-height: 100px;
+  --font-size-base: 16px;
+}
+
+/* Use with var() */
+.nav {
+  height: var(--navigation-bar-height);
+  background-color: var(--primary-color);
+}
+
+/* Fallback value */
+body {
+  color: var(--main-text-color, white);  /* 'white' is fallback if var not defined */
+}</pre></div>
+
+<h3 class="g-h3">Rules</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Scoping</strong></td><td>Variables cascade down the DOM. Defined on <code>:root</code> = global. Defined on <code>.aside</code> = only inside <code>&lt;aside&gt;</code> and descendants</td></tr>
+    <tr><td><strong>Case sensitive</strong></td><td><code>--Main-color</code> and <code>--main-color</code> are different properties</td></tr>
+    <tr><td><strong>Inheritance</strong></td><td>Variables defined with <code>--</code> always inherit from parent (by default)</td></tr>
+    <tr><td><strong>JavaScript access</strong></td><td><code>getComputedStyle(element).getPropertyValue("--my-var")</code></td></tr>
+    <tr><td><strong>JavaScript set</strong></td><td><code>element.style.setProperty("--my-var", value)</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3"><code>@property</code> At-Rule (Advanced)</h3>
+<p>Allows you to associate a type, set a default, and control inheritance:</p>
+<div class="cb"><pre>@property --main-red-color {
+  syntax: "&lt;color&gt;";
+  inherits: false;
+  initial-value: rgb(255, 0, 0);
+}</pre></div>
+<ul>
+  <li><code>inherits: false</code> — property does NOT inherit from parent</li>
+  <li><code>inherits: true</code> — property inherits (this is default for regular <code>--</code> variables)</li>
+</ul>
+
+<h3 class="g-h3">JavaScript Manipulation</h3>
+<div class="cb"><pre>// Read
+const value = getComputedStyle(element).getPropertyValue("--my-var");
+
+// Write
+element.style.setProperty("--my-var", value + 4);</pre></div>
+
+<h3 class="g-h3">Exam Questions — CSS Variables</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>How are CSS variables defined?</td><td><code>--variable-name: value;</code> with <code>--</code> prefix</td></tr>
+    <tr><td>How are they used?</td><td><code>var(--variable-name)</code></td></tr>
+    <tr><td>Do CSS variables replace CSS preprocessors?</td><td>NO — preprocessors offer mixins, nesting, functions that CSS variables alone cannot provide</td></tr>
+    <tr><td>Are variable names case-sensitive?</td><td>YES</td></tr>
+    <tr><td>Where is <code>:root</code> typically used?</td><td>For global variables accessible everywhere</td></tr>
+    <tr><td>Can CSS variables be changed by JavaScript?</td><td>Yes — via <code>element.style.setProperty()</code></td></tr>
+    <tr><td>Do <code>--</code> variables inherit?</td><td>Yes, always</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">6. Background Properties</h2>
+
+<h3 class="g-h3"><code>background-image</code></h3>
+<div class="cb"><pre>background-image: url('image.jpg');</pre></div>
+
+<h3 class="g-h3"><code>background-size</code></h3>
+<ul>
+  <li><strong>Default:</strong> <code>auto</code></li>
+</ul>
+
+<div class="tw"><table>
+  <thead><tr><th>Value</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td><code>cover</code></td><td>Scales image to fill container; may crop. "Covers everything, though overflow"</td></tr>
+    <tr><td><code>contain</code></td><td>Scales image to fit inside; may leave space. "Tries to fit the whole image in"</td></tr>
+    <tr><td><code>200px 200px</code></td><td>Explicit width height</td></tr>
+  </tbody>
+</table></div>
+
+<div class="cb"><pre>background-size: cover;
+background-size: contain;
+background-size: 200px auto;</pre></div>
+
+<h3 class="g-h3"><code>background-position</code></h3>
+<div class="cb"><pre>background-position: center center;
+background-position: 50% 50%;
+background-position: 200px bottom;   /* 200px from left, at bottom */
+background-position: 0 0;             /* top left */</pre></div>
+
+<h3 class="g-h3"><code>background-repeat</code></h3>
+<ul>
+  <li><strong>Default:</strong> <code>repeat</code></li>
+  <li><strong>Values:</strong> <code>repeat</code> | <code>no-repeat</code> | <code>repeat-x</code> | <code>repeat-y</code></li>
+</ul>
+<div class="cb"><pre>background-repeat: no-repeat;</pre></div>
+
+<h3 class="g-h3">Multiple Backgrounds</h3>
+<ul>
+  <li>Comma-separated. <strong>First listed = on top, last listed = on bottom.</strong></li>
+  <li>Each comma-separated value maps to the corresponding image.</li>
+</ul>
+<div class="cb"><pre>.scene {
+  background-image:
+    url(heman.png),       /* 1st = ON TOP */
+    url(skeletor.png),    /* 2nd = middle */
+    url(grayskull.jpg);   /* 3rd = BOTTOM */
+  background-repeat: no-repeat;
+  background-size: 200px, 200px, cover;
+  background-position:
+    200px bottom,         /* heman: 200px from left, at bottom */
+    450px bottom,         /* skeletor: 450px from left, at bottom */
+    center center;        /* grayskull: centered, covers all */
+}</pre></div>
+
+<h3 class="g-h3">Exam Questions — Background</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Default of <code>background-repeat</code>?</td><td><code>repeat</code></td></tr>
+    <tr><td><code>cover</code> vs <code>contain</code>?</td><td>cover = may crop; contain = no crop but may leave space</td></tr>
+    <tr><td>With multiple backgrounds, which is on top?</td><td>The FIRST one listed</td></tr>
+    <tr><td>Does <code>border-box</code> include margin?</td><td>No — border-box includes padding and border, NOT margin</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">7. Gradients</h2>
+
+<p>Gradients are applied to <code>background-image</code> (or <code>background</code>), NOT <code>background-color</code>.</p>
+
+<h3 class="g-h3"><code>linear-gradient()</code></h3>
+<ul>
+  <li><strong>Default direction:</strong> top to bottom</li>
+</ul>
+<div class="cb"><pre>/* Basic */
+background: linear-gradient(red, blue);            /* top to bottom */
+background: linear-gradient(to right, red, blue);  /* left to right */
+background: linear-gradient(45deg, red, blue);      /* 45-degree angle */
+background: linear-gradient(to bottom right, red, yellow, blue); /* diagonal, 3 colors */</pre></div>
+
+<p><strong>Angle reference:</strong></p>
+<div class="tw"><table>
+  <thead><tr><th>Angle</th><th>Direction</th></tr></thead>
+  <tbody>
+    <tr><td><code>0deg</code></td><td>bottom to top</td></tr>
+    <tr><td><code>90deg</code></td><td>left to right</td></tr>
+    <tr><td><code>180deg</code></td><td>top to bottom (same as default)</td></tr>
+    <tr><td><code>-90deg</code></td><td>right to left</td></tr>
+    <tr><td><code>to right</code></td><td>same as 90deg</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3"><code>radial-gradient()</code></h3>
+<ul>
+  <li>Radiates from center outward by default.</li>
+  <li>Shape: <code>circle</code> or <code>ellipse</code></li>
+</ul>
+<div class="cb"><pre>background: radial-gradient(red, blue);
+background: radial-gradient(circle, red, blue);
+background: radial-gradient(circle at 75% 75%, red, blue);  /* custom center */
+background: radial-gradient(circle at top left, red, blue);</pre></div>
+
+<h3 class="g-h3">Repeating Gradients</h3>
+<div class="cb"><pre>background: repeating-linear-gradient(
+  45deg,
+  red,
+  red 10px,
+  blue 10px,
+  blue 20px
+);
+
+background: repeating-radial-gradient(
+  circle,
+  red,
+  red 10px,
+  blue 10px,
+  blue 20px
+);</pre></div>
+
+<h3 class="g-h3">Stacking Gradients</h3>
+<div class="cb"><pre>background-image:
+  linear-gradient(rgba(255,0,0,0.5), rgba(0,0,255,0.5)),  /* ON TOP */
+  linear-gradient(to right, yellow, green);                  /* BELOW */</pre></div>
+<p><strong>Gotcha:</strong> Use <code>rgba</code> with transparency when stacking so layers below are visible.</p>
+
+<h4 class="g-h4">Example — Linear Gradient with Multiple Stops</h4>
+<div class="cb"><pre>/* HTML */
+&lt;div class="sunset"&gt;&lt;/div&gt;
+
+/* CSS */
+.sunset {
+  width: 300px; height: 150px;
+  background: linear-gradient(
+    to bottom,
+    #ff6e40 0%,    /* red-orange at top */
+    #ff9800 40%,   /* orange in the middle */
+    #ffee58 75%,   /* yellow */
+    #29b6f6 100%   /* sky blue at bottom */
+  );
+}</pre></div>
+<p>YOU SEE: A rectangle that looks like a sunset sky — red-orange fading through orange and yellow into blue. The percentage stops control exactly where each colour starts.</p>
+
+<h4 class="g-h4">Example — Radial Gradient (Spotlight)</h4>
+<div class="cb"><pre>/* HTML */
+&lt;div class="spotlight"&gt;&lt;/div&gt;
+
+/* CSS */
+.spotlight {
+  width: 300px; height: 200px;
+  background: radial-gradient(
+    circle at 30% 40%,   /* circle, centred at 30% across, 40% down */
+    rgba(255,255,255,0.9) 0%,
+    rgba(255,220,100,0.6) 35%,
+    rgba(0,0,0,0.85) 100%
+  );
+  background-color: #111;
+}</pre></div>
+<p>YOU SEE: A dark background with a bright white-to-yellow spotlight centred in the upper-left area, fading to black at the edges.</p>
+
+<h4 class="g-h4">Example — Conic Gradient (Colour Wheel)</h4>
+<div class="cb"><pre>/* HTML */
+&lt;div class="wheel"&gt;&lt;/div&gt;
+
+/* CSS */
+.wheel {
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    red 0deg,
+    yellow 60deg,
+    green 120deg,
+    cyan 180deg,
+    blue 240deg,
+    magenta 300deg,
+    red 360deg
+  );
+}</pre></div>
+<p>YOU SEE: A circle divided into rainbow-coloured wedges radiating from the centre — like a colour wheel or pie chart.</p>
+
+<h4 class="g-h4">Example — Repeating Linear Gradient (Stripes)</h4>
+<div class="cb"><pre>.stripes {
+  width: 300px; height: 100px;
+  background: repeating-linear-gradient(
+    45deg,
+    #f06 0px,
+    #f06 10px,    /* pink stripe 10px wide */
+    #fff 10px,
+    #fff 20px     /* white stripe 10px wide — pattern repeats every 20px */
+  );
+}</pre></div>
+<p>YOU SEE: Diagonal pink-and-white stripes at 45° — like caution tape or a candy cane pattern.</p>
+
+<h3 class="g-h3">Exam Questions — Gradients</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Default direction of <code>linear-gradient</code>?</td><td>Top to bottom</td></tr>
+    <tr><td>What does <code>0deg</code> mean?</td><td>Bottom to top</td></tr>
+    <tr><td>What does <code>90deg</code> mean?</td><td>Left to right</td></tr>
+    <tr><td>Which property do gradients go on?</td><td><code>background-image</code> (or <code>background</code>)</td></tr>
+    <tr><td>With stacked gradients, which is on top?</td><td>The first listed</td></tr>
+    <tr><td><code>radial-gradient</code> default center?</td><td>Center of the element</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">8. Shadows (box-shadow)</h2>
+
+<h3 class="g-h3">Syntax</h3>
+<div class="cb"><pre>box-shadow: offset-x offset-y blur-radius spread-radius color;
+box-shadow: inset offset-x offset-y blur-radius spread-radius color;</pre></div>
+
+<div class="tw"><table>
+  <thead><tr><th>Part</th><th>Required?</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>offset-x</code></td><td>YES</td><td>Horizontal offset. Positive = right, negative = left</td></tr>
+    <tr><td><code>offset-y</code></td><td>YES</td><td>Vertical offset. Positive = down, negative = up</td></tr>
+    <tr><td><code>blur-radius</code></td><td>no</td><td>Blur amount. <code>0</code> = sharp shadow. Default: <code>0</code></td></tr>
+    <tr><td><code>spread-radius</code></td><td>no</td><td>Expands/contracts shadow. Positive = larger, negative = smaller. Default: <code>0</code></td></tr>
+    <tr><td><code>color</code></td><td>no</td><td>Shadow color</td></tr>
+    <tr><td><code>inset</code></td><td>no</td><td>Keyword. Places shadow INSIDE the element</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Default:</strong> <code>none</code></p>
+<div class="cb"><pre>/* Basic shadow */
+box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.5);
+
+/* Sharp shadow */
+box-shadow: 5px 5px 0 black;
+
+/* Inner shadow */
+box-shadow: inset 0 0 10px black;
+
+/* Negative spread — smaller than element */
+box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);</pre></div>
+
+<h3 class="g-h3">Multiple Shadows</h3>
+<p>Comma-separated. First listed = on top.</p>
+<div class="cb"><pre>/* Replicating elements with shadows */
+box-shadow:
+  90px 0 0 black,
+  46px 30px 0 40px yellow,
+  46px 50px 0 30px red;</pre></div>
+
+<h3 class="g-h3"><code>text-shadow</code></h3>
+<div class="cb"><pre>text-shadow: h-offset v-offset blur color;
+/* NO spread-radius. NO inset. */
+text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);</pre></div>
+
+<h4 class="g-h4">Example — Outer, Inset, and Multiple Shadows</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;div class="card-outer"&gt;Drop shadow&lt;/div&gt;
+&lt;div class="card-inset"&gt;Inset shadow&lt;/div&gt;
+&lt;div class="card-multi"&gt;Multiple shadows&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+
+/* Standard drop shadow — 8px right, 8px down, 16px blur, semi-transparent black */
+.card-outer {
+  box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.4);
+}
+/* YOU SEE: Box casts a soft shadow to the bottom-right, like a lifted card */
+
+/* Inset — shadow is INSIDE the box, looks like a pressed button or well */
+.card-inset {
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+/* YOU SEE: Darker region along the top edge inside the box — looks sunken */
+
+/* Multiple shadows — layered for a material-style elevation effect */
+.card-multi {
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.12),   /* tight ambient shadow */
+    0 4px 8px rgba(0,0,0,0.16),   /* medium shadow */
+    0 12px 24px rgba(0,0,0,0.10); /* wide, soft shadow */
+}
+/* YOU SEE: Realistic-looking elevation — box appears to float */
+
+/* Negative spread — shadow smaller than box, with large y-offset (footer shadow trick) */
+.footer-shadow {
+  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.6);
+}
+/* YOU SEE: Only a shadow below the element, no side shadows leaking out */</pre></div>
+
+<h3 class="g-h3">Exam Questions — box-shadow</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Order of box-shadow values?</td><td>offset-x offset-y blur spread color</td></tr>
+    <tr><td>What does <code>inset</code> do?</td><td>Places shadow inside the element</td></tr>
+    <tr><td>Default of blur-radius?</td><td>0 (sharp)</td></tr>
+    <tr><td>Default of spread-radius?</td><td>0</td></tr>
+    <tr><td>Does <code>text-shadow</code> have spread?</td><td>No</td></tr>
+    <tr><td>Does <code>text-shadow</code> have inset?</td><td>No</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">9. Transitions vs Animations</h2>
+
+<h3 class="g-h3">Key Difference (from slides)</h3>
+<ul>
+  <li><strong>Transitions</strong> only take effect when the property they are applied to <strong>changes value</strong> (requires a trigger — <code>:hover</code>, class change, etc.)</li>
+  <li><strong>Animations</strong> can execute <strong>independently</strong> — they change state on their own without needing a trigger. They can also loop, reverse, and have multiple keyframes.</li>
+</ul>
+
+<hr>
+
+<h3 class="g-h3">9.1 Transitions</h3>
+
+<h4 class="g-h4">Shorthand</h4>
+<div class="cb"><pre>transition: property duration timing-function delay;</pre></div>
+<div class="cb"><pre>.box {
+  transition: background-color 1s ease-in 0s;
+  transition: background-color 1s ease-in-out 0.1s;
+}
+.box:hover {
+  background-color: red;
+}</pre></div>
+
+<h4 class="g-h4">Multiple transitions</h4>
+<div class="cb"><pre>.box {
+  transition: background-color 1s, width 2s, height 3s;
+}</pre></div>
+
+<h4 class="g-h4">Sub-properties</h4>
+
+<div class="tw"><table>
+  <thead><tr><th>Property</th><th>Default</th><th>Values</th></tr></thead>
+  <tbody>
+    <tr><td><code>transition-property</code></td><td><code>all</code></td><td>CSS property name, <code>all</code>, <code>none</code></td></tr>
+    <tr><td><code>transition-duration</code></td><td><code>0s</code></td><td><code>1s</code>, <code>200ms</code></td></tr>
+    <tr><td><code>transition-timing-function</code></td><td><code>ease</code></td><td><code>ease</code>, <code>ease-in</code>, <code>ease-out</code>, <code>ease-in-out</code>, <code>linear</code>, <code>cubic-bezier()</code>, <code>steps()</code></td></tr>
+    <tr><td><code>transition-delay</code></td><td><code>0s</code></td><td><code>0.5s</code>, <code>200ms</code></td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Timing function meanings:</strong></p>
+<div class="tw"><table>
+  <thead><tr><th>Value</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td><code>ease</code></td><td>Slow start, fast middle, slow end</td></tr>
+    <tr><td><code>linear</code></td><td>Constant speed throughout</td></tr>
+    <tr><td><code>ease-in</code></td><td>Slow start</td></tr>
+    <tr><td><code>ease-out</code></td><td>Slow end</td></tr>
+    <tr><td><code>ease-in-out</code></td><td>Slow start and slow end</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h3 class="g-h3">9.2 Animations</h3>
+
+<h4 class="g-h4"><code>@keyframes</code></h4>
+<div class="cb"><pre>/* from/to syntax */
+@keyframes slidein {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Percentage syntax — allows intermediate steps */
+@keyframes colorchange {
+  0%   { background-color: red; }
+  50%  { background-color: blue; }
+  100% { background-color: green; }
+}</pre></div>
+<p><strong><code>from</code> = 0%, <code>to</code> = 100%</strong></p>
+
+<h4 class="g-h4">Animation Shorthand</h4>
+<div class="cb"><pre>animation: name duration timing-function delay iteration-count direction fill-mode play-state;</pre></div>
+<div class="cb"><pre>.element {
+  animation: myAnimation 5s ease-in 2s 10 reverse backwards running;
+}</pre></div>
+<p>Breakdown:</p>
+<ol style="margin: 6px 0 6px 20px;">
+  <li><code>myAnimation</code> = animation-name</li>
+  <li><code>5s</code> = animation-duration</li>
+  <li><code>ease-in</code> = animation-timing-function</li>
+  <li><code>2s</code> = animation-delay</li>
+  <li><code>10</code> = animation-iteration-count</li>
+  <li><code>reverse</code> = animation-direction</li>
+  <li><code>backwards</code> = animation-fill-mode</li>
+  <li><code>running</code> = animation-play-state</li>
+</ol>
+
+<h4 class="g-h4">Animation Sub-properties</h4>
+
+<div class="tw"><table>
+  <thead><tr><th>Property</th><th>Default</th><th>Values</th></tr></thead>
+  <tbody>
+    <tr><td><code>animation-name</code></td><td><code>none</code></td><td>name of <code>@keyframes</code></td></tr>
+    <tr><td><code>animation-duration</code></td><td><code>0s</code></td><td>time value</td></tr>
+    <tr><td><code>animation-timing-function</code></td><td><code>ease</code></td><td>same as transition</td></tr>
+    <tr><td><code>animation-delay</code></td><td><code>0s</code></td><td>time value</td></tr>
+    <tr><td><code>animation-iteration-count</code></td><td><code>1</code></td><td>number or <code>infinite</code></td></tr>
+    <tr><td><code>animation-direction</code></td><td><code>normal</code></td><td><code>normal</code> / <code>reverse</code> / <code>alternate</code> / <code>alternate-reverse</code></td></tr>
+    <tr><td><code>animation-fill-mode</code></td><td><code>none</code></td><td><code>none</code> / <code>forwards</code> / <code>backwards</code> / <code>both</code></td></tr>
+    <tr><td><code>animation-play-state</code></td><td><code>running</code></td><td><code>running</code> / <code>paused</code></td></tr>
+  </tbody>
+</table></div>
+
+<p><strong><code>animation-fill-mode</code> key values:</strong></p>
+<ul>
+  <li><code>forwards</code> — element retains the styles from the last keyframe after animation ends</li>
+  <li><code>backwards</code> — applies first keyframe styles during the delay period</li>
+  <li><code>both</code> — combines forwards and backwards</li>
+</ul>
+
+<h4 class="g-h4">Full Example</h4>
+<div class="cb"><pre>@keyframes pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.button {
+  animation: pulse 2s ease-in infinite alternate;
+}</pre></div>
+
+<h4 class="g-h4">Example — Hover Transition (trigger required)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;button class="btn"&gt;Hover me&lt;/button&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.btn {
+  background-color: #0077cc;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  /* Declare the transition on the BASE state, not on :hover */
+  transition: background-color 0.3s ease, transform 0.2s ease-out;
+}
+
+.btn:hover {
+  background-color: #005fa3;  /* triggers the background-color transition */
+  transform: scale(1.05);      /* triggers the transform transition */
+}
+</pre></div>
+<p>YOU SEE: When you hover the button it smoothly darkens and grows 5% over 0.3 s and 0.2 s respectively. Remove your cursor and it animates back. The transition ONLY fires when a property changes.</p>
+
+<h4 class="g-h4">Example — Keyframe Animation (runs independently, no trigger)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;div class="loader"&gt;&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #eee;
+  border-top-color: #0077cc;
+  border-radius: 50%;
+  /* name | duration | timing | delay | count | direction */
+  animation: spin 1s linear 0s infinite normal;
+}
+</pre></div>
+<p>YOU SEE: A circle with a blue arc that spins continuously — a classic loading indicator. No hover or click needed; the animation starts the moment the element renders.</p>
+
+<h4 class="g-h4">Example — animation-fill-mode Comparison</h4>
+<div class="cb"><pre>@keyframes slideIn {
+  from { transform: translateX(-200px); opacity: 0; }
+  to   { transform: translateX(0);      opacity: 1; }
+}
+
+/* Without fill-mode: element jumps back to invisible/off-screen when done */
+.no-fill   { animation: slideIn 1s ease 0.5s 1 normal none; }
+
+/* With forwards: element STAYS at final keyframe (visible, in place) */
+.with-fill { animation: slideIn 1s ease 0.5s 1 normal forwards; }
+
+/* With backwards: during the 0.5s delay the element is already at from-state (invisible) */
+.back-fill { animation: slideIn 1s ease 0.5s 1 normal backwards; }
+</pre></div>
+<p>YOU SEE: <code>forwards</code> keeps the element visible after it slides in. Without it, the element snaps back to its pre-animation state when the animation ends — usually a jarring flicker.</p>
+
+<h3 class="g-h3">Exam Questions — Transitions &amp; Animations</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Key difference: transition vs animation?</td><td>Transitions need a trigger; animations run independently</td></tr>
+    <tr><td>Default of <code>transition-property</code>?</td><td><code>all</code></td></tr>
+    <tr><td>Default of <code>animation-direction</code>?</td><td><code>normal</code></td></tr>
+    <tr><td>Default of <code>animation-iteration-count</code>?</td><td><code>1</code></td></tr>
+    <tr><td>What does <code>animation-fill-mode: forwards</code> do?</td><td>Keeps element at last keyframe's state after animation ends</td></tr>
+    <tr><td><code>from</code> equals what percentage?</td><td>0%</td></tr>
+    <tr><td><code>to</code> equals what percentage?</td><td>100%</td></tr>
+    <tr><td>Shorthand order for animation?</td><td>name duration timing-function delay iteration-count direction fill-mode play-state</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">10. Transforms</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>The <code>transform</code> CSS property applies 2D or 3D transformations. Transforms are either 2D or 3D.</p>
+<p><strong>Coordinate system:</strong> X-axis goes right (positive), Y-axis goes down (positive), Z-axis comes toward the viewer.</p>
+
+<h3 class="g-h3"><code>transform-origin</code></h3>
+<ul>
+  <li><strong>Definition:</strong> Sets the origin point for transformations.</li>
+  <li><strong>Default:</strong> <code>50% 50%</code> (center of the element)</li>
+</ul>
+<div class="cb"><pre>transform-origin: 50% 50%;      /* default — center */
+transform-origin: 50px 70px;
+transform-origin: top left;</pre></div>
+
+<hr>
+
+<h3 class="g-h3">10.1 2D Transform Functions</h3>
+
+<h4 class="g-h4"><code>rotate()</code></h4>
+<div class="cb"><pre>transform: rotate(45deg);          /* rotates around Z-axis (same as rotateZ) */
+transform: rotateX(45deg);         /* tilts forward/backward */
+transform: rotateY(45deg);         /* tilts left/right */
+transform: rotateZ(45deg);         /* same as rotate(45deg) */
+transform: rotate3d(1, 1, 1, 45deg); /* rotate around custom axis vector */</pre></div>
+<p><strong>Key fact from slides:</strong> <code>rotate(45deg)</code> = <code>rotateZ(45deg)</code> — they are identical.</p>
+
+<h4 class="g-h4"><code>scale()</code></h4>
+<div class="cb"><pre>transform: scale(2);            /* doubles size in both dimensions */
+transform: scaleX(2);           /* doubles width only */
+transform: scaleY(2);           /* doubles height only */
+transform: scaleZ(2);           /* Z-axis (only visible with perspective) */
+transform: scale3d(1.5, 2, 2);  /* 3D scale */</pre></div>
+<ul>
+  <li><code>scale(2)</code> = double size</li>
+  <li><code>scale(0.5)</code> = half size</li>
+</ul>
+
+<h4 class="g-h4"><code>skew()</code></h4>
+<div class="cb"><pre>transform: skew(30deg, 30deg);  /* skews both X and Y */
+transform: skewX(30deg);        /* slants along X axis */
+transform: skewY(30deg);        /* slants along Y axis */
+/* Note: there is NO skewZ or skew3d */</pre></div>
+
+<h4 class="g-h4"><code>translate()</code></h4>
+<div class="cb"><pre>transform: translate(10px);          /* = translateX(10px) */
+transform: translate(10px, 10px);    /* X and Y */
+transform: translateX(10px);         /* horizontal only */
+transform: translateY(10px);         /* vertical only */
+transform: translateZ(10px);         /* toward/away from viewer (needs perspective) */
+transform: translate3d(10px, 20px, 30px);</pre></div>
+<p><strong>Key fact:</strong> <code>translate</code> does NOT affect surrounding elements — it moves over its position (unlike <code>position</code> changes which affect layout flow).</p>
+
+<hr>
+
+<h3 class="g-h3">10.2 Multiple Transforms — ORDER MATTERS</h3>
+
+<p>Multiple transforms are <strong>space-separated</strong> (NOT comma-separated).</p>
+<div class="cb"><pre>/* !! ORDER MATTERS !! */
+
+/* Rotation first, then translate: */
+transform: rotate(180deg) translateY(20px);
+/* Y-axis is flipped after 180deg rotation, so translateY(20px) moves UP */
+
+/* Translate first, then rotate: */
+transform: translateY(20px) rotate(180deg);
+/* Element moves DOWN 20px, then rotates 180deg in place */</pre></div>
+<p><strong>Gotcha:</strong> When you <code>rotate(180deg)</code> first, the entire coordinate system flips. A subsequent <code>translateY(20px)</code> then moves in the flipped direction (i.e., UP instead of down).</p>
+
+<hr>
+
+<h4 class="g-h4">Example — Every 2D Transform Function</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;div class="box t-translate"&gt;translate&lt;/div&gt;
+&lt;div class="box t-rotate"&gt;rotate&lt;/div&gt;
+&lt;div class="box t-scale"&gt;scale&lt;/div&gt;
+&lt;div class="box t-skew"&gt;skew&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.box { width: 80px; height: 80px; background: #0077cc; color: white;
+       display: flex; align-items: center; justify-content: center; }
+
+/* translate — moves element; neighbouring elements do NOT shift */
+.t-translate { transform: translate(50px, 20px); }
+/* YOU SEE: Box moved 50px right and 20px down from its normal position */
+
+/* rotate — spins around transform-origin (default: center) */
+.t-rotate { transform: rotate(45deg); }
+/* YOU SEE: Box tilted 45° clockwise; same as rotateZ(45deg) */
+
+/* scale — resizes relative to center */
+.t-scale { transform: scale(1.5); }          /* 1.5× bigger */
+/* YOU SEE: Box is 1.5× its original size, growing outward from center */
+
+.t-scale-xy { transform: scale(2, 0.5); }    /* wide and flat */
+/* YOU SEE: Box is twice as wide but half as tall */
+
+/* skew — slants the box */
+.t-skew { transform: skew(20deg, 10deg); }
+/* YOU SEE: Box is slanted like a parallelogram — horizontal AND vertical shear */
+/* Note: there is NO skewZ or skew3d */</pre></div>
+
+<h4 class="g-h4">Example — 3D Transforms with Perspective</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;div class="scene"&gt;
+  &lt;div class="card-3d"&gt;3D Card&lt;/div&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.scene {
+  perspective: 600px;  /* applied on PARENT — shared vanishing point */
+}
+
+.card-3d {
+  width: 200px; height: 120px;
+  background: #e91e63;
+  transform: rotateY(35deg);   /* tilts away from viewer on Y axis */
+}
+/* YOU SEE: Card appears to lean into the screen — right edge looks further away */
+
+/* translateZ — moves element toward/away from viewer (needs perspective) */
+.floating {
+  transform: perspective(500px) translateZ(80px);
+}
+/* YOU SEE: Element appears larger and closer, like it popped out of the page */</pre></div>
+
+<h4 class="g-h4">Example — Transform Order Matters</h4>
+<div class="cb"><pre>.box-a { transform: rotate(180deg) translateY(50px); }
+/* Step 1: rotate 180° — Y-axis now points UP (flipped)
+   Step 2: translateY(50px) — moves in the flipped Y direction = moves UP
+   YOU SEE: Box appears 50px ABOVE its original position */
+
+.box-b { transform: translateY(50px) rotate(180deg); }
+/* Step 1: translateY(50px) — moves 50px DOWN
+   Step 2: rotate 180° — box rotates in place at its new position
+   YOU SEE: Box is 50px below its original position, then flipped */</pre></div>
+
+<h3 class="g-h3">Exam Questions — Transforms</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Default of <code>transform-origin</code>?</td><td><code>50% 50%</code> (center)</td></tr>
+    <tr><td><code>rotate(45deg)</code> equals what?</td><td><code>rotateZ(45deg)</code></td></tr>
+    <tr><td>Does <code>translate</code> affect surrounding elements?</td><td>No</td></tr>
+    <tr><td>Multiple transforms: space or comma separated?</td><td>Space-separated</td></tr>
+    <tr><td>Does order of multiple transforms matter?</td><td>Yes — first is applied first, changes the coordinate system</td></tr>
+    <tr><td><code>rotate(180deg) translateY(20px)</code> moves element which direction?</td><td>UP (Y-axis is flipped by the rotation)</td></tr>
+    <tr><td>Is there a <code>skewZ</code>?</td><td>No</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">11. Perspective</h2>
+
+<h3 class="g-h3">Two Ways to Apply Perspective</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Method</th><th>Applied on</th><th>Effect</th><th>Vanishing point</th></tr></thead>
+  <tbody>
+    <tr><td><code>perspective</code> (CSS property)</td><td><strong>Parent/container</strong></td><td>Creates shared 3D space for all children</td><td>Shared — all children share one vanishing point (realistic)</td></tr>
+    <tr><td><code>perspective(n)</code> (transform value)</td><td><strong>Element itself</strong></td><td>Each element gets its own 3D space</td><td>Individual — each element gets its own vanishing point (uniform)</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3"><code>perspective</code> (CSS Property — on parent)</h3>
+<div class="cb"><pre>/* Applied to PARENT */
+.wrapper {
+  perspective: 1000px;
+}
+.card {
+  transform: rotateY(50deg);  /* shares parent's 3D space */
+}</pre></div>
+<p>Effect: All children share ONE vanishing point. Creates realistic 3D effect (like cards fanning out from one point).</p>
+
+<h3 class="g-h3"><code>perspective()</code> (Transform Value — on element)</h3>
+<div class="cb"><pre>/* Applied to ELEMENT ITSELF */
+.card {
+  transform: perspective(1000px) rotateY(50deg);
+}</pre></div>
+<p>Effect: Each element gets its OWN vanishing point. All elements look identical (uniform effect).</p>
+
+<h3 class="g-h3"><code>perspective-origin</code></h3>
+<ul>
+  <li><strong>Definition:</strong> Sets the viewer's position (viewpoint).</li>
+  <li><strong>Default:</strong> <code>50% 50%</code> (center)</li>
+  <li>Values: x-position (left/right/center/%) + y-position (top/bottom/center/%)</li>
+</ul>
+<div class="cb"><pre>.wrapper {
+  perspective: 1000px;
+  perspective-origin: 25% 75%;
+}</pre></div>
+
+<h3 class="g-h3">Depth Value</h3>
+<ul>
+  <li><strong>Lower value</strong> = more dramatic 3D effect</li>
+  <li><strong>Higher value</strong> = subtler 3D effect</li>
+</ul>
+
+<h3 class="g-h3">Exam Questions — Perspective</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Where is the <code>perspective</code> CSS property applied?</td><td>On the parent/container</td></tr>
+    <tr><td>Where is the <code>perspective()</code> transform function applied?</td><td>On the element itself</td></tr>
+    <tr><td>Difference: property vs transform value?</td><td>Property = shared vanishing point for all children; transform value = each element gets its own</td></tr>
+    <tr><td>Default of <code>perspective-origin</code>?</td><td><code>50% 50%</code></td></tr>
+    <tr><td>Lower or higher perspective value = more dramatic?</td><td>Lower value</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">12. Rounded Corners (border-radius)</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p><code>border-radius</code> creates rounded corners. Accepts <code>px</code>, <code>em</code>, <code>%</code>.</p>
+
+<h3 class="g-h3">Syntax</h3>
+<div class="cb"><pre>/* All four corners equal */
+border-radius: 10px;
+
+/* Individual corners: TL TR BR BL (clockwise from top-left) */
+border-radius: 5px 10px 15px 20px;
+/*              TL  TR   BR   BL  */
+
+/* Circle (on a square element) */
+border-radius: 50%;
+
+/* Leaf shape */
+border-radius: 50% 0 50% 0;</pre></div>
+
+<h3 class="g-h3">Elliptical Corners</h3>
+<div class="cb"><pre>/* horizontal-radius / vertical-radius */
+border-radius: 20px / 100%;
+/* Before / = horizontal radius. After / = vertical radius */
+
+/* If only one set, used for both horizontal and vertical */
+border-radius: 50%;  /* same as 50% / 50% */</pre></div>
+
+<h3 class="g-h3">Common Shapes</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Shape</th><th>CSS</th></tr></thead>
+  <tbody>
+    <tr><td>Circle</td><td><code>border-radius: 50%</code> on a square</td></tr>
+    <tr><td>Pill/capsule</td><td><code>border-radius: 100px</code> on a wide element</td></tr>
+    <tr><td>Stadium</td><td><code>border-radius: 50%</code> on a wider-than-tall element</td></tr>
+    <tr><td>Ellipse</td><td><code>border-radius: 50% / 25%</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Exam Questions — border-radius</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Order of 4 values?</td><td>Top-Left, Top-Right, Bottom-Right, Bottom-Left (clockwise)</td></tr>
+    <tr><td><code>border-radius: 50%</code> on a square = ?</td><td>Circle</td></tr>
+    <tr><td>What does <code>/</code> mean in border-radius?</td><td>Before = horizontal radius, After = vertical radius</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">13. Box Sizing</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p><code>box-sizing</code> defines how the browser calculates the total width and height of an element.</p>
+
+<h3 class="g-h3">Values</h3>
+
+<h4 class="g-h4"><code>content-box</code> (default)</h4>
+<ul>
+  <li>Width/height applies to the <strong>content area only</strong></li>
+  <li>Padding and border are <strong>added on top</strong> on both sides</li>
+</ul>
+<div class="cb"><pre>.content-box {
+  box-sizing: content-box; /* DEFAULT */
+  width: 100px;
+  padding: 10px;
+  border: 10px solid black;
+  /* Rendered width = 100 + 10 + 10 + 10 + 10 = 140px TOTAL */
+}</pre></div>
+
+<h4 class="g-h4"><code>border-box</code></h4>
+<ul>
+  <li>Width/height <strong>includes</strong> padding and border</li>
+  <li>Element is always exactly the stated size</li>
+  <li>Content area shrinks to accommodate padding and border</li>
+</ul>
+<div class="cb"><pre>.border-box {
+  box-sizing: border-box;
+  width: 100px;
+  padding: 10px;
+  border: 10px solid black;
+  /* Rendered width = 100px TOTAL (content area shrinks) */
+}</pre></div>
+
+<h3 class="g-h3">Comparison</h3>
+
+<div class="tw"><table>
+  <thead><tr><th></th><th><code>content-box</code> (default)</th><th><code>border-box</code></th></tr></thead>
+  <tbody>
+    <tr><td>What width includes</td><td>Content only</td><td>Content + padding + border</td></tr>
+    <tr><td>Includes margin?</td><td>No</td><td>No (margin is NEVER included)</td></tr>
+    <tr><td>Predictability</td><td>Less predictable</td><td>More predictable</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Common pattern:</strong></p>
+<div class="cb"><pre>*, *::before, *::after {
+  box-sizing: border-box;
+}</pre></div>
+
+<h3 class="g-h3">Exam Questions — Box Sizing</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Default of <code>box-sizing</code>?</td><td><code>content-box</code></td></tr>
+    <tr><td><code>content-box</code>: 100px width + 10px padding + 10px border = ?</td><td>140px total</td></tr>
+    <tr><td><code>border-box</code>: 100px width + 10px padding + 10px border = ?</td><td>100px total</td></tr>
+    <tr><td>Does <code>border-box</code> include margin?</td><td>No — margin is never included</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">14. Attribute Selectors</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>CSS3 allows selecting elements based on their attributes and attribute values.</p>
+
+<div class="tw"><table>
+  <thead><tr><th>Selector</th><th>Meaning</th><th>Memory hook</th></tr></thead>
+  <tbody>
+    <tr><td><code>a[href]</code></td><td>Has the attribute (any value)</td><td>"all elements with href"</td></tr>
+    <tr><td><code>a[href="value"]</code></td><td>Attribute exactly equals value</td><td>"exact match"</td></tr>
+    <tr><td><code>a[title~="word"]</code></td><td>Attribute contains word as space-separated value</td><td>"within" / "contains whole word"</td></tr>
+    <tr><td><code>a[href^="http"]</code></td><td>Attribute begins with value</td><td>"begins with" (^ = start)</td></tr>
+    <tr><td><code>a[href$="pdf"]</code></td><td>Attribute ends with value</td><td>"ends with" ($ = end)</td></tr>
+    <tr><td><code>a[href*="facebook"]</code></td><td>Attribute contains substring anywhere</td><td>"wildcard" / "anywhere"</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Examples</h3>
+<div class="cb"><pre>/* Has the attribute */
+a[href] { text-decoration: underline; }
+
+/* Exact match */
+a[href="mailto:info@example.com"] { color: red; }
+
+/* Contains word (space-separated) */
+a[title~="title"] { color: lightblue; }
+
+/* Begins with */
+a[href^="http"]:after {
+  content: " (" attr(href) ") ";
+}
+
+/* Ends with */
+a[href$="pdf"]:before {
+  content: "PDF: ";
+  color: red;
+}
+
+/* Contains substring (wildcard) */
+a[href*="facebook"]:before {
+  content: "FB: ";
+}</pre></div>
+
+<h4 class="g-h4">Example — All Seven Attribute Selectors in Context</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;a href="https://example.com" title="visit example site"&gt;External link&lt;/a&gt;
+&lt;a href="mailto:hi@example.com"&gt;Email us&lt;/a&gt;
+&lt;a href="report.pdf"&gt;Download PDF&lt;/a&gt;
+&lt;a href="https://facebook.com/page"&gt;Facebook&lt;/a&gt;
+&lt;a href="https://example.com" lang="en-US"&gt;US page&lt;/a&gt;
+&lt;input type="text" placeholder="Your name"&gt;
+&lt;input type="submit"&gt;</pre></div>
+<div class="cb"><pre>/* [attr] — element HAS the attribute (any value) */
+a[href] { text-decoration: underline; }
+/* YOU SEE: ALL anchor tags with any href get underlined */
+
+/* [attr="val"] — attribute is EXACTLY this value */
+a[href="mailto:hi@example.com"] { color: green; }
+/* YOU SEE: Only the exact mailto link turns green */
+
+/* [attr~="word"] — attribute contains "visit" as a WHOLE space-separated word */
+a[title~="visit"] { font-style: italic; }
+/* YOU SEE: The link whose title contains the word "visit" becomes italic
+   "visit example site" contains "visit" as a word — matches!
+   "revisit" would NOT match because it's not a standalone word */
+
+/* [attr^="val"] — attribute STARTS WITH this string */
+a[href^="https"] { color: #0077cc; }
+/* YOU SEE: Both https links turn blue; the mailto and pdf links stay default */
+
+/* [attr$="val"] — attribute ENDS WITH this string */
+a[href$=".pdf"]::before { content: "PDF: "; color: red; }
+/* YOU SEE: "PDF: " label prepended only to the PDF link */
+
+/* [attr*="val"] — attribute CONTAINS this substring anywhere */
+a[href*="facebook"] { font-weight: bold; }
+/* YOU SEE: The Facebook link goes bold — "facebook" appears anywhere in the href */
+
+/* [attr|="val"] — attribute is EXACTLY "en" OR starts with "en-" (language codes) */
+a[lang|="en"] { border-bottom: 2px solid blue; }
+/* YOU SEE: The en-US link gets a blue underline
+   Matches "en", "en-US", "en-GB" — but NOT "english" */</pre></div>
+
+<h3 class="g-h3">Exam Questions — Attribute Selectors</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Select all links that have an href?</td><td><code>a[href]</code></td></tr>
+    <tr><td>Select links where href starts with "https"?</td><td><code>a[href^="https"]</code></td></tr>
+    <tr><td>Select links where href ends with ".pdf"?</td><td><code>a[href$=".pdf"]</code></td></tr>
+    <tr><td>Select links where href contains "google"?</td><td><code>a[href*="google"]</code></td></tr>
+    <tr><td>Which selector: "space-separated word match"?</td><td><code>[attr~="word"]</code></td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">15. Structural Pseudo-classes</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>Selectors based on position/structure in the DOM — extra information that can't be represented by simple selectors.</p>
+
+<h3 class="g-h3"><code>:nth-child()</code> vs <code>:nth-of-type()</code></h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Selector</th><th>What it counts</th></tr></thead>
+  <tbody>
+    <tr><td><code>:nth-child(n)</code></td><td>ALL siblings regardless of type</td></tr>
+    <tr><td><code>:nth-of-type(n)</code></td><td>Only siblings of the SAME type</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Complete Reference Table</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Selector</th><th>Description</th><th>Gotcha</th></tr></thead>
+  <tbody>
+    <tr><td><code>:nth-child(2n+1)</code></td><td>Odd children (1, 3, 5...) = same as <code>:nth-child(odd)</code></td><td>Counts ALL siblings, any type</td></tr>
+    <tr><td><code>:nth-child(even)</code></td><td>Even children (2, 4, 6...)</td><td>Counts ALL siblings</td></tr>
+    <tr><td><code>:nth-child(3)</code></td><td>The 3rd child specifically</td><td>Counts ALL siblings</td></tr>
+    <tr><td><code>:nth-of-type(2n+1)</code></td><td>Odd elements of that specific type</td><td>Only counts same-type siblings</td></tr>
+    <tr><td><code>:nth-of-type(even)</code></td><td>Even elements of that specific type</td><td>Only counts same-type siblings</td></tr>
+    <tr><td><code>:first-child</code></td><td>First child of parent</td><td>Fails if element is not FIRST among all siblings</td></tr>
+    <tr><td><code>:last-child</code></td><td>Last child of parent</td><td>—</td></tr>
+    <tr><td><code>:first-of-type</code></td><td>First element of its type</td><td>Works even if non-matching types come before it</td></tr>
+    <tr><td><code>:last-of-type</code></td><td>Last element of its type</td><td>—</td></tr>
+    <tr><td><code>:empty</code></td><td>Elements with no children</td><td>—</td></tr>
+    <tr><td><code>:not(selector)</code></td><td>Negation — elements NOT matching selector</td><td>—</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Critical Distinction</h3>
+<div class="cb"><pre>&lt;div&gt;
+  &lt;div&gt;I am a div&lt;/div&gt;   &lt;!-- first child, but NOT a p --&gt;
+  &lt;p&gt;First paragraph&lt;/p&gt;   &lt;!-- second child, but first-of-type p --&gt;
+  &lt;p&gt;Second paragraph&lt;/p&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>/* p:first-child -- WILL NOT match &lt;p&gt; because the first child is &lt;div&gt; */
+p:first-child { color: red; }      /* matches NOTHING here */
+
+/* p:first-of-type -- WILL match first &lt;p&gt; even with &lt;div&gt; before it */
+p:first-of-type { color: red; }   /* matches "First paragraph" */</pre></div>
+
+<h3 class="g-h3"><code>:not()</code> Negation</h3>
+<div class="cb"><pre>p:not(:first-child) { background-color: red; }  /* all p except the first child */</pre></div>
+
+<h3 class="g-h3">Formula for <code>:nth-child(An+B)</code></h3>
+<ul>
+  <li><code>A</code> = cycle size</li>
+  <li><code>n</code> = counter starting at 0</li>
+  <li><code>B</code> = offset</li>
+</ul>
+<p>Examples:</p>
+<ul>
+  <li><code>2n+1</code> = odd (1, 3, 5...)</li>
+  <li><code>2n</code> = even (2, 4, 6...)</li>
+  <li><code>3n</code> = every 3rd (3, 6, 9...)</li>
+  <li><code>n+4</code> = from 4th onwards</li>
+</ul>
+
+<h3 class="g-h3">Practical: Table Striping</h3>
+<div class="cb"><pre>table &gt; tbody &gt; tr:nth-child(even) {
+  background-color: rgba(155, 155, 155, .5);
+}</pre></div>
+
+<h4 class="g-h4">Example — :first-child vs :first-of-type (the critical distinction)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;section&gt;
+  &lt;h2&gt;Heading&lt;/h2&gt;       &lt;!-- child 1: h2, first-of-type h2 --&gt;
+  &lt;p&gt;First para&lt;/p&gt;       &lt;!-- child 2: p, first-of-type p --&gt;
+  &lt;p&gt;Second para&lt;/p&gt;      &lt;!-- child 3: p --&gt;
+  &lt;p&gt;Third para&lt;/p&gt;       &lt;!-- child 4: p --&gt;
+&lt;/section&gt;</pre></div>
+<div class="cb"><pre>/* p:first-child — FAILS to match anything!
+   The first child of section is an h2, not a p.
+   A p would need to be child #1 for this to work. */
+p:first-child { color: red; }   /* matches NOTHING in the HTML above */
+
+/* p:first-of-type — matches the FIRST p regardless of what comes before it */
+p:first-of-type { color: red; }  /* matches "First para" */
+
+/* h2:first-child — DOES match! The h2 IS the first child */
+h2:first-child { text-transform: uppercase; }  /* matches "Heading" */</pre></div>
+<p>YOU SEE: <code>p:first-child</code> is empty because the first child is an <code>h2</code>. <code>p:first-of-type</code> picks the first paragraph regardless of the <code>h2</code> sibling.</p>
+
+<h4 class="g-h4">Example — :nth-child() Formula Patterns</h4>
+<div class="cb"><pre>&lt;!-- HTML: a list of 8 items --&gt;
+&lt;ul&gt;
+  &lt;li&gt;1&lt;/li&gt; &lt;li&gt;2&lt;/li&gt; &lt;li&gt;3&lt;/li&gt; &lt;li&gt;4&lt;/li&gt;
+  &lt;li&gt;5&lt;/li&gt; &lt;li&gt;6&lt;/li&gt; &lt;li&gt;7&lt;/li&gt; &lt;li&gt;8&lt;/li&gt;
+&lt;/ul&gt;</pre></div>
+<div class="cb"><pre>li:nth-child(odd)   { background: #f0f4ff; } /* items 1,3,5,7 — same as 2n+1 */
+li:nth-child(even)  { background: #ffe0f0; } /* items 2,4,6,8 — same as 2n   */
+li:nth-child(3n)    { font-weight: bold; }    /* items 3,6 — every third       */
+li:nth-child(3n+1)  { color: blue; }          /* items 1,4,7 — every third, starting at 1 */
+li:nth-child(n+5)   { opacity: 0.5; }         /* items 5,6,7,8 — from 5th onwards */
+li:nth-child(-n+3)  { border: 2px solid red; }/* items 1,2,3 — first three only */</pre></div>
+<p>YOU SEE: Alternating pink and blue rows, bold every third item, dimmed last four items — all without any JS or extra classes.</p>
+
+<h4 class="g-h4">Example — :not() Negation</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;nav&gt;
+  &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;a href="/about"&gt;About&lt;/a&gt;
+  &lt;a href="/contact" class="active"&gt;Contact&lt;/a&gt;
+&lt;/nav&gt;</pre></div>
+<div class="cb"><pre>/* Style all nav links EXCEPT the active one */
+nav a:not(.active) {
+  color: #555;
+  text-decoration: none;
+}
+nav a.active {
+  color: #0077cc;
+  font-weight: bold;
+}
+/* YOU SEE: Home and About are grey; Contact is blue and bold */
+
+/* :not() with pseudo-class */
+li:not(:last-child) {
+  border-bottom: 1px solid #eee;
+}
+/* YOU SEE: Every list item gets a divider line EXCEPT the last one — clean list */</pre></div>
+
+<h4 class="g-h4">Example — :hover, :focus, and :last-child on Navigation</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;ul class="nav-list"&gt;
+  &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="#"&gt;Contact&lt;/a&gt;&lt;/li&gt;  &lt;!-- last child --&gt;
+&lt;/ul&gt;</pre></div>
+<div class="cb"><pre>.nav-list { list-style: none; display: flex; gap: 0; }
+
+.nav-list a {
+  display: block;
+  padding: 12px 20px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+/* :hover — fires when mouse is over the element */
+.nav-list a:hover { background-color: #e8f0fe; color: #0077cc; }
+
+/* :focus — fires when element receives keyboard focus (Tab key) */
+.nav-list a:focus { outline: 3px solid #0077cc; outline-offset: -3px; }
+
+/* :last-child — targets the last li, add a right border as visual separator */
+.nav-list li:last-child { border-right: 3px solid #0077cc; }
+/* YOU SEE: "Contact" link has a blue right border; all links show a blue
+   highlight on hover and a visible outline when tabbed to with keyboard */</pre></div>
+
+<h3 class="g-h3">Exam Questions — Structural Pseudo-classes</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td><code>p:first-child</code> — what must be true?</td><td>The <code>&lt;p&gt;</code> must be the FIRST child of its parent (any type)</td></tr>
+    <tr><td><code>p:first-of-type</code> vs <code>p:first-child</code>?</td><td>first-of-type finds first <code>&lt;p&gt;</code> regardless of other element types before it; first-child requires p to be the literal first sibling</td></tr>
+    <tr><td><code>nth-child(2n+1)</code> = same as?</td><td><code>nth-child(odd)</code></td></tr>
+    <tr><td><code>nth-child</code> counts what?</td><td>ALL siblings regardless of type</td></tr>
+    <tr><td><code>nth-of-type</code> counts what?</td><td>Only siblings of the same type</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">16. Pseudo-elements</h2>
+
+<h3 class="g-h3">Definition</h3>
+<p>Pseudo-elements provide authors a way to refer to <strong>content that does not exist in the source document</strong>. They are content generated or styled by CSS.</p>
+<p><strong>Notation:</strong> Double colon <code>::</code> (CSS3 standard), though single colon <code>:</code> also works for legacy.</p>
+
+<h3 class="g-h3">The Four Pseudo-elements (from slides)</h3>
+
+<h4 class="g-h4"><code>::first-line</code></h4>
+<p>Styles the first line of a block element. The "first line" changes dynamically with viewport size.</p>
+<div class="cb"><pre>p::first-line {
+  font-variant: small-caps;
+}</pre></div>
+
+<h4 class="g-h4"><code>::first-letter</code></h4>
+<p>Styles the first letter (drop-cap effect).</p>
+<div class="cb"><pre>p::first-letter {
+  font-size: 6em;
+  font-weight: bold;
+}</pre></div>
+
+<h4 class="g-h4"><code>::before</code></h4>
+<p>Inserts generated content BEFORE the element's actual content.</p>
+<ul>
+  <li><strong><code>content</code> property is mandatory</strong></li>
+</ul>
+<div class="cb"><pre>div::before {
+  content: 'Before ';
+}
+
+/* Common use: insert icon/text before links */
+a[href^="http"]::before {
+  content: "External: ";
+}</pre></div>
+
+<h4 class="g-h4"><code>::after</code></h4>
+<p>Inserts generated content AFTER the element's actual content.</p>
+<ul>
+  <li><strong><code>content</code> property is mandatory</strong></li>
+</ul>
+<div class="cb"><pre>div::after {
+  content: ' After';
+}
+
+/* Print URLs after links */
+@media print {
+  a[href^="http"]::after {
+    content: " (" attr(href) ") ";
+  }
+}</pre></div>
+
+<h3 class="g-h3"><code>attr()</code> Function in Content</h3>
+<p>The <code>attr()</code> function reads an element's attribute value and inserts it as text:</p>
+<div class="cb"><pre>/* Adds the href URL in parentheses after external links */
+a[href^="http"]::after {
+  content: " (" attr(href) ") ";
+}</pre></div>
+
+<h3 class="g-h3">Creative Use</h3>
+<p>Using <code>::before</code> and <code>::after</code> together with a single <code>&lt;div&gt;</code>, you can create complex visuals (the teacher's example: a smiley face using only <code>box-shadow</code>).</p>
+
+<h4 class="g-h4">Example — ::first-letter (Drop Cap)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;p class="dropcap"&gt;Once upon a time in a land far away, a young developer learned CSS.&lt;/p&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.dropcap::first-letter {
+  font-size: 4em;          /* 4x bigger than surrounding text */
+  font-weight: bold;
+  float: left;             /* wrap text around the large letter */
+  line-height: 0.8;        /* pull it up to align with text top */
+  margin-right: 8px;
+  color: #c0392b;
+}
+/* YOU SEE: A huge red "O" that spans 3-4 lines, with the rest of the
+   paragraph text flowing around it — classic magazine drop cap style */</pre></div>
+
+<h4 class="g-h4">Example — ::first-line (Style Only the First Line)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;p class="intro"&gt;This first line looks different from the rest.
+As you resize the window, the styled line boundary moves
+because CSS recalculates what constitutes the first rendered line.&lt;/p&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.intro::first-line {
+  font-variant: small-caps;  /* SMALL CAPS for the first rendered line */
+  letter-spacing: 0.08em;
+  color: #0077cc;
+}
+/* YOU SEE: The first visible line of text appears in blue small-caps;
+   the remaining lines are styled normally.
+   If you resize the browser, the blue boundary shifts — it's dynamic. */</pre></div>
+
+<h4 class="g-h4">Example — ::before and ::after (Generated Content)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;blockquote class="pullquote"&gt;CSS is awesome.&lt;/blockquote&gt;
+&lt;a class="ext-link" href="https://example.com"&gt;Visit example&lt;/a&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+
+/* Decorative quotation marks — no extra HTML needed */
+.pullquote {
+  position: relative;
+  padding: 20px 30px;
+  font-style: italic;
+}
+.pullquote::before {
+  content: "\201C";   /* Unicode left double-quote mark */
+  font-size: 5em;
+  color: #ccc;
+  position: absolute;
+  top: -10px; left: 5px;
+  line-height: 1;
+}
+.pullquote::after {
+  content: "\201D";   /* Unicode right double-quote mark */
+  font-size: 5em;
+  color: #ccc;
+  position: absolute;
+  bottom: -30px; right: 5px;
+  line-height: 1;
+}
+/* YOU SEE: Large decorative " " marks float behind the blockquote text */
+
+/* Show URL after external links — useful for print stylesheets */
+.ext-link::after {
+  content: " (" attr(href) ")";  /* attr() reads the href attribute value */
+  font-size: 0.8em;
+  color: #888;
+}
+/* YOU SEE: Link reads "Visit example (https://example.com)" in the browser */</pre></div>
+
+<h4 class="g-h4">Example — ::before for a Tooltip Badge (content: "" with styling)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;span class="badge badge--new"&gt;Feature&lt;/span&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.badge { position: relative; display: inline-block; padding: 4px 8px; }
+
+.badge--new::before {
+  content: "NEW";          /* content is REQUIRED — even if it were empty: content: "" */
+  position: absolute;
+  top: -10px; right: -10px;
+  background: red;
+  color: white;
+  font-size: 0.6em;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+/* YOU SEE: A small red "NEW" badge appears in the top-right corner of
+   the span — zero extra HTML elements required */</pre></div>
+
+<h4 class="g-h4">Example — ::selection (Custom Text Selection Colour)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;p&gt;Try selecting this text with your mouse!&lt;/p&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+::selection {
+  background-color: #ffeb3b;   /* yellow highlight */
+  color: #000;
+}
+p::selection {
+  background-color: #7c4dff;   /* purple for paragraph text specifically */
+  color: #fff;
+}
+/* YOU SEE: When you click-drag to select text, it highlights in purple
+   instead of the browser's default blue */</pre></div>
+
+<h4 class="g-h4">Example — ::placeholder (Style Input Placeholder Text)</h4>
+<div class="cb"><pre>&lt;!-- HTML --&gt;
+&lt;input class="fancy-input" type="text" placeholder="Enter your name…"&gt;</pre></div>
+<div class="cb"><pre>/* CSS */
+.fancy-input::placeholder {
+  color: #aaa;
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+.fancy-input:focus::placeholder {
+  color: transparent;   /* hide placeholder when user starts typing (focused) */
+}
+/* YOU SEE: Placeholder is grey and italic; it fades away when the field is focused */</pre></div>
+
+<h3 class="g-h3">Exam Questions — Pseudo-elements</h3>
+
+<div class="tw"><table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>What property is mandatory for <code>::before</code> / <code>::after</code>?</td><td><code>content</code></td></tr>
+    <tr><td>How many pseudo-elements are there (from slides)?</td><td>4: <code>::first-line</code>, <code>::first-letter</code>, <code>::before</code>, <code>::after</code></td></tr>
+    <tr><td>What does <code>::first-line</code> select?</td><td>The first rendered line of a block element</td></tr>
+    <tr><td>What function reads an attribute value into <code>content</code>?</td><td><code>attr()</code></td></tr>
+    <tr><td><code>::before</code> inserts content where?</td><td>Before the element's actual content</td></tr>
+    <tr><td><code>::after</code> inserts content where?</td><td>After the element's actual content</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">17. Key Defaults to Memorize</h2>
+
+<div class="tw"><table>
+  <thead><tr><th>Property</th><th>Default Value</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>flex-direction</code></td><td><code>row</code></td><td>Items go left to right</td></tr>
+    <tr><td><code>flex-wrap</code></td><td><code>nowrap</code></td><td>Items stay on one line</td></tr>
+    <tr><td><code>flex-flow</code></td><td><code>row nowrap</code></td><td>Shorthand default</td></tr>
+    <tr><td><code>justify-content</code></td><td><code>flex-start</code></td><td>Items at start of main axis</td></tr>
+    <tr><td><code>align-items</code></td><td><code>stretch</code></td><td>Items fill cross-axis height</td></tr>
+    <tr><td><code>align-content</code></td><td><code>stretch</code></td><td>Lines fill cross-axis space</td></tr>
+    <tr><td><code>flex-grow</code></td><td><code>0</code></td><td>Items do NOT grow</td></tr>
+    <tr><td><code>flex-shrink</code></td><td><code>1</code></td><td>Items DO shrink</td></tr>
+    <tr><td><code>flex-basis</code></td><td><code>auto</code></td><td>Uses item's own width/height</td></tr>
+    <tr><td><code>flex</code> shorthand</td><td><code>0 1 auto</code></td><td>grow shrink basis</td></tr>
+    <tr><td><code>order</code></td><td><code>0</code></td><td>Source order</td></tr>
+    <tr><td><code>align-self</code></td><td><code>auto</code></td><td>Inherits container's <code>align-items</code></td></tr>
+    <tr><td><code>grid-auto-flow</code></td><td><code>row</code></td><td>Items fill row first</td></tr>
+    <tr><td><code>justify-items</code> (grid)</td><td><code>stretch</code></td><td>Items fill cell horizontally</td></tr>
+    <tr><td><code>align-items</code> (grid)</td><td><code>stretch</code></td><td>Items fill cell vertically</td></tr>
+    <tr><td><code>transform-origin</code></td><td><code>50% 50%</code></td><td>Center of element</td></tr>
+    <tr><td><code>perspective-origin</code></td><td><code>50% 50%</code></td><td>Center</td></tr>
+    <tr><td><code>box-sizing</code></td><td><code>content-box</code></td><td>Width = content only</td></tr>
+    <tr><td><code>background-repeat</code></td><td><code>repeat</code></td><td>Background tiles</td></tr>
+    <tr><td><code>background-size</code></td><td><code>auto</code></td><td>Original image size</td></tr>
+    <tr><td><code>transition-property</code></td><td><code>all</code></td><td>All animatable properties</td></tr>
+    <tr><td><code>transition-duration</code></td><td><code>0s</code></td><td>No transition</td></tr>
+    <tr><td><code>transition-timing-function</code></td><td><code>ease</code></td><td>Slow-fast-slow</td></tr>
+    <tr><td><code>transition-delay</code></td><td><code>0s</code></td><td>No delay</td></tr>
+    <tr><td><code>animation-name</code></td><td><code>none</code></td><td></td></tr>
+    <tr><td><code>animation-duration</code></td><td><code>0s</code></td><td>No animation</td></tr>
+    <tr><td><code>animation-timing-function</code></td><td><code>ease</code></td><td></td></tr>
+    <tr><td><code>animation-delay</code></td><td><code>0s</code></td><td>No delay</td></tr>
+    <tr><td><code>animation-iteration-count</code></td><td><code>1</code></td><td>Plays once</td></tr>
+    <tr><td><code>animation-direction</code></td><td><code>normal</code></td><td>Forward</td></tr>
+    <tr><td><code>animation-fill-mode</code></td><td><code>none</code></td><td></td></tr>
+    <tr><td><code>animation-play-state</code></td><td><code>running</code></td><td></td></tr>
+    <tr><td><code>box-shadow</code></td><td><code>none</code></td><td></td></tr>
+    <tr><td><code>border-radius</code></td><td><code>0</code></td><td>Square corners</td></tr>
+  </tbody>
+</table></div>
+
+<hr>
+
+<h2 class="g-h2">18. Worked Math Examples</h2>
+
+<h3 class="g-h3">18.1 flex-grow Calculation</h3>
+
+<p><strong>From the slides (the exact example you will likely see):</strong></p>
+<div class="cb"><pre>Container: 750px wide
+Three items: each 100px wide
+flex-grow values: item1=1, item2=1, item3=3</pre></div>
+
+<p><strong>Step 1: Remaining space</strong></p>
+<div class="cb"><pre>750 - (100 + 100 + 100) = 450px remaining</pre></div>
+
+<p><strong>Step 2: Total growth factors</strong></p>
+<div class="cb"><pre>1 + 1 + 3 = 5 total factors</pre></div>
+
+<p><strong>Step 3: Value per unit</strong></p>
+<div class="cb"><pre>450px / 5 = 90px per unit</pre></div>
+
+<p><strong>Step 4: Final widths</strong></p>
+<div class="cb"><pre>Item 1: 100 + (90 × 1) = 190px
+Item 2: 100 + (90 × 1) = 190px
+Item 3: 100 + (90 × 3) = 370px   ← This is the answer the exam uses!</pre></div>
+
+<p><strong>Total check:</strong> 190 + 190 + 370 = 750px ✓</p>
+
+<hr>
+
+<h3 class="g-h3">18.2 flex-shrink Calculation</h3>
+
+<p><strong>From slides:</strong></p>
+<div class="cb"><pre>Container: 750px wide
+Three items: each 300px wide
+Total without shrinking: 900px (overflow: 150px)
+flex-shrink values: item1=1, item2=1, item3=3</pre></div>
+
+<p><strong>Step 1: Overflow (negative space)</strong></p>
+<div class="cb"><pre>(300 + 300 + 300) - 750 = 150px overflow</pre></div>
+
+<p><strong>Step 2: Total shrink factors</strong></p>
+<div class="cb"><pre>1 + 1 + 3 = 5 total factors</pre></div>
+
+<p><strong>Step 3: Value per unit</strong></p>
+<div class="cb"><pre>150px / 5 = 30px per unit</pre></div>
+
+<p><strong>Step 4: Final widths</strong></p>
+<div class="cb"><pre>Item 1: 300 - (30 × 1) = 270px
+Item 2: 300 - (30 × 1) = 270px
+Item 3: 300 - (30 × 3) = 210px</pre></div>
+
+<p><strong>Total check:</strong> 270 + 270 + 210 = 750px ✓</p>
+
+<hr>
+
+<h3 class="g-h3">18.3 fr Unit Calculation</h3>
+
+<div class="cb"><pre>.container {
+  width: 800px;
+  grid-template-columns: 1fr 2fr 1fr;
+}</pre></div>
+
+<p><strong>Step 1: Total fr units</strong></p>
+<div class="cb"><pre>1 + 2 + 1 = 4 fr total</pre></div>
+
+<p><strong>Step 2: Value per fr</strong></p>
+<div class="cb"><pre>800px / 4 = 200px per fr</pre></div>
+
+<p><strong>Step 3: Column widths</strong></p>
+<div class="cb"><pre>Column 1: 1 × 200 = 200px
+Column 2: 2 × 200 = 400px
+Column 3: 1 × 200 = 200px</pre></div>
+
+<p><strong>Total check:</strong> 200 + 400 + 200 = 800px ✓</p>
+
+<hr>
+
+<h3 class="g-h3">18.4 grid-template-areas Worked Example</h3>
+
+<p><strong>Goal:</strong> Create a two-column layout with header and footer spanning full width.</p>
+<div class="cb"><pre>.container {
+  display: grid;
+  grid-template-areas:
+    "header  header"
+    "sidebar main"
+    "footer  footer";
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+}
+
+/* Assign items to areas */
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+.footer  { grid-area: footer; }</pre></div>
+
+<p><strong>Corresponding HTML:</strong></p>
+<div class="cb"><pre>&lt;div class="container"&gt;
+  &lt;header class="header"&gt;Header&lt;/header&gt;
+  &lt;aside class="sidebar"&gt;Sidebar&lt;/aside&gt;
+  &lt;main class="main"&gt;Main Content&lt;/main&gt;
+  &lt;footer class="footer"&gt;Footer&lt;/footer&gt;
+&lt;/div&gt;</pre></div>
+
+<p><strong>Rules to remember:</strong></p>
+<ul>
+  <li>Each area name creates a named region</li>
+  <li>Rows and columns are defined by the quoted strings</li>
+  <li>Same name across multiple cells = that area spans those cells</li>
+  <li>ALL areas must be rectangular</li>
+  <li>Use <code>.</code> (dot) for empty cells</li>
+</ul>
+
+<hr>
+
+<h3 class="g-h3">18.5 box-sizing Math</h3>
+
+<div class="cb"><pre>.element {
+  width: 100px;
+  padding: 10px;
+  border: 10px solid black;
+}</pre></div>
+
+<div class="tw"><table>
+  <thead><tr><th><code>box-sizing</code></th><th>Total rendered width</th></tr></thead>
+  <tbody>
+    <tr><td><code>content-box</code> (default)</td><td>100 + 10 + 10 + 10 + 10 = <strong>140px</strong></td></tr>
+    <tr><td><code>border-box</code></td><td><strong>100px</strong> (content shrinks to ~60px)</td></tr>
+  </tbody>
+</table></div>
+
+<p>Formula for <code>content-box</code>:</p>
+<div class="cb"><pre>total = width + padding-left + padding-right + border-left + border-right
+total = 100 + 10 + 10 + 10 + 10 = 140px</pre></div>
+
+<hr>
+
+<h2 class="g-h2">19. Quick-Reference Cheat Sheet</h2>
+
+<h3 class="g-h3">Flexbox Container Properties</h3>
+<div class="cb"><pre>.flex-container {
+  display: flex;                     /* enable flexbox */
+  flex-direction: row;               /* row | row-reverse | column | column-reverse */
+  flex-wrap: nowrap;                 /* nowrap | wrap | wrap-reverse */
+  flex-flow: row nowrap;             /* shorthand: direction + wrap */
+  justify-content: flex-start;       /* main-axis distribution */
+  align-items: stretch;              /* cross-axis item alignment */
+  align-content: stretch;            /* cross-axis line alignment (wrap only) */
+  gap: 10px;                         /* space between items */
+}</pre></div>
+
+<h3 class="g-h3">Flexbox Item Properties</h3>
+<div class="cb"><pre>.flex-item {
+  flex-grow: 0;             /* how much to grow (default: 0, don't grow) */
+  flex-shrink: 1;           /* how much to shrink (default: 1, do shrink) */
+  flex-basis: auto;         /* base size before grow/shrink */
+  flex: 0 1 auto;           /* shorthand: grow shrink basis */
+  align-self: auto;         /* override container's align-items */
+  order: 0;                 /* visual order (lower = first) */
+}</pre></div>
+
+<h3 class="g-h3">Grid Container Properties</h3>
+<div class="cb"><pre>.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-auto-flow: row;         /* row | column | dense */
+  gap: 10px;
+  justify-items: stretch;       /* item alignment in cell (horizontal) */
+  align-items: stretch;         /* item alignment in cell (vertical) */
+  justify-content: start;       /* grid in container (horizontal) */
+  align-content: start;         /* grid in container (vertical) */
+}</pre></div>
+
+<h3 class="g-h3">Grid Item Properties</h3>
+<div class="cb"><pre>.grid-item {
+  grid-column: 1 / 3;       /* col-start / col-end */
+  grid-row: 1 / span 2;     /* row-start / span n */
+  grid-area: header;         /* named area OR row-start/col-start/row-end/col-end */
+  justify-self: center;      /* override justify-items */
+  align-self: center;        /* override align-items */
+}</pre></div>
+
+<h3 class="g-h3">BEM Quick Reference</h3>
+<div class="cb"><pre>.block { }
+.block__element { }
+.block--modifier { }
+.block__element--modifier { }
+/* Separators: __ (element), -- (modifier). All lowercase. Class only. */</pre></div>
+
+<h3 class="g-h3">CSS Variables Quick Reference</h3>
+<div class="cb"><pre>:root { --color: #63B4D1; }           /* define */
+.el { color: var(--color); }          /* use */
+.el { color: var(--color, fallback); } /* with fallback */</pre></div>
+
+<h3 class="g-h3">box-shadow Quick Reference</h3>
+<div class="cb"><pre>/* offset-x | offset-y | blur | spread | color */
+box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.5);
+box-shadow: inset 0 0 10px black;   /* inner shadow */
+box-shadow: 5px 5px 0 red, 10px 10px 0 blue; /* multiple */</pre></div>
+
+<h3 class="g-h3">Transition Quick Reference</h3>
+<div class="cb"><pre>/* property | duration | timing | delay */
+transition: background-color 1s ease-in 0s;
+transition: all 0.3s ease;
+transition: color 1s, width 2s;  /* multiple */</pre></div>
+
+<h3 class="g-h3">Animation Quick Reference</h3>
+<div class="cb"><pre>@keyframes name {
+  from { /* start state */ }
+  to   { /* end state */ }
+}
+@keyframes name {
+  0%   { }
+  50%  { }
+  100% { }
+}
+
+/* name | duration | timing | delay | count | direction | fill-mode | play-state */
+animation: name 2s ease-in 0s infinite alternate forwards running;</pre></div>
+
+<h3 class="g-h3">Transform Quick Reference</h3>
+<div class="cb"><pre>transform: rotate(45deg);           /* = rotateZ(45deg) */
+transform: rotateX(45deg);          /* tilt forward/back */
+transform: rotateY(45deg);          /* tilt left/right */
+transform: scale(2);                /* double size */
+transform: scaleX(2) scaleY(0.5);   /* stretch/squish */
+transform: skew(30deg, 30deg);      /* slant */
+transform: translate(10px, 20px);   /* move (doesn't affect layout) */
+/* SPACE-separated for multiple. ORDER MATTERS. */
+transform: rotate(180deg) translateY(20px); /* Y-axis flipped! moves UP */</pre></div>
+
+<h3 class="g-h3">Attribute Selectors Quick Reference</h3>
+<div class="cb"><pre>[attr]          /* has attribute */
+[attr="val"]    /* exactly equals */
+[attr~="val"]   /* contains whole word (space-separated) */
+[attr^="val"]   /* begins with */
+[attr$="val"]   /* ends with */
+[attr*="val"]   /* contains substring (wildcard) */</pre></div>
+
+<h3 class="g-h3">Structural Pseudo-classes Quick Reference</h3>
+<div class="cb"><pre>:nth-child(odd)      /* 1st, 3rd, 5th... — all siblings */
+:nth-child(even)     /* 2nd, 4th, 6th... — all siblings */
+:nth-child(3n)       /* every 3rd */
+:nth-of-type(odd)    /* odd elements of same type */
+:first-child         /* must be the literal first child */
+:first-of-type       /* first of its type (ignores other types) */
+:last-child
+:last-of-type
+:empty
+:not(.class)</pre></div>
+
+<h3 class="g-h3">Pseudo-elements Quick Reference</h3>
+<div class="cb"><pre>p::first-line   { }   /* first rendered line */
+p::first-letter { }   /* first character */
+div::before { content: "text"; }  /* content is REQUIRED */
+div::after  { content: attr(href); }  /* attr() reads attribute value */</pre></div>
+
+<h3 class="g-h3">Perspective Quick Reference</h3>
+<div class="cb"><pre>/* On PARENT — shared vanishing point (realistic) */
+.parent { perspective: 1000px; }
+.child  { transform: rotateY(45deg); }
+
+/* On ELEMENT — each has own vanishing point (uniform) */
+.element { transform: perspective(1000px) rotateY(45deg); }</pre></div>
+
+<h3 class="g-h3">box-sizing Quick Reference</h3>
+<div class="cb"><pre>/* content-box (DEFAULT): total = width + padding + border */
+/* 100px width + 10px padding + 10px border = 140px TOTAL */
+
+/* border-box: total = width (content shrinks) */
+/* 100px width + 10px padding + 10px border = 100px TOTAL */</pre></div>
+
+<hr>
+
+<h2 class="g-h2">Common Exam Traps Summary</h2>
+
+<ol style="margin: 6px 0 6px 20px;">
+  <li><strong><code>flex-grow: 0</code> is the DEFAULT</strong> — items do NOT grow unless you set this</li>
+  <li><strong><code>flex-shrink: 1</code> is the DEFAULT</strong> — items DO shrink by default</li>
+  <li><strong><code>align-content</code> requires <code>flex-wrap: wrap</code></strong> to have any effect</li>
+  <li><strong><code>float</code>, <code>clear</code>, <code>vertical-align</code> have NO effect on flex items</strong></li>
+  <li><strong><code>flex-basis</code> beats <code>width</code></strong> when both are set</li>
+  <li><strong>BEM uses lowercase only</strong> — no camelCase, no PascalCase</li>
+  <li><strong>BEM uses class selectors only</strong> — no tag names, no IDs</li>
+  <li><strong><code>::before</code> / <code>::after</code> require <code>content</code> property</strong> — even <code>content: ""</code> if no text needed</li>
+  <li><strong><code>p:first-child</code> fails</strong> if the first child of the parent is not a <code>&lt;p&gt;</code> element</li>
+  <li><strong><code>transform</code> order matters</strong> — <code>rotate(180deg) translateY(20px)</code> moves UP</li>
+  <li><strong>Multiple transforms: space-separated</strong>, NOT comma-separated</li>
+  <li><strong><code>perspective</code> property on parent</strong> = shared vanishing point (realistic); <strong><code>perspective()</code> transform on element</strong> = each element's own vanishing point (uniform)</li>
+  <li><strong>Gradient direction: default is top-to-bottom</strong> (<code>linear-gradient(red, blue)</code>)</li>
+  <li><strong><code>0deg</code> = bottom-to-top</strong>, <code>90deg</code> = left-to-right, <code>180deg</code> = top-to-bottom</li>
+  <li><strong>Multiple backgrounds: first listed = on top</strong>, last listed = on bottom</li>
+  <li><strong><code>border-box</code> does NOT include margin</strong> in its calculation</li>
+  <li><strong>CSS variables do NOT replace preprocessors</strong> (no mixins, nesting, etc.)</li>
+  <li><strong>CSS variable names are case-sensitive</strong> (<code>--Color</code> ≠ <code>--color</code>)</li>
+  <li><strong>Grid areas must be rectangular</strong> — L-shapes and other non-rectangular shapes will break</li>
+  <li><strong><code>fr</code> distributes available space AFTER fixed-size tracks</strong> are subtracted</li>
+</ol>

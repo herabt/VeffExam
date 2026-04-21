@@ -1,0 +1,821 @@
+<h2 class="g-h2">Bonus Questions — Socket.io, Web APIs, Security &amp; More</h2>
+
+<hr>
+
+<h2 class="g-h2">SECTION A: SOCKET.IO — ADVANCED</h2>
+
+<h3 class="g-h3">Question 1 — Fill in the blanks</h3>
+<p>Complete the following sentences about Socket.io server setup and namespaces:</p>
+<p>A Socket.io <strong>namespace</strong> is created with 1. ________ and acts like a separate communication channel over the same underlying connection. The default namespace is 2. ________. On the client side you connect to a custom namespace by passing the namespace path to 3. ________. Within a namespace, 4. ________ are sub-groups that let you target a subset of connected sockets. Calling <code>io.to(room).emit()</code> on the server sends the event to 5. ________ in that room.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>io.of('/namespaceName')</code> (e.g. <code>io.of('/chat')</code>)</p>
+  <p><strong>2.</strong> <code>/</code> (the root namespace)</p>
+  <p><strong>3.</strong> <code>io('http://server/namespaceName')</code> (e.g. <code>io('/chat')</code>)</p>
+  <p><strong>4.</strong> rooms</p>
+  <p><strong>5.</strong> all sockets (all clients)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Multiple Choice</h3>
+<p>What is the difference between <code>io.to(room).emit()</code> and <code>socket.to(room).emit()</code> on the server?</p>
+<ul>
+  <li>A) They are identical — both send to all sockets in the room including the sender</li>
+  <li>B) <code>io.to(room).emit()</code> includes the sender; <code>socket.to(room).emit()</code> excludes the sender</li>
+  <li>C) <code>socket.to(room).emit()</code> can only be used inside a connection handler; <code>io.to(room).emit()</code> can be used anywhere</li>
+  <li>D) Both B and C are correct</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>D</strong> — Both statements are true. <code>io.to(room).emit()</code> sends to <em>all</em> sockets in the room (including the sender if they are in the room). <code>socket.to(room).emit()</code> sends to everyone in the room <em>except</em> the socket it is called on. Additionally, <code>socket.to()</code> only has meaning inside a connection/event handler because it references a specific socket context, while <code>io.to()</code> is accessible from any scope as long as you have the <code>io</code> instance.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Code Analysis (6 pts)</h3>
+<p>Read the following Socket.io server code and answer the questions below:</p>
+<div class="cb"><pre>io.on('connection', (socket) => {
+  socket.on('joinRoom', (roomId, callback) => {
+    socket.join(roomId);
+    callback({ status: 'ok', room: roomId });
+  });
+
+  socket.on('chatMessage', ({ roomId, text }) => {
+    socket.to(roomId).emit('newMessage', { text, from: socket.id });
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log(`Socket ${socket.id} disconnected: ${reason}`);
+  });
+});</pre></div>
+<p><strong>a)</strong> What is the purpose of the third argument (<code>callback</code>) in the <code>joinRoom</code> handler, and what Socket.io feature does this demonstrate? (2 pts)</p>
+<p><strong>b)</strong> When a client emits <code>chatMessage</code>, who receives the resulting <code>newMessage</code> event? (1 pt)</p>
+<p><strong>c)</strong> Name two common values the <code>reason</code> string might hold in the <code>disconnect</code> handler and what each means. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> <code>callback</code> demonstrates Socket.io <strong>acknowledgements</strong>. After joining the room, the server invokes the callback function with a response object — the client receives this response as confirmation. The client would emit like: <code>socket.emit('joinRoom', roomId, (response) =&gt; console.log(response))</code>. This gives a one-shot request/response pattern on top of the event model — no need to emit a separate "joinRoomSuccess" event.</p>
+  <p><strong>b)</strong> Only the sockets in <code>roomId</code> <em>except the sender</em> receive <code>newMessage</code>. This uses <code>socket.to(roomId)</code> which excludes the emitting socket.</p>
+  <p><strong>c)</strong> Common reasons:<br>
+    <code>"transport close"</code> — the underlying transport (WebSocket/polling) was closed, typically because the client closed the browser tab or lost the connection.<br>
+    <code>"server namespace disconnect"</code> — the server explicitly called <code>socket.disconnect()</code> to force the client off.<br>
+    Other valid answers: <code>"transport error"</code> (network error), <code>"ping timeout"</code> (client stopped responding to heartbeats).
+  </p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Select All That Apply</h3>
+<p>Which of the following statements about Socket.io <strong>namespaces</strong> are correct?</p>
+<ul>
+  <li>[ ] Namespaces share the same underlying TCP connection when using WebSocket transport</li>
+  <li>[ ] A client can be connected to multiple namespaces at the same time</li>
+  <li>[ ] Rooms and namespaces are the same thing — just different names</li>
+  <li>[ ] Middleware registered on one namespace does not affect other namespaces</li>
+  <li>[ ] You can emit to an entire namespace with <code>io.of('/chat').emit('event', data)</code></li>
+  <li>[ ] Namespaces have no practical benefit over just using rooms</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[x] Namespaces share the same underlying TCP connection — Socket.io multiplexes namespaces over one transport</li>
+    <li>[x] A client can connect to multiple namespaces simultaneously</li>
+    <li>[ ] Rooms and namespaces are the same — <strong>FALSE</strong>. Namespaces are top-level connection segregation with separate middleware/event listeners. Rooms are lightweight sub-groups within a namespace.</li>
+    <li>[x] Middleware is per-namespace</li>
+    <li>[x] <code>io.of('/chat').emit()</code> broadcasts to all sockets in that namespace</li>
+    <li>[ ] No practical benefit — <strong>FALSE</strong>. Namespaces allow separate authorization rules, separate event spaces, and cleaner code separation.</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Written Answer (4 pts)</h3>
+<p>Explain how Socket.io <strong>reconnection</strong> works by default. What client-side options can you configure to control reconnection behavior? Give two examples with their effect.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>By default, Socket.io clients automatically attempt to reconnect when the connection is lost. The reconnection strategy uses <strong>exponential backoff</strong> — it waits an increasing amount of time between attempts to avoid overwhelming the server.</p>
+  <p>Configurable options (set on client at connection time):</p>
+  <ul>
+    <li><code>reconnection: false</code> — disables automatic reconnection entirely. Useful if you want to handle reconnection logic yourself.</li>
+    <li><code>reconnectionAttempts: 5</code> — limits how many times the client tries before giving up. After exhausting attempts the client emits <code>reconnect_failed</code>.</li>
+    <li><code>reconnectionDelay: 1000</code> — initial delay (ms) before the first reconnection attempt.</li>
+    <li><code>reconnectionDelayMax: 5000</code> — caps the maximum delay between attempts.</li>
+  </ul>
+  <p>During reconnection the client emits events: <code>reconnecting</code> (with attempt number), <code>reconnect</code> (on success), and <code>reconnect_failed</code> (on giving up). Servers should emit any missed state on <code>connection</code> because Socket.io does not replay missed events.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Multiple Choice</h3>
+<p>A client emits an event with an acknowledgement callback. The server never calls the callback. What happens on the client side by default?</p>
+<ul>
+  <li>A) The client throws an unhandled Promise rejection</li>
+  <li>B) The callback is never called and the client has no built-in timeout for it</li>
+  <li>C) Socket.io automatically retries the emit after 5 seconds</li>
+  <li>D) The connection is closed and reconnection is triggered</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — By default there is no built-in timeout for acknowledgements. If the server never calls the callback, it simply never fires. You must implement your own timeout logic (e.g. with <code>setTimeout</code>) or use the <code>timeout()</code> helper added in Socket.io v4: <code>socket.timeout(5000).emit('event', data, callback)</code> which will call the callback with a timeout error after 5 seconds if the server hasn't responded.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Code Writing (5 pts)</h3>
+<p>Write a minimal Socket.io server setup in Node.js that:</p>
+<ol>
+  <li>Creates an HTTP server and attaches Socket.io to it with CORS allowed for <code>http://localhost:3000</code></li>
+  <li>Uses middleware to reject connections that do not provide a token in <code>socket.handshake.auth</code></li>
+  <li>On connection, logs the socket ID</li>
+</ol>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<div class="cb"><pre>const http = require('http');
+const { Server } = require('socket.io');
+
+const server = http.createServer();
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST']
+  }
+});
+
+// Middleware — runs before every connection completes
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error('Authentication error: no token'));
+  }
+  // Optionally verify the token here...
+  next();
+});
+
+io.on('connection', (socket) => {
+  console.log('Socket connected:', socket.id);
+});
+
+server.listen(3001, () => console.log('Listening on port 3001'));</pre></div>
+  <p>Key points: <code>new Server(httpServer, options)</code> attaches Socket.io. CORS is configured in the constructor options. <code>io.use()</code> registers middleware — calling <code>next(new Error(...))</code> rejects the connection and the client receives a <code>connect_error</code> event.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION B: WEBSOCKETS VS HTTP VS SSE VS LONG POLLING</h2>
+
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>Which of the following best describes <strong>Server-Sent Events (SSE)</strong>?</p>
+<ul>
+  <li>A) A bidirectional full-duplex protocol that upgrades from HTTP/1.1</li>
+  <li>B) A unidirectional server-to-client push mechanism over a persistent HTTP connection</li>
+  <li>C) A polling strategy where the client sends a request every few seconds</li>
+  <li>D) A peer-to-peer protocol that bypasses the server entirely</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — SSE (<code>EventSource</code> API) opens a persistent HTTP connection over which the server can push data to the client. It is <em>unidirectional</em> (server → client only). It uses standard HTTP/1.1 with <code>Content-Type: text/event-stream</code>. Built-in automatic reconnection is provided by the browser. For bidirectional communication, WebSockets are needed instead.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Select All That Apply</h3>
+<p>Compare the four real-time techniques. Which statements are correct?</p>
+<ul>
+  <li>[ ] WebSockets require an initial HTTP handshake (the "Upgrade" request) before switching protocols</li>
+  <li>[ ] Long polling keeps a request open on the server until data is ready, then immediately closes and the client re-opens</li>
+  <li>[ ] SSE supports bidirectional communication natively</li>
+  <li>[ ] WebSockets work over TCP and allow both the client and server to send messages at any time</li>
+  <li>[ ] HTTP polling sends a new request every N seconds regardless of whether new data exists</li>
+  <li>[ ] SSE automatically reconnects if the connection drops, using the <code>Last-Event-ID</code> header to resume</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[x] WebSockets start with an HTTP Upgrade handshake</li>
+    <li>[x] Long polling: server holds the request open, responds when data arrives, client immediately re-issues</li>
+    <li>[ ] SSE is <strong>unidirectional</strong> (server → client only) — <strong>FALSE</strong></li>
+    <li>[x] WebSockets are full-duplex over TCP</li>
+    <li>[x] HTTP polling sends on a timer regardless of new data — wasteful but simple</li>
+    <li>[x] SSE auto-reconnects using <code>Last-Event-ID</code> so the server can replay missed events</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Written Answer (4 pts)</h3>
+<p>A product manager asks: "We need live score updates for a sports app. Users never need to send data back except for subscribing to a team." Compare WebSockets and SSE for this use case. Which would you recommend and why?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Recommendation: SSE</strong> — because the data flow is <em>unidirectional</em> (server pushes scores, client only "subscribes" once via a URL parameter or query string). SSE fits perfectly here.</p>
+  <p><strong>SSE advantages for this use case:</strong></p>
+  <ul>
+    <li>Simpler to implement — just a standard HTTP endpoint returning <code>text/event-stream</code></li>
+    <li>Works through HTTP/2 multiplexing with no extra library</li>
+    <li>Built-in browser reconnection with <code>Last-Event-ID</code> resume</li>
+    <li>Easier load-balancer/proxy compatibility (plain HTTP)</li>
+  </ul>
+  <p><strong>When WebSockets would be better:</strong> if users could also chat, place bets, or interact in real time — i.e. when bidirectional communication is required.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION C: HTTP METHODS, STATUS CODES &amp; REST</h2>
+
+<h3 class="g-h3">Question 11 — Fill in the blanks</h3>
+<p>Complete the following sentences about HTTP:</p>
+<p>A request is <strong>safe</strong> if it does not 1. ________. A request is <strong>idempotent</strong> if making the same request multiple times produces the 2. ________ result as making it once. <code>GET</code>, <code>HEAD</code>, and <code>OPTIONS</code> are both safe and idempotent. <code>PUT</code> is idempotent but 3. ________. <code>POST</code> is neither safe nor idempotent. The HTTP method used to apply a <strong>partial update</strong> to a resource is 4. ________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> modify server state (has no side effects / does not alter the resource)</p>
+  <p><strong>2.</strong> same server-state</p>
+  <p><strong>3.</strong> not safe (it modifies/replaces the resource)</p>
+  <p><strong>4.</strong> <code>PATCH</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>An API endpoint receives a <code>DELETE /users/42</code> request. The user with ID 42 does not exist. Which HTTP status code is most appropriate according to REST conventions?</p>
+<ul>
+  <li>A) 200 OK</li>
+  <li>B) 204 No Content</li>
+  <li>C) 404 Not Found</li>
+  <li>D) 400 Bad Request</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>C</strong> — <code>404 Not Found</code> is the conventional response when the resource to be deleted does not exist. Some APIs argue for returning 204 (idempotent — deleting a non-existent resource has the same outcome as deleting an existing one), but returning 404 is more common in practice to signal that the resource was never found. Both C and B are debated; the "correct" REST answer is usually <strong>404</strong> because the client should know the resource they targeted doesn't exist.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Match the Status Code</h3>
+<p>Match each HTTP status code with its correct meaning:</p>
+<table>
+  <tr><th>Status Code</th><th>Options</th></tr>
+  <tr><td>201</td><td>A) The server cannot find the requested resource</td></tr>
+  <tr><td>301</td><td>B) The request succeeded and a new resource was created</td></tr>
+  <tr><td>304</td><td>C) The resource has permanently moved to a new URL</td></tr>
+  <tr><td>401</td><td>D) The client is not authenticated (no or invalid credentials)</td></tr>
+  <tr><td>403</td><td>E) The server understood the request but refuses to authorize it</td></tr>
+  <tr><td>404</td><td>F) The cached version is still valid; use the local copy</td></tr>
+  <tr><td>409</td><td>G) Conflict — the request conflicts with the current state of the resource</td></tr>
+  <tr><td>422</td><td>H) The request was well-formed but had semantic errors (validation failed)</td></tr>
+  <tr><td>429</td><td>I) The client has sent too many requests in a given time (rate limited)</td></tr>
+  <tr><td>503</td><td>J) The server is temporarily unable to handle the request</td></tr>
+</table>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ul>
+    <li><strong>201</strong> → B (Created)</li>
+    <li><strong>301</strong> → C (Moved Permanently)</li>
+    <li><strong>304</strong> → F (Not Modified — use cache)</li>
+    <li><strong>401</strong> → D (Unauthorized — no/invalid credentials; implies "please authenticate")</li>
+    <li><strong>403</strong> → E (Forbidden — credentials are present/valid but insufficient permissions)</li>
+    <li><strong>404</strong> → A (Not Found)</li>
+    <li><strong>409</strong> → G (Conflict)</li>
+    <li><strong>422</strong> → H (Unprocessable Entity — validation error)</li>
+    <li><strong>429</strong> → I (Too Many Requests)</li>
+    <li><strong>503</strong> → J (Service Unavailable)</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Written Answer (4 pts)</h3>
+<p>Explain the difference between <strong>401 Unauthorized</strong> and <strong>403 Forbidden</strong>. Give a concrete scenario for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>401 Unauthorized</strong> — despite its name, this means <em>unauthenticated</em>. The server does not know who is making the request (no credentials provided, or the provided token/session is invalid/expired). The HTTP spec requires the response to include a <code>WWW-Authenticate</code> header explaining how to authenticate. <em>Scenario:</em> A user tries to access <code>GET /api/profile</code> without sending an Authorization header at all — the server returns 401 saying "you need to log in first."</p>
+  <p><strong>403 Forbidden</strong> — the server knows <em>who</em> the user is (they are authenticated) but the user does not have permission to access the resource. <em>Scenario:</em> A logged-in regular user tries to access <code>DELETE /api/admin/users/5</code> — the server recognizes them but they are not an admin, so it returns 403 saying "you are not allowed to do this."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Select All That Apply</h3>
+<p>Which of the following are core <strong>REST constraints / principles</strong>?</p>
+<ul>
+  <li>[ ] Statelessness — each request must contain all information needed to process it; the server stores no client session state</li>
+  <li>[ ] REST requires the use of JSON as the data format</li>
+  <li>[ ] Uniform interface — resources are identified by URIs and manipulated through standard HTTP methods</li>
+  <li>[ ] Client–Server separation — UI concerns are decoupled from data storage concerns</li>
+  <li>[ ] REST APIs must always use HTTPS</li>
+  <li>[ ] Cacheability — responses must define whether they are cacheable to improve performance</li>
+  <li>[ ] Layered system — a client cannot tell whether it is connected directly to the end server or an intermediary</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[x] Statelessness</li>
+    <li>[ ] JSON required — <strong>FALSE</strong>. REST is format-agnostic; XML, JSON, plain text, etc. are all valid.</li>
+    <li>[x] Uniform interface</li>
+    <li>[x] Client–Server separation</li>
+    <li>[ ] Must use HTTPS — <strong>FALSE</strong>. HTTPS is strongly recommended for security but is not part of the REST architectural constraints.</li>
+    <li>[x] Cacheability</li>
+    <li>[x] Layered system</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION D: CORS</h2>
+
+<h3 class="g-h3">Question 16 — Fill in the blanks</h3>
+<p>Complete the following sentences about CORS:</p>
+<p>CORS stands for 1. ________. A CORS <strong>preflight</strong> request uses the HTTP method 2. ________. The server signals that a cross-origin request is allowed by returning the response header 3. ________. A request is considered "simple" (no preflight needed) only if it uses one of these methods: 4. ________ and uses only <strong>CORS-safelisted</strong> headers. When credentials (cookies) must be sent cross-origin, the client must set 5. ________ to <code>true</code> on the fetch/XHR, AND the server must respond with <code>Access-Control-Allow-Credentials: true</code> AND must NOT set <code>Access-Control-Allow-Origin</code> to 6. ________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> Cross-Origin Resource Sharing</p>
+  <p><strong>2.</strong> <code>OPTIONS</code></p>
+  <p><strong>3.</strong> <code>Access-Control-Allow-Origin</code> (with the allowed origin value)</p>
+  <p><strong>4.</strong> GET, HEAD, or POST</p>
+  <p><strong>5.</strong> <code>credentials: 'include'</code> (fetch) / <code>withCredentials: true</code> (XHR)</p>
+  <p><strong>6.</strong> <code>*</code> (wildcard) — using <code>*</code> with credentials is forbidden by the spec; the exact origin must be echoed</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Multiple Choice</h3>
+<p>A frontend at <code>https://app.example.com</code> sends a <code>PUT</code> request with a custom header <code>X-Request-ID</code> to <code>https://api.example.com</code>. The server has CORS configured correctly. What will the browser do before the actual <code>PUT</code>?</p>
+<ul>
+  <li>A) Nothing — PUT is a simple method and no preflight is needed</li>
+  <li>B) Send an <code>OPTIONS</code> preflight to <code>https://api.example.com</code> to check if PUT and X-Request-ID are allowed</li>
+  <li>C) Block the request entirely because cross-origin PUT is always forbidden</li>
+  <li>D) Send the PUT directly but strip the custom header for security</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — A preflight is triggered because: (1) <code>PUT</code> is not a CORS-simple method (only GET, HEAD, POST are simple), and (2) <code>X-Request-ID</code> is not a CORS-safelisted request header. The browser sends <code>OPTIONS</code> with <code>Access-Control-Request-Method: PUT</code> and <code>Access-Control-Request-Headers: x-request-id</code>. Only if the server responds with the appropriate <code>Access-Control-Allow-*</code> headers will the actual PUT proceed.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 — Written Answer (4 pts)</h3>
+<p>A developer sets <code>Access-Control-Allow-Origin: *</code> on their API. A frontend tries to send a request with <code>credentials: 'include'</code> (cookies). The request fails. Explain why, and describe exactly what changes must be made on both the server and client to fix it.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Why it fails:</strong> The CORS spec explicitly prohibits the wildcard (<code>*</code>) for <code>Access-Control-Allow-Origin</code> when <code>Access-Control-Allow-Credentials: true</code> is also needed. Browsers enforce this — using <code>*</code> with credentialed requests is treated as an error, and the browser blocks the response.</p>
+  <p><strong>Server-side fixes:</strong></p>
+  <ol>
+    <li>Change <code>Access-Control-Allow-Origin</code> from <code>*</code> to the exact origin: <code>Access-Control-Allow-Origin: https://app.example.com</code></li>
+    <li>Add the header: <code>Access-Control-Allow-Credentials: true</code></li>
+    <li>Optionally add <code>Vary: Origin</code> so caches do not serve the wrong origin's response</li>
+  </ol>
+  <p><strong>Client-side fix:</strong> the fetch must already include <code>credentials: 'include'</code> (or <code>withCredentials: true</code> for XHR) — if this is already present, no additional client change is needed.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION E: AUTHENTICATION — JWT, SESSIONS &amp; COOKIES</h2>
+
+<h3 class="g-h3">Question 19 — Fill in the blanks</h3>
+<p>Complete the following sentences about JWTs:</p>
+<p>A JWT consists of three parts separated by dots: 1. ________, 2. ________, and 3. ________. The payload is 4. ________ encoded (not encrypted), meaning it can be decoded by anyone. To verify that a JWT has not been tampered with, the recipient checks the 5. ________. A JWT stored in <code>localStorage</code> is accessible to JavaScript and therefore vulnerable to 6. ________ attacks.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> Header</p>
+  <p><strong>2.</strong> Payload</p>
+  <p><strong>3.</strong> Signature</p>
+  <p><strong>4.</strong> Base64URL</p>
+  <p><strong>5.</strong> Signature (using the secret key / public key)</p>
+  <p><strong>6.</strong> XSS (Cross-Site Scripting)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 20 — Multiple Choice</h3>
+<p>Which cookie attribute makes a cookie <strong>inaccessible to JavaScript</strong> (i.e. <code>document.cookie</code>)?</p>
+<ul>
+  <li>A) <code>Secure</code></li>
+  <li>B) <code>SameSite=Strict</code></li>
+  <li>C) <code>HttpOnly</code></li>
+  <li>D) <code>Path=/</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>C</strong> — <code>HttpOnly</code> prevents JavaScript from accessing the cookie via <code>document.cookie</code>. This is the primary defense for session cookies against XSS — even if an attacker injects a script, it cannot read or exfiltrate the HttpOnly cookie. <code>Secure</code> only ensures the cookie is sent over HTTPS. <code>SameSite</code> restricts cross-site sending (defense against CSRF).</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 21 — Select All That Apply</h3>
+<p>Which of the following are true about the <code>SameSite</code> cookie attribute?</p>
+<ul>
+  <li>[ ] <code>SameSite=Strict</code> prevents the cookie from being sent on ANY cross-site request, including navigating to the site from a link</li>
+  <li>[ ] <code>SameSite=Lax</code> allows the cookie to be sent on top-level navigations (e.g. clicking a link) but not on sub-resource requests</li>
+  <li>[ ] <code>SameSite=None</code> can be used without the <code>Secure</code> attribute in modern browsers</li>
+  <li>[ ] The primary security purpose of <code>SameSite</code> is to mitigate CSRF attacks</li>
+  <li>[ ] If <code>SameSite</code> is not set, modern browsers default to <code>SameSite=Lax</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[x] <code>Strict</code> blocks the cookie even on top-level navigations from another site</li>
+    <li>[x] <code>Lax</code> allows top-level navigations (GET) but not cross-site sub-resource requests (AJAX, img, form POST)</li>
+    <li>[ ] <code>SameSite=None</code> without <code>Secure</code> — <strong>FALSE</strong>. Modern browsers require <code>Secure</code> when using <code>SameSite=None</code>; without it the cookie is rejected.</li>
+    <li>[x] <code>SameSite</code> mitigates CSRF</li>
+    <li>[x] Modern browsers (Chrome 80+) default unset cookies to <code>Lax</code></li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 22 — Written Answer (5 pts)</h3>
+<p>Compare <strong>session-based authentication</strong> and <strong>JWT-based (token) authentication</strong>. Discuss: where state lives, scalability implications, and one security consideration for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Session-based:</strong></p>
+  <ul>
+    <li><em>State location:</em> Server stores session data (usually in memory or a database like Redis). The client holds only a session ID (typically in a cookie).</li>
+    <li><em>Scalability:</em> Stateful — if the app runs on multiple servers, session store must be shared (e.g. Redis), or sticky sessions must be used. This adds infrastructure complexity.</li>
+    <li><em>Security consideration:</em> Session IDs in cookies should use <code>HttpOnly; Secure; SameSite=Lax</code>. Session fixation and hijacking are risks if IDs are not rotated on login.</li>
+  </ul>
+  <p><strong>JWT-based:</strong></p>
+  <ul>
+    <li><em>State location:</em> Stateless — all user info is encoded in the token itself. The server does not store anything per-user.</li>
+    <li><em>Scalability:</em> Easier horizontal scaling — any server can validate the token using the shared secret/public key, no shared session store needed.</li>
+    <li><em>Security consideration:</em> JWTs cannot be invalidated before expiry without a server-side token revocation list (effectively making them stateful). Storing JWTs in <code>localStorage</code> exposes them to XSS. Prefer <code>HttpOnly</code> cookies for JWT storage.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION F: WEB STORAGE COMPARISON &amp; SECURITY</h2>
+
+<h3 class="g-h3">Question 23 — Multiple Choice</h3>
+<p>Which storage mechanism is <strong>shared across all tabs and windows</strong> of the same origin AND persists after the browser is closed?</p>
+<ul>
+  <li>A) <code>sessionStorage</code></li>
+  <li>B) <code>localStorage</code></li>
+  <li>C) A non-HttpOnly cookie with no expiry</li>
+  <li>D) Both B and C</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>D</strong> — Both <code>localStorage</code> and cookies without an expiry date (session cookies <em>do</em> expire, but cookies with an explicit <code>Expires</code> or <code>Max-Age</code> do not) persist after the browser is closed and are shared across tabs of the same origin. <code>sessionStorage</code> is per-tab and cleared when the tab closes.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 24 — Written Answer (4 pts)</h3>
+<p>Explain how a <strong>Cross-Site Scripting (XSS)</strong> attack works, what data it can steal, and describe two complementary defenses.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>How XSS works:</strong> An attacker injects malicious JavaScript into a web page viewed by other users — either via stored input (stored XSS: comment saved to DB that renders unescaped), reflected input (reflected XSS: URL parameter echoed into HTML), or DOM manipulation (DOM XSS: client-side code writes unsanitized data to the DOM). The injected script runs in the victim's browser under the site's origin.</p>
+  <p><strong>What it can steal:</strong> Anything accessible in the DOM or JavaScript context — <code>localStorage</code>, <code>sessionStorage</code>, non-HttpOnly cookies, form inputs, auth tokens, CSRF tokens, keystrokes.</p>
+  <p><strong>Two defenses:</strong></p>
+  <ol>
+    <li><strong>Output encoding / escaping</strong> — HTML-encode user-supplied data before inserting it into HTML. Never use <code>innerHTML</code> with untrusted data; use <code>textContent</code> instead. Use templating libraries that auto-escape.</li>
+    <li><strong>Content Security Policy (CSP)</strong> — an HTTP response header (<code>Content-Security-Policy</code>) that tells the browser which sources of scripts are trusted. A strict CSP (e.g. <code>script-src 'self'</code>) blocks inline scripts and external scripts from unauthorised domains, limiting the damage even if injection occurs.</li>
+  </ol>
+</div>
+</details>
+
+<h3 class="g-h3">Question 25 — Written Answer (4 pts)</h3>
+<p>Explain how a <strong>Cross-Site Request Forgery (CSRF)</strong> attack works. What makes it possible, and describe two mitigations.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>How CSRF works:</strong> The attacker crafts a malicious page that silently makes a state-changing HTTP request (e.g. <code>POST /transfer-money</code>) to a site where the victim is already logged in. Because the browser automatically attaches cookies for that origin, the server sees a request with valid session credentials and processes it — even though the user never intended to make the request.</p>
+  <p><strong>What makes it possible:</strong> Cookies are sent automatically with every same-origin request from the browser, regardless of where the page initiating the request came from.</p>
+  <p><strong>Two mitigations:</strong></p>
+  <ol>
+    <li><strong>SameSite cookie attribute</strong> — Setting <code>SameSite=Lax</code> or <code>SameSite=Strict</code> on session cookies prevents the browser from sending them on cross-origin requests, stopping most CSRF vectors.</li>
+    <li><strong>CSRF tokens (synchronizer token pattern)</strong> — the server embeds a unique, unpredictable token in forms/responses. The client must echo it back in subsequent requests (e.g. in a header or request body). An attacker on a different origin cannot read the token (blocked by CORS/SOP) and thus cannot forge a valid request.</li>
+  </ol>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION G: ACCESSIBILITY</h2>
+
+<h3 class="g-h3">Question 26 — Fill in the blanks</h3>
+<p>Complete the following sentences about web accessibility:</p>
+<p>ARIA stands for 1. ________. The ARIA attribute that gives an element an accessible name when no visible label exists is 2. ________. To indicate that a custom button is currently pressed/active, you use the ARIA attribute 3. ________. The <code>tabindex="0"</code> attribute makes an element 4. ________ in the natural tab order. Setting <code>tabindex="-1"</code> removes the element from the tab order but still allows it to be 5. ________ programmatically. The WCAG minimum contrast ratio for normal text (Level AA) is 6. ________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> Accessible Rich Internet Applications</p>
+  <p><strong>2.</strong> <code>aria-label</code> (or <code>aria-labelledby</code>)</p>
+  <p><strong>3.</strong> <code>aria-pressed</code></p>
+  <p><strong>4.</strong> focusable / reachable by Tab key</p>
+  <p><strong>5.</strong> focused (via <code>element.focus()</code>)</p>
+  <p><strong>6.</strong> 4.5:1</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 27 — Select All That Apply</h3>
+<p>Which of the following are correct accessibility practices?</p>
+<ul>
+  <li>[ ] Using <code>&lt;div role="button" tabindex="0"&gt;</code> is exactly equivalent to using a native <code>&lt;button&gt;</code> element</li>
+  <li>[ ] All images must have an <code>alt</code> attribute, but decorative images should use <code>alt=""</code></li>
+  <li>[ ] Keyboard users expect interactive elements to be operable with both Enter and Space keys for buttons</li>
+  <li>[ ] Color alone can be used to convey information as long as the contrast ratio is sufficient</li>
+  <li>[ ] The <code>aria-live="polite"</code> attribute causes a screen reader to announce content updates when the user is idle</li>
+  <li>[ ] Focus management is important in SPAs when navigating between views</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[ ] <code>div role="button"</code> is exactly equivalent — <strong>FALSE</strong>. A native <code>&lt;button&gt;</code> gets keyboard handling, Enter/Space activation, and implicit ARIA role for free. A <code>div</code> requires manually adding keyboard listeners (<code>keydown</code> for Enter/Space) and is harder to maintain. Prefer native HTML.</li>
+    <li>[x] Decorative images use <code>alt=""</code> (empty string, not absent) so screen readers skip them</li>
+    <li>[x] Buttons should respond to both Enter and Space keys per ARIA authoring practices</li>
+    <li>[ ] Color alone — <strong>FALSE</strong>. WCAG 1.4.1 (Use of Color) requires that color is never the sole means of conveying information; additional cues (text, icons, patterns) must be used.</li>
+    <li>[x] <code>aria-live="polite"</code> announces when user is not actively typing</li>
+    <li>[x] SPAs must manage focus (e.g. move focus to the page heading on route change) so screen reader users know a navigation occurred</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 28 — Written Answer (4 pts)</h3>
+<p>A developer builds a modal dialog with a <code>&lt;div&gt;</code> overlay. List four specific accessibility requirements a modal must fulfill for it to be usable by keyboard and screen reader users.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ol>
+    <li><strong>Focus trap</strong> — while the modal is open, Tab and Shift+Tab should cycle only through focusable elements <em>inside</em> the modal. Focus must not escape to the background page.</li>
+    <li><strong>Initial focus</strong> — when the modal opens, focus must be moved into it (typically to the first focusable element or the modal container with <code>tabindex="-1"</code>).</li>
+    <li><strong>Return focus</strong> — when the modal closes, focus must return to the element that triggered it (e.g. the button that opened it).</li>
+    <li><strong>ARIA role and labeling</strong> — the modal container needs <code>role="dialog"</code> (or <code>role="alertdialog"</code> for critical messages), <code>aria-modal="true"</code>, and an accessible name via <code>aria-labelledby</code> pointing to the modal's heading.</li>
+    <li><em>Bonus:</em> Escape key should close the modal.</li>
+    <li><em>Bonus:</em> Background content should be inert (<code>inert</code> attribute or <code>aria-hidden="true"</code>) so screen readers cannot accidentally navigate to it.</li>
+  </ol>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION H: PERFORMANCE</h2>
+
+<h3 class="g-h3">Question 29 — Multiple Choice</h3>
+<p>Which Core Web Vital measures the <strong>time until the largest visible content element</strong> (image, text block) has rendered on screen?</p>
+<ul>
+  <li>A) First Contentful Paint (FCP)</li>
+  <li>B) Largest Contentful Paint (LCP)</li>
+  <li>C) Cumulative Layout Shift (CLS)</li>
+  <li>D) Interaction to Next Paint (INP)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — <strong>LCP</strong> measures how long until the largest content element in the viewport is rendered. A good LCP score is ≤2.5 seconds. The other Core Web Vitals: CLS measures visual stability (unexpected layout shifts), INP (replacing FID) measures responsiveness to user interactions.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 30 — Fill in the blanks</h3>
+<p>Complete the following sentences about React performance optimization:</p>
+<p><code>React.memo</code> prevents a component from re-rendering if its 1. ________ have not changed. The hook <code>useMemo</code> memoizes the 2. ________ of an expensive calculation between renders. The hook <code>useCallback</code> memoizes a 3. ________ reference so it does not change on every render. In Next.js, <code>dynamic()</code> enables 4. ________, which splits the bundle so the component is loaded only when needed. Adding <code>loading="lazy"</code> to an <code>&lt;img&gt;</code> tag is known as 5. ________ and defers loading until the image enters the viewport.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> props</p>
+  <p><strong>2.</strong> return value / result</p>
+  <p><strong>3.</strong> function</p>
+  <p><strong>4.</strong> code splitting (dynamic/lazy imports)</p>
+  <p><strong>5.</strong> lazy loading</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 31 — Select All That Apply</h3>
+<p>Which of the following correctly describes when <code>useMemo</code> and <code>useCallback</code> should be used?</p>
+<ul>
+  <li>[ ] <code>useMemo</code> should be used for every computed value to prevent any wasted computation</li>
+  <li>[ ] <code>useCallback</code> is especially useful when passing callbacks to child components wrapped in <code>React.memo</code></li>
+  <li>[ ] <code>useMemo</code> is appropriate when a calculation is genuinely expensive and its inputs change infrequently</li>
+  <li>[ ] Memoization has zero cost — it always makes components faster</li>
+  <li>[ ] <code>useCallback(fn, [dep])</code> returns the same function reference as long as <code>dep</code> has not changed</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[ ] <code>useMemo</code> everywhere — <strong>FALSE</strong>. Memoization has overhead (memory + comparison cost). Use it only when the computation is provably expensive.</li>
+    <li>[x] <code>useCallback</code> is useful with <code>React.memo</code> children — because without it, a new function reference is created each render, causing the memoized child to re-render anyway</li>
+    <li>[x] <code>useMemo</code> for expensive, infrequently-changing calculations</li>
+    <li>[ ] Zero cost — <strong>FALSE</strong>. React must store the cached value, run the dependency comparison, and manage memory. Premature memoization can be slower than no memoization for simple values.</li>
+    <li>[x] <code>useCallback(fn, [dep])</code> returns a stable reference when deps are unchanged</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION I: TESTING</h2>
+
+<h3 class="g-h3">Question 32 — Fill in the blanks</h3>
+<p>Complete the following sentences about React Testing Library query methods:</p>
+<p>Use 1. ________ when you expect the element to be in the DOM — it throws immediately if not found. Use 2. ________ when the element might not be in the DOM — it returns <code>null</code> instead of throwing. Use 3. ________ when you need to wait for an element that appears <strong>asynchronously</strong> — it returns a Promise and retries until the element appears or the timeout expires. The "by" variant that best mimics how users interact with a page (and is preferred by RTL authors) is 4. ________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>getBy*</code> (e.g. <code>getByText</code>, <code>getByRole</code>)</p>
+  <p><strong>2.</strong> <code>queryBy*</code> (e.g. <code>queryByText</code>)</p>
+  <p><strong>3.</strong> <code>findBy*</code> (e.g. <code>findByText</code>) — async, uses <code>waitFor</code> internally</p>
+  <p><strong>4.</strong> <code>ByRole</code> — queries by ARIA role, which reflects how assistive technology sees the element and aligns with how users perceive the UI</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 33 — Code Analysis (5 pts)</h3>
+<p>Review the following Jest test and answer the questions:</p>
+<div class="cb"><pre>import { render, screen, fireEvent } from '@testing-library/react';
+import Counter from './Counter';
+
+test('increments count when button is clicked', () => {
+  render(&lt;Counter /&gt;);
+
+  const button = screen.getByRole('button', { name: /increment/i });
+  const display = screen.getByText(/count: 0/i);
+
+  fireEvent.click(button);
+
+  expect(screen.getByText(/count: 1/i)).toBeInTheDocument();
+  expect(display).not.toBeInTheDocument();  // Line X
+});</pre></div>
+<p><strong>a)</strong> What does <code>{ name: /increment/i }</code> do in <code>getByRole</code>? (1 pt)</p>
+<p><strong>b)</strong> Why would <strong>Line X</strong> pass after clicking the button, even though <code>display</code> was assigned before the click? (2 pts)</p>
+<p><strong>c)</strong> What Jest matcher is used on Line X, and what does it assert? (1 pt)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> The <code>name</code> option filters buttons by their accessible name (e.g. visible text, <code>aria-label</code>). The regex <code>/increment/i</code> matches case-insensitively — it finds a button whose accessible name contains "increment".</p>
+  <p><strong>b)</strong> When the count changes from 0 to 1, React re-renders the component and the DOM node that contained "count: 0" is <em>replaced</em> — it is removed from the document. The variable <code>display</code> still holds a reference to the old, now-detached DOM node. So <code>expect(display).not.toBeInTheDocument()</code> passes because that specific element is no longer in the live DOM.</p>
+  <p><strong>c)</strong> <code>.toBeInTheDocument()</code> — from <code>@testing-library/jest-dom</code>. It asserts that the element is present in the document body. Combined with <code>.not</code>, it asserts the element has been removed from the DOM.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 34 — Multiple Choice</h3>
+<p>You want to test that an element is <strong>not present</strong> in the DOM after an action. Which query/assertion combination is correct?</p>
+<ul>
+  <li>A) <code>expect(screen.getByText('Error')).not.toBeInTheDocument()</code></li>
+  <li>B) <code>expect(screen.queryByText('Error')).not.toBeInTheDocument()</code></li>
+  <li>C) <code>expect(screen.findByText('Error')).not.toBeInTheDocument()</code></li>
+  <li>D) <code>expect(screen.queryByText('Error')).toBeNull()</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> (or D — both are valid). Option A is wrong because <code>getByText</code> throws if the element is not found — the test would error before even reaching <code>expect</code>. Option C is wrong because <code>findByText</code> returns a Promise, not an element. Option B uses <code>queryByText</code> (returns <code>null</code> if absent) then asserts it is not in the document. Option D is also correct and slightly simpler. In practice, B is idiomatic RTL style.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION J: SERVICE WORKERS &amp; PWAs</h2>
+
+<h3 class="g-h3">Question 35 — Fill in the blanks</h3>
+<p>Complete the following sentences about Service Workers:</p>
+<p>A Service Worker runs in a separate 1. ________ thread and has no direct access to the DOM. It acts as a programmable 2. ________ between the browser and the network. Service Workers must be served over 3. ________ (or localhost for development). The lifecycle event fired after a Service Worker is installed and ready to take control is 4. ________. To make a Service Worker take control of existing pages immediately without waiting for a reload, you call 5. ________ inside the <code>activate</code> event.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> worker (background thread) — no DOM access</p>
+  <p><strong>2.</strong> network proxy / interceptor</p>
+  <p><strong>3.</strong> HTTPS</p>
+  <p><strong>4.</strong> <code>activate</code></p>
+  <p><strong>5.</strong> <code>self.clients.claim()</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 36 — Multiple Choice</h3>
+<p>In a Service Worker <code>fetch</code> event handler, which caching strategy serves the cached version <em>immediately</em> while also updating the cache in the background for future requests?</p>
+<ul>
+  <li>A) Cache First</li>
+  <li>B) Network First</li>
+  <li>C) Stale While Revalidate</li>
+  <li>D) Cache Only</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>C — Stale While Revalidate</strong>: responds immediately with the cached (possibly stale) version for speed, then fetches a fresh version from the network in the background to update the cache for the <em>next</em> request. This is the best strategy for resources that should be fast to load but can tolerate slightly outdated data (e.g. fonts, non-critical assets).</p>
+  <p>Cache First serves from cache always, only going to network if not cached. Network First hits the network, falls back to cache only if offline. Cache Only never goes to network.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION K: FORMDATA API</h2>
+
+<h3 class="g-h3">Question 37 — Multiple Choice</h3>
+<p>Which of the following correctly uses the <code>FormData</code> API to send a file upload via <code>fetch</code>?</p>
+<ul>
+  <li>A) <code>fetch('/upload', { method: 'POST', headers: { 'Content-Type': 'multipart/form-data' }, body: JSON.stringify(formData) })</code></li>
+  <li>B) <code>fetch('/upload', { method: 'POST', body: formData })</code></li>
+  <li>C) <code>fetch('/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: formData })</code></li>
+  <li>D) <code>fetch('/upload', { method: 'GET', body: formData })</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> — When you pass a <code>FormData</code> object as the <code>body</code>, the browser automatically sets the correct <code>Content-Type: multipart/form-data; boundary=...</code> header including the boundary string. You must NOT set the Content-Type manually because the boundary would be missing and the server could not parse the body. Option A JSON-stringifies the FormData (produces <code>"{}"</code>), option C sets the wrong content type, option D uses GET (GET requests cannot have a body).</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 38 — Written Answer (3 pts)</h3>
+<p>Explain why you <strong>should NOT manually set</strong> <code>Content-Type: multipart/form-data</code> when sending a <code>FormData</code> object with <code>fetch</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>The <code>multipart/form-data</code> content type requires a <strong>boundary</strong> parameter that separates the different parts of the request body (e.g. <code>Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryXYZ</code>). This boundary string is generated by the browser and embedded throughout the request body.</p>
+  <p>If you manually set <code>Content-Type: multipart/form-data</code> without the boundary, the header is malformed — the server cannot determine where each part starts and ends, causing parsing failures. By omitting the Content-Type header entirely when using <code>FormData</code>, you let the browser set the complete header including the correct boundary automatically.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION L: DESIGN PATTERNS</h2>
+
+<h3 class="g-h3">Question 39 — Fill in the blanks</h3>
+<p>Match each design pattern to its description:</p>
+<p>The 1. ________ pattern provides a simplified interface to a complex subsystem. The 2. ________ pattern ensures a class has only one instance and provides a global point of access to it. The 3. ________ pattern defines a one-to-many dependency so that when one object changes state, all dependents are notified automatically. The 4. ________ pattern attaches additional responsibilities to an object dynamically without altering its class. The 5. ________ pattern uses shared objects to efficiently support large numbers of fine-grained objects (shares intrinsic state). The 6. ________ pattern defines an interface for creating an object but lets subclasses decide which class to instantiate.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> Facade</p>
+  <p><strong>2.</strong> Singleton</p>
+  <p><strong>3.</strong> Observer (Pub/Sub)</p>
+  <p><strong>4.</strong> Decorator</p>
+  <p><strong>5.</strong> Flyweight</p>
+  <p><strong>6.</strong> Factory (Factory Method)</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 40 — Multiple Choice</h3>
+<p>In JavaScript, the built-in <code>EventEmitter</code> (Node.js) and the browser's <code>addEventListener</code> are both examples of which design pattern?</p>
+<ul>
+  <li>A) Facade</li>
+  <li>B) Iterator</li>
+  <li>C) Mediator</li>
+  <li>D) Observer</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>D — Observer</strong>. Both implement the Observer (Publish/Subscribe) pattern: a subject maintains a list of observers (event listeners) and notifies them when an event occurs. <code>EventEmitter.on('event', handler)</code> and <code>element.addEventListener('click', handler)</code> both register observers; <code>emit</code> / dispatching an event notifies them.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 41 — Written Answer (4 pts)</h3>
+<p>Explain the <strong>Mediator</strong> pattern. How does it differ from the <strong>Observer</strong> pattern? Give a concrete JavaScript/web example of each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Observer:</strong> Objects (observers) subscribe to a subject/emitter and react when the subject emits an event. The subject broadcasts to all subscribers — it does not know what each subscriber will do. Coupling is between each observer and the subject. <em>Example:</em> React's custom event bus (<code>mitt</code>) — a component publishes <code>'cartUpdated'</code> and multiple other components subscribe independently.</p>
+  <p><strong>Mediator:</strong> A central coordinator (mediator) handles all communication between components. Components do not communicate directly with each other — they send messages to the mediator and the mediator decides who to notify. This reduces the number of direct dependencies between components. <em>Example:</em> A Redux store or an RTK <code>store.dispatch</code> — UI components never call each other directly; they all dispatch to the store (mediator) which updates state and re-renders the correct components. A chat room server is also a classic mediator: users don't send messages to each other directly, they send to the server which routes messages.</p>
+  <p><strong>Key difference:</strong> Observer = many objects watching one subject; Mediator = one coordinator managing communication between many objects.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 42 — Select All That Apply</h3>
+<p>Which of the following are correct statements about the <strong>Iterator</strong> pattern in JavaScript?</p>
+<ul>
+  <li>[ ] An object is iterable in JavaScript if it has a <code>[Symbol.iterator]</code> method that returns an iterator</li>
+  <li>[ ] An iterator must implement a <code>next()</code> method that returns <code>{ value, done }</code></li>
+  <li>[ ] Arrays, Sets, and Maps are all iterable by default in JavaScript</li>
+  <li>[ ] Plain objects (<code>{}</code>) are iterable by default</li>
+  <li>[ ] Generator functions (<code>function*</code>) automatically create iterators</li>
+  <li>[ ] <code>for...of</code> loops use the Iterator protocol internally</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers:</strong></p>
+  <ul>
+    <li>[x] Iterable requires <code>[Symbol.iterator]</code> returning an iterator</li>
+    <li>[x] Iterator <code>next()</code> returns <code>{ value, done }</code></li>
+    <li>[x] Arrays, Sets, Maps are iterable</li>
+    <li>[ ] Plain objects are iterable — <strong>FALSE</strong>. Plain objects do not have <code>[Symbol.iterator]</code> by default. You must add it manually or use <code>Object.keys()</code>/<code>Object.entries()</code> to iterate.</li>
+    <li>[x] Generator functions implement the iterator protocol automatically</li>
+    <li>[x] <code>for...of</code> calls <code>[Symbol.iterator]</code> internally</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 43 — Code Analysis (4 pts)</h3>
+<p>Consider the following code that uses the <strong>Decorator</strong> pattern:</p>
+<div class="cb"><pre>class Logger {
+  log(message) {
+    console.log(message);
+  }
+}
+
+class TimestampDecorator {
+  constructor(logger) {
+    this.logger = logger;
+  }
+  log(message) {
+    this.logger.log(`[${new Date().toISOString()}] ${message}`);
+  }
+}
+
+class LevelDecorator {
+  constructor(logger, level) {
+    this.logger = logger;
+    this.level = level;
+  }
+  log(message) {
+    this.logger.log(`[${this.level}] ${message}`);
+  }
+}
+
+const logger = new LevelDecorator(new TimestampDecorator(new Logger()), 'INFO');
+logger.log('Server started');</pre></div>
+<p><strong>a)</strong> What will be printed to the console? (2 pts)</p>
+<p><strong>b)</strong> Explain the advantage of this approach compared to adding timestamp and level functionality directly to the <code>Logger</code> class. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> <code>[INFO] [2024-xx-xxTxx:xx:xx.xxxZ] Server started</code> (with a real ISO timestamp). The call chain is: <code>LevelDecorator.log</code> prepends <code>[INFO]</code> and calls <code>TimestampDecorator.log</code>, which prepends a timestamp and calls <code>Logger.log</code>, which calls <code>console.log</code>.</p>
+  <p><strong>b)</strong> The Decorator pattern allows <strong>composing behaviors dynamically</strong> without modifying the base class. Advantages:</p>
+  <ul>
+    <li><strong>Open/Closed Principle</strong> — the base <code>Logger</code> class is closed for modification but open for extension via decorators.</li>
+    <li><strong>Mix and match</strong> — you can use <code>TimestampDecorator</code> alone, <code>LevelDecorator</code> alone, both together, or in any order, without creating a combinatorial explosion of subclasses.</li>
+    <li>Adding the behavior directly to <code>Logger</code> would bloat the class and violate Single Responsibility; it would also be impossible to use the logger without those features.</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 44 — Written Answer (4 pts)</h3>
+<p>Explain the <strong>Flyweight</strong> pattern. Describe a concrete scenario in a web application where applying it would provide significant memory savings.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Flyweight pattern:</strong> Instead of creating a new object for each similar entity, the pattern shares a single instance of the common (intrinsic) state across many objects. The unique (extrinsic) state is stored externally and passed in when needed.</p>
+  <p><strong>Concrete web scenario:</strong> A mapping application renders 100,000 map markers, each representing a point of interest. Each marker has: a type (restaurant, hotel, park — intrinsic/shared) and its GPS coordinates + name (extrinsic/unique). Without Flyweight, 100,000 objects would each contain a copy of the icon, style, and behavior for their type. With Flyweight, only 3 shared "type" objects exist (Restaurant, Hotel, Park), and each marker holds only its coordinates/name plus a reference to the shared type. Memory usage drops dramatically.</p>
+</div>
+</details>

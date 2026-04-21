@@ -1,0 +1,417 @@
+<h2 class="g-h2">Practice Exam 9 — CSS3 In Depth</h2>
+
+<h3 class="g-h3">Question 1 — Linear Gradients Basics</h3>
+<p><code>linear-gradient()</code> is applied to which CSS property? What is the default direction if no angle is given?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><code>linear-gradient()</code> is applied to the <strong><code>background-image</code></strong> CSS property. Instead of providing <code>url('/profile-img.jpg')</code>, you can make it a <code>linear-gradient()</code>.</p>
+<p>If no angle is given, it <strong>defaults to top to bottom</strong>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Linear Gradient Angles</h3>
+<p>Given the following four declarations, describe the direction each gradient flows (e.g. "bottom to top", "left to right"):</p>
+<div class="cb"><pre>&lt;!-- A --&gt; background-image: linear-gradient(0deg, white, black);
+&lt;!-- B --&gt; background-image: linear-gradient(90deg, white, black);
+&lt;!-- C --&gt; background-image: linear-gradient(180deg, white, black);
+&lt;!-- D --&gt; background-image: linear-gradient(-90deg, white, black);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li><strong>A (0deg):</strong> Bottom to top (upward)</li>
+<li><strong>B (90deg):</strong> Left to right</li>
+<li><strong>C (180deg):</strong> Top to bottom (downward)</li>
+<li><strong>D (-90deg):</strong> Right to left</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Linear Gradient with Direction Point</h3>
+<p>What does the following code produce? What does the first argument <code>to right bottom</code> represent?</p>
+<div class="cb"><pre>.my-div {
+    width: 100px;
+    height: 100px;
+    background-image: linear-gradient(to right bottom, #ff00ff, rgba(200, 100, 150, .5), blue);
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The <code>linear-gradient()</code> accepts multiple parameters. The first argument is a <strong>point or angle which determines the direction</strong> of the gradient. <code>to right bottom</code> means the gradient flows from the top-left corner toward the bottom-right corner.</p>
+<p>The second through nth arguments are <strong>colors which can be rgb, rgba, hex</strong>. In this case: <code>#ff00ff</code> (magenta), <code>rgba(200, 100, 150, .5)</code> (semi-transparent pink), and <code>blue</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Stacking Gradients</h3>
+<p>Explain why <code>rgba</code> colors are essential when stacking multiple <code>linear-gradient()</code> values on a single <code>background-image</code>. What would happen if you used fully opaque colors instead?</p>
+<div class="cb"><pre>.my-div {
+    width: 100px;
+    height: 100px;
+    background-image: linear-gradient(180deg, rgba(65, 244, 86, .8), rgba(244, 66, 223, .8)),
+                       linear-gradient(0deg, rgba(65, 244, 86, .6), rgba(244, 66, 223, .6)),
+                       linear-gradient(180deg, rgba(65, 244, 86, .4), rgba(244, 66, 223, .4)),
+                       linear-gradient(0deg, rgba(65, 244, 86, .2), rgba(244, 66, 223, .2));
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>When stacking gradients, <code>rgba</code> colors with transparency (alpha &lt; 1) are essential because gradients are layered on top of each other. If you used fully opaque colors, only the topmost gradient would be visible -- it would completely cover the ones below. By using semi-transparent rgba colors, the lower gradients can show through, creating a blended, layered visual effect.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Radial Gradients</h3>
+<p>a) How do radial gradients differ from linear gradients?</p>
+<p>b) What is the default direction of a radial gradient (where does it start)?</p>
+<p>c) What are the two possible shape values for a radial gradient?</p>
+<p>d) How do you position a radial gradient at a specific point? Write the syntax for a circle positioned at 75% 75%.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) <strong>Radial gradients</strong> work just like <strong>linear gradients</strong> except they radiate out from a central point.</p>
+<p>b) If no angle is defined, it starts from <strong>inner to outer</strong> (center outward). This is the default.</p>
+<p>c) Radial gradients can be either a <strong>circle</strong> or <strong>ellipse</strong>.</p>
+<p>d) Position is specified with the <code>at</code> keyword followed by percentage values:</p>
+<div class="cb"><pre>background-image: radial-gradient(circle at 75% 75%, rgba(155, 155, 155, .6), rgba(255, 255, 255, .6));</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Repeating Gradients</h3>
+<p>What is the difference between <code>linear-gradient</code> and <code>repeating-linear-gradient</code>? Explain what the following code produces:</p>
+<div class="cb"><pre>.my-div {
+    width: 100px;
+    height: 100px;
+    background-image: repeating-linear-gradient(-45deg, black 5px, black 10px, yellow 15px, yellow 20px);
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><code>repeating-linear-gradient</code> repeats the gradient pattern across the entire element, while a regular <code>linear-gradient</code> renders the gradient only once.</p>
+<p>The code produces a <strong>diagonal striped pattern</strong> at -45 degrees. The gradient goes: black from 5px to 10px, then yellow from 15px to 20px, and this 20px pattern repeats across the entire 100x100px element, creating a black and yellow hazard-stripe pattern.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Box Shadow</h3>
+<p>a) List all the values in the <code>box-shadow</code> shorthand in order:</p>
+<div class="cb"><pre>box-shadow: 10px 10px 10px 10px blue;</pre></div>
+<p>b) What does the <code>inset</code> keyword do when added to <code>box-shadow</code>?</p>
+<p>c) The slides state that <code>box-shadow</code> can be used to "replicate elements." Given the following code, how many visible boxes appear on screen and why?</p>
+<div class="cb"><pre>.my-div {
+    border: solid 1px rgba(155, 155, 155, .5);
+    width: 10px;
+    height: 10px;
+    box-shadow: 20px 0, 40px 0, 60px 0, 80px 0;
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) The five values in order are:</p>
+<ol>
+<li><strong>offset-x</strong> (10px) -- horizontal shadow offset</li>
+<li><strong>offset-y</strong> (10px) -- vertical shadow offset</li>
+<li><strong>blur-radius</strong> (10px) -- the blur effect</li>
+<li><strong>spread-radius</strong> (10px) -- the size of the spread</li>
+<li><strong>color</strong> (blue) -- the shadow color</li>
+</ol>
+<p>b) The <code>inset</code> keyword makes the shadow appear <strong>inside</strong> the element rather than outside. Example from slides:</p>
+<div class="cb"><pre>box-shadow: inset 5px 5px 10px 10px rgba(155, 155, 155, .5);</pre></div>
+<p>c) <strong>5 visible boxes</strong> appear on screen. The original element (10x10px) plus 4 shadows. Because the shadows have no blur-radius or spread-radius (just <code>20px 0</code>, <code>40px 0</code>, etc.), each shadow is an exact copy of the element positioned at different x-offsets. This demonstrates how box-shadow can be used to <strong>replicate elements</strong>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Transitions vs Animations</h3>
+<p>According to the slides:</p>
+<p>a) Transitions can only take effect when __________.</p>
+<p>b) Animations can be __________ and therefore changing the state of the property/ies.</p>
+<p>c) Why do we need transitions? What problem do they solve regarding how CSS properties are applied?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) Transitions can only take effect when <strong>the property they are applied to change</strong> (e.g., on hover, when an element moves, appears, or disappears).</p>
+<p>b) Animations can be <strong>executed</strong> and therefore changing the state of the property/ies (they run independently without needing a property change trigger).</p>
+<p>c) When CSS properties are applied to an element it usually happens really fast (too fast for the eye to see). Therefore <strong>transitions</strong> can be useful to slow down the effects taking place on the element. We need transitions to move elements from one state to the next in a <strong>smooth manner</strong>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Transition Shorthand</h3>
+<p>Identify each part of the transition shorthand:</p>
+<div class="cb"><pre>transition: background-color 1s ease-in 0s;</pre></div>
+<p>Write a CSS rule that transitions <code>background-color</code> in 1 second, <code>width</code> in 2 seconds, and <code>height</code> in 3 seconds, all triggered by a <code>:hover</code> state change.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The four parts of the transition shorthand:</p>
+<ol>
+<li><strong>CSS property:</strong> <code>background-color</code></li>
+<li><strong>Duration:</strong> <code>1s</code></li>
+<li><strong>Timing function:</strong> <code>ease-in</code></li>
+<li><strong>Delay:</strong> <code>0s</code></li>
+</ol>
+<p>Multiple transitions with hover trigger:</p>
+<div class="cb"><pre>.my-div {
+    width: 200px;
+    height: 200px;
+    transition: background-color 1s, width 2s, height 3s;
+}
+
+.my-div:hover {
+    width: 250px;
+    height: 250px;
+    background-color: green;
+}</pre></div>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Transforms Overview</h3>
+<p>a) Transforms are either __________ or __________ transforms.</p>
+<p>b) What is the default <code>transform-origin</code>? What does it correspond to in the coordinate system?</p>
+<p>c) Why does <code>transform-origin</code> matter?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) Transforms are either <strong>2D</strong> or <strong>3D</strong> transforms.</p>
+<p>b) The default <code>transform-origin</code> is <strong>50% 50%</strong>, which is the <strong>center of the element</strong>. This center point serves as the origin for all transform calculations. From that origin, adding to the X-axis goes further right and adding to the Y-axis goes further down (from slides). Example: <code>transform-origin: 50px 70px</code> moves the origin to a specific point.</p>
+<p>c) <code>transform-origin</code> matters because it defines the point around which transforms (like rotation, scaling) are applied. Changing it changes the anchor point of the transformation. Example: <code>transform-origin: 50px 70px;</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Rotation Transforms</h3>
+<p>What is the visual difference between each of the following? What does <code>rotateZ(45deg)</code> equal?</p>
+<div class="cb"><pre>transform: rotate(45deg);
+transform: rotateX(45deg);
+transform: rotateY(45deg);
+transform: rotateZ(45deg);
+transform: rotate3d(1, 1, 1, 45deg);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li><strong>rotate(45deg):</strong> Rotates the element 45 degrees clockwise around the Z-axis (flat rotation).</li>
+<li><strong>rotateX(45deg):</strong> Rotates around the X-axis (tips forward/backward like a door hinge at the top).</li>
+<li><strong>rotateY(45deg):</strong> Rotates around the Y-axis (swings left/right like a door hinge on the side).</li>
+<li><strong>rotateZ(45deg):</strong> Rotates around the Z-axis -- this is <strong>equal to <code>rotate(45deg)</code></strong>.</li>
+<li><strong>rotate3d(1, 1, 1, 45deg):</strong> Rotates 45 degrees around a custom axis defined by the vector (1, 1, 1), producing a combined 3D rotation.</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Multiple Transforms and Order</h3>
+<p>The slides emphasize that the order of transform values matters. Given the following two rules, explain why the element moves in different directions:</p>
+<div class="cb"><pre>/* Rule A */
+transform: rotate(180deg) translateY(20px);
+
+/* Rule B */
+transform: translateY(20px) rotate(180deg);</pre></div>
+<p>Which direction does the element move in Rule A and why?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The order of transform values matter because the first is applied and then the second and etc.</p>
+<p><strong>Rule A</strong> (<code>rotate(180deg) translateY(20px)</code>): First the element is rotated 180 degrees (flipped upside down). Then <code>translateY(20px)</code> is applied. Because the coordinate system has been rotated, "down" (positive Y) is now "up" in the original space. So the element <strong>moves up</strong> instead of down.</p>
+<p><strong>Rule B</strong> (<code>translateY(20px) rotate(180deg)</code>): First the element is translated 20px down, then it is rotated 180 degrees in place. The element ends up <strong>moved down</strong> and flipped.</p>
+<p>This demonstrates that <strong>ORDER MATTERS</strong> with multiple transforms.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Perspective</h3>
+<p>a) What does the <code>perspective</code> CSS property do? What does its value represent?</p>
+<p>b) The <code>perspective</code> CSS property only applies to __________ and not on the element itself.</p>
+<p>c) What is the difference between using <code>perspective</code> as a CSS property on a parent vs. using <code>perspective()</code> as a transform value?</p>
+<p>d) What is <code>perspective-origin</code> and what is its default value?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) <strong>perspective</strong> creates an artificial viewpoint from where you view the 3D object, and therefore providing the illusion of depth. Its value defines how far the object is away from the user. The depth defaults to 0.</p>
+<p>b) The <code>perspective</code> CSS property only applies to <strong>its children</strong> and not on the element itself.</p>
+<p>c) The difference:</p>
+<ul>
+<li><strong><code>perspective</code> property</strong> (on parent): Is applied to <strong>all child elements</strong>, creating a shared 3D space/vanishing point for all children.</li>
+<li><strong><code>perspective()</code> transform value</strong> (on element): Is applied to <strong>the element itself</strong>, giving each element its own individual perspective.</li>
+</ul>
+<p>When using <code>perspective</code> as a property on a parent, multiple children share the same vanishing point. When using <code>transform: perspective()</code> on each element individually, each element has its own vanishing point.</p>
+<p>d) <strong><code>perspective-origin</code></strong> sets the origin point of the element from where the perspective will be viewed, therefore changing the angle. It takes two values: x-position and y-position. The <strong>default is 50% 50%</strong>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Border Radius</h3>
+<p>a) Identify the four corners in order for <code>border-radius</code>:</p>
+<div class="cb"><pre>border-radius: 5px 5px 5px 5px;</pre></div>
+<p>b) What value of <code>border-radius</code> creates a perfect circle (on a square element)?</p>
+<p>c) What does the <code>/</code> do in <code>border-radius: 20px / 100%</code>?</p>
+<p>d) What shape does <code>border-radius: 50% 0 50% 0</code> create?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) The four corners in order:</p>
+<ol>
+<li><strong>top-left</strong></li>
+<li><strong>top-right</strong></li>
+<li><strong>bottom-right</strong></li>
+<li><strong>bottom-left</strong></li>
+</ol>
+<p>b) <code>border-radius: 50%</code> creates a perfect circle (on a square element).</p>
+<p>c) The <code>/</code> separates horizontal radius from vertical radius, creating <strong>elliptical</strong> corners. The first set of values defines the <strong>horizontal radius</strong>. The optional second set, preceded by <code>/</code>, defines the <strong>vertical radius</strong>. If only one set is provided, it is used for both vertical and horizontal radius. So <code>20px / 100%</code> means: 20px horizontal radius, 100% vertical radius.</p>
+<p>d) <code>border-radius: 50% 0 50% 0</code> creates a <strong>leaf/eye shape</strong> -- rounded on top-left and bottom-right corners, square on top-right and bottom-left.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Box Sizing</h3>
+<p>a) What does the <code>box-sizing</code> CSS property define?</p>
+<p>b) What are its two possible values and which is the default?</p>
+<p>c) Given the following CSS, what is the total rendered width and height of each element? Show your calculation.</p>
+<div class="cb"><pre>.content-box {
+    box-sizing: content-box;
+    padding: 10px;
+    margin: 10px;
+    border: solid 10px black;
+    width: 100px;
+    height: 100px;
+}
+
+.border-box {
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 10px;
+    border: solid 10px black;
+    width: 100px;
+    height: 100px;
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) The <code>box-sizing</code> CSS property defines <strong>how the browser should calculate the total width and height of an element</strong>.</p>
+<p>b) Two values: <strong><code>content-box</code></strong> (the default) and <strong><code>border-box</code></strong>.</p>
+<p>c) Calculations:</p>
+<p><strong><code>.content-box</code></strong> (content-box -- default):</p>
+<ul>
+<li>Width = 100px (content) + 10px (padding-left) + 10px (padding-right) + 10px (border-left) + 10px (border-right) = <strong>140px</strong></li>
+<li>Height = 100px + 10px + 10px + 10px + 10px = <strong>140px</strong></li>
+<li>Padding and border are added to BOTH SIDES on top of the declared width/height.</li>
+<li>(Margin is not included in the element's rendered size but takes up additional space: 10px on each side.)</li>
+</ul>
+<p><strong><code>.border-box</code></strong> (border-box):</p>
+<ul>
+<li>Width = <strong>100px</strong> (border and padding are included within the declared width)</li>
+<li>Height = <strong>100px</strong></li>
+<li>The content area shrinks to fit: 100px - 10px - 10px (padding) - 10px - 10px (border) = 60px content</li>
+<li>The element will always be exactly the width and height stated.</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16 — Background Sizing</h3>
+<p>a) What is the difference between <code>background-size: cover</code> and <code>background-size: contain</code>?</p>
+<p>b) When using multiple background images, which image appears on top?</p>
+<p>c) Given the following CSS, explain what each property does and how they work together:</p>
+<div class="cb"><pre>background-image: url(he-man.png), url(clouds.jpg);
+background-size: 100px, cover;
+background-position: 50% 50%, 0 0;
+background-repeat: no-repeat;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) <strong><code>cover</code></strong>: Scales the image to cover the entire element. The image may be cropped (overflow is hidden) but there will be no empty space. <strong><code>contain</code></strong>: Scales the image to fit entirely within the element. The entire image is visible, but there may be empty space (the image may repeat to fill gaps).</p>
+<p>b) When using multiple background images, the <strong>first</strong> image listed appears <strong>on top</strong>.</p>
+<p>c) Property breakdown:</p>
+<ul>
+<li><code>background-image</code>: Two images are layered; <code>he-man.png</code> is on top, <code>clouds.jpg</code> is below.</li>
+<li><code>background-size: 100px, cover</code>: The top image (He-Man) is sized to 100px; the bottom image (clouds) uses <code>cover</code> to fill the entire element.</li>
+<li><code>background-position: 50% 50%, 0 0</code>: He-Man is centered (50% 50%); clouds start from top-left (0 0).</li>
+<li><code>background-repeat: no-repeat</code>: Neither image repeats.</li>
+</ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Attribute Selectors</h3>
+<p>Given the following HTML, write the CSS selector that would match in each case:</p>
+<div class="cb"><pre>&lt;a href="mailto:arnarl@ru.is"&gt;Mail me&lt;/a&gt;
+&lt;a href="http://facebook.com/profile.jpg" title="My title"&gt;My profile&lt;/a&gt;
+&lt;a href="http://example.com/cv.pdf"&gt;My CV&lt;/a&gt;
+&lt;a href&gt;Link with nothing&lt;/a&gt;
+&lt;a&gt;Broken link&lt;/a&gt;
+&lt;a href="" data-some-data="data"&gt;Data link&lt;/a&gt;
+&lt;a href="#" target="_blank"&gt;Blank link&lt;/a&gt;</pre></div>
+<p>a) Select all <code>&lt;a&gt;</code> elements that have an <code>href</code> attribute (regardless of value).</p>
+<p>b) Select the <code>&lt;a&gt;</code> element whose <code>href</code> is exactly <code>"mailto:arnarl@ru.is"</code>.</p>
+<p>c) Select <code>&lt;a&gt;</code> elements whose <code>title</code> attribute contains the word <code>"title"</code> in a space-separated list of words.</p>
+<p>d) Select <code>&lt;a&gt;</code> elements whose <code>href</code> begins with <code>"http"</code>.</p>
+<p>e) Select <code>&lt;a&gt;</code> elements whose <code>href</code> ends with <code>"pdf"</code>.</p>
+<p>f) Select <code>&lt;a&gt;</code> elements whose <code>href</code> contains the substring <code>"facebook"</code> anywhere.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) <strong>Has</strong> attribute: <code>a[href]</code> -- selects all <code>&lt;a&gt;</code> elements that have an href attribute.</p>
+<p>b) <strong>Exactly</strong> matches value: <code>a[href="mailto:arnarl@ru.is"]</code></p>
+<p>c) <strong>Within</strong> (space-separated list contains word): <code>a[title~="title"]</code></p>
+<p>d) <strong>Begins with</strong>: <code>a[href^="http"]</code></p>
+<p>e) <strong>Ends with</strong>: <code>a[href$="pdf"]</code></p>
+<p>f) <strong>Substring</strong> (contains anywhere): <code>a[href*="facebook"]</code> -- this is the wildcard/substring selector; it matches if "facebook" appears anywhere in the href value.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 — Structural Pseudo-Classes</h3>
+<p>Given the following HTML:</p>
+<div class="cb"><pre>&lt;div&gt;Lorem ipsum dolor sit amet&lt;/div&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet&lt;/p&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet&lt;/p&gt;
+&lt;div&gt;Lorem ipsum dolor sit amet&lt;/div&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet&lt;/p&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet&lt;/p&gt;</pre></div>
+<p>a) What is the difference between <code>p:first-child</code> and <code>p:first-of-type</code>? Which one would match in this HTML and which would not? Explain why.</p>
+<p>b) Write CSS to color every odd <code>&lt;p&gt;</code> element red using <code>nth-child</code>.</p>
+<p>c) What is the difference between <code>p:nth-child(2n+1)</code> and <code>p:nth-of-type(2n+1)</code> when the parent contains mixed element types (<code>&lt;div&gt;</code> and <code>&lt;p&gt;</code>)?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) <strong><code>p:first-child</code></strong> selects a <code>&lt;p&gt;</code> that is the first child of its parent. In this HTML, the first child is a <code>&lt;div&gt;</code>, not a <code>&lt;p&gt;</code>, so <code>p:first-child</code> <strong>does NOT match</strong> any element. It "drops" because the first-child is a <code>&lt;div&gt;</code>.</p>
+<p><strong><code>p:first-of-type</code></strong> selects the first <code>&lt;p&gt;</code> element among its siblings, regardless of what other element types come before it. In this HTML, the second element (first <code>&lt;p&gt;</code>) <strong>does match</strong> <code>p:first-of-type</code> and gets styled.</p>
+<p>b) Every odd <code>&lt;p&gt;</code> element using nth-child:</p>
+<div class="cb"><pre>p:nth-child(2n+1) { /* equivalent to nth-child(odd) */
+    color: red;
+}</pre></div>
+<p>c) <code>p:nth-child(2n+1)</code> counts ALL children (regardless of type) and then checks if the matched child is a <code>&lt;p&gt;</code>. It counts <code>&lt;div&gt;</code> and <code>&lt;p&gt;</code> elements together in the numbering.</p>
+<p><code>p:nth-of-type(2n+1)</code> only counts <code>&lt;p&gt;</code> elements when determining position. It filters by type first, then applies the nth formula. So nth-of-type "skips" the <code>&lt;div&gt;</code> elements entirely in its counting.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 19 — Negation Pseudo-Class and Pseudo-Elements</h3>
+<p>a) What does <code>p:not(:first-child)</code> select?</p>
+<p>b) Pseudo-elements provide a way to refer to __________ that does not exist in the source document.</p>
+<p>c) <code>::before</code> and <code>::after</code> require a mandatory property called __________. What happens if this property is omitted?</p>
+<p>d) What does the <code>attr()</code> function do in the context of pseudo-elements? Write the CSS from the slides that appends the URL after links beginning with <code>"http"</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>a) <code>p:not(:first-child)</code> selects all <code>&lt;p&gt;</code> elements that are <strong>not</strong> the first child of their parent. It is a functional notation taking a simple selector as an argument. It represents an element that is not represented by its argument. It can be useful to exclude styles on specific DOM elements.</p>
+<p>b) Pseudo-elements provide a way to refer to <strong>content that does not exist in the source document</strong>.</p>
+<p>c) <code>::before</code> and <code>::after</code> require the mandatory <strong><code>content</code></strong> property. If <code>content</code> is omitted, the pseudo-element will not be rendered/displayed at all. Even an empty string (<code>content: '';</code>) is sufficient.</p>
+<p>d) The <code>attr()</code> function retrieves the value of an attribute from the selected element and inserts it as content. From the slides:</p>
+<div class="cb"><pre>a[href^="http"]::after {
+    content: " (" attr(href) ") ";
+}</pre></div>
+<p>This appends the full URL in parentheses after every link whose href begins with "http". For example, "My profile" becomes "My profile (http://facebook.com/profile.jpg)".</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 20 — Comprehensive CSS3 Scenario</h3>
+<p>A developer writes the following CSS. Identify and explain every CSS3 feature used:</p>
+<div class="cb"><pre>div {
+    position: relative;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    background-color: yellow;
+    border: solid 5px #916124;
+}
+
+div::after {
+    position: absolute;
+    content: '';
+    width: 20px;
+    height: 20px;
+    left: 40px;
+    top: 60px;
+    background: black;
+    border-radius: 50%;
+    box-shadow: 90px 0 0 black, 46px 30px 0 40px yellow, 46px 50px 0 30px red;
+}</pre></div>
+<p>What does this code visually create? How are the box-shadows used here?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>CSS3 features used:</p>
+<ol>
+<li><strong><code>border-radius: 50%</code></strong> -- Creates a perfect circle from the 200x200px div (rounded corners).</li>
+<li><strong><code>::after</code> pseudo-element</strong> -- Creates content that does not exist in the source document. Uses the mandatory <code>content: '';</code> property (empty string).</li>
+<li><strong><code>border-radius: 50%</code></strong> on ::after -- Makes the 20x20px pseudo-element into a circle (an eye).</li>
+<li><strong><code>box-shadow</code></strong> with multiple values (comma-separated):
+<ul>
+<li><code>90px 0 0 black</code> -- Creates a second black circle 90px to the right (the other eye), replicating the element.</li>
+<li><code>46px 30px 0 40px yellow</code> -- Creates a larger yellow circle (spread-radius 40px) positioned below, forming the mouth/smile background.</li>
+<li><code>46px 50px 0 30px red</code> -- Creates a red circle (spread-radius 30px) forming the smile/mouth.</li>
+</ul>
+</li>
+</ol>
+<p>This code creates a <strong>smiley face emoji</strong>: a yellow circle with a brown border, two black dot eyes (one is the ::after element, the other is its box-shadow replica), and a smile made from layered colored box-shadows. This demonstrates how box-shadow can be used to replicate elements and create complex illustrations.</p>
+</div>
+</details>

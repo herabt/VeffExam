@@ -1,0 +1,2019 @@
+<h1 class="g-h2">Web Programming II — JavaScript &amp; TypeScript Study Guide</h1>
+
+<h2 class="g-h2">TABLE OF CONTENTS</h2>
+<ol>
+  <li>The <code>this</code> Keyword — All 4 Binding Rules</li>
+  <li>Arrow Functions &amp; <code>this</code></li>
+  <li>Prototypes &amp; Inheritance</li>
+  <li>Promises — All States, Methods, Combinators</li>
+  <li>async/await</li>
+  <li>Event Loop — Execution Order, Queues, Tricky Examples</li>
+  <li>fetch API — Syntax, Response Handling, Error Handling</li>
+  <li>TypeScript — Complete Coverage</li>
+  <li>Tricky "What Does This Print?" Examples</li>
+  <li>Quick-Reference Cheat Sheet</li>
+  <li>Likely Exam Questions &amp; Model Answers</li>
+</ol>
+
+<h2 class="g-h2">1. The <code>this</code> Keyword</h2>
+
+<h3 class="g-h3">The One Rule That Rules Them All</h3>
+<p><strong><code>this</code> is determined by HOW a function is CALLED, not where it is defined.</strong></p>
+
+<h3 class="g-h3">The 4 Binding Rules (+ 2 special cases)</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Rule</th>
+    <th>How it's called</th>
+    <th><code>this</code> equals</th>
+    <th>Example</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><strong>Global / Default</strong></td><td>Regular call, no object</td><td><code>window</code> (non-strict) / <code>undefined</code> (strict)</td><td><code>foo()</code></td></tr>
+    <tr><td><strong>Implicit</strong></td><td>Method call via dot notation</td><td>The object before the dot</td><td><code>obj.foo()</code> → <code>this = obj</code></td></tr>
+    <tr><td><strong>Explicit</strong></td><td><code>.call()</code> / <code>.apply()</code> / <code>.bind()</code></td><td>The first argument</td><td><code>foo.call(obj)</code> → <code>this = obj</code></td></tr>
+    <tr><td><strong><code>new</code></strong></td><td>Constructor call</td><td>The newly created object</td><td><code>new Foo()</code> → <code>this = new Foo instance</code></td></tr>
+    <tr><td><strong>Arrow</strong></td><td>Arrow function</td><td>Inherited from enclosing scope</td><td>No own <code>this</code></td></tr>
+    <tr><td><strong>setTimeout</strong></td><td>Callback passed to setTimeout</td><td><code>window</code> (context LOST)</td><td><code>setTimeout(obj.fn, 0)</code> → <code>this = window</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Rule 1: Global Binding (Default)</h3>
+<div class="cb"><pre>function greet() {
+    console.log(this); // window (in non-strict mode)
+}
+greet(); // regular call — no object, no new
+
+// Strict mode:
+"use strict";
+function strictGreet() {
+    console.log(this); // undefined
+}
+strictGreet();</pre></div>
+<p><strong>Gotcha:</strong> Calling a function without an object = <code>this</code> defaults to global.</p>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>var color = 'red'; // var attaches to window
+
+function showColor() {
+    console.log(this.color);
+}
+
+showColor(); // Output: "red"  (this = window, window.color = "red")
+
+// In strict mode:
+'use strict';
+function showColorStrict() {
+    console.log(this); // Output: undefined
+    // console.log(this.color); // TypeError: Cannot read property of undefined
+}
+showColorStrict();</pre></div>
+
+<h3 class="g-h3">Rule 2: Implicit Binding (Method Call)</h3>
+<div class="cb"><pre>const person = {
+    name: 'Arnar',
+    greet() {
+        return 'Hello, I am ' + this.name;
+    }
+};
+
+person.greet();       // this = person → "Hello, I am Arnar"
+
+// Context is LOST when you extract the function:
+const greetFn = person.greet;
+greetFn();            // this = window → "Hello, I am undefined"</pre></div>
+<p><strong>Gotcha:</strong> Only the object immediately to the left of the dot matters.</p>
+<div class="cb"><pre>const a = {
+    name: 'A',
+    b: {
+        name: 'B',
+        greet() { return this.name; }
+    }
+};
+a.b.greet(); // this = a.b (the object immediately left of the dot) → "B"</pre></div>
+
+<h4 class="g-h4">Example</h4>
+<div class="cb"><pre>const library = {
+    section: 'Science',
+    shelf: {
+        section: 'Fiction',
+        getSection() { return this.section; }
+    }
+};
+
+console.log(library.shelf.getSection()); // Output: "Fiction"
+// this = library.shelf (the object directly before the dot)
+// library.section is NEVER accessed
+
+const extracted = library.shelf.getSection;
+console.log(extracted()); // Output: undefined (this = window, window.section is undef)</pre></div>
+
+<h3 class="g-h3">Rule 3: Explicit Binding — call, apply, bind</h3>
+
+<h4 class="g-h4">.call() — args individually</h4>
+<div class="cb"><pre>function introduce(greeting, punctuation) {
+    return greeting + ', I am ' + this.name + punctuation;
+}
+const person = { name: 'Arnar' };
+
+introduce.call(person, 'Hello', '!');  // "Hello, I am Arnar!"
+// .call(thisArg, arg1, arg2, ...)</pre></div>
+
+<h4 class="g-h4">.apply() — args as array</h4>
+<div class="cb"><pre>introduce.apply(person, ['Hello', '!']); // "Hello, I am Arnar!"
+// .apply(thisArg, [arg1, arg2, ...])</pre></div>
+<p><strong>Memory trick:</strong> <strong>C</strong>all = <strong>C</strong>ommas | <strong>A</strong>pply = <strong>A</strong>rray</p>
+
+<h4 class="g-h4">.bind() — returns NEW function, permanently bound</h4>
+<div class="cb"><pre>function Animal(name) { this.name = name; }
+Animal.prototype.speak = function() { return this.name; };
+
+const cat = new Animal('Cat');
+const dog = { name: 'Dog' };
+
+const catSpeak = cat.speak.bind(dog);  // new function, this = dog PERMANENTLY
+catSpeak();                             // "Dog"
+
+// bind CANNOT be overridden by call or apply:
+cat.speak.bind(dog).call(cat);         // "Dog" — bind WINS!
+cat.speak.bind(dog).apply(cat);        // "Dog" — bind WINS!</pre></div>
+<p><strong>Critical:</strong> <code>.bind()</code> is <strong>permanent</strong>. Not even <code>.call()</code> or <code>.apply()</code> can override it.</p>
+
+<h4 class="g-h4">Example — call vs apply vs bind side by side</h4>
+<div class="cb"><pre>function greet(greeting, punctuation) {
+    return greeting + ', I am ' + this.name + punctuation;
+}
+
+const alice = { name: 'Alice' };
+const bob   = { name: 'Bob' };
+
+// .call — args individually, executes NOW
+console.log(greet.call(alice, 'Hello', '!')); // Output: "Hello, I am Alice!"
+
+// .apply — args as array, executes NOW
+console.log(greet.apply(bob, ['Hi', '?']));   // Output: "Hi, I am Bob?"
+
+// .bind — returns a new function, this PERMANENTLY = alice
+const greetAlice = greet.bind(alice, 'Hey');
+console.log(greetAlice('...'));               // Output: "Hey, I am Alice..."
+
+// bind CANNOT be overridden
+console.log(greetAlice.call(bob, '!'));       // Output: "Hey, I am Alice!" (bob IGNORED)</pre></div>
+
+<h3 class="g-h3">Rule 4: <code>new</code> Binding (Constructor)</h3>
+<p>When <code>new</code> is used, JavaScript:</p>
+<ol>
+  <li>Creates a new empty object <code>{}</code></li>
+  <li>Sets <code>this</code> to that new object</li>
+  <li>Sets the object's <code>__proto__</code> to the constructor's <code>.prototype</code></li>
+  <li>Runs the constructor body</li>
+  <li>Returns the new object (implicitly)</li>
+</ol>
+<div class="cb"><pre>function Car(model) {
+    this.model = model;   // this = the new Car object
+}
+
+const tesla = new Car('Tesla');
+console.log(tesla.model); // "Tesla"
+
+// WITHOUT new — disaster!
+const mistake = Car('Oops');  // this = window! Sets window.model = 'Oops'
+console.log(mistake);          // undefined (no return)
+console.log(window.model);     // "Oops" — polluted global!</pre></div>
+
+<h4 class="g-h4">Example — step-by-step new binding</h4>
+<div class="cb"><pre>function Person(firstName, lastName) {
+    // At this point, 'new' has already created {} and set this = {}
+    this.firstName = firstName;
+    this.lastName  = lastName;
+    // 'new' will implicitly return 'this' at the end
+}
+
+Person.prototype.fullName = function() {
+    return this.firstName + ' ' + this.lastName;
+};
+
+const p1 = new Person('Jon', 'Snow');
+const p2 = new Person('Arya', 'Stark');
+
+console.log(p1.fullName()); // Output: "Jon Snow"
+console.log(p2.fullName()); // Output: "Arya Stark"
+
+// p1.__proto__ === Person.prototype   → true
+// p1 instanceof Person               → true
+// p1.fullName === p2.fullName        → true  (shared on prototype)</pre></div>
+
+<h3 class="g-h3">setTimeout Loses Context</h3>
+<div class="cb"><pre>const cat = new Animal('Cat');
+
+setTimeout(cat.speak, 1000);         // this = window — context LOST!
+// Fix 1: Arrow function wrapper
+setTimeout(() =&gt; cat.speak(), 1000); // this = cat — arrow preserves
+// Fix 2: .bind()
+setTimeout(cat.speak.bind(cat), 1000); // this = cat — bound</pre></div>
+
+<h3 class="g-h3">Tricky <code>this</code> Code: Practice Exam Classic (MEMORIZE THIS)</h3>
+<div class="cb"><pre>function Animal(name) {
+    this.name = name;
+    console.log(this); // Line A
+}
+Animal.prototype.speak = function() {
+    console.log(this); // Line B
+};
+
+function Dog(name, breed) {
+    Animal.call(this, name); // Line C: calls Animal with Dog's this
+    this.breed = breed;
+    console.log(this); // Line D
+}
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+var stray = {};
+
+var a = Animal('Cat');            // 1. No new! this = window
+var b = new Animal('Parrot');     // 2. new! this = Animal{name:'Parrot'}
+var c = new Dog('Rex', 'Lab');    // 3. Two logs: Dog{name:'Rex'}, Dog{name:'Rex',breed:'Lab'}
+b.speak();                        // 4. this = b = Animal{name:'Parrot'}
+b.speak.bind(stray).call();       // 5. this = stray (bind wins!)
+setTimeout(b.speak, 1000);        // 6. this = window (context lost)</pre></div>
+<p><strong>Answers:</strong></p>
+<ol>
+  <li><code>window</code> — no <code>new</code>, regular function call</li>
+  <li><code>Animal { name: 'Parrot' }</code> — <code>new</code> creates new object</li>
+  <li>First log (from Animal.call): <code>Dog { name: 'Rex' }</code>, Second log: <code>Dog { name: 'Rex', breed: 'Lab' }</code></li>
+  <li><code>Animal { name: 'Parrot' }</code> — method on <code>b</code>, this = <code>b</code></li>
+  <li><code>{}</code> (stray) — <code>.bind(stray)</code> permanently wins over <code>.call()</code></li>
+  <li><code>window</code> — setTimeout loses context</li>
+</ol>
+
+<h2 class="g-h2">2. Arrow Functions &amp; <code>this</code></h2>
+<p>Arrow functions <strong>do not have their own <code>this</code></strong>. They inherit <code>this</code> from the enclosing <strong>lexical scope</strong> — the scope where the arrow function is defined, not where it is called.</p>
+<div class="cb"><pre>const obj = {
+    name: 'Arnar',
+    // Regular method — has own this
+    regularGreet: function() {
+        return 'Hello, ' + this.name; // this = obj
+    },
+    // Arrow method — inherits this from surrounding scope (module/window)
+    arrowGreet: () =&gt; {
+        return 'Hello, ' + this.name; // this = window/undefined
+    },
+    // Arrow inside a regular method — inherits this from the regular method
+    delayedGreet: function() {
+        setTimeout(() =&gt; {
+            console.log(this.name); // this = obj (captured from delayedGreet)
+        }, 1000);
+    }
+};
+
+obj.regularGreet(); // "Hello, Arnar"
+obj.arrowGreet();   // "Hello, undefined" — gotcha!
+obj.delayedGreet(); // "Arnar" — arrow saves the day!</pre></div>
+
+<h3 class="g-h3">When Arrow Functions Help vs Hurt</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Situation</th>
+    <th>Use</th>
+    <th>Reason</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Callback inside a method (setTimeout, etc.)</td><td>Arrow function</td><td>Inherits <code>this</code> from the method</td></tr>
+    <tr><td>Object method that needs <code>this</code></td><td>Regular function</td><td>Arrow would use wrong <code>this</code></td></tr>
+    <tr><td>Class methods</td><td>Regular function</td><td>Needs <code>this</code> = instance</td></tr>
+    <tr><td>Array callbacks (.map, .filter)</td><td>Arrow or regular</td><td>Rarely matters for <code>this</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Arrow Function <code>this</code> Gotcha</h3>
+<div class="cb"><pre>const counter = {
+    count: 0,
+    // BAD: Arrow function as method — this = window, not counter
+    increment: () =&gt; {
+        this.count++; // window.count, not counter.count!
+    },
+    // GOOD: Regular function as method
+    decrement: function() {
+        this.count--; // counter.count
+    }
+};</pre></div>
+
+<h4 class="g-h4">Example — BEFORE arrow (setTimeout loses this) vs AFTER arrow (this preserved)</h4>
+<div class="cb"><pre>// BEFORE — using regular function callback: this is LOST
+function Timer() {
+    this.seconds = 0;
+    setInterval(function() {
+        this.seconds++; // this = window, NOT the Timer instance!
+        console.log(this.seconds); // Output: NaN (window.seconds is undefined)
+    }, 1000);
+}
+
+// AFTER — using arrow function callback: this is INHERITED from Timer
+function TimerFixed() {
+    this.seconds = 0;
+    setInterval(() =&gt; {
+        this.seconds++; // this = TimerFixed instance (lexically captured)
+        console.log(this.seconds); // Output: 1, 2, 3, 4 ...
+    }, 1000);
+}
+
+const t = new TimerFixed();
+// After 3 seconds: Output: 1  then  2  then  3</pre></div>
+
+<h3 class="g-h3">.bind() / .call() / .apply() on Arrow Functions — They Don't Work</h3>
+<div class="cb"><pre>const arrowFn = () =&gt; console.log(this); // this always = enclosing scope
+arrowFn.call({ x: 1 }); // Still logs enclosing scope's this, not { x: 1 }</pre></div>
+
+<h2 class="g-h2">3. Prototypes &amp; Inheritance</h2>
+
+<h3 class="g-h3">Every Object Has a Prototype</h3>
+<div class="cb"><pre>cat instance → Cat.prototype → Object.prototype → null</pre></div>
+<p>When you access <code>cat.speak()</code>:</p>
+<ol>
+  <li>Look on <code>cat</code> itself — not found</li>
+  <li>Look on <code>cat.__proto__</code> (= <code>Cat.prototype</code>) — found! Call it.</li>
+  <li>If not found, look on <code>Cat.prototype.__proto__</code> (= <code>Object.prototype</code>)</li>
+  <li>If not found, return <code>undefined</code></li>
+</ol>
+
+<h3 class="g-h3">Basic Constructor (Problem: Every instance gets its own copy of methods)</h3>
+<div class="cb"><pre>function Car(model, year) {
+    this.model = model;
+    this.year = year;
+    // BAD: this function is copied to EVERY Car instance
+    this.toString = function() {
+        return this.model + ' (' + this.year + ')';
+    };
+}
+
+var tesla = new Car('Tesla', 2024);
+var ford = new Car('Ford', 2020);
+// tesla.toString !== ford.toString — DIFFERENT function objects!</pre></div>
+
+<h3 class="g-h3">Constructors With Prototypes (Best Practice: Shared methods)</h3>
+<div class="cb"><pre>function Car(model, year) {
+    this.model = model;
+    this.year = year;
+}
+
+// Method on prototype — SHARED by all instances (memory efficient)
+Car.prototype.toString = function() {
+    return this.model + ' (' + this.year + ')';
+};
+
+var tesla = new Car('Tesla', 2024);
+var ford = new Car('Ford', 2020);
+// tesla.toString === ford.toString — SAME function object!
+
+console.log(tesla.toString()); // "Tesla (2024)"
+console.log(ford.toString());  // "Ford (2020)"</pre></div>
+
+<h3 class="g-h3">Prototype Inheritance (Classical Pattern)</h3>
+<div class="cb"><pre>function Animal(name) {
+    this.name = name;
+}
+Animal.prototype.speak = function() {
+    return this.name + ' makes a sound';
+};
+
+function Dog(name, breed) {
+    Animal.call(this, name);  // Call parent constructor with THIS Dog's context
+    this.breed = breed;
+}
+
+// Set up prototype chain: Dog → Animal → Object
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog; // Fix constructor reference
+
+// Dog-specific method
+Dog.prototype.bark = function() {
+    return this.name + ' barks!';
+};
+
+var rex = new Dog('Rex', 'Lab');
+console.log(rex.speak());  // "Rex makes a sound" (inherited from Animal.prototype)
+console.log(rex.bark());   // "Rex barks!" (own to Dog.prototype)
+console.log(rex instanceof Dog);    // true
+console.log(rex instanceof Animal); // true</pre></div>
+
+<h3 class="g-h3">Why <code>Object.create(Animal.prototype)</code> Not <code>new Animal()</code></h3>
+<div class="cb"><pre>// WRONG — calls Animal constructor, runs Animal's logic, sets name = undefined
+Dog.prototype = new Animal();
+
+// CORRECT — creates an object whose __proto__ = Animal.prototype without calling constructor
+Dog.prototype = Object.create(Animal.prototype);</pre></div>
+
+<h3 class="g-h3">The Prototype Chain (Visual)</h3>
+<div class="cb"><pre>rex (instance)
+  .__proto__ = Dog.prototype
+    .bark = function() { ... }
+    .__proto__ = Animal.prototype
+      .speak = function() { ... }
+      .__proto__ = Object.prototype
+        .toString = function() { ... }
+        .__proto__ = null</pre></div>
+
+<h4 class="g-h4">Example — __proto__ lookups and overriding on an instance</h4>
+<div class="cb"><pre>function Vehicle(type) {
+    this.type = type;
+}
+Vehicle.prototype.describe = function() {
+    return 'I am a ' + this.type;
+};
+Vehicle.prototype.category = 'transport';
+
+function Bike(color) {
+    Vehicle.call(this, 'bike');
+    this.color = color;
+}
+Bike.prototype = Object.create(Vehicle.prototype);
+Bike.prototype.constructor = Bike;
+
+const myBike = new Bike('red');
+
+// --- __proto__ chain lookup ---
+console.log(myBike.color);      // Output: "red"       ← own property
+console.log(myBike.type);       // Output: "bike"      ← own property (set by Vehicle.call)
+console.log(myBike.category);   // Output: "transport" ← found on Vehicle.prototype (2 hops up)
+console.log(myBike.describe()); // Output: "I am a bike" ← found on Vehicle.prototype
+
+// Verify the chain:
+console.log(myBike.__proto__ === Bike.prototype);            // Output: true
+console.log(myBike.__proto__.__proto__ === Vehicle.prototype); // Output: true
+console.log(myBike.__proto__.__proto__.__proto__ === Object.prototype); // Output: true
+console.log(myBike.__proto__.__proto__.__proto__.__proto__);  // Output: null  (end of chain)
+
+// --- Overriding (shadowing) a prototype property ---
+// The instance gets its OWN property that SHADOWS the prototype's
+myBike.category = 'sports';      // adds 'category' directly to myBike
+console.log(myBike.category);    // Output: "sports"    ← own property wins
+console.log(myBike.hasOwnProperty('category')); // Output: true
+
+// Vehicle.prototype.category is untouched:
+const other = new Bike('blue');
+console.log(other.category);     // Output: "transport" ← still inherited, not shadowed</pre></div>
+
+<h3 class="g-h3">Key Terms</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Term</th>
+    <th>What it is</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>obj.__proto__</code></td><td>The actual prototype link on an instance — points to the constructor's <code>.prototype</code></td></tr>
+    <tr><td><code>Constructor.prototype</code></td><td>The object shared by all instances created with <code>new Constructor()</code></td></tr>
+    <tr><td><code>Object.create(proto)</code></td><td>Creates a new object with <code>proto</code> as its prototype</td></tr>
+    <tr><td><code>new</code> keyword</td><td>Creates object, sets <code>this</code>, links <code>__proto__</code> to constructor's <code>.prototype</code>, runs constructor</td></tr>
+    <tr><td>Prototype chain</td><td>Linked list of prototypes JavaScript walks to find a property</td></tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">4. Promises</h2>
+
+<h3 class="g-h3">Promise States</h3>
+<p>A Promise is always in exactly ONE of these states:</p>
+<div class="tw"><table>
+  <thead><tr>
+    <th>State</th>
+    <th>Description</th>
+    <th>Can transition?</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><strong>pending</strong></td><td>Initial state, not yet settled</td><td>→ fulfilled or → rejected</td></tr>
+    <tr><td><strong>fulfilled</strong></td><td>Completed successfully</td><td>No — state is locked permanently</td></tr>
+    <tr><td><strong>rejected</strong></td><td>Failed</td><td>No — state is locked permanently</td></tr>
+  </tbody>
+</table></div>
+<p>A Promise that has left <code>pending</code> is called <strong>settled</strong>. A settled Promise's value/reason is <strong>immutable</strong>.</p>
+
+<h3 class="g-h3">Creating a Promise</h3>
+<div class="cb"><pre>const myPromise = new Promise((resolve, reject) =&gt; {
+    // This executor function runs SYNCHRONOUSLY and IMMEDIATELY
+    console.log('X'); // This runs right now!
+
+    if (/* success */) {
+        resolve('success value');  // fulfills the promise
+    } else {
+        reject('error reason');    // rejects the promise
+    }
+
+    console.log('Z'); // This ALSO runs — resolve/reject do NOT stop execution
+});</pre></div>
+<p><strong>Gotcha:</strong> The executor runs synchronously. <code>resolve()</code> does NOT pause execution.</p>
+<div class="cb"><pre>const p = new Promise((resolve, reject) =&gt; {
+    console.log('X');  // 1st
+    resolve('Y');
+    console.log('Z');  // 2nd — still runs after resolve!
+});
+p.then(val =&gt; console.log(val)); // 4th (microtask)
+console.log('W');                // 3rd (sync)
+// Output: X, Z, W, Y</pre></div>
+
+<h3 class="g-h3">.then() / .catch() / .finally()</h3>
+<div class="cb"><pre>fetchUser()
+    .then(user =&gt; {
+        console.log(user.name);  // runs if resolved
+        return user.age;          // return value passed to next .then
+    })
+    .then(age =&gt; {
+        console.log(age * 2);    // receives value returned by previous .then
+    })
+    .catch(err =&gt; {
+        console.log('Error:', err); // catches ANY rejection in the chain
+        return 'recovered';          // return resets chain to fulfilled!
+    })
+    .then(val =&gt; {
+        console.log(val); // "recovered" — catch returned a value, chain continues
+    })
+    .finally(() =&gt; {
+        console.log('Done'); // always runs, receives NO arguments
+    });</pre></div>
+<p><strong>Critical facts:</strong></p>
+<ul>
+  <li><code>.finally()</code> receives <strong>no arguments</strong> (no value, no reason)</li>
+  <li>A <code>.catch()</code> that <strong>returns a value</strong> resets the chain to fulfilled</li>
+  <li>A <code>.then()</code> that <strong>throws</strong> puts the chain in rejected state — skips to next <code>.catch()</code></li>
+  <li>Each <code>.then()/.catch()</code> returns a <strong>new Promise</strong></li>
+</ul>
+
+<h3 class="g-h3">Error Propagation in Chains</h3>
+<div class="cb"><pre>Promise.resolve('start')
+    .then(val =&gt; {
+        console.log(val);       // "start"
+        throw new Error('oops');
+    })
+    .then(val =&gt; {
+        console.log('skipped'); // SKIPPED — chain is rejected
+    })
+    .catch(err =&gt; {
+        console.log('Caught:', err.message); // "Caught: oops"
+        return 'recovered';
+    })
+    .then(val =&gt; {
+        console.log(val); // "recovered" — catch returned a value
+    });
+// Output: "start", "Caught: oops", "recovered"</pre></div>
+
+<h3 class="g-h3">Promise Combinators — The Big 4</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Method</th>
+    <th>Resolves when</th>
+    <th>Rejects when</th>
+    <th>Use case</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>Promise.all(arr)</code></td><td>ALL promises fulfill</td><td>ANY one rejects (immediately)</td><td>Need all results</td></tr>
+    <tr><td><code>Promise.race(arr)</code></td><td>First to SETTLE (fulfill or reject)</td><td>First to SETTLE (fulfill or reject)</td><td>Race/timeout</td></tr>
+    <tr><td><code>Promise.any(arr)</code></td><td>First to FULFILL</td><td>ALL reject (AggregateError)</td><td>First success</td></tr>
+    <tr><td><code>Promise.allSettled(arr)</code></td><td>ALL settle (never rejects)</td><td>Never</td><td>Need all outcomes</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Memory tricks:</strong></p>
+<ul>
+  <li><code>all</code> = strict teacher — one fail = everyone fails</li>
+  <li><code>race</code> = sprint — first across the line wins, even if they trip</li>
+  <li><code>any</code> = optimist — first success is good enough</li>
+  <li><code>allSettled</code> = patient waiter — collects every result, no matter what</li>
+</ul>
+
+<h3 class="g-h3">Promise.all — Code Example</h3>
+<div class="cb"><pre>const p1 = new Promise(resolve =&gt; setTimeout(resolve, 1000, '1 second'));
+const p2 = new Promise(resolve =&gt; setTimeout(resolve, 2000, '2 seconds'));
+const p3 = new Promise((_, reject) =&gt; setTimeout(reject, 5000, '5 seconds'));
+const p4 = new Promise(resolve =&gt; setTimeout(resolve, 10000, '10 seconds'));
+
+// Rejects after 5 seconds with reason "5 seconds"
+Promise.all([p1, p2, p3, p4])
+    .then(values =&gt; console.log(values))      // skipped
+    .catch(reason =&gt; console.log(reason));    // "5 seconds" (at 5s)
+
+// If all resolved: ["1 second", "2 seconds", "5 seconds", "10 seconds"] after 10s</pre></div>
+
+<h4 class="g-h4">Example — Promise.all with all success vs one failure</h4>
+<div class="cb"><pre>// ALL succeed scenario:
+const fetchUser    = Promise.resolve({ id: 1, name: 'Alice' });
+const fetchPosts   = Promise.resolve([{ title: 'Hello' }, { title: 'World' }]);
+const fetchProfile = Promise.resolve({ bio: 'Developer' });
+
+Promise.all([fetchUser, fetchPosts, fetchProfile])
+    .then(([user, posts, profile]) =&gt; {
+        console.log(user.name);     // Output: "Alice"
+        console.log(posts.length);  // Output: 2
+        console.log(profile.bio);   // Output: "Developer"
+    });
+
+// ONE fails scenario:
+const badRequest = Promise.reject(new Error('404 Not Found'));
+
+Promise.all([fetchUser, badRequest, fetchProfile])
+    .then(results =&gt; console.log('never runs'))
+    .catch(err =&gt; console.log(err.message));
+// Output: "404 Not Found"   (immediately — the other two are ignored)</pre></div>
+
+<h3 class="g-h3">Promise.allSettled — Code Example</h3>
+<div class="cb"><pre>Promise.allSettled([p1, p2, p3, p4])
+    .then(results =&gt; {
+        results.forEach(result =&gt; {
+            if (result.status === 'fulfilled') {
+                console.log('Value:', result.value);
+            }
+            if (result.status === 'rejected') {
+                console.log('Reason:', result.reason);
+            }
+        });
+    });
+// Each result: { status: "fulfilled", value: "..." }
+//           or { status: "rejected", reason: "..." }
+// Runs after 10 seconds (waits for ALL)</pre></div>
+
+<h4 class="g-h4">Example — Promise.allSettled — collect all outcomes</h4>
+<div class="cb"><pre>const requests = [
+    Promise.resolve('user data'),
+    Promise.reject('auth error'),
+    Promise.resolve('product list'),
+    Promise.reject('timeout'),
+];
+
+Promise.allSettled(requests).then(results =&gt; {
+    results.forEach((result, index) =&gt; {
+        if (result.status === 'fulfilled') {
+            console.log(`[${index}] OK:`, result.value);
+        } else {
+            console.log(`[${index}] FAIL:`, result.reason);
+        }
+    });
+});
+// Output:
+// [0] OK: "user data"
+// [1] FAIL: "auth error"
+// [2] OK: "product list"
+// [3] FAIL: "timeout"
+// (never throws — always gives you the full picture)</pre></div>
+
+<h3 class="g-h3">Promise.race vs Promise.any</h3>
+<div class="cb"><pre>// race: first to SETTLE wins (even if rejected)
+Promise.race([p1, p2, p3, p4])
+    .then(val =&gt; console.log('race resolved:', val))    // "1 second" at 1s
+    .catch(err =&gt; console.log('race rejected:', err));
+
+// any: first to FULFILL wins
+Promise.any([p1, p2, p3, p4])
+    .then(val =&gt; console.log('any resolved:', val))     // "1 second" at 1s
+    .catch(err =&gt; console.log('all failed:', err));     // AggregateError if ALL reject
+
+// If the FASTEST promise REJECTED (e.g., p1 rejects at 1s):
+// race → rejects with p1's reason after 1s
+// any → continues waiting for p2, p3, p4 — picks first fulfillment</pre></div>
+
+<h4 class="g-h4">Example — Promise.race (timeout pattern) vs Promise.any (first success)</h4>
+<div class="cb"><pre>// --- Promise.race: implement a timeout ---
+function withTimeout(promise, ms) {
+    const timeout = new Promise((_, reject) =&gt;
+        setTimeout(() =&gt; reject(new Error('Timed out after ' + ms + 'ms')), ms)
+    );
+    return Promise.race([promise, timeout]);
+}
+
+const slowFetch = new Promise(resolve =&gt; setTimeout(resolve, 5000, 'slow data'));
+
+withTimeout(slowFetch, 2000)
+    .then(val =&gt; console.log(val))
+    .catch(err =&gt; console.log(err.message));
+// Output (after 2s): "Timed out after 2000ms"
+
+// --- Promise.any: try multiple CDNs, use whichever responds first ---
+const cdn1 = new Promise((_, reject) =&gt; setTimeout(reject, 200, 'cdn1 down'));
+const cdn2 = new Promise(resolve     =&gt; setTimeout(resolve, 400, 'file from cdn2'));
+const cdn3 = new Promise(resolve     =&gt; setTimeout(resolve, 300, 'file from cdn3'));
+
+Promise.any([cdn1, cdn2, cdn3])
+    .then(file  =&gt; console.log('Got:', file))
+    .catch(err  =&gt; console.log('All CDNs failed:', err)); // AggregateError
+// Output (after 300ms): "Got: file from cdn3"
+// cdn1 rejected — ignored by .any. cdn3 fulfilled first among remaining.</pre></div>
+
+<h2 class="g-h2">5. async/await</h2>
+<p><code>async/await</code> is syntactic sugar over Promises. Every <code>async</code> function returns a Promise.</p>
+
+<h3 class="g-h3">Basic Syntax</h3>
+<div class="cb"><pre>async function fetchUser(id) {
+    try {
+        const response = await fetch(`/api/users/${id}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const user = await response.json(); // Must await! Returns a Promise.
+        return user;                         // Implicitly wrapped in Promise.resolve()
+    } catch (error) {
+        console.error('Failed:', error);
+        return null;
+    }
+}
+
+// Calling an async function:
+fetchUser(1).then(user =&gt; console.log(user));
+// Or with await:
+const user = await fetchUser(1); // Only inside another async function</pre></div>
+
+<h3 class="g-h3">Execution Order — The Key Insight</h3>
+<div class="cb"><pre>async function foo() {
+    console.log('A');                       // 1. Sync — runs immediately
+    const result = await Promise.resolve('B');
+    // await PAUSES foo and yields control back to caller
+    // Everything after await is a microtask (continuation)
+    console.log(result);                    // 4. Microtask — after sync code
+    console.log('C');                       // 5. Continues in microtask
+}
+
+console.log('D');  // 2. Sync — before foo is called
+foo();             // starts execution...
+console.log('E'); // 3. Sync — control returned from foo when it hit await
+// Output: D, A, E, B, C</pre></div>
+
+<h3 class="g-h3">async/await vs .then() — Same Thing Different Syntax</h3>
+<div class="cb"><pre>// With .then():
+function fetchData() {
+    return fetch('/api/data')
+        .then(response =&gt; {
+            if (!response.ok) throw new Error('Failed');
+            return response.json();
+        })
+        .then(data =&gt; data.filter(item =&gt; item.active))
+        .catch(err =&gt; { console.error(err); return []; });
+}
+
+// With async/await (cleaner, same behavior):
+async function fetchData() {
+    try {
+        const response = await fetch('/api/data');
+        if (!response.ok) throw new Error('Failed');
+        const data = await response.json();
+        return data.filter(item =&gt; item.active);
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
+}</pre></div>
+
+<h4 class="g-h4">Example — async/await error handling with fetch (try/catch layers)</h4>
+<div class="cb"><pre>// Simulating fetch behaviour in a runnable way:
+async function getUser(id) {
+    try {
+        const response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+
+        // Layer 1: HTTP errors (404, 500, etc.) do NOT reject — must check manually
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        // Layer 2: .json() itself can fail (malformed JSON) — also caught below
+        const user = await response.json();
+        return user;
+
+    } catch (err) {
+        // Catches: network failures, our thrown HTTP error, JSON parse errors
+        console.error('getUser failed:', err.message);
+        return null; // safe fallback
+    }
+}
+
+// --- Demonstrating each error layer ---
+
+// Scenario A: Network down → fetch() rejects → caught by catch
+// getUser(1) → Output: "getUser failed: Failed to fetch"
+
+// Scenario B: User not found → response.ok = false → we throw → caught
+// getUser(9999) → Output: "getUser failed: HTTP 404: Not Found"
+
+// Scenario C: Success
+async function main() {
+    const user = await getUser(1);
+    if (user) {
+        console.log('Name:', user.name);   // Output: "Name: Leanne Graham"
+        console.log('Email:', user.email); // Output: "Email: Sincere@april.biz"
+    } else {
+        console.log('Could not load user');
+    }
+}
+main();</pre></div>
+
+<h3 class="g-h3">Common Bug: Missing await on .json()</h3>
+<div class="cb"><pre>// BUG — returns a Promise object, not the data!
+async function bad() {
+    const response = await fetch('/api/data');
+    const data = response.json();           // MISSING AWAIT!
+    return data.filter(p =&gt; p.price &gt; 0);   // ERROR: data is a Promise, not an array
+}
+
+// FIXED:
+async function good() {
+    const response = await fetch('/api/data');
+    const data = await response.json();     // Correct!
+    return data.filter(p =&gt; p.price &gt; 0);
+}</pre></div>
+
+<h2 class="g-h2">6. Event Loop</h2>
+
+<h3 class="g-h3">The Architecture</h3>
+<div class="cb"><pre>┌─────────────────────────────────────────────┐
+│         CALL STACK (LIFO)                   │
+│  [currently executing synchronous code]      │
+└─────────────────────────────────────────────┘
+          ↕ (JS engine)
+┌─────────────────────────────────────────────┐
+│         WEB APIs (Browser)                  │
+│  setTimeout, fetch, DOM events, setInterval │
+│  [async operations run here, off main thread]│
+└─────────────────────────────────────────────┘
+          ↓ (when done)
+┌─────────────────┐   ┌──────────────────────┐
+│ MICROTASK QUEUE │   │  MACROTASK QUEUE      │
+│ (HIGH PRIORITY) │   │  (LOWER PRIORITY)     │
+│                 │   │                       │
+│ Promise .then   │   │ setTimeout callbacks  │
+│ Promise .catch  │   │ setInterval callbacks │
+│ Promise .finally│   │ DOM event handlers    │
+│ queueMicrotask()│   │ I/O callbacks         │
+└─────────────────┘   └──────────────────────┘</pre></div>
+
+<h3 class="g-h3">The Event Loop Algorithm (Exact Execution Order)</h3>
+<div class="cb"><pre>1. Run all synchronous code (Call Stack empties)
+2. Run ALL microtasks (drain entire Microtask Queue)
+3. Run ONE macrotask
+4. Run ALL microtasks again (drain entire queue)
+5. Run ONE macrotask
+6. Repeat...</pre></div>
+<p><strong>The golden rule:</strong> <strong>Microtasks (Promises) ALWAYS run before macrotasks (setTimeout)</strong></p>
+
+<h3 class="g-h3">Basic Example — The Classic</h3>
+<div class="cb"><pre>console.log('1');           // Sync — runs 1st
+
+setTimeout(() =&gt; {
+    console.log('2');       // Macrotask — runs 4th (LAST)
+}, 0);
+
+Promise.resolve().then(() =&gt; {
+    console.log('3');       // Microtask — runs 3rd (before macrotask!)
+});
+
+console.log('4');           // Sync — runs 2nd
+
+// Output: 1, 4, 3, 2</pre></div>
+
+<h3 class="g-h3">Advanced Example — Microtask Spawning Macrotask</h3>
+<div class="cb"><pre>console.log('A');           // 1. Sync
+
+setTimeout(() =&gt; {
+    console.log('B');       // 5. Macrotask (in queue first)
+    Promise.resolve().then(() =&gt; console.log('C')); // 6. Microtask (after B's macrotask)
+}, 0);
+
+Promise.resolve().then(() =&gt; {
+    console.log('D');       // 3. Microtask (first to run after sync)
+    setTimeout(() =&gt; console.log('E'), 0); // 7. Macrotask (added to queue)
+});
+
+console.log('F');           // 2. Sync
+
+// Output: A, F, D, B, C, E</pre></div>
+<p>Explanation:</p>
+<ol>
+  <li><code>A</code> — sync</li>
+  <li><code>F</code> — sync</li>
+  <li><code>D</code> — microtask runs (queue was: [D])</li>
+  <li><code>D</code> runs, queues setTimeout E</li>
+  <li><code>B</code> — macrotask (first in macrotask queue was B's timer)</li>
+  <li>After B runs, check microtasks: <code>C</code> runs</li>
+  <li><code>E</code> — last macrotask</li>
+</ol>
+
+<h3 class="g-h3">Microtask Spawning More Microtasks</h3>
+<div class="cb"><pre>Promise.resolve()
+    .then(() =&gt; {
+        console.log('A');
+        return Promise.resolve('B'); // new microtask for .then
+    })
+    .then(val =&gt; console.log(val));
+
+Promise.resolve().then(() =&gt; console.log('C'));
+
+// Microtask queue after sync:
+// [then-A, then-C]
+// A runs → queues then-B
+// C runs
+// then-B runs
+// Output: A, C, B</pre></div>
+
+<h3 class="g-h3">The Promise Constructor Gotcha</h3>
+<div class="cb"><pre>const p = new Promise((resolve, reject) =&gt; {
+    console.log('X');   // 1st — executor is SYNCHRONOUS
+    resolve('Y');
+    console.log('Z');   // 2nd — still runs! resolve() doesn't stop execution
+});
+p.then(val =&gt; console.log(val)); // 4th — microtask
+console.log('W');                // 3rd — sync
+// Output: X, Z, W, Y</pre></div>
+
+<h3 class="g-h3">queueMicrotask() — Explicit Microtask</h3>
+<div class="cb"><pre>console.log('A');
+setTimeout(() =&gt; console.log('B'), 0);
+Promise.resolve().then(() =&gt; console.log('C'));
+queueMicrotask(() =&gt; console.log('E')); // Also goes to microtask queue!
+console.log('F');
+// Output: A, F, C, E, B
+// C and E are both microtasks — run in FIFO order before B</pre></div>
+
+<h3 class="g-h3">Additional Event Loop Puzzles — "What Does This Print?"</h3>
+
+<h4 class="g-h4">Example — Puzzle A: two Promises, one setTimeout, chained .then</h4>
+<div class="cb"><pre>// What does this print? Reason through it carefully.
+setTimeout(() =&gt; console.log('macro'), 0);
+
+Promise.resolve()
+    .then(() =&gt; {
+        console.log('micro-1');
+        return Promise.resolve('chained');
+    })
+    .then(val =&gt; console.log('micro-2:', val));
+
+Promise.resolve().then(() =&gt; console.log('micro-3'));
+
+console.log('sync');
+
+// Step-by-step:
+// Sync runs first:               "sync"
+// Microtask queue: [micro-1, micro-3]
+//   micro-1 runs → logs "micro-1", queues micro-2 (chained .then)
+//   micro-3 runs → logs "micro-3"
+//   micro-2 runs → logs "micro-2: chained"  (chained from a resolved Promise needs 2 microtask ticks)
+// Macrotask: "macro"
+
+// Output:
+// sync
+// micro-1
+// micro-3
+// micro-2: chained
+// macro</pre></div>
+
+<h4 class="g-h4">Example — Puzzle B: async function mixed with sync</h4>
+<div class="cb"><pre>async function alpha() {
+    console.log('alpha-start');
+    await null; // await non-promise: still suspends (wraps in Promise.resolve)
+    console.log('alpha-end');
+}
+
+async function beta() {
+    console.log('beta-start');
+    await alpha();
+    console.log('beta-end');
+}
+
+console.log('before');
+beta();
+console.log('after');
+
+// Output:
+// before
+// beta-start
+// alpha-start
+// after
+// alpha-end      ← resumes alpha (microtask)
+// beta-end       ← resumes beta after alpha finishes (another microtask tick)</pre></div>
+
+<h4 class="g-h4">Example — Puzzle C: macrotask ordering with nested timers</h4>
+<div class="cb"><pre>console.log('start');
+
+setTimeout(function outer() {
+    console.log('outer');
+    setTimeout(function inner() {
+        console.log('inner');
+    }, 0);
+    Promise.resolve().then(() =&gt; console.log('inner-micro'));
+}, 0);
+
+Promise.resolve().then(() =&gt; console.log('top-micro'));
+
+console.log('end');
+
+// Output:
+// start
+// end
+// top-micro      ← microtask from top-level runs before ANY macrotask
+// outer          ← first macrotask (the outer setTimeout)
+// inner-micro    ← microtask spawned inside outer runs before next macrotask
+// inner          ← second macrotask (inner setTimeout, queued by outer)</pre></div>
+
+<h2 class="g-h2">7. fetch API</h2>
+
+<h3 class="g-h3">Basic Syntax</h3>
+<div class="cb"><pre>fetch('/api/data')
+    .then(response =&gt; {
+        // response is a Response object — NOT the data yet
+        console.log(response.ok);     // true if status 200-299
+        console.log(response.status); // HTTP status code (200, 404, 500...)
+        return response.json();       // returns a Promise! Must be chained
+    })
+    .then(data =&gt; {
+        console.log(data); // actual parsed data
+    })
+    .catch(err =&gt; {
+        // Only runs on NETWORK errors, NOT HTTP errors (404, 500)
+        console.error('Network error:', err);
+    });</pre></div>
+
+<h3 class="g-h3">With async/await (Preferred)</h3>
+<div class="cb"><pre>async function fetchProducts(category) {
+    try {
+        const response = await fetch(`/api/products/${category}`);
+
+        // MUST check response.ok — fetch does NOT reject on 404/500!
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // MUST await response.json() — it returns a Promise!
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        // Catches both network errors AND our thrown HTTP errors
+        console.error('Failed to fetch:', error);
+        return [];
+    }
+}</pre></div>
+
+<h3 class="g-h3">The Two Types of Errors — Critical Distinction</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Error Type</th>
+    <th>What it is</th>
+    <th>Does fetch reject?</th>
+    <th>How to detect</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><strong>Network error</strong></td><td>No internet, DNS failure, CORS block</td><td>YES — Promise rejects</td><td><code>catch</code> block</td></tr>
+    <tr><td><strong>HTTP error</strong></td><td>Server responded with 4xx/5xx</td><td>NO — Promise resolves</td><td>Check <code>response.ok</code></td></tr>
+  </tbody>
+</table></div>
+<div class="cb"><pre>// fetch ONLY rejects on network errors:
+fetch('https://nonexistent-domain.xyz/api') // → rejects (no DNS)
+fetch('/api/data') // → resolves even if server returns 404!</pre></div>
+
+<h3 class="g-h3">Response Object Methods</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Method</th>
+    <th>Returns</th>
+    <th>Description</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>response.json()</code></td><td><code>Promise&lt;any&gt;</code></td><td>Parses body as JSON</td></tr>
+    <tr><td><code>response.text()</code></td><td><code>Promise&lt;string&gt;</code></td><td>Body as plain text</td></tr>
+    <tr><td><code>response.blob()</code></td><td><code>Promise&lt;Blob&gt;</code></td><td>Binary data</td></tr>
+    <tr><td><code>response.ok</code></td><td><code>boolean</code></td><td><code>true</code> if status 200-299</td></tr>
+    <tr><td><code>response.status</code></td><td><code>number</code></td><td>HTTP status code</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">POST Request with fetch</h3>
+<div class="cb"><pre>async function createUser(userData) {
+    try {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error; // re-throw if caller needs to handle it
+    }
+}</pre></div>
+
+<h3 class="g-h3">Common fetch Bugs (Exam Favorites)</h3>
+<div class="cb"><pre>// BUG 1: Missing await on response.json()
+async function bad1() {
+    const response = await fetch('/api/data');
+    const data = response.json(); // Promise object, not data!
+    data.filter(p =&gt; p.active);   // ERROR: filter is not a method on Promise
+}
+
+// BUG 2: No error handling for HTTP errors
+async function bad2() {
+    const response = await fetch('/api/data');
+    return await response.json(); // Silently fails on 404/500
+}
+
+// BUG 3: Trying to call .filter() on returned data without await
+async function bad3() {
+    const response = await fetch('/api/data');
+    const data = response.json(); // no await
+    return data.filter(p =&gt; p.price &gt; 0); // ERROR
+}</pre></div>
+
+<h2 class="g-h2">8. TypeScript</h2>
+
+<h3 class="g-h3">Why TypeScript?</h3>
+<ul>
+  <li>JavaScript is <strong>dynamic and interpreted</strong> — errors only appear at runtime</li>
+  <li>TypeScript adds <strong>static type checking</strong> — errors caught at compile time</li>
+  <li>Compiles to plain JavaScript (no new runtime needed)</li>
+  <li><strong>Gradual adoption</strong>: can replace JS files one at a time (<code>.ts</code> alongside <code>.js</code>)</li>
+</ul>
+
+<h3 class="g-h3">The 4 TypeScript Capabilities (from slides)</h3>
+<ol>
+  <li><strong>Types by inference</strong> — TS understands JS and infers types automatically</li>
+  <li><strong>Type definitions</strong> — Explicit annotations for complex types</li>
+  <li><strong>Type composition</strong> — Unions, Generics</li>
+  <li><strong>Structural type system</strong> — Shape-based compatibility ("duck typing")</li>
+</ol>
+
+<h3 class="g-h3">Compilation</h3>
+<div class="cb"><pre>tsc hello.ts  # → outputs hello.js
+# Two things happen:
+# 1. Type annotations are stripped out (not valid JS)
+# 2. Downleveling: modern syntax → ES3 (default target)</pre></div>
+<p><strong>Key fact:</strong> TypeScript STILL generates <code>.js</code> even when there are type errors ("built with migration in mind").</p>
+
+<h3 class="g-h3">Basic Types</h3>
+<div class="cb"><pre>let name: string = 'Arnar';
+let age: number = 30;
+let active: boolean = true;
+let nothing: null = null;
+let notSet: undefined = undefined;
+let anything: any = 'can be anything'; // Avoid! Disables type checking
+let safe: unknown = 'safer than any'; // must narrow before use
+let impossible: never; // function that never returns, exhaustive checks
+
+// Type inference — no annotation needed:
+let inferred = 'hello'; // TypeScript infers: string
+inferred = 42;          // Error: Type 'number' is not assignable to 'string'</pre></div>
+
+<h3 class="g-h3">any vs unknown vs never</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Type</th>
+    <th>Can assign to it</th>
+    <th>Can use it without narrowing</th>
+    <th>Use case</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>any</code></td><td>Anything</td><td>Yes (disables type checking)</td><td>Migration from JS, last resort</td></tr>
+    <tr><td><code>unknown</code></td><td>Anything</td><td>No — must narrow first</td><td>Safer alternative to <code>any</code></td></tr>
+    <tr><td><code>never</code></td><td>Nothing</td><td>N/A</td><td>Functions that throw/infinite loop</td></tr>
+  </tbody>
+</table></div>
+<div class="cb"><pre>// unknown requires narrowing before use:
+function processInput(input: unknown) {
+    // input.toUpperCase(); // ERROR: can't call methods on unknown
+    if (typeof input === 'string') {
+        input.toUpperCase(); // OK — narrowed to string
+    }
+}
+
+// never for exhaustive checks:
+function assertNever(x: never): never {
+    throw new Error('Unexpected value: ' + x);
+}</pre></div>
+
+<h4 class="g-h4">Example — any vs unknown vs never: concrete runnable comparison</h4>
+<div class="cb"><pre>// --- any: opts OUT of type checking entirely ---
+function dangerousAny(value: any) {
+    // TypeScript allows ALL of these — no errors, but may crash at runtime:
+    console.log(value.toUpperCase()); // OK (to TypeScript, dangerous in practice)
+    console.log(value.nonExistentMethod()); // OK to TypeScript — runtime crash!
+    const n: number = value; // OK — any is assignable to anything
+}
+
+dangerousAny('hello');    // Output: "HELLO" then runtime error
+dangerousAny(42);         // Runtime error: toUpperCase is not a function
+
+
+// --- unknown: accepts anything, but forces you to prove what it is ---
+function safeUnknown(value: unknown) {
+    // value.toUpperCase();   // ERROR at compile time — cannot use unknown directly
+    // const n: number = value; // ERROR — unknown not assignable to number
+
+    // Must narrow the type first:
+    if (typeof value === 'string') {
+        console.log(value.toUpperCase()); // OK — narrowed to string
+    } else if (typeof value === 'number') {
+        console.log(value.toFixed(2));    // OK — narrowed to number
+    } else {
+        console.log('Unknown type:', typeof value);
+    }
+}
+
+safeUnknown('hello');  // Output: "HELLO"
+safeUnknown(3.14159);  // Output: "3.14"
+safeUnknown(true);     // Output: "Unknown type: boolean"
+
+
+// --- never: a type that can NEVER have a value ---
+
+// Use case 1: function that ALWAYS throws (never returns normally)
+function fail(message: string): never {
+    throw new Error(message); // never returns — TypeScript knows this
+}
+
+// Use case 2: exhaustive switch — never catches missing cases
+type Shape = 'circle' | 'square' | 'triangle';
+
+function getArea(shape: Shape, size: number): number {
+    switch (shape) {
+        case 'circle':   return Math.PI * size ** 2;
+        case 'square':   return size ** 2;
+        case 'triangle': return (Math.sqrt(3) / 4) * size ** 2;
+        default:
+            // If you add a new Shape but forget the case, TypeScript errors HERE:
+            const exhaustiveCheck: never = shape; // shape would be 'newShape' → error
+            return fail('Unhandled shape: ' + exhaustiveCheck);
+    }
+}
+
+console.log(getArea('circle',   5)); // Output: 78.53...
+console.log(getArea('square',   4)); // Output: 16
+console.log(getArea('triangle', 6)); // Output: 15.58...</pre></div>
+
+<h3 class="g-h3">Arrays and Tuples</h3>
+<div class="cb"><pre>// Two equivalent array syntaxes:
+const nums: number[] = [1, 2, 3];
+const nums2: Array&lt;number&gt; = [1, 2, 3]; // Generic syntax
+
+// Tuple — fixed-length, fixed-type array:
+const point: [number, number] = [10, 20]; // must be exactly [number, number]
+const entry: [string, number] = ['age', 30];
+
+// Tuple gotcha:
+const bad: [string, number] = [30, 'age']; // ERROR: wrong order</pre></div>
+
+<h3 class="g-h3">Interfaces</h3>
+<div class="cb"><pre>interface User {
+    id: number;
+    name: string;
+    email?: string; // Optional — can be string or undefined
+    readonly createdAt: Date; // Cannot be reassigned after creation
+}
+
+function greet(user: User): string {
+    return `Hello, ${user.name}`;
+}
+
+// Structural typing — extra properties OK when assigned to variable first:
+const extraUser = { id: 1, name: 'Arnar', role: 'admin' };
+greet(extraUser); // OK! Has all required properties (id, name)
+
+// Excess property check — direct object literal:
+greet({ id: 1, name: 'Arnar', role: 'admin' }); // ERROR! Extra property in literal</pre></div>
+
+<h3 class="g-h3">Interface Extension</h3>
+<div class="cb"><pre>interface Animal {
+    name: string;
+    speak(): string;
+}
+
+interface Dog extends Animal {
+    breed: string;
+    bark(): string;
+}
+
+// Declaration merging — interfaces can be declared multiple times:
+interface User { id: number; }
+interface User { name: string; }
+// Result: interface User { id: number; name: string; }</pre></div>
+
+<h3 class="g-h3">type Alias</h3>
+<div class="cb"><pre>type ID = string | number;
+type Point = { x: number; y: number };
+type StringOrNumber = string | number;
+type Callback = (err: Error | null, data: string) =&gt; void;</pre></div>
+
+<h3 class="g-h3">interface vs type — Key Differences</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Feature</th>
+    <th><code>interface</code></th>
+    <th><code>type</code></th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Object shapes</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Union types</td><td>No</td><td>Yes (<code>type A = B | C</code>)</td></tr>
+    <tr><td>Primitive aliases</td><td>No</td><td>Yes (<code>type Name = string</code>)</td></tr>
+    <tr><td>Declaration merging</td><td>Yes (can reopen)</td><td>No (cannot reopen)</td></tr>
+    <tr><td><code>extends</code></td><td>Yes</td><td>Via intersection (<code>&amp;</code>)</td></tr>
+    <tr><td>Classes <code>implements</code></td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>When to use</td><td>Defining object/class shapes</td><td>Unions, complex types, primitives</td></tr>
+  </tbody>
+</table></div>
+<div class="cb"><pre>// type can do unions, interface cannot:
+type Result = 'success' | 'error' | 'loading'; // union
+
+// interface for extending:
+interface Base { id: number; }
+interface Extended extends Base { name: string; } // id + name
+
+// type for intersection (same as extends):
+type Base = { id: number };
+type Extended = Base &amp; { name: string }; // id + name</pre></div>
+
+<h3 class="g-h3">Generics</h3>
+<p>Generics make components reusable with any type while maintaining type safety.</p>
+<div class="cb"><pre>// Generic function:
+function identity&lt;T&gt;(value: T): T {
+    return value;
+}
+
+identity&lt;string&gt;('hello');  // returns string
+identity&lt;number&gt;(42);       // returns number
+identity('hello');           // TypeScript infers T = string
+
+// Generic interface:
+interface ApiResponse&lt;T&gt; {
+    data: T;
+    status: number;
+    message: string;
+}
+
+const userResponse: ApiResponse&lt;User&gt; = {
+    data: { id: 1, name: 'Arnar' },
+    status: 200,
+    message: 'OK'
+};
+
+// Generic constraints:
+function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+    return obj[key];
+}
+
+const user = { id: 1, name: 'Arnar' };
+getProperty(user, 'name');  // 'Arnar' — type is string
+getProperty(user, 'id');    // 1 — type is number
+getProperty(user, 'age');   // ERROR: 'age' is not in user</pre></div>
+
+<h4 class="g-h4">Example — generic function + generic class + constrained generic</h4>
+<div class="cb"><pre>// --- 1. Generic function: works with any type, TypeScript tracks it ---
+function firstItem&lt;T&gt;(arr: T[]): T | undefined {
+    return arr[0];
+}
+
+const first1 = firstItem([10, 20, 30]);      // TypeScript infers T = number
+console.log(first1);                          // Output: 10
+const first2 = firstItem(['a', 'b', 'c']);   // T = string
+console.log(first2);                          // Output: "a"
+const first3 = firstItem([]);                 // T = never (empty)
+console.log(first3);                          // Output: undefined
+
+
+// --- 2. Generic class: a type-safe stack ---
+class Stack&lt;T&gt; {
+    private items: T[] = [];
+
+    push(item: T): void { this.items.push(item); }
+    pop(): T | undefined { return this.items.pop(); }
+    peek(): T | undefined { return this.items[this.items.length - 1]; }
+    isEmpty(): boolean { return this.items.length === 0; }
+}
+
+const numStack = new Stack&lt;number&gt;();
+numStack.push(1);
+numStack.push(2);
+numStack.push(3);
+console.log(numStack.peek()); // Output: 3
+console.log(numStack.pop());  // Output: 3
+console.log(numStack.pop());  // Output: 2
+
+const strStack = new Stack&lt;string&gt;();
+strStack.push('hello');
+// strStack.push(42);           // ERROR: number is not string
+console.log(strStack.pop());  // Output: "hello"
+
+
+// --- 3. Constrained generic: T must have certain shape ---
+interface HasLength { length: number; }
+
+function logLength&lt;T extends HasLength&gt;(value: T): T {
+    console.log('Length:', value.length);
+    return value;
+}
+
+logLength('hello');          // Output: "Length: 5"   (string has .length)
+logLength([1, 2, 3, 4]);     // Output: "Length: 4"   (array has .length)
+logLength({ length: 10, extra: true }); // Output: "Length: 10" (object with .length)
+// logLength(42);            // ERROR: number has no .length property
+
+
+// --- 4. Constrained generic with keyof: type-safe property accessor ---
+function pluck&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+    return obj[key];
+}
+
+const car = { make: 'Toyota', year: 2022, electric: false };
+console.log(pluck(car, 'make'));     // Output: "Toyota"  (type: string)
+console.log(pluck(car, 'year'));     // Output: 2022       (type: number)
+// pluck(car, 'color');              // ERROR: 'color' does not exist on car</pre></div>
+
+<h3 class="g-h3">Utility Types (Exam Favorites)</h3>
+<div class="cb"><pre>interface User {
+    id: number;
+    name: string;
+    email: string;
+    age: number;
+}
+
+// Partial&lt;T&gt; — all properties become optional
+type PartialUser = Partial&lt;User&gt;;
+// { id?: number; name?: string; email?: string; age?: number }
+
+const updateUser: PartialUser = { name: 'New Name' }; // OK — only name
+
+// Required&lt;T&gt; — all properties become required
+type RequiredUser = Required&lt;PartialUser&gt;;
+// { id: number; name: string; email: string; age: number }
+
+// Pick&lt;T, K&gt; — keep only specified keys
+type UserSummary = Pick&lt;User, 'id' | 'name'&gt;;
+// { id: number; name: string }
+
+// Omit&lt;T, K&gt; — remove specified keys
+type UserWithoutEmail = Omit&lt;User, 'email'&gt;;
+// { id: number; name: string; age: number }
+
+// Readonly&lt;T&gt; — all properties become readonly
+type ReadonlyUser = Readonly&lt;User&gt;;
+// All properties cannot be reassigned after creation
+
+// Record&lt;K, V&gt; — object with keys of type K, values of type V
+type UserMap = Record&lt;string, User&gt;;
+// { [key: string]: User }</pre></div>
+
+<h4 class="g-h4">Example — every utility type with its transformation shown</h4>
+<div class="cb"><pre>interface User {
+    id: number;
+    name: string;
+    email: string;
+    age: number;
+}
+
+// Partial&lt;T&gt; — makes ALL properties optional (good for update payloads)
+type PartialUser = Partial&lt;User&gt;;
+// Becomes: { id?: number; name?: string; email?: string; age?: number }
+const patch: PartialUser = { name: 'New Name' }; // OK — other fields omitted
+
+// Required&lt;T&gt; — makes ALL properties required (undoes Partial)
+interface Draft { title?: string; body?: string; }
+type PublishedPost = Required&lt;Draft&gt;;
+// Becomes: { title: string; body: string }
+// const p: PublishedPost = { title: 'Hi' }; // ERROR: body is now required
+
+// Pick&lt;T, K&gt; — keep ONLY the listed keys
+type UserCard = Pick&lt;User, 'id' | 'name'&gt;;
+// Becomes: { id: number; name: string }
+const card: UserCard = { id: 1, name: 'Alice' }; // OK — age/email dropped
+
+// Omit&lt;T, K&gt; — remove the listed keys, keep the rest
+type PublicUser = Omit&lt;User, 'email' | 'age'&gt;;
+// Becomes: { id: number; name: string }
+const pub: PublicUser = { id: 1, name: 'Alice' }; // OK
+
+// Readonly&lt;T&gt; — every property becomes readonly (cannot reassign)
+type FrozenUser = Readonly&lt;User&gt;;
+// Becomes: { readonly id: number; readonly name: string; ... }
+const frozen: FrozenUser = { id: 1, name: 'Alice', email: 'a@b.com', age: 30 };
+// frozen.name = 'Bob'; // ERROR: cannot assign to 'name' (readonly)
+
+// Record&lt;K, V&gt; — build an object type with keys K and value type V
+type RoleMap = Record&lt;'admin' | 'user' | 'guest', string[]&gt;;
+// Becomes: { admin: string[]; user: string[]; guest: string[] }
+const roles: RoleMap = { admin: ['alice'], user: ['bob'], guest: ['anon'] };
+
+// Exclude&lt;U, E&gt; — from a union, remove types assignable to E
+type Status = 'active' | 'inactive' | 'banned';
+type VisibleStatus = Exclude&lt;Status, 'banned'&gt;;
+// Becomes: 'active' | 'inactive'
+
+// Extract&lt;U, E&gt; — from a union, keep ONLY types assignable to E
+type NumericOrString = string | number | boolean | null;
+type Primitives = Extract&lt;NumericOrString, string | number&gt;;
+// Becomes: string | number
+
+// ReturnType&lt;T&gt; — the return type of a function type
+function fetchData(): Promise&lt;User[]&gt; { return Promise.resolve([]); }
+type FetchResult = ReturnType&lt;typeof fetchData&gt;;
+// Becomes: Promise&lt;User[]&gt;
+
+function add(a: number, b: number): number { return a + b; }
+type AddReturn = ReturnType&lt;typeof add&gt;;
+// Becomes: number
+
+// Parameters&lt;T&gt; — parameter types of a function as a tuple
+type AddParams = Parameters&lt;typeof add&gt;;
+// Becomes: [a: number, b: number]
+const args: AddParams = [3, 4];
+console.log(add(...args)); // Output: 7</pre></div>
+
+<h3 class="g-h3">Union Types &amp; Type Narrowing</h3>
+<div class="cb"><pre>function formatId(id: string | number): string {
+    // Type narrowing with typeof:
+    if (typeof id === 'string') {
+        return id.toUpperCase(); // id is string here
+    } else {
+        return id.toFixed(0);    // id is number here
+    }
+}
+
+// Nullable types (string | null):
+function greet(name: string | null): string {
+    if (name === null) {
+        return 'Hello, stranger!';
+    }
+    return `Hello, ${name}!`;
+}</pre></div>
+
+<h3 class="g-h3">Enums</h3>
+<div class="cb"><pre>// Numeric enum (default: starts at 0)
+enum Direction {
+    Up,    // 0
+    Down,  // 1
+    Left,  // 2
+    Right  // 3
+}
+
+const move = Direction.Up; // 0
+console.log(Direction[0]); // "Up" — reverse mapping!
+
+// String enum (no reverse mapping):
+enum Status {
+    Pending = 'PENDING',
+    Active = 'ACTIVE',
+    Inactive = 'INACTIVE'
+}
+
+const status: Status = Status.Active; // "ACTIVE"
+
+// Const enum (inlined at compile time, no JS object generated):
+const enum Color {
+    Red = 'red',
+    Blue = 'blue'
+}</pre></div>
+
+<h3 class="g-h3">Type Assertion</h3>
+<div class="cb"><pre>// Tells TypeScript "trust me, I know the type"
+const input = document.getElementById('name') as HTMLInputElement;
+input.value; // OK — TypeScript knows it's an HTMLInputElement
+
+// Alternative syntax (not allowed in JSX):
+const input2 = &lt;HTMLInputElement&gt;document.getElementById('name');
+
+// Type assertion is NOT a cast — no runtime conversion:
+const num = '42' as unknown as number; // risky!</pre></div>
+
+<h3 class="g-h3">Structural Type System (Duck Typing)</h3>
+<div class="cb"><pre>interface Point {
+    x: number;
+    y: number;
+}
+
+function logPoint(p: Point) {
+    console.log(`${p.x}, ${p.y}`);
+}
+
+const point3d = { x: 1, y: 2, z: 3 }; // has x and y — compatible!
+logPoint(point3d); // OK — structural typing
+
+const animal = { type: 'cow', name: 'Fred' }; // no x or y
+logPoint(animal); // ERROR — missing required properties
+
+// "If it has the required shape, it is the type"</pre></div>
+
+<h3 class="g-h3">tsconfig.json Key Options</h3>
+<div class="cb"><pre>{
+    "compilerOptions": {
+        "target": "ES2017",        // Output JS version (default: ES3)
+        "module": "commonjs",       // Module system
+        "strict": true,             // Enable ALL strict checks
+        "noImplicitAny": true,      // Error when type is implicitly any
+        "strictNullChecks": true,   // null/undefined not assignable to other types
+        "outDir": "./dist",         // Output directory
+        "rootDir": "./src"          // Source directory
+    }
+}</pre></div>
+<p><strong>strict mode:</strong> Enables <code>noImplicitAny</code>, <code>noImplicitThis</code>, <code>strictFunctionTypes</code>, <code>strictNullChecks</code>, and more.</p>
+<p><strong>noImplicitAny:</strong> Without it, <code>function sum(a, b)</code> is legal (a and b are implicitly <code>any</code>). With it, you must write <code>function sum(a: number, b: number)</code>.</p>
+
+<h3 class="g-h3">Abstract Classes</h3>
+<div class="cb"><pre>abstract class Shape {
+    abstract getArea(): number; // Must be implemented by subclasses
+
+    // Concrete method — shared by all subclasses
+    describe(): string {
+        return `Area: ${this.getArea()}`;
+    }
+}
+
+class Circle extends Shape {
+    constructor(private radius: number) {
+        super();
+    }
+
+    getArea(): number {
+        return Math.PI * this.radius ** 2;
+    }
+}
+
+// new Shape(); // ERROR: Cannot instantiate abstract class
+const circle = new Circle(5);
+circle.describe(); // "Area: 78.53..."</pre></div>
+
+<h2 class="g-h2">9. Tricky Code Output Examples</h2>
+
+<h3 class="g-h3">Trick 1 — The Classic Event Loop</h3>
+<div class="cb"><pre>console.log('1');
+setTimeout(() =&gt; console.log('2'), 0);
+Promise.resolve().then(() =&gt; console.log('3'));
+console.log('4');</pre></div>
+<p><strong>Output: <code>1</code>, <code>4</code>, <code>3</code>, <code>2</code></strong></p>
+<ul>
+  <li>1, 4: sync code</li>
+  <li>3: microtask (Promise)</li>
+  <li>2: macrotask (setTimeout) — runs LAST even with 0ms delay</li>
+</ul>
+
+<h3 class="g-h3">Trick 2 — Nested Microtasks and Macrotasks</h3>
+<div class="cb"><pre>console.log('A');
+setTimeout(() =&gt; {
+    console.log('B');
+    Promise.resolve().then(() =&gt; console.log('C'));
+}, 0);
+Promise.resolve().then(() =&gt; {
+    console.log('D');
+    setTimeout(() =&gt; console.log('E'), 0);
+});
+console.log('F');</pre></div>
+<p><strong>Output: <code>A</code>, <code>F</code>, <code>D</code>, <code>B</code>, <code>C</code>, <code>E</code></strong></p>
+<p>Step by step:</p>
+<ol>
+  <li><code>A</code> — sync</li>
+  <li><code>F</code> — sync</li>
+  <li><code>D</code> — microtask (first in microtask queue), queues macrotask E</li>
+  <li><code>B</code> — first macrotask, queues microtask C</li>
+  <li>After B, drain microtasks: <code>C</code></li>
+  <li><code>E</code> — final macrotask</li>
+</ol>
+
+<h3 class="g-h3">Trick 3 — Promise Constructor is Synchronous</h3>
+<div class="cb"><pre>const p = new Promise((resolve, reject) =&gt; {
+    console.log('X');
+    resolve('Y');
+    console.log('Z');
+});
+p.then(val =&gt; console.log(val));
+console.log('W');</pre></div>
+<p><strong>Output: <code>X</code>, <code>Z</code>, <code>W</code>, <code>Y</code></strong></p>
+<ul>
+  <li>X, Z: sync (executor runs immediately)</li>
+  <li>W: sync (after creating the promise)</li>
+  <li>Y: microtask (the .then callback)</li>
+</ul>
+
+<h3 class="g-h3">Trick 4 — async/await Execution Order</h3>
+<div class="cb"><pre>async function foo() {
+    console.log('A');
+    const result = await Promise.resolve('B');
+    console.log(result);
+    console.log('C');
+}
+
+console.log('D');
+foo();
+console.log('E');</pre></div>
+<p><strong>Output: <code>D</code>, <code>A</code>, <code>E</code>, <code>B</code>, <code>C</code></strong></p>
+<ul>
+  <li>D: sync before foo</li>
+  <li>A: sync inside foo (before await)</li>
+  <li><code>await</code> suspends foo, returns control to caller</li>
+  <li>E: sync after calling foo</li>
+  <li>B, C: microtask (foo resumes when Promise resolves)</li>
+</ul>
+
+<h3 class="g-h3">Trick 5 — queueMicrotask</h3>
+<div class="cb"><pre>console.log('A');
+setTimeout(() =&gt; console.log('B'), 0);
+Promise.resolve().then(() =&gt; console.log('C')).then(() =&gt; console.log('D'));
+queueMicrotask(() =&gt; console.log('E'));
+console.log('F');</pre></div>
+<p><strong>Output: <code>A</code>, <code>F</code>, <code>C</code>, <code>E</code>, <code>D</code>, <code>B</code></strong></p>
+<ul>
+  <li>A, F: sync</li>
+  <li>C: first microtask (Promise.then)</li>
+  <li>E: second microtask (queueMicrotask — FIFO with other microtasks)</li>
+  <li>D: chained microtask (queued by C's resolution)</li>
+  <li>B: macrotask</li>
+</ul>
+
+<h3 class="g-h3">Trick 6 — this with setTimeout</h3>
+<div class="cb"><pre>function Animal(name) { this.name = name; }
+Animal.prototype.speak = function() { return this.name; };
+
+var cat = new Animal('Cat');
+var dog = { name: 'Dog' };
+
+// What does each log?
+console.log(cat.speak());             // (a) "Cat"
+console.log(cat.speak.call(dog));     // (b) "Dog"
+console.log(cat.speak.bind(dog)());   // (c) "Dog"
+cat.speak.bind(dog).call(cat);        // (d) "Dog" — bind wins!
+setTimeout(cat.speak, 0);            // (e) undefined — this = window
+setTimeout(() =&gt; cat.speak(), 0);    // (f) "Cat" — arrow preserves this</pre></div>
+
+<h3 class="g-h3">Trick 7 — this Extraction Loses Context</h3>
+<div class="cb"><pre>const obj = {
+    value: 42,
+    getValue() { return this.value; }
+};
+
+const fn = obj.getValue;
+console.log(fn()); // undefined — this = window, window.value = undefined
+
+const bound = obj.getValue.bind(obj);
+console.log(bound()); // 42 — bound to obj</pre></div>
+
+<h3 class="g-h3">Trick 8 — Promise Chaining Values</h3>
+<div class="cb"><pre>Promise.resolve(1)
+    .then(val =&gt; { console.log(val); return val + 1; })   // logs 1, passes 2
+    .then(val =&gt; { console.log(val); return val + 1; })   // logs 2, passes 3
+    .then(val =&gt; { console.log(val); });                   // logs 3
+
+console.log('start');</pre></div>
+<p><strong>Output: <code>start</code>, <code>1</code>, <code>2</code>, <code>3</code></strong></p>
+<ul>
+  <li><code>start</code> is sync, runs before any .then callbacks</li>
+</ul>
+
+<h3 class="g-h3">Trick 9 — .catch() Returns, Chain Continues</h3>
+<div class="cb"><pre>Promise.resolve('start')
+    .then(val =&gt; { console.log(val); throw new Error('oops'); })
+    .then(val =&gt; { console.log('skipped'); })
+    .catch(err =&gt; { console.log('Caught:', err.message); return 'recovered'; })
+    .then(val =&gt; { console.log(val); });</pre></div>
+<p><strong>Output: <code>start</code>, <code>Caught: oops</code>, <code>recovered</code></strong></p>
+<ul>
+  <li>The second <code>.then</code> is skipped (chain in rejected state)</li>
+  <li><code>.catch</code> catches and returns a value → chain becomes fulfilled again</li>
+</ul>
+
+<h3 class="g-h3">Trick 10 — Arrow function in Object</h3>
+<div class="cb"><pre>const obj = {
+    name: 'obj',
+    regular: function() { return this.name; },
+    arrow: () =&gt; this.name,         // this = window/undefined (lexical)
+    method() {
+        const inner = () =&gt; this.name; // this = obj (inherited from method)
+        return inner();
+    }
+};
+
+console.log(obj.regular()); // "obj"
+console.log(obj.arrow());   // undefined (window.name)
+console.log(obj.method());  // "obj" (inner arrow inherits from method)</pre></div>
+
+<h2 class="g-h2">10. Quick-Reference Cheat Sheet</h2>
+
+<h3 class="g-h3"><code>this</code> at a Glance</h3>
+<div class="cb"><pre>foo()                    → this = window (or undefined in strict)
+obj.foo()                → this = obj
+foo.call(x)              → this = x
+foo.apply(x, [args])     → this = x
+foo.bind(x)()            → this = x (PERMANENT, cannot be overridden)
+new Foo()                → this = new Foo instance
+setTimeout(foo, ms)      → this = window (LOST!)
+() =&gt; {}                 → this = enclosing scope (NO own this)</pre></div>
+
+<h3 class="g-h3">Event Loop Order</h3>
+<div class="cb"><pre>1. Sync code (Call Stack)
+2. ALL microtasks (Promise .then/.catch/.finally, queueMicrotask)
+3. ONE macrotask (setTimeout, setInterval, DOM events)
+4. ALL microtasks again
+5. Repeat...</pre></div>
+
+<h3 class="g-h3">Promise Combinators</h3>
+<div class="cb"><pre>Promise.all([p1,p2,p3])         → all fulfill → resolve array
+                                  any reject  → reject immediately
+Promise.race([p1,p2,p3])        → first to settle (any state) wins
+Promise.any([p1,p2,p3])         → first to FULFILL wins
+                                  all reject  → AggregateError
+Promise.allSettled([p1,p2,p3])  → waits all, NEVER rejects
+                                  gives [{status, value/reason}, ...]</pre></div>
+
+<h3 class="g-h3">Promise States</h3>
+<div class="cb"><pre>pending → fulfilled (resolve called)
+pending → rejected  (reject called)
+settled = fulfilled OR rejected (immutable, permanent)</pre></div>
+
+<h3 class="g-h3">fetch Gotchas</h3>
+<div class="cb"><pre>fetch rejects ONLY on: network errors (no connection, DNS failure, CORS)
+fetch RESOLVES on: 404, 500, any HTTP response
+
+Must check: response.ok (true = 200-299)
+Must await: response.json() — it returns a Promise!</pre></div>
+
+<h3 class="g-h3">TypeScript Utility Types</h3>
+<div class="cb"><pre>Partial&lt;T&gt;          → all properties optional
+Required&lt;T&gt;         → all properties required
+Pick&lt;T, 'a'|'b'&gt;    → keep only a and b
+Omit&lt;T, 'a'|'b'&gt;    → remove a and b
+Readonly&lt;T&gt;         → all properties readonly
+Record&lt;K, V&gt;        → object with keys K, values V</pre></div>
+
+<h3 class="g-h3">TypeScript: interface vs type</h3>
+<div class="cb"><pre>interface:  objects/classes, extendable, declaration merging
+type:       unions, intersections, primitives, aliases
+Both:       object shapes, implementing in classes</pre></div>
+
+<h3 class="g-h3">TypeScript: any vs unknown vs never</h3>
+<div class="cb"><pre>any     → opts OUT of type checking (avoid!)
+unknown → can be anything, but must narrow before use
+never   → type of values that never exist (throwing functions, impossible branches)</pre></div>
+
+<h2 class="g-h2">11. Likely Exam Questions &amp; Model Answers</h2>
+
+<h3 class="g-h3">Q: What are the 4 rules for determining <code>this</code>?</h3>
+<p><strong>A:</strong></p>
+<ol>
+  <li><strong>Global/Default binding</strong> — regular function call <code>foo()</code> → <code>this = window</code> (or <code>undefined</code> in strict mode)</li>
+  <li><strong>Implicit binding</strong> — method call <code>obj.foo()</code> → <code>this = obj</code> (object before the dot)</li>
+  <li><strong>Explicit binding</strong> — <code>.call(x)</code>, <code>.apply(x, [args])</code>, <code>.bind(x)</code> → <code>this = x</code> (bind is permanent)</li>
+  <li><strong><code>new</code> binding</strong> — constructor call <code>new Foo()</code> → <code>this = new Foo instance</code></li>
+  <li><strong>Arrow function</strong> — inherits <code>this</code> from enclosing lexical scope (no own <code>this</code>)</li>
+</ol>
+
+<h3 class="g-h3">Q: What is the difference between .call() and .apply()?</h3>
+<p><strong>A:</strong> Both invoke the function immediately with <code>this</code> set to the first argument. The difference is how additional arguments are passed:</p>
+<ul>
+  <li><code>.call(obj, arg1, arg2)</code> — arguments listed individually (Call = Commas)</li>
+  <li><code>.apply(obj, [arg1, arg2])</code> — arguments passed as an array (Apply = Array)</li>
+  <li><code>.bind(obj)</code> is different — returns a NEW function without calling it</li>
+</ul>
+
+<h3 class="g-h3">Q: Explain the Event Loop and its queues.</h3>
+<p><strong>A:</strong> JavaScript is single-threaded. The Event Loop allows async operations by coordinating:</p>
+<ul>
+  <li><strong>Call Stack</strong> — where synchronous code executes (LIFO). Functions are pushed/popped.</li>
+  <li><strong>Web APIs</strong> — browser-handled async (setTimeout, fetch, DOM events) run off the main thread</li>
+  <li><strong>Microtask Queue</strong> — holds Promise callbacks (.then, .catch, .finally) and queueMicrotask(). <strong>Processed completely before any macrotask.</strong></li>
+  <li><strong>Macrotask Queue</strong> — holds setTimeout/setInterval callbacks, DOM events. <strong>One at a time.</strong></li>
+</ul>
+<p>Order: sync code → ALL microtasks → ONE macrotask → ALL microtasks → ONE macrotask → repeat.</p>
+
+<h3 class="g-h3">Q: What is the difference between Promise.all, Promise.race, Promise.any, Promise.allSettled?</h3>
+<div class="tw"><table>
+  <thead><tr>
+    <th>Method</th>
+    <th>Resolves</th>
+    <th>Rejects</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><code>Promise.all</code></td><td>All fulfill</td><td>Any one rejects</td></tr>
+    <tr><td><code>Promise.race</code></td><td>First to settle</td><td>First to settle</td></tr>
+    <tr><td><code>Promise.any</code></td><td>First to fulfill</td><td>All reject → AggregateError</td></tr>
+    <tr><td><code>Promise.allSettled</code></td><td>All settle (never rejects)</td><td>Never</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Q: What are two bugs in this code?</h3>
+<div class="cb"><pre>async function fetchProducts(category: string) {
+    const response = await fetch(`/api/products/${category}`);
+    const data = response.json();
+    return data.filter(p =&gt; p.price &gt; 0);
+}</pre></div>
+<p><strong>A:</strong></p>
+<ol>
+  <li><strong>Missing <code>await</code> before <code>response.json()</code></strong> — <code>.json()</code> returns a Promise, not the data. Without <code>await</code>, <code>data</code> is a Promise object, and <code>.filter()</code> doesn't exist on Promise.</li>
+  <li><strong>No error handling</strong> — if fetch fails (network error) or server returns 404/500, the function crashes. Should check <code>response.ok</code> and use try/catch.</li>
+</ol>
+<p><strong>Fixed:</strong></p>
+<div class="cb"><pre>interface Product { name: string; price: number; }
+
+async function fetchProducts(category: string): Promise&lt;Product[]&gt; {
+    try {
+        const response = await fetch(`/api/products/${category}`);
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        const data: Product[] = await response.json();
+        return data.filter(p =&gt; p.price &gt; 0);
+    } catch (error) {
+        console.error('Failed:', error);
+        return [];
+    }
+}</pre></div>
+
+<h3 class="g-h3">Q: What is the difference between interface and type in TypeScript?</h3>
+<p><strong>A:</strong></p>
+<ul>
+  <li><strong><code>interface</code></strong> defines object/class shapes, supports declaration merging (can be reopened), uses <code>extends</code> for inheritance. Best for defining object and class contracts.</li>
+  <li><strong><code>type</code></strong> can do everything <code>interface</code> can for objects, but also creates union types (<code>A | B</code>), intersection types (<code>A &amp; B</code>), and aliases for primitives. Cannot be reopened (no declaration merging).</li>
+</ul>
+<p>Key difference: <code>interface User { id: number }</code> declared twice merges into one interface. <code>type User = { id: number }</code> declared twice = error.</p>
+
+<h3 class="g-h3">Q: Explain Partial&lt;T&gt;, Pick&lt;T,K&gt;, and Omit&lt;T,K&gt; with examples.</h3>
+<div class="cb"><pre>interface User { id: number; name: string; email: string; age: number; }
+
+// Partial&lt;T&gt; — all properties optional (useful for update functions)
+type UpdateUser = Partial&lt;User&gt;;
+// { id?: number; name?: string; email?: string; age?: number }
+function updateUser(id: number, updates: Partial&lt;User&gt;) { /* ... */ }
+updateUser(1, { name: 'New Name' }); // OK — no need to pass all fields
+
+// Pick&lt;T, K&gt; — keep only specified keys
+type UserPreview = Pick&lt;User, 'id' | 'name'&gt;;
+// { id: number; name: string }
+
+// Omit&lt;T, K&gt; — remove specified keys
+type PublicUser = Omit&lt;User, 'email' | 'age'&gt;;
+// { id: number; name: string }</pre></div>
+
+<h3 class="g-h3">Q: What is the difference between <code>any</code> and <code>unknown</code>?</h3>
+<p><strong>A:</strong></p>
+<ul>
+  <li><code>any</code> completely disables type checking for that variable. You can call any method, access any property — TypeScript won't complain. Use only as last resort during migration.</li>
+  <li><code>unknown</code> is the type-safe alternative. You can assign anything to it, but you <strong>cannot use it</strong> without first narrowing the type (with <code>typeof</code>, <code>instanceof</code>, etc.).</li>
+</ul>
+<div class="cb"><pre>function processAny(input: any) {
+    input.toUpperCase(); // TypeScript allows this — NO safety
+}
+
+function processUnknown(input: unknown) {
+    input.toUpperCase(); // ERROR — cannot use unknown without narrowing
+    if (typeof input === 'string') {
+        input.toUpperCase(); // OK — narrowed to string
+    }
+}</pre></div>
+
+<h3 class="g-h3">Q: What does <code>noImplicitAny</code> do in tsconfig.json?</h3>
+<p><strong>A:</strong> Without <code>noImplicitAny</code>, TypeScript allows parameters with no type annotation (they become implicitly <code>any</code>). With <code>noImplicitAny: true</code>, you must explicitly type all parameters or TypeScript reports an error.</p>
+<div class="cb"><pre>// noImplicitAny: false (or unset) — OK:
+function sum(a, b) { return a + b; } // a and b are implicitly any
+
+// noImplicitAny: true — ERROR:
+function sum(a, b) { return a + b; } // Error: 'a' has implicit 'any' type
+// Must write:
+function sum(a: number, b: number) { return a + b; }</pre></div>
+
+<h3 class="g-h3">Q: What is the structural type system / duck typing in TypeScript?</h3>
+<p><strong>A:</strong> TypeScript uses a <strong>structural</strong> type system (not nominal). Two types are compatible if they have the same structure — the same required properties with the same types. It doesn't matter what the type is "called" or where it was declared.</p>
+<p>"If it walks like a duck and quacks like a duck, it is a duck."</p>
+<div class="cb"><pre>interface Point { x: number; y: number; }
+
+function logPoint(p: Point) { console.log(p.x, p.y); }
+
+const obj = { x: 1, y: 2, z: 3, extra: 'hello' };
+logPoint(obj); // OK! Has x and y — structurally compatible with Point</pre></div>
+
+<h3 class="g-h3">Q: What is a generic and why use them?</h3>
+<p><strong>A:</strong> Generics are parameterized types — they let you write components that work with any type while maintaining full type safety. The type is specified when the generic is used, not when it's defined.</p>
+<div class="cb"><pre>// Without generics — loses type info:
+function first(arr: any[]): any { return arr[0]; }
+
+// With generics — type is preserved:
+function first&lt;T&gt;(arr: T[]): T { return arr[0]; }
+
+const firstNum = first([1, 2, 3]);   // TypeScript knows: number
+const firstName = first(['a', 'b']); // TypeScript knows: string</pre></div>
+
+<h3 class="g-h3">Q: What is the order of execution for this code?</h3>
+<div class="cb"><pre>console.log('1');
+setTimeout(() =&gt; console.log('2'), 0);
+Promise.resolve().then(() =&gt; console.log('3'));
+console.log('4');</pre></div>
+<p><strong>A:</strong> <code>1</code>, <code>4</code>, <code>3</code>, <code>2</code></p>
+<ol>
+  <li><code>1</code> — synchronous, runs immediately</li>
+  <li>setTimeout callback sent to Web APIs, then Macrotask Queue</li>
+  <li>Promise.then callback sent to Microtask Queue</li>
+  <li><code>4</code> — synchronous</li>
+  <li>Call Stack empty → process Microtask Queue → <code>3</code></li>
+  <li>Microtask Queue empty → process Macrotask Queue → <code>2</code></li>
+</ol>
+
+<h3 class="g-h3">Q: Explain fetch error handling — why is response.ok needed?</h3>
+<p><strong>A:</strong> <code>fetch()</code> only rejects its Promise on <strong>network errors</strong> (no internet connection, DNS failure, CORS blocking). When the server responds with any status code — including 404 Not Found or 500 Internal Server Error — <code>fetch</code> <strong>resolves</strong> the Promise with a Response object.</p>
+<p><code>response.ok</code> is <code>true</code> when the HTTP status is 200-299, <code>false</code> otherwise. Without this check, your code silently treats a 404 response as success.</p>
+<div class="cb"><pre>// Without the check — silently fails:
+const response = await fetch('/api/data');
+const data = await response.json(); // Might parse an error JSON body
+
+// With the check — explicit error handling:
+const response = await fetch('/api/data');
+if (!response.ok) {
+    throw new Error(`HTTP error: ${response.status}`);
+}
+const data = await response.json();</pre></div>

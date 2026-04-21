@@ -1,0 +1,447 @@
+<h2 class="g-h2">Practice Exam 7 — DOM Manipulation, Selectors, Traversal &amp; Events</h2>
+
+<h3 class="g-h3">Question 1 — Fill in the Blank</h3>
+<p>The DOM can be thought of as a tree. The highest node is the root, which is called the __________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>document</strong></p>
+<p>The DOM can be thought of as a tree. The highest node is the root, which is called the <strong>document</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — Fill in the Blank</h3>
+<p>From each node in the DOM you can access its __________, __________, __________, and __________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>parentNode, childNodes, nextSibling, previousSibling</strong></p>
+<p>From each node you can access its parentNode, childNodes, nextSibling, and previousSibling (along with other properties).</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Code Analysis</h3>
+<p>Given the following HTML and JavaScript, what does each <code>console.log</code> output?</p>
+<div class="cb"><pre>&lt;div class="first"&gt;
+    &lt;div class="second"&gt;
+        &lt;div class="third"&gt;&lt;/div&gt;
+        &lt;div class="third-one"&gt;&lt;/div&gt;
+        &lt;div class="third-two"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>var thirdOne = document.getElementsByClassName("third-one")[0];
+console.log(thirdOne.previousSibling);  // A: ?
+console.log(thirdOne.nextSibling);      // B: ?
+console.log(thirdOne.childNodes);       // C: ?
+console.log(thirdOne.parentNode.parentNode); // D: ?</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li><strong>A:</strong> A <strong>text node</strong> (whitespace/newline) — NOT the <code>&lt;div class="third"&gt;</code> element! <code>previousSibling</code> returns ANY node including text nodes created by whitespace between HTML tags. To get the element, use <code>previousElementSibling</code> instead.</li>
+<li><strong>B:</strong> A <strong>text node</strong> (whitespace/newline) — same reason. <code>nextSibling</code> returns text nodes. Use <code>nextElementSibling</code> to get <code>&lt;div class="third-two"&gt;</code>.</li>
+<li><strong>C:</strong> <code>[]</code> (empty list — third-one has no child nodes)</li>
+<li><strong>D:</strong> <code>&lt;div class="first"&gt;&lt;/div&gt;</code> (parentNode of third-one is "second", parentNode of "second" is "first")</li>
+</ul>
+<p><strong>KEY DISTINCTION (from slides):</strong> <code>nextSibling</code>/<code>previousSibling</code> include text and comment nodes. <code>nextElementSibling</code>/<code>previousElementSibling</code> only return element nodes. This is why <code>children</code> (elements only) differs from <code>childNodes</code> (all nodes including text).</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Multiple Choice</h3>
+<p>How can you access and change an element's attributes in the DOM? (Choose the best answer)</p>
+<ul>
+<li>A) Only through dot notation (e.g. <code>elem.id = "newId"</code>)</li>
+<li>B) Only through <code>setAttribute()</code> (e.g. <code>elem.setAttribute("class", "newClass")</code>)</li>
+<li>C) Either through dot notation (e.g. <code>elem.id = "newId"</code>, <code>elem.className = "newClass"</code>) OR through <code>setAttribute("class", "newClass")</code></li>
+<li>D) Attributes cannot be changed after the page loads</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>C)</strong> Either through dot notation (e.g. <code>elem.id = "newId"</code>, <code>elem.className = "newClass"</code>) OR through <code>setAttribute("class", "newClass")</code>.</p>
+<p>The slides state: "These attributes can be accessed through either dot notation e.g. elem.id = 'newId', elem.className = 'newClass' OR through the use of elem.setAttribute('class', 'newClass')."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Fill in the Blank</h3>
+<p>HTML5 provided a way for storing values within the HTML using the <strong>data-</strong> prefix. In JavaScript these can be accessed and manipulated by using the __________ keyword.</p>
+<p>Write the JavaScript to set a new value <code>"newValue"</code> on a <code>data-x</code> attribute of an element stored in variable <code>elem</code>:</p>
+<div class="cb"><pre>___________________________</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The keyword is <strong>dataset</strong>.</p>
+<div class="cb"><pre>elem.dataset.x = "newValue";</pre></div>
+<p>The slides state: "In JavaScript these can be accessed and manipulated by using the <strong>dataset</strong> keyword, e.g. elem.dataset.x = 'newValue';"</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Written / Short Answer</h3>
+<p>Explain the difference between <code>innerHTML</code> and <code>textContent</code>/<code>innerText</code>. What happens if you assign the string <code>'&lt;div&gt;text&lt;/div&gt;'</code> using each one?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li><strong>innerHTML</strong> works by rendering valid HTML markup. If you assign <code>'&lt;h1&gt;I'll replace everything with a header!&lt;/h1&gt;'</code> it will render the h1 tag as an actual HTML heading element.</li>
+<li><strong>textContent/innerText</strong> is used when querying an element as plain text. If you assign <code>'&lt;div&gt;text&lt;/div&gt;'</code> it will NOT be rendered as a div element — it is rendered as a plain string (the slides note: "renderast ekki sem HTML heldur strengur").</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 7 — Code Analysis</h3>
+<p>What does the following code do? Describe each step.</p>
+<div class="cb"><pre>var body = document.getElementsByTagName('body')[0];
+
+var newParagraph = document.createElement('p');
+newParagraph.textContent = 'My new paragraph';
+body.appendChild(newParagraph);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li>Gets the first <code>&lt;body&gt;</code> element from the document using <code>getElementsByTagName</code>.</li>
+<li>Creates a new <code>&lt;p&gt;</code> element using <code>document.createElement('p')</code>.</li>
+<li>Sets the text content of that paragraph to <code>'My new paragraph'</code> using <code>textContent</code>.</li>
+<li>Appends the new paragraph as the last child of <code>&lt;body&gt;</code> using <code>appendChild</code>.</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>The method <code>appendChild(newElement)</code> is used to:</p>
+<ul>
+<li>A) Insert the element as the first child</li>
+<li>B) Insert the element before a specific sibling</li>
+<li>C) Append the element last (as the last child)</li>
+<li>D) Replace an existing child element</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>C)</strong> Append the element last (as the last child).</p>
+<p>The slides state: "appendChild(newElement : Node) which is used to append the element last."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — Fill in the Blank</h3>
+<p>The method <code>insertBefore</code> takes two arguments: <code>insertBefore(__________, __________)</code>. It is used to place the node before the __________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><code>insertBefore(newElement, nextSibling)</code>. It is used to place the node before the <strong>nextSibling</strong>.</p>
+<p>The slides state: "insertBefore(newElement : Node, nextSibling : Node) which is used to place the node before the nextSibling."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — Code Analysis</h3>
+<p>Given the following HTML, write JavaScript to remove the child div from the DOM.</p>
+<div class="cb"><pre>&lt;div class="parent"&gt;
+    &lt;div class="child"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre></div>
+<p>Note: According to the slides, the <code>removeChild(Node)</code> method is invoked on the __________ of the child being removed.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The method is invoked on the <strong>parent</strong> of the child being removed.</p>
+<div class="cb"><pre>var child = document.getElementsByClassName('child')[0];
+var parent = document.getElementsByClassName('parent')[0];
+
+parent.removeChild(child); // Removes the child from the DOM</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — Code Analysis</h3>
+<p>What does the following code do?</p>
+<div class="cb"><pre>&lt;div class="parent"&gt;
+    &lt;div class="child"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>var child = document.getElementsByClassName('child')[0];
+child.parentNode.replaceChild(document.createElement('h1'), child);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>It replaces the <code>&lt;div class="child"&gt;&lt;/div&gt;</code> element with a new <code>&lt;h1&gt;</code> element. The <code>replaceChild(NewNode, OldNode)</code> method is invoked on the parent. After execution, the HTML effectively becomes:</p>
+<div class="cb"><pre>&lt;div class="parent"&gt;
+    &lt;h1&gt;&lt;/h1&gt;
+&lt;/div&gt;</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 12 — Select All That Apply</h3>
+<p>Which of the following are valid DOM selector methods? (Select ALL that apply)</p>
+<ul>
+<li>A) <code>document.getElementById()</code></li>
+<li>B) <code>document.getElementsByName()</code></li>
+<li>C) <code>document.getElementsByTagName()</code></li>
+<li>D) <code>document.getElementsByClassName()</code></li>
+<li>E) <code>document.querySelectorAll()</code></li>
+<li>F) <code>document.getElementByClass()</code></li>
+<li>G) <code>document.querySelect()</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>A, B, C, D, E</strong> are all valid.</p>
+<ul>
+<li>F) <code>getElementByClass()</code> does not exist (the correct method is <code>getElementsByClassName()</code>).</li>
+<li>G) <code>querySelect()</code> does not exist (the correct method is <code>querySelector()</code> or <code>querySelectorAll()</code>).</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — Multiple Choice</h3>
+<p>According to the slides, <code>querySelectorAll()</code> is described as:</p>
+<ul>
+<li>A) A method that only selects elements by id</li>
+<li>B) A method that only works with tag names</li>
+<li>C) Probably the most powerful selector the document has to offer; it accepts any valid CSS selector and matches that to elements in the DOM</li>
+<li>D) A method that returns only a single element</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>C)</strong> Probably the most powerful selector the document has to offer; it accepts any valid CSS selector and matches that to elements in the DOM.</p>
+<p>This is the exact definition from the slides. First argument: a valid CSS selector. Example: <code>document.querySelectorAll(':nth-child(1)');</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 14 — Written / Short Answer</h3>
+<p>Explain the difference between the <code>children</code> property and the <code>childNodes</code> property according to the slides.</p>
+<p>Also explain: why can <code>parentNode</code> never be a non-element node?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li><strong>children</strong> is just like the property <strong>childNodes</strong> but excludes text and comment nodes and only contains element nodes.</li>
+<li><strong>parentNode</strong> can never be a non-element node because text or comment nodes cannot have children.</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — Fill in the Blank (Traversal Changes)</h3>
+<p>Complete the element-only traversal equivalents:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Node-based property</th>
+<th>Element-only equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nextSibling</code></td>
+<td>__________</td>
+</tr>
+<tr>
+<td><code>previousSibling</code></td>
+<td>__________</td>
+</tr>
+<tr>
+<td><code>firstChild</code></td>
+<td>__________</td>
+</tr>
+<tr>
+<td><code>lastChild</code></td>
+<td>__________</td>
+</tr>
+</tbody>
+</table></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Node-based property</th>
+<th>Element-only equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nextSibling</code></td>
+<td><strong>nextElementSibling</strong></td>
+</tr>
+<tr>
+<td><code>previousSibling</code></td>
+<td><strong>previousElementSibling</strong></td>
+</tr>
+<tr>
+<td><code>firstChild</code></td>
+<td><strong>firstElementChild</strong></td>
+</tr>
+<tr>
+<td><code>lastChild</code></td>
+<td><strong>lastElementChild</strong></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Multiple Choice</h3>
+<p>The <code>nodeType</code> property is a read-only property. What are the nodeType values for the following?</p>
+<ul>
+<li>Element node: __________</li>
+<li>Attribute node: __________</li>
+<li>Text node: __________</li>
+<li>Comment node: __________</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li>Element node: <strong>1</strong></li>
+<li>Attribute node: <strong>2</strong></li>
+<li>Text node: <strong>3</strong></li>
+<li>Comment node: <strong>8</strong></li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Written / Short Answer</h3>
+<p>According to the slides, an event can be broken down into four parts. Define each:</p>
+<ol>
+<li><strong>Event type</strong> --</li>
+<li><strong>Event target</strong> --</li>
+<li><strong>Event object</strong> --</li>
+<li><strong>Event handler</strong> --</li>
+</ol>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li><strong>Event type</strong> — is a string that specifies what kind of event occurred.</li>
+<li><strong>Event target</strong> — is the object associated with the event.</li>
+<li><strong>Event object</strong> — is the object associated with the event. It holds information on the event itself and are passed in as arguments in event handlers.</li>
+<li><strong>Event handler</strong> — is the function that handles the event.</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 18 — Code Analysis</h3>
+<p>Look at the following code from the slides. Identify which part is the <strong>type</strong>, which is the <strong>target</strong>, which is the <strong>handler</strong>, and which is the <strong>event object</strong>.</p>
+<div class="cb"><pre>&lt;form action="" class="form-horizontal"&gt;
+    &lt;div class="form-group"&gt;&lt;input type="text" id="username" class="form-control"&gt;&lt;/div&gt;
+    &lt;div class="form-group"&gt;&lt;input type="password" id="password" class="form-control"&gt;&lt;/div&gt;
+&lt;/form&gt;</pre></div>
+<div class="cb"><pre>var password = document.getElementById('password');
+password.addEventListener('input', function (evt) {
+    if (evt.target.value.length &lt; 3) {
+        alert('Password too short!');
+    }
+}, false);</pre></div>
+<ul>
+<li>Target: __________</li>
+<li>Type: __________</li>
+<li>Handler: __________</li>
+<li>Event object: __________</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ul>
+<li><strong>Target:</strong> <code>password</code> (the element the event is registered on — the password input)</li>
+<li><strong>Type:</strong> <code>'input'</code> (the first argument to addEventListener)</li>
+<li><strong>Handler:</strong> <code>function (evt) { if (evt.target.value.length &lt; 3) { alert('Password too short!'); } }</code> (the function passed as second argument)</li>
+<li><strong>Event object:</strong> <code>evt</code> (the parameter passed into the handler function)</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 19 — Select All That Apply</h3>
+<p>Which of the following are properties of the Event object according to the slides? (Select ALL that apply)</p>
+<ul>
+<li>A) <code>target</code> -- the element that triggered the event</li>
+<li>B) <code>type</code> -- the type of the event, e.g. mousedown</li>
+<li>C) <code>bubbles</code> -- a boolean which says whether the event is a bubbling event</li>
+<li>D) <code>innerHTML</code> -- the HTML content of the element</li>
+<li>E) <code>className</code> -- the CSS class of the target</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>A, B, C</strong> are correct.</p>
+<ul>
+<li>A) <code>target</code> is the element that triggered the event.</li>
+<li>B) <code>type</code> is the type of the event, e.g. mousedown.</li>
+<li>C) <code>bubbles</code> is a boolean which says whether the event is a bubbling event.</li>
+<li>D) <code>innerHTML</code> is a DOM manipulation property, not an Event object property.</li>
+<li>E) <code>className</code> is a DOM element property, not an Event object property.</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 20 — Written / Code</h3>
+<p>The slides describe four methods for registering event handlers. Given this HTML and JavaScript setup:</p>
+<div class="cb"><pre>&lt;div class="form-group"&gt;
+    &lt;input type="submit" onclick="alert('method #4');" id="submitBtn" class="form-control"&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>var submitBtn = document.getElementById('submitBtn');
+
+// Method #1
+submitBtn.onclick = function (event) {
+    alert('inside #1');
+}
+
+// Method #2
+submitBtn.addEventListener('click', function (event) {
+    alert('inside #2');
+}, false);
+
+// Method #3
+submitBtn.attachEvent('onclick', function (event) {
+    alert('inside #3');
+});</pre></div>
+<p>Answer the following:</p>
+<p>A) What is the CON of Method #1 (onclick property)?</p>
+<p>B) What are the PROs of Method #2 (addEventListener)?</p>
+<p>C) What is the CON of Method #4 (inline HTML attribute)?</p>
+<p>D) How do you stop an event from bubbling? Name the three ways shown in the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>A)</strong> Method #1 (onclick property) CON: Only one event handler because it overrides previous registered event handlers.</p>
+<p><strong>B)</strong> Method #2 (addEventListener) PROs: Allows multiple event handlers, avoids duplication.</p>
+<p><strong>C)</strong> Method #4 (inline HTML attribute) CON: "Dirty" HTML and cluttered.</p>
+<p><strong>D)</strong> Three ways to stop an event from bubbling:</p>
+<ol>
+<li><code>event.stopPropagation();</code></li>
+<li><code>event.cancelBubble = true;</code></li>
+<li><code>event.stopImmediatePropagation();</code></li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 21 — Fill in the Blank</h3>
+<p>The __________ event is fired when the document has been loaded and parsed. Complete the code:</p>
+<div class="cb"><pre>document.addEventListener('__________', function (event) {
+    // Loaded and handlers can be registered
+});</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The <strong>DOMContentLoaded</strong> event is fired when the document has been loaded and parsed.</p>
+<div class="cb"><pre>document.addEventListener('DOMContentLoaded', function (event) {
+    // Loaded and handlers can be registered
+});</pre></div>
+</div>
+</details>

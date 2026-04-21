@@ -1,0 +1,650 @@
+<h2 class="g-h2">Practice Exam 12 — Promises, async/await, Event Loop &amp; Fetch API</h2>
+
+<p><strong>Deep-dive exam based on Visual Promises code demonstrations and course material.</strong></p>
+
+<hr>
+
+<h3 class="g-h3">Question 1 — Promise States</h3>
+
+<p>A Promise can be in one of three states. Name all three states and explain the transition rules between them.</p>
+
+<ul>
+<li>a) List the three states.</li>
+<li>b) Once a Promise has transitioned from <code>pending</code> to either of the other two states, can it transition again? Explain.</li>
+<li>c) What do we call a Promise that has left the <code>pending</code> state (regardless of whether it fulfilled or rejected)?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> The three states are:</p>
+<ol>
+<li><strong>pending</strong> — initial state, neither fulfilled nor rejected</li>
+<li><strong>fulfilled</strong> — the operation completed successfully</li>
+<li><strong>rejected</strong> — the operation failed</li>
+</ol>
+<p><strong>b)</strong> No. Once a Promise transitions from <code>pending</code> to <code>fulfilled</code> or <code>rejected</code>, it is <strong>settled</strong> and its state can never change again. The value or reason is locked in permanently.</p>
+<p><strong>c)</strong> A Promise that has left the <code>pending</code> state is called <strong>settled</strong> (it is either fulfilled or rejected).</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — Promise Chaining</h3>
+
+<p>Consider this code:</p>
+
+<div class="cb"><pre>&lt;code&gt;function fetchUser() {
+  return new Promise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; resolve({ name: "Arnar", age: 30 }), 1000);
+  });
+}
+
+fetchUser()
+  .then(user =&gt; {
+    console.log(user.name);
+    return user.age;
+  })
+  .then(age =&gt; {
+    console.log(age * 2);
+  })
+  .catch(err =&gt; {
+    console.log("Error:", err);
+  })
+  .finally(() =&gt; {
+    console.log("Done");
+  });
+&lt;/code&gt;</pre></div>
+
+<ul>
+<li>a) What is printed to the console, and in what order?</li>
+<li>b) If the Promise inside <code>fetchUser</code> called <code>reject("Not found")</code> instead of <code>resolve(...)</code>, what would be printed instead?</li>
+<li>c) Does <code>.finally()</code> receive the resolved value or the rejection reason as a parameter?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Output in order:</p>
+<div class="cb"><pre>Arnar
+60
+Done</pre></div>
+<p>The first <code>.then</code> logs <code>user.name</code> ("Arnar") and returns <code>user.age</code> (30). The second <code>.then</code> receives 30 and logs <code>30 * 2 = 60</code>. The <code>.catch</code> is skipped because no error occurred. <code>.finally</code> always runs and logs "Done".</p>
+<p><strong>b)</strong> If reject is called:</p>
+<div class="cb"><pre>Error: Not found
+Done</pre></div>
+<p>The <code>.then</code> handlers are skipped, <code>.catch</code> catches the rejection reason, and <code>.finally</code> runs.</p>
+<p><strong>c)</strong> No. <code>.finally()</code> does not receive any argument — it is called regardless of the outcome but gets no value or reason.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Promise.all Behavior</h3>
+
+<p>The course Visual Promises demonstration uses these four promises:</p>
+
+<div class="cb"><pre>&lt;code&gt;const getPromises = () =&gt; [
+  new Promise((resolve, reject) =&gt; {
+    setTimeout(resolve, 1000, "1 second");
+  }),
+  new Promise((resolve, reject) =&gt; {
+    setTimeout(resolve, 2000, "2 seconds");
+  }),
+  new Promise((resolve, reject) =&gt; {
+    setTimeout(reject, 5000, "5 seconds");
+  }),
+  new Promise((resolve, reject) =&gt; {
+    setTimeout(resolve, 10000, "10 seconds");
+  }),
+];
+&lt;/code&gt;</pre></div>
+
+<ul>
+<li>a) When <code>Promise.all(getPromises())</code> is called, does it resolve or reject? After approximately how many seconds?</li>
+<li>b) If it rejects, what is the rejection reason?</li>
+<li>c) If the third promise used <code>resolve</code> instead of <code>reject</code>, what would <code>Promise.all</code> return and after how many seconds?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> It <strong>rejects</strong> after approximately <strong>5 seconds</strong> (when the third promise rejects).</p>
+<p><strong>b)</strong> The rejection reason is the string <code>"5 seconds"</code>.</p>
+<p><strong>c)</strong> If all promises resolved, <code>Promise.all</code> would resolve after approximately <strong>10 seconds</strong> (waiting for the slowest) with the array <code>["1 second", "2 seconds", "5 seconds", "10 seconds"]</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Promise.allSettled vs Promise.all</h3>
+
+<p>Using the same <code>getPromises()</code> from Question 3:</p>
+
+<ul>
+<li>a) When <code>Promise.allSettled(getPromises())</code> is called, does it ever reject? After approximately how many seconds does the <code>.then</code> handler run?</li>
+<li>b) What is the structure of each object in the array passed to <code>.then</code>? Describe the properties for both fulfilled and rejected promises.</li>
+<li>c) In the course code, the following check is used. Explain what each branch does:</li>
+</ul>
+
+<div class="cb"><pre>&lt;code&gt;promises.forEach((promise, idx) =&gt; {
+  if (promise.status === "fulfilled") {
+    showMessageAndAnimate(bunnyCard, promise.value, elapsedTimeInSeconds);
+  }
+  if (promise.status === "rejected") {
+    // show error with promise.reason
+  }
+});
+&lt;/code&gt;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>Promise.allSettled</code> <strong>never rejects</strong>. It always waits for ALL promises to settle. The <code>.then</code> handler runs after approximately <strong>10 seconds</strong> (when the last promise settles).</p>
+<p><strong>b)</strong> Each object in the array has:</p>
+<ul>
+<li>For fulfilled promises: <code>{ status: "fulfilled", value: &lt;resolved value&gt; }</code></li>
+<li>For rejected promises: <code>{ status: "rejected", reason: &lt;rejection reason&gt; }</code></li>
+</ul>
+<p><strong>c)</strong> The code checks <code>promise.status</code>:</p>
+<ul>
+<li>If <code>"fulfilled"</code>: shows the bunny card with the resolved value and animation</li>
+<li>If <code>"rejected"</code>: marks the bunny as "hurt" and displays the rejection reason</li>
+</ul>
+<p>This is the key difference from <code>Promise.all</code> — you get the result of every promise, not just the first failure.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Promise.race vs Promise.any</h3>
+
+<p>Using the same <code>getPromises()</code> from Question 3 (third promise rejects at 5s, others resolve):</p>
+
+<ul>
+<li>a) What does <code>Promise.race(getPromises())</code> return? What value, and after how many seconds?</li>
+<li>b) What does <code>Promise.any(getPromises())</code> return? What value, and after how many seconds?</li>
+<li>c) If ALL four promises rejected (at 1s, 2s, 5s, 10s respectively), what would <code>Promise.race</code> return vs. what would <code>Promise.any</code> return? Include the type of error <code>Promise.any</code> would throw.</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>Promise.race</code> settles with the <strong>first promise to settle</strong>, regardless of whether it fulfilled or rejected. Since the first promise resolves at 1 second, <code>Promise.race</code> resolves with <code>"1 second"</code> after approximately <strong>1 second</strong>.</p>
+<p><strong>b)</strong> <code>Promise.any</code> settles with the <strong>first promise to fulfill</strong>. Since the first promise resolves at 1 second, <code>Promise.any</code> also resolves with <code>"1 second"</code> after approximately <strong>1 second</strong>.</p>
+<p><strong>c)</strong> If all four rejected:</p>
+<ul>
+<li><code>Promise.race</code> would <strong>reject</strong> with the reason from the first rejection (at 1 second) — it takes whatever settles first.</li>
+<li><code>Promise.any</code> would <strong>reject</strong> with an <code>AggregateError</code> (after 10 seconds, waiting for all to fail), because it needs to confirm no promise will fulfill. The <code>AggregateError</code> contains all the individual rejection reasons.</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Event Loop: Code Output</h3>
+
+<p><strong>What does this code print, and in what order? Explain each step using the Event Loop model (Call Stack, Web APIs, Microtask Queue, Macrotask Queue).</strong></p>
+
+<div class="cb"><pre>&lt;code&gt;console.log("1");
+setTimeout(() =&gt; console.log("2"), 0);
+Promise.resolve().then(() =&gt; console.log("3"));
+console.log("4");
+&lt;/code&gt;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output order:</strong> <code>1</code>, <code>4</code>, <code>3</code>, <code>2</code></p>
+<p>Step-by-step:</p>
+<ol>
+<li><code>console.log("1")</code> — executes synchronously on the <strong>Call Stack</strong>. Prints <code>1</code>.</li>
+<li><code>setTimeout(callback, 0)</code> — the callback is sent to the <strong>Web APIs</strong> timer. After 0ms, it moves to the <strong>Macrotask Queue</strong>.</li>
+<li><code>Promise.resolve().then(callback)</code> — the callback is placed in the <strong>Microtask Queue</strong>.</li>
+<li><code>console.log("4")</code> — executes synchronously on the <strong>Call Stack</strong>. Prints <code>4</code>.</li>
+<li>The Call Stack is now empty. The Event Loop checks the <strong>Microtask Queue</strong> first — runs the Promise callback. Prints <code>3</code>.</li>
+<li>Microtask Queue is empty. Event Loop takes from the <strong>Macrotask Queue</strong> — runs the setTimeout callback. Prints <code>2</code>.</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 7 — Event Loop: Advanced Code Output</h3>
+
+<p><strong>What does this code print, and in what order?</strong></p>
+
+<div class="cb"><pre>&lt;code&gt;console.log("A");
+
+setTimeout(() =&gt; {
+  console.log("B");
+  Promise.resolve().then(() =&gt; console.log("C"));
+}, 0);
+
+Promise.resolve().then(() =&gt; {
+  console.log("D");
+  setTimeout(() =&gt; console.log("E"), 0);
+});
+
+console.log("F");
+&lt;/code&gt;</pre></div>
+
+<p>For full marks, explain which queue each callback enters and the order in which the Event Loop processes them.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output order:</strong> <code>A</code>, <code>F</code>, <code>D</code>, <code>B</code>, <code>C</code>, <code>E</code></p>
+<p>Step-by-step:</p>
+<ol>
+<li><code>console.log("A")</code> — sync, prints <code>A</code>.</li>
+<li><code>setTimeout(cbB, 0)</code> — cbB goes to Macrotask Queue.</li>
+<li><code>Promise.resolve().then(cbD)</code> — cbD goes to Microtask Queue.</li>
+<li><code>console.log("F")</code> — sync, prints <code>F</code>.</li>
+<li>Call Stack empty. Process Microtask Queue:
+<ul>
+<li>cbD runs: prints <code>D</code>, schedules <code>setTimeout(cbE, 0)</code> (cbE goes to Macrotask Queue).</li>
+</ul>
+</li>
+<li>Microtask Queue empty. Process Macrotask Queue:
+<ul>
+<li>cbB runs: prints <code>B</code>, then <code>Promise.resolve().then(cbC)</code> adds cbC to Microtask Queue.</li>
+</ul>
+</li>
+<li>After macrotask cbB, check Microtask Queue:
+<ul>
+<li>cbC runs: prints <code>C</code>.</li>
+</ul>
+</li>
+<li>Process next Macrotask:
+<ul>
+<li>cbE runs: prints <code>E</code>.</li>
+</ul>
+</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 8 — Promise Chaining Order</h3>
+
+<p><strong>What does this code print?</strong></p>
+
+<div class="cb"><pre>&lt;code&gt;Promise.resolve(1)
+  .then(val =&gt; { console.log(val); return val + 1; })
+  .then(val =&gt; { console.log(val); return val + 1; })
+  .then(val =&gt; { console.log(val); });
+
+console.log("start");
+&lt;/code&gt;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output:</strong> <code>start</code>, <code>1</code>, <code>2</code>, <code>3</code></p>
+<p><code>console.log("start")</code> executes synchronously first. The Promise chain callbacks are microtasks, so they execute after the synchronous code completes. Each <code>.then</code> receives the return value of the previous <code>.then</code>:</p>
+<ul>
+<li>First <code>.then</code>: logs <code>1</code>, returns <code>2</code></li>
+<li>Second <code>.then</code>: logs <code>2</code>, returns <code>3</code></li>
+<li>Third <code>.then</code>: logs <code>3</code></li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — Error Handling with async/await</h3>
+
+<p>Consider this code:</p>
+
+<div class="cb"><pre>&lt;code&gt;async function getData() {
+  try {
+    const response = await fetch("https://api.example.com/data");
+
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Caught:", error.message);
+  }
+}
+&lt;/code&gt;</pre></div>
+
+<ul>
+<li>a) The <code>fetch</code> API returns a Promise. Under what condition does <code>fetch</code> itself reject (throw an error caught by <code>catch</code>)? Give an example.</li>
+<li>b) If the server responds with HTTP 404, does <code>fetch</code> reject? What happens instead, and why is the <code>response.ok</code> check necessary?</li>
+<li>c) Why does <code>response.json()</code> also need <code>await</code>?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>fetch</code> itself only rejects on <strong>network errors</strong> — when the request cannot reach the server at all. Examples: no internet connection, DNS resolution failure, CORS error, server unreachable.</p>
+<p><strong>b)</strong> No. If the server responds with HTTP 404, <code>fetch</code> does <strong>not</strong> reject. It resolves successfully with a Response object where <code>response.ok</code> is <code>false</code> and <code>response.status</code> is <code>404</code>. The <code>response.ok</code> check is necessary because <code>fetch</code> considers any server response (even 4xx/5xx) as a successful network request. You must manually check <code>response.ok</code> (or <code>response.status</code>) to detect HTTP-level errors.</p>
+<p><strong>c)</strong> <code>response.json()</code> returns a <strong>Promise</strong> because parsing the response body is an asynchronous operation — the body may still be streaming. You need <code>await</code> to wait for the parsing to complete and get the actual data.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — async/await Execution Order</h3>
+
+<p><strong>What does this code print, and in what order?</strong></p>
+
+<div class="cb"><pre>&lt;code&gt;async function foo() {
+  console.log("A");
+  const result = await Promise.resolve("B");
+  console.log(result);
+  console.log("C");
+}
+
+console.log("D");
+foo();
+console.log("E");
+&lt;/code&gt;</pre></div>
+
+<p>Explain why the code after <code>await</code> does not execute immediately.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output:</strong> <code>D</code>, <code>A</code>, <code>E</code>, <code>B</code>, <code>C</code></p>
+<ol>
+<li><code>console.log("D")</code> — sync, prints <code>D</code>.</li>
+<li><code>foo()</code> is called. Inside foo:
+<ul>
+<li><code>console.log("A")</code> — sync, prints <code>A</code>.</li>
+<li><code>await Promise.resolve("B")</code> — pauses <code>foo()</code>. The resolved value <code>"B"</code> is scheduled as a microtask. Control returns to the caller.</li>
+</ul>
+</li>
+<li><code>console.log("E")</code> — sync, prints <code>E</code>.</li>
+<li>Call Stack empty. Microtask Queue processes the await resume:
+<ul>
+<li><code>result</code> becomes <code>"B"</code>, prints <code>B</code>.</li>
+<li><code>console.log("C")</code> prints <code>C</code>.</li>
+</ul>
+</li>
+</ol>
+<p>The code after <code>await</code> does not execute immediately because <code>await</code> yields control back to the caller. The continuation is placed in the Microtask Queue and only runs after the current synchronous execution completes.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — for await...of Pattern</h3>
+
+<p>The course demonstration uses <code>for await...of</code> with the same set of promises:</p>
+
+<div class="cb"><pre>&lt;code&gt;document.getElementById("for-await").addEventListener("click", async function () {
+  let number = 1;
+  const startDate = new Date();
+
+  try {
+    for await (const promise of getPromises()) {
+      const elapsedTimeInSeconds = (endDate - startDate) / 1000;
+      const bunnyCard = getBunnyCard("for-await", number++);
+      showMessageAndAnimate(bunnyCard, promise, elapsedTimeInSeconds);
+    }
+  } catch (err) {
+    // handle rejection
+  }
+});
+&lt;/code&gt;</pre></div>
+
+<p>Using <code>getPromises()</code> from Question 3 (resolves at 1s, 2s; rejects at 5s; resolves at 10s):</p>
+
+<ul>
+<li>a) How does <code>for await...of</code> differ from <code>Promise.all</code> in how it processes the promises?</li>
+<li>b) At what elapsed times does each bunny card appear before the error occurs?</li>
+<li>c) What happens to the fourth promise (10s resolve) — does it ever get processed?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>for await...of</code> awaits each promise <strong>one at a time, in order</strong>. It waits for promise 1 to settle, then moves to promise 2, etc. <code>Promise.all</code> starts all promises concurrently and waits for all of them (or the first rejection).</p>
+<p><strong>b)</strong> The bunny cards appear at:</p>
+<ul>
+<li>~1 second: first bunny (resolves with "1 second")</li>
+<li>~2 seconds: second bunny (resolves with "2 seconds")</li>
+<li>~5 seconds: error occurs (third promise rejects with "5 seconds")</li>
+</ul>
+<p>Note: all promises start executing immediately when <code>getPromises()</code> is called, but <code>for await</code> processes their results sequentially.</p>
+<p><strong>c)</strong> The fourth promise (10s resolve) is <strong>never processed</strong> by the loop because the <code>catch</code> block is entered when the third promise rejects. The fourth promise still runs in the background but its result is ignored.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 12 — Fetch API Fundamentals</h3>
+
+<ul>
+<li>a) What does <code>fetch(url)</code> return?</li>
+<li>b) The response object from <code>fetch</code> has a property called <code>ok</code>. What does it represent?</li>
+<li>c) Name two methods on the response object used to parse the body, and state what each returns.</li>
+<li>d) Explain the difference between a <strong>network error</strong> and an <strong>HTTP error</strong> in the context of <code>fetch</code>.</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>fetch(url)</code> returns a <strong>Promise</strong> that resolves to a <strong>Response</strong> object.</p>
+<p><strong>b)</strong> <code>response.ok</code> is a boolean that is <code>true</code> when the HTTP status code is in the range 200-299, and <code>false</code> otherwise.</p>
+<p><strong>c)</strong> Two methods:</p>
+<ul>
+<li><code>response.json()</code> — returns a <strong>Promise</strong> that resolves to the parsed JSON body</li>
+<li><code>response.text()</code> — returns a <strong>Promise</strong> that resolves to the body as a string</li>
+</ul>
+<p><strong>d)</strong> A <strong>network error</strong> means the request never reached the server (no connection, DNS failure, CORS block) — <code>fetch</code> rejects the Promise. An <strong>HTTP error</strong> means the server responded but with an error status code (404, 500, etc.) — <code>fetch</code> resolves successfully, but <code>response.ok</code> is <code>false</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — Promise Constructor</h3>
+
+<p>What is the output of the following code? Explain.</p>
+
+<div class="cb"><pre>&lt;code&gt;const p = new Promise((resolve, reject) =&gt; {
+  console.log("X");
+  resolve("Y");
+  console.log("Z");
+});
+
+p.then(val =&gt; console.log(val));
+console.log("W");
+&lt;/code&gt;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output:</strong> <code>X</code>, <code>Z</code>, <code>W</code>, <code>Y</code></p>
+<p>The function passed to the Promise constructor (the executor) runs <strong>synchronously and immediately</strong>:</p>
+<ol>
+<li><code>console.log("X")</code> — sync inside executor, prints <code>X</code>.</li>
+<li><code>resolve("Y")</code> — resolves the promise, but <code>.then</code> callbacks are microtasks (scheduled, not run yet).</li>
+<li><code>console.log("Z")</code> — sync inside executor (calling resolve does NOT stop execution), prints <code>Z</code>.</li>
+<li><code>console.log("W")</code> — sync outside the promise, prints <code>W</code>.</li>
+<li>Call Stack empty. Microtask: the <code>.then</code> callback runs, prints <code>Y</code>.</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 14 — Microtasks vs Macrotasks</h3>
+
+<ul>
+<li>a) Name two examples of microtasks and two examples of macrotasks in the browser.</li>
+<li>b) In the Event Loop, which queue has priority — the microtask queue or the macrotask queue? Explain what happens after each macrotask completes.</li>
+<li>c) Why does <code>Promise.resolve().then(...)</code> execute before <code>setTimeout(..., 0)</code> even though both are asynchronous?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong></p>
+<ul>
+<li>Microtasks: <strong>Promise callbacks</strong> (<code>.then</code>, <code>.catch</code>, <code>.finally</code>), <strong>queueMicrotask()</strong></li>
+<li>Macrotasks: <strong>setTimeout</strong>, <strong>setInterval</strong>, <strong>DOM events</strong>, <strong>I/O callbacks</strong></li>
+</ul>
+<p><strong>b)</strong> The <strong>microtask queue has priority</strong>. After each macrotask completes, the Event Loop drains the <strong>entire</strong> microtask queue before picking the next macrotask. This means all pending microtasks run before any waiting macrotask.</p>
+<p><strong>c)</strong> <code>Promise.resolve().then(...)</code> executes before <code>setTimeout(..., 0)</code> because Promise callbacks go to the <strong>microtask queue</strong>, while setTimeout callbacks go to the <strong>macrotask queue</strong>. After the synchronous code finishes (itself a macrotask), the Event Loop processes all microtasks first, then moves to the next macrotask.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — Promise.all vs for await...of Timing</h3>
+
+<p>Consider these promises:</p>
+
+<div class="cb"><pre>&lt;code&gt;const promises = [
+  new Promise(resolve =&gt; setTimeout(resolve, 3000, "A")),
+  new Promise(resolve =&gt; setTimeout(resolve, 1000, "B")),
+  new Promise(resolve =&gt; setTimeout(resolve, 2000, "C")),
+];
+&lt;/code&gt;</pre></div>
+
+<ul>
+<li>a) If you use <code>Promise.all(promises)</code>, after how many seconds does the <code>.then</code> handler run? What is the value passed to it?</li>
+<li>b) If you use <code>for await (const val of promises)</code>, at what elapsed times does each value become available, and in what order?</li>
+<li>c) Explain why the timing differs between <code>Promise.all</code> and <code>for await...of</code> for these specific promises.</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>Promise.all</code> runs all promises <strong>concurrently</strong>. It resolves after <strong>3 seconds</strong> (the slowest promise). The value is <code>["A", "B", "C"]</code> — in the same order as the input array, not in the order they resolved.</p>
+<p><strong>b)</strong> <code>for await...of</code> awaits each promise <strong>in input order</strong>:</p>
+<ul>
+<li>At ~3 seconds: <code>"A"</code> (first promise, 3s timer)</li>
+<li>At ~3 seconds: <code>"B"</code> (second promise already resolved at 1s, available immediately)</li>
+<li>At ~3 seconds: <code>"C"</code> (third promise already resolved at 2s, available immediately)</li>
+</ul>
+<p><strong>c)</strong> With <code>for await...of</code>, all promises start running at creation time. The loop just awaits them in order. The first promise takes 3 seconds, but by then promises 2 and 3 have already resolved, so they are available immediately when awaited. With <code>Promise.all</code>, all promises also run concurrently but it simply waits for all to finish. The key difference is that <code>for await...of</code> gives you each result as soon as you reach it in order, while <code>Promise.all</code> gives you all results at once when the slowest finishes.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Error Propagation in Chains</h3>
+
+<p>What does this code print?</p>
+
+<div class="cb"><pre>&lt;code&gt;Promise.resolve("start")
+  .then(val =&gt; {
+    console.log(val);
+    throw new Error("oops");
+  })
+  .then(val =&gt; {
+    console.log("This runs?", val);
+  })
+  .catch(err =&gt; {
+    console.log("Caught:", err.message);
+    return "recovered";
+  })
+  .then(val =&gt; {
+    console.log(val);
+  });
+&lt;/code&gt;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output:</strong></p>
+<div class="cb"><pre>start
+Caught: oops
+recovered</pre></div>
+<ol>
+<li>First <code>.then</code>: receives <code>"start"</code>, logs it, then throws an Error.</li>
+<li>Second <code>.then</code>: <strong>skipped</strong> because the chain is now in a rejected state.</li>
+<li><code>.catch</code>: catches the error, logs <code>"Caught: oops"</code>, and returns <code>"recovered"</code> — this <strong>resets</strong> the chain back to fulfilled state.</li>
+<li>Final <code>.then</code>: receives <code>"recovered"</code> from the catch's return value, logs it.</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Course Code Analysis</h3>
+
+<p>In the course Visual Promises code, the <code>Promise.race</code> handler is written as:</p>
+
+<div class="cb"><pre>&lt;code&gt;Promise.race(getPromises()).then(
+  (value) =&gt; {
+    // on resolved
+    showMessageAndAnimate(bunnyCard, value, elapsedTimeInSeconds);
+    // mark other bunnies as "out-of-race"
+  },
+  (reason) =&gt; {
+    // on rejected
+    bunny.classList.add("hurt");
+  }
+);
+&lt;/code&gt;</pre></div>
+
+<ul>
+<li>a) The <code>.then</code> method receives two arguments here (two functions). What is the difference between this pattern and using <code>.then().catch()</code>?</li>
+<li>b) If the first promise to settle is fulfilled, which handler runs?</li>
+<li>c) If the first promise to settle is rejected, which handler runs?</li>
+<li>d) In <code>getPromises()</code> the fastest promise resolves at 1 second. Does <code>Promise.race</code> wait for the other promises to finish, or does it ignore them?</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Passing two functions to <code>.then(onFulfilled, onRejected)</code> handles both outcomes in a single <code>.then</code> call. Using <code>.then().catch()</code> is a separate chain where <code>.catch</code> also catches errors thrown inside the <code>.then</code> handler itself. With two arguments, the <code>onRejected</code> only handles the original promise rejection, not errors in <code>onFulfilled</code>.</p>
+<p><strong>b)</strong> The first function (onFulfilled) runs — it shows the winning bunny and marks others as "out-of-race".</p>
+<p><strong>c)</strong> The second function (onRejected) runs — it marks the bunny as "hurt" and shows the rejection reason.</p>
+<p><strong>d)</strong> <code>Promise.race</code> does <strong>not</strong> wait for other promises. It settles as soon as the first promise settles. The other promises continue executing in the background, but their results are ignored by <code>Promise.race</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 18 — Combining Concepts</h3>
+
+<p><strong>What does this code print, and in what order?</strong></p>
+
+<div class="cb"><pre>&lt;code&gt;async function process() {
+  console.log("1");
+
+  const result = await new Promise((resolve) =&gt; {
+    console.log("2");
+    setTimeout(() =&gt; {
+      console.log("3");
+      resolve("4");
+    }, 0);
+  });
+
+  console.log(result);
+  console.log("5");
+}
+
+console.log("6");
+process();
+console.log("7");
+&lt;/code&gt;</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Output:</strong> <code>6</code>, <code>1</code>, <code>2</code>, <code>7</code>, <code>3</code>, <code>4</code>, <code>5</code></p>
+<p>Step-by-step:</p>
+<ol>
+<li><code>console.log("6")</code> — sync, prints <code>6</code>.</li>
+<li><code>process()</code> is called:
+<ul>
+<li><code>console.log("1")</code> — sync, prints <code>1</code>.</li>
+<li><code>new Promise(executor)</code> — executor runs synchronously:
+<ul>
+<li><code>console.log("2")</code> — prints <code>2</code>.</li>
+<li><code>setTimeout(() =&gt; { console.log("3"); resolve("4"); }, 0)</code> — callback goes to Macrotask Queue.</li>
+</ul>
+</li>
+<li><code>await</code> pauses <code>process()</code>, returns control to caller.</li>
+</ul>
+</li>
+<li><code>console.log("7")</code> — sync, prints <code>7</code>.</li>
+<li>Call Stack empty. No microtasks. Process Macrotask Queue:
+<ul>
+<li>setTimeout callback runs: prints <code>3</code>, calls <code>resolve("4")</code>.</li>
+<li>The await resumes as a microtask.</li>
+</ul>
+</li>
+<li>Microtask: <code>process()</code> resumes:
+<ul>
+<li><code>result</code> is <code>"4"</code>, prints <code>4</code>.</li>
+<li><code>console.log("5")</code> prints <code>5</code>.</li>
+</ul>
+</li>
+</ol>
+</div>
+</details>

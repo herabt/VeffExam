@@ -1,0 +1,1203 @@
+<h2 class="g-h2">Socket.io — Complete Exam Study Guide</h2>
+
+<p><em>Target: 100% on the Web Programming II final exam. Every concept here has been sourced from the glossary, practice exams, and the actual course code (avatorium + signup-sheet demos).</em></p>
+
+<h2 class="g-h2">Table of Contents</h2>
+<ol>
+  <li>Why Real-Time? HTTP Problems</li>
+  <li>Transport Comparison: Polling vs SSE vs WebSocket vs Socket.io</li>
+  <li>Socket.io Basics</li>
+  <li>Emit Methods — The Big Three</li>
+  <li>Rooms</li>
+  <li>Namespaces</li>
+  <li>Middleware (Auth)</li>
+  <li>Disconnect Handling</li>
+  <li>Acknowledgements</li>
+  <li>Session Management</li>
+  <li>Integration with Express / Next.js</li>
+  <li>Security (CORS, Auth)</li>
+  <li>Reconnection Handling</li>
+  <li>Full Chat App Pattern</li>
+  <li>Likely Exam Questions &amp; Model Answers</li>
+  <li>Cheat Sheet</li>
+</ol>
+
+<h2 class="g-h2">1. Why Real-Time? HTTP Problems</h2>
+
+<h3 class="g-h3">The Problem with Plain HTTP</h3>
+
+<p>Standard HTTP is <strong>request-response</strong>: the client sends a request, the server responds, the connection closes. This model is fundamentally incompatible with real-time use cases because:</p>
+<ul>
+  <li>The server cannot <strong>push</strong> data to the client unprompted.</li>
+  <li>Each request requires a full HTTP handshake (expensive).</li>
+  <li>The client must constantly ask "has anything changed?" — called <strong>polling</strong>.</li>
+</ul>
+
+<h3 class="g-h3">Long Polling (the old workaround)</h3>
+
+<p>The client sends a request. The server <strong>holds the connection open</strong> until it has data to send (or a timeout). Then the client immediately opens a new long-poll request.</p>
+
+<div class="cb"><pre>Client → GET /updates  (held open by server)
+Server → 200 { data }  (finally responds when event happens)
+Client → GET /updates  (opens new request immediately)</pre></div>
+
+<p>Problems: high server memory usage (each open connection consumes a thread/descriptor), high latency on timeout, not truly bidirectional.</p>
+
+<h3 class="g-h3">WebSocket — The Real Solution</h3>
+
+<p>WebSocket is a standardized protocol (RFC 6455) that <strong>upgrades</strong> an HTTP/1.1 connection to a persistent, full-duplex channel:</p>
+
+<div class="cb"><pre>Client → HTTP GET /ws  Upgrade: websocket
+Server → 101 Switching Protocols
+=== persistent two-way channel from here ===
+Server → push data at any time
+Client → push data at any time</pre></div>
+
+<p>Key properties:</p>
+<ul>
+  <li><strong>Full-duplex</strong>: both sides send simultaneously without waiting.</li>
+  <li><strong>Persistent</strong>: one connection, many messages.</li>
+  <li><strong>Low overhead</strong>: no HTTP headers on each message after handshake.</li>
+  <li><strong>Event-driven</strong>: both sides react to events, not polling.</li>
+</ul>
+
+<h2 class="g-h2">2. Transport Comparison</h2>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>HTTP Polling</th>
+      <th>HTTP Long Polling</th>
+      <th>SSE</th>
+      <th>WebSocket</th>
+      <th>Socket.io</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Direction</td>
+      <td>Client → Server</td>
+      <td>Client → Server</td>
+      <td>Server → Client only</td>
+      <td>Bidirectional</td>
+      <td>Bidirectional</td>
+    </tr>
+    <tr>
+      <td>Connection</td>
+      <td>New per request</td>
+      <td>Held open</td>
+      <td>Persistent, one-way</td>
+      <td>Persistent, two-way</td>
+      <td>Persistent, two-way</td>
+    </tr>
+    <tr>
+      <td>Overhead</td>
+      <td>High (headers each time)</td>
+      <td>Medium</td>
+      <td>Low</td>
+      <td>Very low</td>
+      <td>Low</td>
+    </tr>
+    <tr>
+      <td>Server push</td>
+      <td>No</td>
+      <td>Simulated</td>
+      <td>Yes (one-way)</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Auto-reconnect</td>
+      <td>No</td>
+      <td>Manual</td>
+      <td>Built-in</td>
+      <td>No</td>
+      <td>Built-in</td>
+    </tr>
+    <tr>
+      <td>Rooms/namespaces</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Fallback</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>No</td>
+      <td>Yes (falls back to long-polling)</td>
+    </tr>
+    <tr>
+      <td>Use case</td>
+      <td>Simple REST</td>
+      <td>Legacy real-time</td>
+      <td>News feeds, notifications</td>
+      <td>Custom real-time</td>
+      <td>Real-time apps (chat, games, live data)</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<p><strong>SSE (Server-Sent Events)</strong>: The server streams events to the client over a persistent HTTP connection. Client cannot send events back through the same channel. Good for one-way feeds (stock tickers, live logs).</p>
+
+<p><strong>Socket.io vs raw WebSocket</strong>:</p>
+<ul>
+  <li>Socket.io is a <strong>library</strong> built on top of WebSocket (plus fallbacks).</li>
+  <li>Socket.io adds: automatic reconnection, rooms, namespaces, middleware, event-based API, fallback to HTTP long-polling when WebSocket is blocked.</li>
+  <li>Raw WebSocket has none of these extras.</li>
+</ul>
+
+<p><strong>Exam trap</strong>: Socket.io and WebSocket are NOT the same thing. Socket.io USES WebSocket as its primary transport.</p>
+
+<h2 class="g-h2">3. Socket.io Basics</h2>
+
+<h3 class="g-h3">Server Setup (with Express)</h3>
+
+<div class="cb"><pre>import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
+const app = express();
+const httpServer = createServer(app);  // wrap Express in HTTP server
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000',  // allowed client origin
+    credentials: true
+  }
+});
+
+// The connection event fires for every new client
+io.on('connection', (socket) =&gt; {
+  console.log(`Client connected: ${socket.id}`);
+
+  // Listen for events from this specific client
+  socket.on('message', (data) =&gt; {
+    console.log('Received:', data);
+  });
+
+  // Fires when this client disconnects
+  socket.on('disconnect', () =&gt; {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});
+
+httpServer.listen(4567);</pre></div>
+
+<p>Key points:</p>
+<ul>
+  <li>You create a <code>Server</code> (<code>io</code>) that wraps an HTTP server — NOT Express directly.</li>
+  <li><code>io.on('connection', callback)</code> fires once per connected client.</li>
+  <li>Each connection gets a unique <code>socket.id</code>.</li>
+  <li>Each <code>socket</code> represents one client's connection.</li>
+</ul>
+
+<h3 class="g-h3">Client Setup (Vanilla JS / React)</h3>
+
+<div class="cb"><pre>import { io } from 'socket.io-client';
+
+// Connect to the server — returns a socket instance
+const socket = io('http://localhost:4567');
+
+// Listen for events from the server
+socket.on('message', (data) =&gt; {
+  console.log('Server says:', data);
+});
+
+// Send an event to the server
+socket.emit('message', { text: 'Hello!' });
+
+// Connection/disconnection events
+socket.on('connect', () =&gt; console.log('Connected!', socket.id));
+socket.on('disconnect', () =&gt; console.log('Disconnected'));</pre></div>
+
+<h3 class="g-h3">Client Setup as a React Service (course pattern)</h3>
+
+<div class="cb"><pre>// src/services/socketService.js
+import { io } from 'socket.io-client';
+
+const URL = 'http://localhost:4567';
+export default io(URL);  // singleton — same socket everywhere</pre></div>
+
+<p>Then in a component:</p>
+
+<div class="cb"><pre>import socket from '../../services/socketService';
+
+// Send
+socket.emit('usersignup', eventId, user);
+
+// Receive (in useEffect)
+useEffect(() =&gt; {
+  socket.on('usersignup', (eventId, user) =&gt; {
+    // update local state
+  });
+  return () =&gt; socket.off('usersignup');  // cleanup!
+}, []);</pre></div>
+
+<h3 class="g-h3">The <code>connect</code> / <code>disconnect</code> lifecycle</h3>
+
+<div class="cb"><pre>Client                          Server
+  |                               |
+  |--- TCP + HTTP Upgrade ------->|
+  |&lt;-- 101 Switching Protocols ---|
+  |                               |
+  |    (connection established)   |
+  |                               | io.on('connection') fires
+  |&lt;-- socket.emit('session') ----|
+  |                               |
+  |--- socket.emit('message') --->|  socket.on('message') fires
+  |                               |
+  |    (client closes tab)        |
+  |                               | socket.on('disconnect') fires</pre></div>
+
+<h2 class="g-h2">4. Emit Methods — The Big Three</h2>
+
+<p>This is the most exam-critical section. Know each one cold.</p>
+
+<h3 class="g-h3"><code>io.emit(event, data)</code> — Send to EVERYONE</h3>
+
+<div class="cb"><pre>io.on('connection', (socket) =&gt; {
+  socket.on('chat:message', (msg) =&gt; {
+    // Sends to ALL connected clients, INCLUDING the sender
+    io.emit('chat:message', msg);
+  });
+});</pre></div>
+
+<p><strong>Chat example</strong>: Server sends a system announcement ("Server maintenance in 5 min") to every connected user.</p>
+
+<h3 class="g-h3"><code>socket.emit(event, data)</code> — Send ONLY to sender</h3>
+
+<p><strong>Server side</strong>: Sends back to the specific client whose socket this is.</p>
+
+<div class="cb"><pre>io.on('connection', (socket) =&gt; {
+  // Sends session details back only to the connecting client
+  socket.emit('session', {
+    sessionID: socket.sessionID,
+    userID: socket.userID
+  });
+});</pre></div>
+
+<p><strong>Client side</strong>: Sends to the server.</p>
+
+<div class="cb"><pre>socket.emit('message', { text: 'Hello server!' });</pre></div>
+
+<p><strong>Chat example (server)</strong>: Send a "Message delivered" receipt only to the sender.</p>
+
+<h3 class="g-h3"><code>socket.broadcast.emit(event, data)</code> — Send to EVERYONE EXCEPT sender</h3>
+
+<div class="cb"><pre>io.on('connection', (socket) =&gt; {
+  // Notify everyone else that a new user joined
+  socket.broadcast.emit('user:joined', {
+    userID: socket.userID,
+    avatar: socket.avatar
+  });
+
+  socket.on('chat:message', (msg) =&gt; {
+    // Send the message to everyone except the sender
+    // (sender already sees their own message locally)
+    socket.broadcast.emit('chat:message', msg);
+  });
+});</pre></div>
+
+<p><strong>Chat example</strong>: When user A sends a message, everyone else gets it. User A doesn't need an echo because they already display it locally.</p>
+
+<h3 class="g-h3">Summary Table</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Who receives it</th>
+      <th>Includes sender?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>io.emit(event, data)</code></td>
+      <td>ALL clients</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td><code>socket.emit(event, data)</code></td>
+      <td>ONLY the sender (server-side)</td>
+      <td>Only sender</td>
+    </tr>
+    <tr>
+      <td><code>socket.broadcast.emit(event, data)</code></td>
+      <td>ALL clients EXCEPT sender</td>
+      <td>NO</td>
+    </tr>
+    <tr>
+      <td><code>io.to(room).emit(event, data)</code></td>
+      <td>All sockets in a specific room</td>
+      <td>Depends on if sender is in room</td>
+    </tr>
+    <tr>
+      <td><code>socket.to(room).emit(event, data)</code></td>
+      <td>All sockets in room EXCEPT sender</td>
+      <td>NO</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">5. Rooms</h2>
+
+<p>Rooms are virtual groups of sockets. They allow you to send events to a specific subset of connected clients.</p>
+
+<h3 class="g-h3">Joining and Leaving</h3>
+
+<div class="cb"><pre>io.on('connection', (socket) =&gt; {
+  // Join a room
+  socket.join('room:general');       // joins the named room
+  socket.join(socket.userID);        // user's own private room (course pattern)
+
+  // Leave a room
+  socket.leave('room:general');
+
+  // Send to everyone in a room (including sender if in that room)
+  io.to('room:general').emit('message', 'Hello room!');
+
+  // Send to everyone in a room EXCEPT sender
+  socket.to('room:general').emit('message', 'New user joined!');
+
+  socket.on('joinRoom', (roomId) =&gt; {
+    socket.join(roomId);
+    socket.to(roomId).emit('user:joined', socket.userID);
+  });
+
+  socket.on('sendMessage', (data) =&gt; {
+    // Only people in data.roomId get this
+    io.to(data.roomId).emit('newMessage', {
+      from: socket.userId,
+      text: data.text,
+      timestamp: Date.now()
+    });
+  });
+});</pre></div>
+
+<h3 class="g-h3">Key Room Facts</h3>
+
+<ul>
+  <li>Sockets can be in multiple rooms simultaneously.</li>
+  <li>Every socket is automatically in its own room named by <code>socket.id</code>.</li>
+  <li>Rooms exist only on the server — the client doesn't need to know about room internals.</li>
+  <li>When a socket disconnects, it automatically leaves all its rooms.</li>
+</ul>
+
+<h3 class="g-h3">Chat App Room Pattern (exam-ready)</h3>
+
+<div class="cb"><pre>io.on('connection', (socket) =&gt; {
+  // Each user joins their own private room for DMs
+  socket.join(`user:${socket.userId}`);
+
+  socket.on('joinChannel', (channelId) =&gt; {
+    socket.join(`channel:${channelId}`);
+    socket.to(`channel:${channelId}`).emit('user:joined', {
+      userId: socket.userId,
+      channelId
+    });
+  });
+
+  socket.on('sendMessage', ({ channelId, text }) =&gt; {
+    io.to(`channel:${channelId}`).emit('newMessage', {
+      from: socket.userId,
+      text,
+      timestamp: Date.now()
+    });
+  });
+});</pre></div>
+
+<h2 class="g-h2">6. Namespaces</h2>
+
+<p>Namespaces are separate communication channels on the <strong>same underlying connection</strong>. Think of them as separate "apps" on the same Socket.io server.</p>
+
+<div class="cb"><pre>// Default namespace: '/'
+io.on('connection', socket =&gt; { ... });
+
+// Custom namespace
+const chatNS = io.of('/chat');
+chatNS.on('connection', socket =&gt; {
+  socket.on('message', (msg) =&gt; {
+    chatNS.emit('message', msg); // only to /chat namespace
+  });
+});
+
+const adminNS = io.of('/admin');
+adminNS.on('connection', socket =&gt; {
+  // Admin-only events
+});</pre></div>
+
+<p>Client connecting to a namespace:</p>
+
+<div class="cb"><pre>const chatSocket = io('http://localhost:4567/chat');
+const adminSocket = io('http://localhost:4567/admin');</pre></div>
+
+<p><strong>Namespace vs Room</strong>:</p>
+<ul>
+  <li>Namespace: defined on the server, clients choose which namespace to connect to. Separate event stream.</li>
+  <li>Room: server-side grouping of sockets within a namespace. Clients don't "connect" to rooms — they are joined by the server.</li>
+</ul>
+
+<h2 class="g-h2">7. Middleware (Auth)</h2>
+
+<p>Middleware runs before a connection is established. This is where you validate the client.</p>
+
+<div class="cb"><pre>// From the avatorium course demo
+io.use((socket, next) =&gt; {
+  const sessionID = socket.handshake.auth.sessionID;
+
+  if (sessionID) {
+    // Returning user — restore session
+    const session = sessionStore.findSession(sessionID);
+    if (session) {
+      socket.sessionID = sessionID;
+      socket.userID = session.userID;
+      socket.avatar = session.avatar;
+      return next();  // allow connection
+    }
+  }
+
+  const avatar = socket.handshake.auth.avatar;
+  if (!avatar) {
+    return next(new Error('invalid avatar'));  // REJECT connection
+  }
+
+  // New user — create session
+  socket.sessionID = randomId();
+  socket.userID = randomId();
+  socket.avatar = avatar;
+  next();  // allow connection
+});</pre></div>
+
+<h3 class="g-h3">Token-based Auth Pattern (exam pattern from practice-exam-3)</h3>
+
+<div class="cb"><pre>io.use((socket, next) =&gt; {
+  const token = socket.handshake.auth.token;
+  if (isValidToken(token)) {
+    socket.userId = getUserId(token);
+    next();              // allow the connection
+  } else {
+    next(new Error('Authentication failed'));  // reject
+  }
+});</pre></div>
+
+<h3 class="g-h3">How the client sends auth data</h3>
+
+<div class="cb"><pre>// Client passes auth data in the handshake
+const socket = io('http://localhost:4567', {
+  auth: {
+    token: 'jwt_token_here',
+    sessionID: localStorage.getItem('sessionID')
+  }
+});</pre></div>
+
+<h3 class="g-h3">What happens on rejection</h3>
+
+<p>When middleware calls <code>next(new Error(...))</code>:</p>
+<ul>
+  <li>The connection is refused.</li>
+  <li>The client receives a <code>connect_error</code> event.</li>
+  <li>The <code>connection</code> event on the server does NOT fire.</li>
+</ul>
+
+<div class="cb"><pre>// Client handles auth failure
+socket.on('connect_error', (err) =&gt; {
+  console.error('Connection refused:', err.message);
+});</pre></div>
+
+<h2 class="g-h2">8. Disconnect Handling</h2>
+
+<div class="cb"><pre>io.on('connection', (socket) =&gt; {
+  socket.on('disconnect', () =&gt; {
+    console.log(`User ${socket.userId} disconnected`);
+
+    // Update session store (from avatorium)
+    sessionStore.saveSession(socket.sessionID, {
+      userID: socket.userID,
+      avatar: socket.avatar,
+      connected: false  // mark as offline, don't delete
+    });
+
+    // Notify other users
+    socket.broadcast.emit('disconnected_user', socket.userID);
+  });
+
+  // Explicit "leave" action (user clicks logout)
+  socket.on('leave', () =&gt; {
+    sessionStore.removeSession(socket.sessionID);
+    socket.broadcast.emit('user_left', socket.userID);
+  });
+});</pre></div>
+
+<p><strong>Important distinction</strong>:</p>
+<ul>
+  <li><code>disconnect</code> fires automatically when the connection drops (browser closed, network loss).</li>
+  <li>A custom <code>leave</code> event can be emitted by the client when they explicitly log out.</li>
+</ul>
+
+<h2 class="g-h2">9. Acknowledgements</h2>
+
+<p>Acknowledgements let the sender know the receiver got the event — like a callback confirmation.</p>
+
+<div class="cb"><pre>// Server with acknowledgement
+socket.on('sendMessage', (data, callback) =&gt; {
+  // Process the message
+  saveMessage(data);
+
+  // Call the callback to acknowledge receipt
+  callback({ status: 'ok', messageId: 123 });
+});
+
+// Client — receives the acknowledgement
+socket.emit('sendMessage', { text: 'Hello' }, (response) =&gt; {
+  console.log('Server acknowledged:', response.status); // 'ok'
+  console.log('Message ID:', response.messageId);       // 123
+});</pre></div>
+
+<p><strong>Why use acknowledgements?</strong></p>
+<ul>
+  <li>Guarantee that a specific client received an event.</li>
+  <li>Get a response back from the server without opening a separate request.</li>
+  <li>Useful for form submissions over sockets where you need confirmation.</li>
+</ul>
+
+<h2 class="g-h2">10. Session Management</h2>
+
+<p>Session management tracks connected users across reconnections. Without it, each reconnect creates a new socket with a new ID, losing user identity.</p>
+
+<h3 class="g-h3">Pattern from the Avatorium Course Demo</h3>
+
+<div class="cb"><pre>// Server: middleware assigns/restores session
+io.use((socket, next) =&gt; {
+  const sessionID = socket.handshake.auth.sessionID;
+  if (sessionID) {
+    const session = sessionStore.findSession(sessionID);
+    if (session) {
+      socket.sessionID = sessionID;  // restore existing session
+      socket.userID = session.userID;
+      socket.avatar = session.avatar;
+      return next();
+    }
+  }
+  // New session
+  socket.sessionID = randomId();
+  socket.userID = randomId();
+  socket.avatar = socket.handshake.auth.avatar;
+  next();
+});
+
+io.on('connection', (socket) =&gt; {
+  // Save/update session
+  sessionStore.saveSession(socket.sessionID, {
+    userID: socket.userID,
+    avatar: socket.avatar,
+    connected: true
+  });
+
+  // Send session info back to the client
+  socket.emit('session', {
+    sessionID: socket.sessionID,
+    userID: socket.userID,
+    avatar: socket.avatar
+  });
+
+  // Each user joins their own private room (for targeted messages)
+  socket.join(socket.userID);
+});</pre></div>
+
+<h3 class="g-h3">Client stores the session</h3>
+
+<div class="cb"><pre>socket.on('session', ({ sessionID, userID, avatar }) =&gt; {
+  // Store for future reconnections
+  socket.auth = { sessionID };
+  localStorage.setItem('sessionID', sessionID);
+  // Save userID to Redux/Zustand store
+  dispatch(addSession({ sessionID, userID, avatar }));
+});</pre></div>
+
+<h2 class="g-h2">11. Integration with Express / Next.js</h2>
+
+<h3 class="g-h3">Express Integration (standard pattern)</h3>
+
+<div class="cb"><pre>import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
+const app = express();
+const httpServer = createServer(app);  // Socket.io needs the http.Server, not Express directly
+const io = new Server(httpServer, { cors: { origin: '*' } });
+
+// Express routes work normally
+app.get('/api/health', (req, res) =&gt; res.json({ ok: true }));
+
+// Socket.io is separate
+io.on('connection', (socket) =&gt; { ... });
+
+httpServer.listen(4567);</pre></div>
+
+<p><strong>Common mistake</strong>: Passing the Express <code>app</code> directly to <code>new Server()</code> — it must be the HTTP server.</p>
+
+<h3 class="g-h3">Next.js Integration</h3>
+
+<p>Socket.io does not integrate directly with Next.js API Routes because Next.js doesn't expose the underlying HTTP server easily. Common approaches:</p>
+
+<p><strong>Option 1: Separate Node.js server</strong> (recommended for production)<br>
+Run Socket.io on a separate port (e.g., 4567). The Next.js client connects to it directly.</p>
+
+<div class="cb"><pre>// Client component in Next.js
+'use client';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:4567');  // separate server
+
+export default function ChatComponent() {
+  useEffect(() =&gt; {
+    socket.on('message', (data) =&gt; {
+      // handle message
+    });
+    return () =&gt; {
+      socket.off('message');
+    };
+  }, []);
+
+  return &lt;div&gt;Chat&lt;/div&gt;;
+}</pre></div>
+
+<p><strong>Option 2: Custom server</strong> (pages router only)<br>
+Use a custom <code>server.js</code> that wraps Next.js with Node.js http server.</p>
+
+<p><strong>Note</strong>: Socket.io requires a persistent server — it cannot run inside serverless functions (Vercel Edge/Lambda) because connections need to persist. In serverless environments, use a dedicated Socket.io server or a managed service like Ably or Pusher.</p>
+
+<h2 class="g-h2">12. Security (CORS, Auth)</h2>
+
+<h3 class="g-h3">CORS Configuration</h3>
+
+<p><strong>Server-side CORS (required when client and server are on different ports/origins)</strong>:</p>
+
+<div class="cb"><pre>const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000',  // exact origin(s) allowed
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Authorization'],
+    credentials: true  // required if using cookies/session auth
+  }
+});</pre></div>
+
+<p><strong>Never use <code>origin: '*'</code> with <code>credentials: true</code></strong> — browsers block this. Use specific origins in production.</p>
+
+<h3 class="g-h3">Authentication Middleware Security</h3>
+
+<div class="cb"><pre>io.use((socket, next) =&gt; {
+  const token = socket.handshake.auth.token;
+
+  // ALWAYS validate on the server — never trust the client
+  if (!token) return next(new Error('No token provided'));
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.userId;
+    next();
+  } catch (err) {
+    next(new Error('Invalid token'));  // rejects the connection
+  }
+});</pre></div>
+
+<h3 class="g-h3">Key Security Concerns</h3>
+
+<ol>
+  <li><strong>Always authenticate in middleware</strong> — don't let unauthenticated sockets connect.</li>
+  <li><strong>Validate data on the server</strong> — socket events are like API calls; validate all incoming data.</li>
+  <li><strong>Rate limiting</strong> — prevent spam by limiting how fast a client can emit events.</li>
+  <li><strong>Avoid trusting socket.id</strong> as a user identifier — it changes on reconnect. Use your own session/user ID.</li>
+  <li><strong>CORS in production</strong> — whitelist specific origins, never <code>*</code> with credentials.</li>
+</ol>
+
+<h2 class="g-h2">13. Reconnection Handling</h2>
+
+<p>Socket.io has <strong>automatic reconnection</strong> built in on the client. After a connection drop, the client will attempt to reconnect using exponential backoff.</p>
+
+<h3 class="g-h3">Default behavior</h3>
+
+<div class="cb"><pre>const socket = io('http://localhost:4567');
+// Socket.io will auto-reconnect — no configuration needed</pre></div>
+
+<h3 class="g-h3">Configuring reconnection</h3>
+
+<div class="cb"><pre>const socket = io('http://localhost:4567', {
+  reconnection: true,           // default: true
+  reconnectionAttempts: 5,      // max retries before giving up
+  reconnectionDelay: 1000,      // initial delay (ms)
+  reconnectionDelayMax: 5000,   // max delay between retries
+  randomizationFactor: 0.5,     // randomize delay to avoid thundering herd
+  auth: {
+    sessionID: localStorage.getItem('sessionID')  // restore session on reconnect
+  }
+});
+
+socket.on('connect', () =&gt; {
+  console.log('Connected / Reconnected:', socket.id);
+});
+
+socket.on('reconnect', (attempt) =&gt; {
+  console.log('Reconnected after', attempt, 'attempts');
+});
+
+socket.on('reconnect_failed', () =&gt; {
+  console.error('Could not reconnect after max attempts');
+});</pre></div>
+
+<h3 class="g-h3">Handling reconnection in React</h3>
+
+<div class="cb"><pre>useEffect(() =&gt; {
+  socket.on('connect', () =&gt; setConnected(true));
+  socket.on('disconnect', () =&gt; setConnected(false));
+  socket.on('reconnect', () =&gt; {
+    // Re-join rooms, re-fetch state if needed
+    socket.emit('users');
+  });
+
+  return () =&gt; {
+    socket.off('connect');
+    socket.off('disconnect');
+    socket.off('reconnect');
+  };
+}, []);</pre></div>
+
+<h2 class="g-h2">14. Full Chat App Pattern</h2>
+
+<p>Complete, exam-ready implementation covering all concepts.</p>
+
+<h3 class="g-h3">Server (<code>server/index.js</code>)</h3>
+
+<div class="cb"><pre>import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
+const app = express();
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+    credentials: true
+  }
+});
+
+// ─── AUTH MIDDLEWARE ───────────────────────────────────────────────────────────
+io.use((socket, next) =&gt; {
+  const token = socket.handshake.auth.token;
+  if (!token) return next(new Error('Authentication required'));
+
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = user.id;
+    socket.username = user.name;
+    next();
+  } catch (err) {
+    next(new Error('Invalid token'));
+  }
+});
+
+// ─── CONNECTION ────────────────────────────────────────────────────────────────
+io.on('connection', (socket) =&gt; {
+  console.log(`User ${socket.username} connected: ${socket.id}`);
+
+  // Join the user's private room
+  socket.join(`user:${socket.userId}`);
+
+  // Notify OTHERS that user joined (not the sender)
+  socket.broadcast.emit('user:online', {
+    userId: socket.userId,
+    username: socket.username
+  });
+
+  // ─── ROOM MANAGEMENT ─────────────────────────────────────────────────────────
+  socket.on('room:join', (roomId) =&gt; {
+    socket.join(roomId);
+    // Notify others in the room
+    socket.to(roomId).emit('room:user_joined', {
+      userId: socket.userId,
+      username: socket.username,
+      roomId
+    });
+    console.log(`${socket.username} joined room ${roomId}`);
+  });
+
+  socket.on('room:leave', (roomId) =&gt; {
+    socket.leave(roomId);
+    socket.to(roomId).emit('room:user_left', {
+      userId: socket.userId,
+      roomId
+    });
+  });
+
+  // ─── MESSAGING ───────────────────────────────────────────────────────────────
+  socket.on('message:send', ({ roomId, text }, callback) =&gt; {
+    // Validate
+    if (!text || text.trim().length === 0) {
+      return callback({ error: 'Message cannot be empty' });
+    }
+
+    const message = {
+      id: crypto.randomUUID(),
+      from: socket.userId,
+      username: socket.username,
+      text: text.trim(),
+      timestamp: Date.now()
+    };
+
+    // Send to ALL in room (including sender)
+    io.to(roomId).emit('message:new', message);
+
+    // Acknowledge to sender
+    callback({ status: 'ok', messageId: message.id });
+  });
+
+  // ─── DISCONNECT ───────────────────────────────────────────────────────────────
+  socket.on('disconnect', () =&gt; {
+    console.log(`User ${socket.username} disconnected`);
+
+    // Notify others
+    socket.broadcast.emit('user:offline', {
+      userId: socket.userId,
+      username: socket.username
+    });
+  });
+});
+
+httpServer.listen(4567, () =&gt; console.log('Socket.io server on :4567'));</pre></div>
+
+<h3 class="g-h3">Client Service (<code>src/services/socketService.ts</code>)</h3>
+
+<div class="cb"><pre>import { io, Socket } from 'socket.io-client';
+
+let socket: Socket | null = null;
+
+export function getSocket(): Socket {
+  if (!socket) {
+    socket = io('http://localhost:4567', {
+      auth: {
+        token: localStorage.getItem('jwt_token')
+      },
+      reconnection: true,
+      reconnectionAttempts: 5
+    });
+  }
+  return socket;
+}
+
+export function disconnectSocket() {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+}</pre></div>
+
+<h3 class="g-h3">React Chat Component (<code>src/components/Chat.tsx</code>)</h3>
+
+<div class="cb"><pre>'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { getSocket } from '../services/socketService';
+
+interface Message {
+  id: string;
+  from: string;
+  username: string;
+  text: string;
+  timestamp: number;
+}
+
+export default function Chat({ roomId }: { roomId: string }) {
+  const [messages, setMessages] = useState&lt;Message[]&gt;([]);
+  const [input, setInput] = useState('');
+  const [connected, setConnected] = useState(false);
+  const socket = getSocket();
+
+  useEffect(() =&gt; {
+    // Join the room
+    socket.emit('room:join', roomId);
+
+    // Listen for new messages
+    socket.on('message:new', (message: Message) =&gt; {
+      setMessages(prev =&gt; [...prev, message]);
+    });
+
+    // Track connection state
+    socket.on('connect', () =&gt; setConnected(true));
+    socket.on('disconnect', () =&gt; setConnected(false));
+
+    // Cleanup on unmount
+    return () =&gt; {
+      socket.emit('room:leave', roomId);
+      socket.off('message:new');
+      socket.off('connect');
+      socket.off('disconnect');
+    };
+  }, [roomId]);  // re-run if roomId changes
+
+  const sendMessage = () =&gt; {
+    if (!input.trim()) return;
+
+    // Send with acknowledgement
+    socket.emit('message:send', { roomId, text: input }, (response) =&gt; {
+      if (response.error) {
+        console.error('Send failed:', response.error);
+      }
+      // Response.status === 'ok' means server received it
+    });
+
+    setInput('');
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;div style={{ color: connected ? 'green' : 'red' }}&gt;
+        {connected ? 'Connected' : 'Disconnected'}
+      &lt;/div&gt;
+
+      &lt;ul&gt;
+        {messages.map(msg =&gt; (
+          &lt;li key={msg.id}&gt;
+            &lt;strong&gt;{msg.username}&lt;/strong&gt;: {msg.text}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+
+      &lt;input
+        value={input}
+        onChange={e =&gt; setInput(e.target.value)}
+        onKeyDown={e =&gt; e.key === 'Enter' &amp;&amp; sendMessage()}
+        placeholder="Type a message..."
+      /&gt;
+      &lt;button onClick={sendMessage}&gt;Send&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+
+<h2 class="g-h2">15. Likely Exam Questions &amp; Model Answers</h2>
+
+<h3 class="g-h3">Fill-in-the-Blanks (from practice-exam-3, Q9)</h3>
+
+<p><strong>Question</strong>: Socket.io enables 1. ________, bidirectional communication between client and server. To send an event from the server to ALL connected clients, you use 2. ________. To send an event to all clients EXCEPT the sender, you use 3. ________. To listen for events, both client and server use the 4. ________ method. Socket.io 5. ________ are functions that run before a connection is established, often used for authentication.</p>
+
+<p><strong>Answers</strong>:</p>
+<ol>
+  <li><code>real-time</code></li>
+  <li><code>io.emit()</code></li>
+  <li><code>socket.broadcast.emit()</code></li>
+  <li><code>.on()</code> (or <code>socket.on()</code>)</li>
+  <li><code>middleware</code></li>
+</ol>
+
+<h3 class="g-h3">Select All That Apply (from practice-exam-3, Q10)</h3>
+
+<p><strong>Which are true about Socket.io?</strong></p>
+<ul>
+  <li>[x] Socket.io uses WebSockets as its primary transport but can fall back to HTTP long-polling</li>
+  <li>[ ] Socket.io and raw WebSockets are the same thing — <strong>FALSE</strong> (Socket.io adds rooms, reconnect, etc.)</li>
+  <li>[x] Socket.io supports automatic reconnection when the connection drops</li>
+  <li>[x] Socket.io rooms allow you to group sockets and send events to specific groups</li>
+  <li>[ ] <code>socket.emit()</code> sends an event to ALL connected clients — <strong>FALSE</strong> (sends only to that specific socket)</li>
+  <li>[x] Socket.io middleware can be used to authenticate connections before they complete</li>
+</ul>
+
+<h3 class="g-h3">Written Answer — The Three Emit Methods (practice-exam-3, Q11)</h3>
+
+<p><strong>Question</strong>: Explain the difference between <code>io.emit()</code>, <code>socket.emit()</code>, and <code>socket.broadcast.emit()</code>. Give a chat app example for each.</p>
+
+<p><strong>Model Answer</strong>:</p>
+<ul>
+  <li><strong><code>io.emit('message', data)</code></strong> — sends to ALL connected clients, including the sender. Use for: system-wide announcements. <em>Chat example: Server broadcasts "Maintenance in 10 minutes" to every user.</em></li>
+  <li><strong><code>socket.emit('message', data)</code></strong> (server-side) — sends only to the specific client this socket represents. Use for: private responses to the connecting client. <em>Chat example: After a user connects, send them their session info and message history — only they need it.</em></li>
+  <li><strong><code>socket.broadcast.emit('message', data)</code></strong> — sends to ALL clients EXCEPT the sender. Use for: telling others about an event the sender caused. <em>Chat example: When user A sends a message, all other users receive it. User A already sees their own message locally.</em></li>
+</ul>
+
+<h3 class="g-h3">Code Analysis (practice-exam-3, Q12)</h3>
+
+<p><strong>Question</strong>: Explain <code>io.use()</code> middleware and <code>socket.join()</code> / <code>io.to()</code>.</p>
+
+<p><strong>Model Answer</strong>:</p>
+
+<p>a) <code>io.use()</code> intercepts every new connection BEFORE it completes. It validates the auth token from <code>socket.handshake.auth.token</code>. If valid, it attaches <code>userId</code> to <code>socket</code> and calls <code>next()</code> to allow the connection. If invalid, it calls <code>next(new Error('...'))</code> which rejects the connection — the client receives a <code>connect_error</code> event and the <code>connection</code> handler never fires.</p>
+
+<p>b) <code>socket.join('user:${socket.userId}')</code> adds this socket to a named room. Rooms are virtual server-side groups of sockets. <code>io.to(data.roomId).emit(...)</code> sends an event to ALL sockets currently in that specific room. In a chat app, this means you can have channels (room:general, room:support) — only people who joined that room receive the message, not the entire server.</p>
+
+<h3 class="g-h3">Essay: Real-Time Stock Prices Scenario</h3>
+
+<p><strong>Question</strong>: You need to display real-time stock prices that update every second to all connected users. What technology would you use and why?</p>
+
+<p><strong>Model Answer</strong>: Use Socket.io. Real-time stock prices require the server to push updates to clients without the client polling. Socket.io provides a persistent WebSocket connection, allowing the server to broadcast price updates to all connected clients using <code>io.emit('price:update', priceData)</code>. HTTP polling would be wasteful — thousands of clients polling every second creates enormous server load. SSE could work for one-way price feeds but Socket.io is preferred because: (1) it handles reconnection automatically, (2) it can support subscriptions (clients joining rooms for specific stocks), (3) it falls back to long-polling if WebSocket is blocked. The server would have a price update loop that calls <code>io.emit('price:update', prices)</code> every second.</p>
+
+<h3 class="g-h3">Essay: Chat App Architecture</h3>
+
+<p><strong>Question</strong>: Design a real-time chat application with Socket.io. Describe: server setup, authentication, rooms, the three emit methods, disconnect handling.</p>
+
+<p><strong>Model Answer</strong> (hit all these points):</p>
+<ol>
+  <li><strong>Server setup</strong>: Create an HTTP server wrapping Express, pass to <code>new Server(httpServer, { cors })</code>. This is required because Socket.io needs the raw HTTP server.</li>
+  <li><strong>Authentication</strong>: Use <code>io.use()</code> middleware. Extract JWT from <code>socket.handshake.auth.token</code>, verify it with <code>jwt.verify()</code>. If valid, attach user info to socket and call <code>next()</code>. If invalid, call <code>next(new Error('...'))</code> — this rejects the connection before the <code>connection</code> event fires.</li>
+  <li><strong>Rooms</strong>: On connection, user joins <code>socket.join('user:' + userId)</code> for private messages, and <code>socket.join('channel:' + channelId)</code> for channels. Messages are sent with <code>io.to(channelId).emit(...)</code>.</li>
+  <li><strong>Emit methods</strong>: <code>io.emit()</code> for server-wide broadcasts (system notices). <code>socket.emit()</code> to send session data back only to the connecting client. <code>socket.broadcast.emit()</code> to notify other users when someone joins.</li>
+  <li><strong>Disconnect</strong>: <code>socket.on('disconnect')</code> marks user offline in the session store, uses <code>socket.broadcast.emit('user:offline', userId)</code> to notify others. Session is preserved (not deleted) so the user can reconnect.</li>
+</ol>
+
+<h2 class="g-h2">16. Cheat Sheet</h2>
+
+<h3 class="g-h3">Emit Methods (memorize this)</h3>
+
+<div class="cb"><pre>io.emit()                → EVERYONE (including sender)
+socket.emit()            → ONLY the sender (server-side) / server (client-side)
+socket.broadcast.emit()  → EVERYONE EXCEPT the sender
+io.to(room).emit()       → ALL sockets in a room (including sender if in room)
+socket.to(room).emit()   → All sockets in room EXCEPT sender</pre></div>
+
+<h3 class="g-h3">Core API Reference</h3>
+
+<div class="cb"><pre>// SERVER
+const io = new Server(httpServer, { cors: { origin: '...' } });
+io.use((socket, next) =&gt; { /* middleware */ next() /* or next(new Error()) */ });
+io.on('connection', (socket) =&gt; { /* each new client */ });
+
+socket.id              // unique connection ID
+socket.handshake.auth  // auth data sent by client
+socket.join(room)      // add socket to room
+socket.leave(room)     // remove socket from room
+
+io.emit(event, data)               // to ALL
+socket.emit(event, data)           // to THIS client
+socket.broadcast.emit(event, data) // to ALL EXCEPT this client
+io.to(room).emit(event, data)      // to room (includes sender)
+socket.to(room).emit(event, data)  // to room (excludes sender)
+
+// CLIENT
+const socket = io('http://server:port', { auth: { token } });
+socket.emit(event, data)           // to server
+socket.on(event, callback)         // listen for server events
+socket.off(event)                  // stop listening (cleanup!)
+socket.disconnect()                // close connection</pre></div>
+
+<h3 class="g-h3">Key Facts for Exam</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Fact</th>
+      <th>Answer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Socket.io primary transport</td>
+      <td>WebSocket (falls back to HTTP long-polling)</td>
+    </tr>
+    <tr>
+      <td>Difference from raw WebSocket</td>
+      <td>Socket.io adds: rooms, namespaces, auto-reconnect, middleware, fallback</td>
+    </tr>
+    <tr>
+      <td>What <code>io.use()</code> does</td>
+      <td>Runs before connection, used for auth. Call <code>next()</code> to allow, <code>next(Error)</code> to reject</td>
+    </tr>
+    <tr>
+      <td>What fires when client disconnects</td>
+      <td><code>socket.on('disconnect')</code> on the server</td>
+    </tr>
+    <tr>
+      <td>How to send to specific group</td>
+      <td><code>socket.join(room)</code> then <code>io.to(room).emit()</code></td>
+    </tr>
+    <tr>
+      <td><code>socket.emit()</code> server-side sends to</td>
+      <td>Only the one connected client</td>
+    </tr>
+    <tr>
+      <td><code>socket.broadcast.emit()</code> sends to</td>
+      <td>Everyone EXCEPT the sender</td>
+    </tr>
+    <tr>
+      <td><code>io.emit()</code> sends to</td>
+      <td>All connected clients</td>
+    </tr>
+    <tr>
+      <td>Client auth data location</td>
+      <td><code>socket.handshake.auth</code></td>
+    </tr>
+    <tr>
+      <td>Socket.io in Next.js (serverless)</td>
+      <td>Cannot run in serverless — needs persistent server</td>
+    </tr>
+    <tr>
+      <td>Cleanup pattern in React</td>
+      <td><code>socket.off(event)</code> in useEffect return</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Transport Comparison (exam table)</h3>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Polling</th>
+      <th>Long Polling</th>
+      <th>SSE</th>
+      <th>WebSocket</th>
+      <th>Socket.io</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bidirectional</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No (server→client only)</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Auto-reconnect</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Rooms</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Fallback</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Common Exam Traps</h3>
+
+<ol>
+  <li><strong><code>socket.emit()</code> on the SERVER sends ONLY to that client</strong> — NOT to everyone. To send to everyone, use <code>io.emit()</code>.</li>
+  <li><strong>Socket.io != WebSocket</strong> — Socket.io is a library that uses WebSocket. They are NOT the same thing.</li>
+  <li><strong>Middleware calls <code>next()</code> to allow, <code>next(new Error())</code> to reject</strong> — not <code>return false</code> or throwing.</li>
+  <li><strong>Cleanup <code>socket.off()</code> in React useEffect</strong> — forgetting to remove listeners causes memory leaks and duplicate handlers.</li>
+  <li><strong>Socket.io cannot run in serverless functions</strong> — needs a persistent Node.js server.</li>
+  <li><strong><code>io.to(room).emit()</code> includes the sender if they are in that room</strong> — use <code>socket.to(room).emit()</code> to exclude them.</li>
+  <li><strong>CORS must be configured on BOTH Express and the Socket.io Server</strong> — they are separate.</li>
+</ol>
+
+<p><em>Sources: glossary.md section G, practice-exam-3 (Q9-Q12), practice-exam-3 answers, avatorium server/index.js, signup-sheet server/index.js, glossary-mock-answers.md socket sections.</em></p>

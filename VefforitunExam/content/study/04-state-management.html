@@ -1,0 +1,1255 @@
+<h2 class="g-h2">State Management — Complete Study Guide</h2>
+<p><strong>Web Programming II Final Exam | Target: 100%</strong></p>
+
+<h2 class="g-h2">Table of Contents</h2>
+<ol>
+  <li>Context API</li>
+  <li>Redux — Core Principles</li>
+  <li>Redux Toolkit (RTK)</li>
+  <li>Zustand</li>
+  <li>Comparison Table: Context vs Redux vs Zustand</li>
+  <li>When to Use Which — Decision Guide</li>
+  <li>Likely Exam Questions with Answers</li>
+  <li>Quick-Reference Cheat Sheet</li>
+</ol>
+
+<h2 class="g-h2">1. Context API</h2>
+
+<h3 class="g-h3">What it is</h3>
+<p>React's built-in solution for passing data through the component tree without prop drilling. No extra library needed.</p>
+
+<h3 class="g-h3">The Three Core APIs</h3>
+<div class="tw"><table>
+  <thead><tr><th>API</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>createContext(defaultValue)</code></td><td>Creates a Context object. The <code>defaultValue</code> is only used when a component does NOT have a matching Provider above it.</td></tr>
+    <tr><td><code>Context.Provider</code></td><td>Wraps a subtree. All descendants can read the context value. When the <code>value</code> prop changes, all consumers re-render.</td></tr>
+    <tr><td><code>useContext(Context)</code></td><td>Hook that reads the current context value. Subscribes the component to context changes.</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Full Code Example — Theme Context</h3>
+<div class="cb"><pre>// 1. Create the context
+import { createContext, useContext, useState } from 'react';
+
+type Theme = 'light' | 'dark';
+
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+// createContext needs a default value (used when no Provider is present)
+const ThemeContext = createContext&lt;ThemeContextType&gt;({
+  theme: 'light',
+  toggleTheme: () =&gt; {},
+});
+
+// 2. Create a Provider component (best practice: wrap in its own component)
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState&lt;Theme&gt;('light');
+
+  const toggleTheme = () =&gt; {
+    setTheme((prev) =&gt; (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
+      {children}
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// 3. Consume the context anywhere in the subtree
+export function ThemeButton() {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  return (
+    &lt;button onClick={toggleTheme}&gt;
+      Current theme: {theme}
+    &lt;/button&gt;
+  );
+}
+
+// 4. Wrap your app (e.g. in layout.tsx or _app.tsx)
+export default function App() {
+  return (
+    &lt;ThemeProvider&gt;
+      &lt;ThemeButton /&gt;
+    &lt;/ThemeProvider&gt;
+  );
+}</pre></div>
+
+<h3 class="g-h3">Auth Context Example (common exam pattern)</h3>
+<div class="cb"><pre>interface User { id: string; name: string; email: string; }
+
+interface AuthContextType {
+  user: User | null;
+  login: (user: User) =&gt; void;
+  logout: () =&gt; void;
+}
+
+const AuthContext = createContext&lt;AuthContextType | null&gt;(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+
+  return (
+    &lt;AuthContext.Provider
+      value={{
+        user,
+        login: (u) =&gt; setUser(u),
+        logout: () =&gt; setUser(null),
+      }}
+    &gt;
+      {children}
+    &lt;/AuthContext.Provider&gt;
+  );
+}
+
+// Custom hook (best practice — avoids checking for null everywhere)
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  return ctx;
+}</pre></div>
+
+<h3 class="g-h3">When to Use Context API</h3>
+<ul>
+  <li><strong>Theming</strong> (light/dark mode)</li>
+  <li><strong>Authenticated user</strong> (current logged-in user)</li>
+  <li><strong>Locale/language</strong> preferences</li>
+  <li><strong>Small to medium apps</strong> where the re-render issue is negligible</li>
+  <li><strong>When there are bundle size restrictions</strong> (0KB — built into React)</li>
+  <li>Data that is <strong>truly global and changes infrequently</strong></li>
+</ul>
+
+<h3 class="g-h3">Performance Pitfalls (CRITICAL — often tested)</h3>
+<p><strong>The core problem:</strong> When a Context value changes, <strong>ALL components</strong> consuming that context re-render, even if they only use a part of the value that didn't change. There are no built-in selectors.</p>
+<div class="cb"><pre>// BAD: One context for everything → every consumer re-renders on any change
+const AppContext = createContext({ user, theme, cart, language });
+
+// BETTER: Split into separate contexts by update frequency
+// AuthContext: changes rarely (login/logout)
+// ThemeContext: changes on user toggle
+// CartContext: changes frequently</pre></div>
+
+<p><strong>"Context Hell" (Provider Hell):</strong> Splitting contexts to fix re-renders leads to deeply nested providers:</p>
+<div class="cb"><pre>// This is "Context Hell" — what the slides explicitly warn against
+function App() {
+  return (
+    &lt;AuthContext.Provider&gt;
+      &lt;ThemeContext.Provider&gt;
+        &lt;CartContext.Provider&gt;
+          &lt;LanguageContext.Provider&gt;
+            &lt;MyApp /&gt;
+          &lt;/LanguageContext.Provider&gt;
+        &lt;/CartContext.Provider&gt;
+      &lt;/ThemeContext.Provider&gt;
+    &lt;/AuthContext.Provider&gt;
+  );
+}</pre></div>
+
+<p><strong>Four Debugging Limitations of Context API (from slides):</strong></p>
+<ol>
+  <li>State changes have no structure — no enforced pattern for how updates happen</li>
+  <li>No action logs — nothing tells you what triggered a state change</li>
+  <li>No time-travel debugging — can't step backwards through state history</li>
+  <li>Limited to basic React DevTools</li>
+</ol>
+
+<h3 class="g-h3">Pros and Cons Summary</h3>
+<div class="tw"><table>
+  <thead><tr><th>Pros</th><th>Cons</th></tr></thead>
+  <tbody>
+    <tr><td>Built into React — 0KB</td><td>Re-renders entire subtree on any change</td></tr>
+    <tr><td>Simple API (3 functions)</td><td>No built-in selectors</td></tr>
+    <tr><td>Low learning curve</td><td>No devtools beyond React DevTools</td></tr>
+    <tr><td>Good for low-frequency data</td><td>"Context Hell" when splitting</td></tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">2. Redux — Core Principles</h2>
+
+<h3 class="g-h3">The Three Principles of Redux</h3>
+<p>These are the foundational rules. Know them cold.</p>
+<p><strong>1. Single Source of Truth</strong><br>
+The entire application state is stored in a single object tree inside one store. There is only ONE store in a Redux application.</p>
+<p><strong>2. State is Read-Only</strong><br>
+The only way to change state is to dispatch an action — a plain object describing what happened. You cannot directly mutate the state. Direct assignment (<code>state.value = 123</code>) is <strong>illegal</strong>.</p>
+<p><strong>3. Changes are Made with Pure Functions (Reducers)</strong><br>
+Reducers are pure functions: <code>(state, action) =&gt; newState</code>. Same inputs always produce the same output. No side effects, no API calls, no random values.</p>
+
+<h3 class="g-h3">Unidirectional Data Flow (Flux Pattern)</h3>
+<div class="cb"><pre>View → Action → Dispatch → Reducer → Store → View</pre></div>
+<p>This cycle goes in ONE direction only — never backwards. This is what makes Redux state predictable and debuggable.</p>
+
+<h3 class="g-h3">Core Concepts Defined</h3>
+<p><strong>Store</strong><br>
+The single source of truth. Holds the entire application state tree. Provides:</p>
+<ul>
+  <li><code>getState()</code> — read current state</li>
+  <li><code>dispatch(action)</code> — trigger a state change</li>
+  <li><code>subscribe(listener)</code> — listen for changes</li>
+</ul>
+
+<p><strong>Action</strong><br>
+A plain JavaScript object describing WHAT happened. Must have a <code>type</code> property (string). May have a <code>payload</code>.</p>
+<div class="cb"><pre>// Action object format
+{ type: 'cart/addItem', payload: { id: 1, name: 'Book', price: 29.99 } }
+{ type: 'counter/increment' }
+{ type: 'users/fetchById/fulfilled', payload: { id: 'u1', name: 'Jon' } }</pre></div>
+<p>Actions are the ONLY way to signal a state change.</p>
+
+<p><strong>Reducer</strong><br>
+A pure function: <code>(state, action) =&gt; newState</code>.</p>
+<div class="cb"><pre>// Pure reducer — must NOT mutate state
+function counterReducer(state = { value: 0 }, action) {
+  switch (action.type) {
+    case 'counter/increment':
+      return { ...state, value: state.value + 1 }; // new object!
+    case 'counter/decrement':
+      return { ...state, value: state.value - 1 };
+    default:
+      return state;
+  }
+}</pre></div>
+
+<p><strong>Dispatch</strong><br>
+The method that sends an action to the store. Routes the action through reducers to produce new state.</p>
+<div class="cb"><pre>store.dispatch({ type: 'counter/increment' });
+store.dispatch(increment()); // with RTK action creator</pre></div>
+
+<p><strong>Middleware</strong><br>
+Functions that intercept dispatched actions before they reach the reducer. Used for:</p>
+<ul>
+  <li>Async logic (thunks)</li>
+  <li>Logging</li>
+  <li>Analytics</li>
+</ul>
+
+<p><strong>Connected Component</strong><br>
+A component linked to the Redux store via <code>useSelector</code> / <code>useDispatch</code> (or legacy <code>connect()</code>). It reads state and dispatches actions without prop drilling.</p>
+
+<h3 class="g-h3">The Immutability Problem (Why RTK exists)</h3>
+<p>In plain Redux, you must manually maintain immutability. This gets painful fast:</p>
+<div class="cb"><pre>// ILLEGAL — direct mutation
+state.value = 123;
+
+// REQUIRED — return new object
+return { ...state, value: 123 };
+
+// Deeply nested = nightmare
+return {
+  ...state,
+  first: {
+    ...state.first,
+    second: {
+      ...state.first.second,
+      [action.someId]: {
+        ...state.first.second[action.someId],
+        fourth: action.someValue,
+      },
+    },
+  },
+};</pre></div>
+<p>The slides call this "the most common mistake Redux users do — accidentally mutating the Redux state." RTK solves this with Immer.</p>
+
+<h2 class="g-h2">3. Redux Toolkit (RTK)</h2>
+<p>RTK is <strong>the official, recommended way to use Redux</strong>. The slides call it "the best practice to incorporate Redux into your React application."</p>
+<p><strong>Why RTK was created:</strong></p>
+<ul>
+  <li>Eliminates boilerplate</li>
+  <li>Immer eliminates immutability bugs</li>
+  <li>Good TypeScript support</li>
+  <li>Single file for the whole slice</li>
+</ul>
+
+<h3 class="g-h3">3.1 configureStore</h3>
+<p>Sets up the Redux store with a single function call. Automatically:</p>
+<ol>
+  <li>Combines reducers (no manual <code>combineReducers</code>)</li>
+  <li>Adds Redux Thunk middleware by default</li>
+  <li>Enables Redux DevTools Extension</li>
+</ol>
+<div class="cb"><pre>// store.ts
+import { configureStore } from '@reduxjs/toolkit';
+import counterReducer from './features/counter/counterSlice';
+import usersReducer from './features/users/usersSlice';
+import { pokemonApi } from '../services/pokemonApi';
+
+export const store = configureStore({
+  reducer: {
+    counter: counterReducer,       // standard slice reducer
+    users: usersReducer,           // standard slice reducer
+    [pokemonApi.reducerPath]: pokemonApi.reducer, // RTK Query reducer
+  },
+  middleware: (getDefaultMiddleware) =&gt;
+    getDefaultMiddleware().concat(pokemonApi.middleware), // RTK Query middleware
+});
+
+// Export types for use throughout the app
+export type RootState = ReturnType&lt;typeof store.getState&gt;;
+export type AppDispatch = typeof store.dispatch;</pre></div>
+
+<p><strong>What configureStore replaces (Redux Core boilerplate):</strong></p>
+<div class="tw"><table>
+  <thead><tr><th>Redux Core (Before)</th><th>RTK (After)</th></tr></thead>
+  <tbody>
+    <tr><td>Manual <code>combineReducers</code> call</td><td>Automatic from <code>reducer</code> object</td></tr>
+    <tr><td><code>applyMiddleware(thunk)</code></td><td>Thunk included by default</td></tr>
+    <tr><td>Manual Redux DevTools setup</td><td>DevTools enabled by default</td></tr>
+    <tr><td><code>createStore(rootReducer, middleware)</code></td><td>Single <code>configureStore({ reducer: {...} })</code></td></tr>
+    <tr><td>Action constants + action creators</td><td><code>createSlice</code> generates them automatically</td></tr>
+    <tr><td>Manual <code>return { ...state }</code> spreading</td><td>Immer allows "mutating" syntax</td></tr>
+    <tr><td>Multiple files</td><td>Single slice file</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">3.2 createSlice</h3>
+<p>Creates a slice of state — reducer logic + action creators + action types in one place. Uses Immer internally.</p>
+<div class="cb"><pre>// features/counter/counterSlice.ts
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+interface CounterState {
+  value: number;
+  history: number[];
+}
+
+const initialState: CounterState = {
+  value: 0,
+  history: [],
+};
+
+const counterSlice = createSlice({
+  name: 'counter',                // Used as prefix for action types: 'counter/increment'
+  initialState,
+  reducers: {
+    increment: (state) =&gt; {
+      state.history.push(state.value); // Looks like mutation — Immer makes it safe!
+      state.value += 1;
+    },
+    decrement: (state) =&gt; {
+      state.value -= 1;
+    },
+    incrementByAmount: (state, action: PayloadAction&lt;number&gt;) =&gt; {
+      state.value += action.payload;
+    },
+    reset: (state) =&gt; {
+      state.value = 0;
+      state.history = [];
+    },
+  },
+});
+
+// Auto-generated action creators
+export const { increment, decrement, incrementByAmount, reset } = counterSlice.actions;
+
+// The reducer function (add to store)
+export default counterSlice.reducer;</pre></div>
+
+<p><strong>Key fact about createSlice from the slides:</strong><br>
+"createSlice allows you to create reducers that use the Immer library, which allows you to write immutable code using 'mutating' syntax. It also generates action creators for all reducer functions."</p>
+
+<h3 class="g-h3">3.3 Immer Integration</h3>
+<p>Immer is a library that lets you write "mutating" code while producing immutable state behind the scenes. RTK uses it automatically inside <code>createSlice</code> — you do NOT need to import it separately.</p>
+<p><strong>How Immer works:</strong> It provides a <code>produce</code> function that accepts your original state and a callback. Inside the callback, Immer gives you a "draft proxy" of the state. Any mutations you make to the draft are tracked and used to produce a new immutable state. The original state is never touched.</p>
+<div class="cb"><pre>// Inside createSlice reducers — all safe thanks to Immer:
+reducers: {
+  addTodo: (state, action: PayloadAction&lt;string&gt;) =&gt; {
+    state.todos.push({ id: Date.now(), text: action.payload, done: false }); // .push() is fine!
+  },
+  toggleTodo: (state, action: PayloadAction&lt;number&gt;) =&gt; {
+    const todo = state.todos.find(t =&gt; t.id === action.payload);
+    if (todo) todo.done = !todo.done; // direct property mutation — fine!
+  },
+  // IMPORTANT: Either mutate OR return — NOT both
+  clearAll: (state) =&gt; {
+    return []; // returning a new value is also valid
+  },
+}</pre></div>
+
+<p><strong>Critical rule:</strong> In Immer reducers, you must either <strong>mutate</strong> the draft state OR <strong>return</strong> a new value — doing both at the same time will throw an error.</p>
+<p>Deeply nested update — Immer vs manual:</p>
+<div class="cb"><pre>// WITHOUT Immer (vanilla Redux) — 15 lines of spreading
+function handwrittenReducer(state, action) {
+  return {
+    ...state,
+    first: {
+      ...state.first,
+      second: {
+        ...state.first.second,
+        [action.someId]: {
+          ...state.first.second[action.someId],
+          fourth: action.someValue,
+        },
+      },
+    },
+  };
+}
+
+// WITH Immer (RTK createSlice) — 1 line
+updateFourth(state, action) {
+  state.first.second[action.payload.someId].fourth = action.payload.someValue;
+}</pre></div>
+
+<h3 class="g-h3">3.4 createAsyncThunk</h3>
+<p>Used for async logic (API calls). Automatically generates <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code> action types.</p>
+<p><strong>The three-step pattern for data fetching:</strong></p>
+<ol>
+  <li>A "start" action is dispatched to indicate the request is in progress (show loading spinner)</li>
+  <li>The async request is made</li>
+  <li>Depending on the result, either a "success" or "failure" action is dispatched</li>
+</ol>
+<div class="cb"><pre>// features/users/usersSlice.ts
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
+// createAsyncThunk accepts:
+// 1. A string for the action type prefix ('users/fetchAll')
+// 2. A payload creator function (async callback)
+export const fetchUsers = createAsyncThunk(
+  'users/fetchAll',               // prefix → generates: pending, fulfilled, rejected
+  async (_, thunkAPI) =&gt; {
+    const response = await fetch('/api/users');
+    if (!response.ok) {
+      return thunkAPI.rejectWithValue('Failed to fetch users');
+    }
+    return response.json();         // returned value becomes action.payload on fulfilled
+  }
+);
+
+// For an action that takes a parameter:
+export const fetchUserById = createAsyncThunk(
+  'users/fetchById',
+  async (userId: string) =&gt; {
+    const response = await fetch(`/api/users/${userId}`);
+    return response.json();
+  }
+);</pre></div>
+
+<p><strong>extraReducers — handling thunk lifecycle states:</strong></p>
+<p><code>extraReducers</code> allows a slice to respond to action types generated outside the slice itself (like those from <code>createAsyncThunk</code>). Regular <code>reducers</code> only handle actions defined within the slice.</p>
+<div class="cb"><pre>interface UsersState {
+  entities: User[];
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
+const usersSlice = createSlice({
+  name: 'users',
+  initialState: { entities: [], loading: 'idle', error: null } as UsersState,
+  reducers: {
+    // Synchronous actions defined here
+    userRemoved: (state, action: PayloadAction&lt;string&gt;) =&gt; {
+      state.entities = state.entities.filter(u =&gt; u.id !== action.payload);
+    },
+  },
+  extraReducers: (builder) =&gt; {
+    builder
+      .addCase(fetchUsers.pending, (state) =&gt; {
+        state.loading = 'pending';
+        state.error = null;
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) =&gt; {
+        state.loading = 'succeeded';
+        state.entities = action.payload; // Immer makes .push() safe too
+      })
+      .addCase(fetchUsers.rejected, (state, action) =&gt; {
+        state.loading = 'failed';
+        state.error = action.error.message ?? 'Unknown error';
+      });
+  },
+});</pre></div>
+
+<p><strong>Manual thunk (before createAsyncThunk) vs createAsyncThunk:</strong></p>
+<div class="cb"><pre>// MANUAL — lots of boilerplate
+const fetchStarted = () =&gt; ({ type: 'users/fetchStarted' });
+const fetchSuccess = (data) =&gt; ({ type: 'users/fetchSuccess', payload: data });
+const fetchFailed = (error) =&gt; ({ type: 'users/fetchFailed', error });
+
+const fetchUsersManual = () =&gt; async (dispatch) =&gt; {
+  dispatch(fetchStarted());
+  try {
+    const data = await fetch('/api/users').then(r =&gt; r.json());
+    dispatch(fetchSuccess(data));
+  } catch (err) {
+    dispatch(fetchFailed(err.toString()));
+  }
+};
+
+// RTK — same result, less code
+const fetchUsers = createAsyncThunk('users/fetchAll', async () =&gt; {
+  return fetch('/api/users').then(r =&gt; r.json());
+});</pre></div>
+
+<p><strong>Thunks must be declared OUTSIDE of the slice</strong> (from slides). They are not part of the regular slice function.</p>
+
+<h3 class="g-h3">3.5 RTK Query</h3>
+<p>A powerful data fetching and caching tool built into Redux Toolkit. It is NOT mandatory — an optional addition.</p>
+<p>RTK Query takes inspiration from <strong>React Query</strong> and <strong>SWR</strong>.</p>
+<p>Key benefits:</p>
+<ul>
+  <li>Eliminates the need to write <code>createAsyncThunk</code> + <code>extraReducers</code> for data fetching</li>
+  <li>Automatic caching, refetching, polling, and invalidation</li>
+  <li>Auto-generated React hooks (<code>useGetPostsQuery</code>, etc.)</li>
+  <li>Handles loading/error/data states automatically</li>
+</ul>
+
+<p><strong>Setup — createApi:</strong></p>
+<div class="cb"><pre>// services/api.ts
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const pokemonApi = createApi({
+  reducerPath: 'pokemonApi',                            // key in the Redux store
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
+  tagTypes: ['Pokemon'],                                // for cache invalidation
+  endpoints: (builder) =&gt; ({
+    // QUERY — for fetching data (GET)
+    getPokemonByName: builder.query&lt;Pokemon, string&gt;({
+      query: (name) =&gt; `pokemon/${name}`,               // appended to baseUrl
+      providesTags: ['Pokemon'],
+    }),
+    getPokemons: builder.query&lt;PokemonListItem[], void&gt;({
+      query: () =&gt; 'pokemon',
+      transformResponse: (response: any) =&gt; response.results, // transform before caching
+    }),
+    // MUTATION — for creating/updating/deleting (POST, PUT, DELETE)
+    addPokemon: builder.mutation&lt;Pokemon, Partial&lt;Pokemon&gt;&gt;({
+      query: (newPokemon) =&gt; ({
+        url: 'pokemon',
+        method: 'POST',
+        body: newPokemon,
+      }),
+      invalidatesTags: ['Pokemon'],                     // clears cache, triggers refetch
+    }),
+  }),
+});
+
+// Auto-generated hooks — named use[EndpointName]Query / use[EndpointName]Mutation
+export const {
+  useGetPokemonByNameQuery,
+  useGetPokemonsQuery,
+  useAddPokemonMutation,
+} = pokemonApi;</pre></div>
+
+<p><strong>Add to store:</strong></p>
+<div class="cb"><pre>// The computed property [pokemonApi.reducerPath] ensures the reducer is stored under the correct key
+export const store = configureStore({
+  reducer: {
+    [pokemonApi.reducerPath]: pokemonApi.reducer,  // 'pokemonApi' key
+  },
+  middleware: (getDefaultMiddleware) =&gt;
+    getDefaultMiddleware().concat(pokemonApi.middleware), // REQUIRED: enables caching, invalidation
+});</pre></div>
+
+<p>The middleware <strong>must</strong> be added to enable caching, invalidation, polling, and other RTK Query features. Without it, RTK Query does not work properly.</p>
+
+<p><strong>Using generated hooks in components:</strong></p>
+<div class="cb"><pre>'use client';
+
+function PokemonList() {
+  // The hook automatically fetches on mount and manages loading/error state
+  const { data: pokemons, isLoading, isError, error } = useGetPokemonsQuery();
+
+  if (isLoading) return &lt;p&gt;Loading...&lt;/p&gt;;
+  if (isError) return &lt;p&gt;Error: {String(error)}&lt;/p&gt;;
+
+  return (
+    &lt;ul&gt;
+      {pokemons?.map((p) =&gt; (
+        &lt;li key={p.name}&gt;{p.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+function PokemonDetail({ name }: { name: string }) {
+  const { data: pokemon } = useGetPokemonByNameQuery(name);
+  return &lt;div&gt;{pokemon?.name}&lt;/div&gt;;
+}</pre></div>
+
+<h3 class="g-h3">3.6 useSelector and useDispatch</h3>
+<div class="cb"><pre>'use client';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { increment, decrement, incrementByAmount } from '@/store/counterSlice';
+
+export function Counter() {
+  // useSelector: reads data from the store. Re-renders when selected value changes.
+  const count = useSelector((state: RootState) =&gt; state.counter.value);
+
+  // useDispatch: returns the dispatch function
+  const dispatch = useDispatch&lt;AppDispatch&gt;();
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; dispatch(increment())}&gt;+1&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch(decrement())}&gt;-1&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch(incrementByAmount(5))}&gt;+5&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+
+<p><strong>Setting up the Redux Provider</strong> (required — wraps the app):</p>
+<div class="cb"><pre>// app/layout.tsx or _app.tsx
+'use client';
+
+import { Provider } from 'react-redux';
+import { store } from '@/store';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html&gt;
+      &lt;body&gt;
+        &lt;Provider store={store}&gt;
+          {children}
+        &lt;/Provider&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</pre></div>
+
+<h3 class="g-h3">3.7 Debugging — Redux DevTools</h3>
+<p>Redux provides the best-in-class debugging experience:</p>
+<ol>
+  <li>Full action log with type and payload for every dispatched action</li>
+  <li>State diff on every change (before/after comparison)</li>
+  <li>Time-travel — step forwards and backwards through state history</li>
+  <li>Inspect the complete state tree at any point</li>
+</ol>
+
+<h2 class="g-h2">4. Zustand</h2>
+<p>Zustand is a <strong>small, fast, and scalable</strong> state management library. The <code>create</code> function is the entire API — no reducers, no action types, no Provider wrapping required.</p>
+
+<h3 class="g-h3">4.1 Basic Store with create</h3>
+<div class="cb"><pre>import { create } from 'zustand';
+
+interface BearState {
+  bears: number;
+  fish: number;
+  increasePopulation: () =&gt; void;
+  removeAllBears: () =&gt; void;
+  addFish: (count: number) =&gt; void;
+}
+
+// The store is a hook — use it directly in any component
+const useBearStore = create&lt;BearState&gt;((set, get) =&gt; ({
+  bears: 0,
+  fish: 10,
+
+  // Actions use set() to update state
+  increasePopulation: () =&gt; set((state) =&gt; ({ bears: state.bears + 1 })),
+  removeAllBears: () =&gt; set({ bears: 0 }),
+  addFish: (count) =&gt; set((state) =&gt; ({ fish: state.fish + count })),
+
+  // get() reads current state inside actions (useful for computed values)
+  totalAnimals: () =&gt; get().bears + get().fish,
+}));</pre></div>
+
+<h3 class="g-h3">4.2 Selectors — Preventing Unnecessary Re-renders</h3>
+<p>Use selectors to subscribe to only the slice of state you need. A component only re-renders when its selected value changes.</p>
+<div class="cb"><pre>// Select individual values — most performant
+const bears = useBearStore((state) =&gt; state.bears);
+const increasePopulation = useBearStore((state) =&gt; state.increasePopulation);
+
+// Selecting multiple primitive values separately is fine
+function BearCounter() {
+  const bears = useBearStore((s) =&gt; s.bears);  // only re-renders when bears changes
+  return &lt;h1&gt;{bears} bears&lt;/h1&gt;;
+}
+
+function FishCounter() {
+  const fish = useBearStore((s) =&gt; s.fish);    // only re-renders when fish changes
+  return &lt;h1&gt;{fish} fish&lt;/h1&gt;;
+}</pre></div>
+
+<h3 class="g-h3">4.3 useShallow — Multi-value Selectors</h3>
+<p>When selecting <strong>multiple values</strong> as an object, you need <code>useShallow</code> to prevent unnecessary re-renders. Without it, a new object is created each time (different reference), causing re-renders even when values haven't changed.</p>
+<p><strong>Zustand uses <code>Object.is()</code> by default</strong> to compare the previous and new selector result. A new object is NEVER equal under <code>Object.is()</code>.</p>
+<div class="cb"><pre>import { useShallow } from 'zustand/react/shallow';
+
+// WITHOUT useShallow — re-renders on ANY state change (new object reference each time)
+const { bears, fish } = useBearStore((state) =&gt; ({
+  bears: state.bears,
+  fish: state.fish,
+})); // BAD: { bears: 0, fish: 10 } !== { bears: 0, fish: 10 } (different references)
+
+// WITH useShallow — only re-renders when bears OR fish actually change
+const { bears, fish } = useBearStore(
+  useShallow((state) =&gt; ({ bears: state.bears, fish: state.fish }))
+);
+
+// Also applies to computed arrays (from slides)
+// WITHOUT useShallow — re-renders every time (new array reference from .map())
+const names = useCartStore((state) =&gt; state.cart.map((item) =&gt; item.name));
+
+// WITH useShallow — only re-renders if names actually change
+const names = useCartStore(
+  useShallow((state) =&gt; state.cart.map((item) =&gt; item.name))
+);</pre></div>
+<p><strong>The teacher's analogy: "If it walks like a duck, it is a duck"</strong> — Zustand with <code>useShallow</code> cares about the values, not the reference.</p>
+
+<h3 class="g-h3">4.4 Persist Middleware</h3>
+<p>Automatically saves store state to a storage backend (localStorage by default) and rehydrates on page load.</p>
+<div class="cb"><pre>import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+interface CartItem { id: string; name: string; price: number; quantity: number; }
+
+interface CartStore {
+  cart: CartItem[];
+  addItem: (item: CartItem) =&gt; void;
+  removeItem: (id: string) =&gt; void;
+  updateQuantity: (id: string, qty: number) =&gt; void;
+  clearCart: () =&gt; void;
+  total: () =&gt; number;
+}
+
+const useCartStore = create&lt;CartStore&gt;()(
+  persist(
+    (set, get) =&gt; ({
+      cart: [],
+
+      addItem: (item) =&gt; set((state) =&gt; {
+        const existing = state.cart.find((i) =&gt; i.id === item.id);
+        if (existing) {
+          return {
+            cart: state.cart.map((i) =&gt;
+              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+            ),
+          };
+        }
+        return { cart: [...state.cart, { ...item, quantity: 1 }] };
+      }),
+
+      removeItem: (id) =&gt; set((state) =&gt; ({
+        cart: state.cart.filter((i) =&gt; i.id !== id),
+      })),
+
+      updateQuantity: (id, qty) =&gt; set((state) =&gt; ({
+        cart: state.cart.map((i) =&gt; i.id === id ? { ...i, quantity: qty } : i),
+      })),
+
+      clearCart: () =&gt; set({ cart: [] }),
+
+      // get() accesses current state — used for computed values
+      total: () =&gt; get().cart.reduce((sum, i) =&gt; sum + i.price * i.quantity, 0),
+    }),
+    {
+      name: 'cart-storage',                             // key in localStorage (must be unique)
+      storage: createJSONStorage(() =&gt; sessionStorage), // optional: sessionStorage, IndexedDB, etc.
+      // Default storage is localStorage if omitted
+    }
+  )
+);</pre></div>
+<p><strong>Storage options (from slides):</strong> <code>localStorage</code>, <code>sessionStorage</code>, <code>IndexedDB</code></p>
+
+<h3 class="g-h3">4.5 Devtools Middleware</h3>
+<p>Connects the Zustand store to Redux DevTools. Action names appear in the DevTools log when provided as the third argument to <code>set</code>.</p>
+<div class="cb"><pre>import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+const useBearStore = create(
+  devtools(
+    (set) =&gt; ({
+      bears: 0,
+      increasePopulation: () =&gt; set(
+        (state) =&gt; ({ bears: state.bears + 1 }),
+        false,                    // false = merge with existing state (true = replace entirely)
+        'increasePopulation'      // action name shown in DevTools
+      ),
+    }),
+    { name: 'BearStore' }         // store name in DevTools
+  )
+);</pre></div>
+
+<p><strong>Combining persist + devtools:</strong></p>
+<div class="cb"><pre>const useStore = create&lt;MyStore&gt;()(
+  devtools(
+    persist(
+      (set) =&gt; ({ /* state and actions */ }),
+      { name: 'my-storage' }
+    ),
+    { name: 'MyStore' }
+  )
+);</pre></div>
+
+<h3 class="g-h3">4.6 Using Zustand Outside React</h3>
+<p>Zustand stores work outside React components because the store is a plain JavaScript object. This is a key differentiator from Context API.</p>
+<div class="cb"><pre>// Reading state outside React
+const currentBears = useBearStore.getState().bears;
+
+// Updating state outside React
+useBearStore.setState({ bears: 10 });
+useBearStore.setState((state) =&gt; ({ bears: state.bears + 1 }));
+
+// Subscribing to changes outside React
+const unsubscribe = useBearStore.subscribe(
+  (state) =&gt; console.log('Bears changed:', state.bears)
+);
+unsubscribe(); // clean up when done</pre></div>
+
+<h3 class="g-h3">4.7 Slices Pattern (Large Stores)</h3>
+<p>Split a large store into independent "slices" and combine them:</p>
+<div class="cb"><pre>import { create, StateCreator } from 'zustand';
+
+// Slice 1
+interface CartSlice {
+  cart: CartItem[];
+  addItem: (item: CartItem) =&gt; void;
+}
+const createCartSlice: StateCreator&lt;CartSlice &amp; CheckoutSlice, [], [], CartSlice&gt; = (set) =&gt; ({
+  cart: [],
+  addItem: (item) =&gt; set((state) =&gt; ({ cart: [...state.cart, item] })),
+});
+
+// Slice 2
+interface CheckoutSlice {
+  step: number;
+  nextStep: () =&gt; void;
+}
+const createCheckoutSlice: StateCreator&lt;CartSlice &amp; CheckoutSlice, [], [], CheckoutSlice&gt; = (set) =&gt; ({
+  step: 1,
+  nextStep: () =&gt; set((state) =&gt; ({ step: state.step + 1 })),
+});
+
+// Combined store
+const useStore = create&lt;CartSlice &amp; CheckoutSlice&gt;()((...a) =&gt; ({
+  ...createCartSlice(...a),
+  ...createCheckoutSlice(...a),
+}));</pre></div>
+
+<h3 class="g-h3">4.8 Map/Set Gotcha (from slides)</h3>
+<p>When using <code>Map</code> or <code>Set</code> as state, you MUST create a new instance — Zustand cannot detect mutations to the same reference:</p>
+<div class="cb"><pre>// WRONG — mutates existing Map, same reference, NO re-render triggered
+addItem: (item) =&gt; set((state) =&gt; {
+  state.cart.set(item.id, item);  // mutates in place!
+  return { cart: state.cart };    // same object reference — Zustand sees no change
+}),
+
+// CORRECT — creates new Map, different reference, triggers re-render
+addItem: (item) =&gt; set((state) =&gt; ({
+  cart: new Map(state.cart).set(item.id, item), // new reference
+})),</pre></div>
+
+<h3 class="g-h3">4.9 Zustand Debugging</h3>
+<p>Compared to Redux:</p>
+<ol>
+  <li>Integrates with Redux DevTools (via devtools middleware)</li>
+  <li>Action log is <strong>less descriptive</strong> than Redux — no enforced action types</li>
+  <li><strong>No time-travel debugging</strong></li>
+  <li>React DevTools shows only component-level state</li>
+</ol>
+<p>This is why the slides call Zustand's debugging "less powerful than Redux."</p>
+
+<h3 class="g-h3">Pros and Cons Summary</h3>
+<div class="tw"><table>
+  <thead><tr><th>Pros</th><th>Cons</th></tr></thead>
+  <tbody>
+    <tr><td>Minimal boilerplate — just <code>create()</code></td><td>Less structured, no enforced conventions</td></tr>
+    <tr><td>Very small bundle size (~1-3KB)</td><td>Action logs less descriptive than Redux</td></tr>
+    <tr><td>No Provider required</td><td>No time-travel debugging</td></tr>
+    <tr><td>Works outside React components</td><td>Can get messy in very large apps without discipline</td></tr>
+    <tr><td>Built-in persist, devtools, immer middleware</td><td>No built-in derived/computed state</td></tr>
+    <tr><td>Selector-based re-renders (performant)</td><td></td></tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">5. Comparison Table</h2>
+<div class="tw"><table>
+  <thead><tr><th>Feature</th><th>Context API</th><th>Redux Toolkit</th><th>Zustand</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Bundle size</strong></td><td>0KB (built into React)</td><td>~14KB</td><td>~1-3KB</td></tr>
+    <tr><td><strong>Boilerplate</strong></td><td>Low</td><td>Medium-High</td><td>Very Low</td></tr>
+    <tr><td><strong>Learning curve</strong></td><td>Low</td><td>Medium-High</td><td>Very Low</td></tr>
+    <tr><td><strong>Setup</strong></td><td><code>createContext</code> + <code>Provider</code> + <code>useContext</code></td><td>Store, slices, Provider</td><td>Single <code>create()</code> call</td></tr>
+    <tr><td><strong>Provider required</strong></td><td>Yes (<code>Context.Provider</code>)</td><td>Yes (<code>&lt;Provider store={store}&gt;</code>)</td><td>NO</td></tr>
+    <tr><td><strong>Re-render optimization</strong></td><td>Poor — all consumers re-render</td><td>Good — <code>useSelector</code> with shallow compare</td><td>Good — selectors, <code>useShallow</code></td></tr>
+    <tr><td><strong>Performance for frequent updates</strong></td><td>Poor</td><td>Good</td><td>Excellent</td></tr>
+    <tr><td><strong>DevTools</strong></td><td>React DevTools only</td><td>Redux DevTools (full: time-travel, action log, state diff)</td><td>Redux DevTools via middleware (no time-travel)</td></tr>
+    <tr><td><strong>Middleware</strong></td><td>None built-in</td><td>Yes (thunk, custom)</td><td>Yes (persist, devtools, immer)</td></tr>
+    <tr><td><strong>Async logic</strong></td><td>Manual (<code>useEffect</code>)</td><td><code>createAsyncThunk</code> / RTK Query</td><td>Manual or middleware</td></tr>
+    <tr><td><strong>Outside React</strong></td><td>No</td><td>Yes (<code>store.getState()</code>, <code>store.dispatch()</code>)</td><td>Yes (<code>useStore.getState()</code>, <code>useStore.setState()</code>)</td></tr>
+    <tr><td><strong>Persistence</strong></td><td>Manual</td><td>Manual or middleware</td><td>Built-in <code>persist</code> middleware</td></tr>
+    <tr><td><strong>Scalability</strong></td><td>Limited (for large apps)</td><td>Excellent</td><td>Good</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Auth, theme, locale (low-frequency global state)</td><td>Large teams, enterprise apps, complex state</td><td>Most apps — pragmatic default</td></tr>
+  </tbody>
+</table></div>
+
+<h2 class="g-h2">6. When to Use Which — Decision Guide</h2>
+<p>This is the <strong>exact decision flowchart from the slides</strong>. Memorize this.</p>
+<div class="cb"><pre>1. Is your app small with minimal shared state?
+   YES → Context API
+
+2. Does your state change frequently? (cart, real-time data, UI state, animations)
+   YES → Context API is OUT (re-render problems). Continue.
+   NO  → Context API
+
+3. Is your team large (5+ devs) OR is strict structure/conventions important?
+   YES → Redux Toolkit (enforced patterns, powerful DevTools, scales across large teams)
+
+4. Do you need advanced debugging? (action logs, time-travel, state diffs)
+   YES → Redux Toolkit
+
+5. Do you have complex async flows or business logic?
+   YES → Redux Toolkit with createAsyncThunk and middlewares
+   NO  → Zustand (pragmatic default for most apps)</pre></div>
+
+<h3 class="g-h3">Quick decision summary by use case</h3>
+<div class="tw"><table>
+  <thead><tr><th>Situation</th><th>Choose</th></tr></thead>
+  <tbody>
+    <tr><td>Theme (light/dark mode)</td><td>Context API</td></tr>
+    <tr><td>Authenticated user (login/logout)</td><td>Context API</td></tr>
+    <tr><td>Locale/language</td><td>Context API</td></tr>
+    <tr><td>Shopping cart (any size app)</td><td>Zustand</td></tr>
+    <tr><td>Music player with progress bar</td><td>Zustand</td></tr>
+    <tr><td>Real-time chat messages</td><td>Zustand or Redux</td></tr>
+    <tr><td>Large enterprise app (5+ devs)</td><td>Redux Toolkit</td></tr>
+    <tr><td>Complex async flows (multi-step data)</td><td>Redux Toolkit</td></tr>
+    <tr><td>Need time-travel debugging</td><td>Redux Toolkit</td></tr>
+    <tr><td>Simple shared state in medium app</td><td>Zustand</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Context API Issues (from slides)</h3>
+<ul>
+  <li>Re-renders all consumers on every context value change, even if they only use part of the value</li>
+  <li>"Context Hell" / "Provider Hell" when splitting into many contexts</li>
+  <li>No action logs, no time-travel debugging, no selectors</li>
+</ul>
+
+<h3 class="g-h3">Redux Issues (from slides)</h3>
+<ul>
+  <li>High boilerplate even with RTK</li>
+  <li>Overkill for small to medium apps</li>
+  <li>Steeper learning curve</li>
+  <li>Requires Provider wrapping</li>
+</ul>
+
+<h3 class="g-h3">Zustand Issues (from slides)</h3>
+<ul>
+  <li>Less structured, no enforced conventions</li>
+  <li>No built-in support for derived/computed state</li>
+  <li>DevTools less powerful than Redux</li>
+  <li>Can get messy without discipline</li>
+</ul>
+
+<h2 class="g-h2">7. Likely Exam Questions with Answers</h2>
+
+<h3 class="g-h3">Q1 — Multiple Choice</h3>
+<p><strong>Which pattern does Redux follow for state updates?</strong></p>
+<p>A) Two-way data binding between components and store<br>
+B) Unidirectional data flow: Action → Dispatch → Reducer → Store → View<br>
+C) Observer pattern where components subscribe directly to individual state properties<br>
+D) Event sourcing with automatic state snapshots</p>
+<p><strong>Answer: B</strong></p>
+
+<h3 class="g-h3">Q2 — Select All That Apply</h3>
+<p><strong>Which of the following statements about global state management are true?</strong></p>
+<ul>
+  <li>[ ] Zustand requires wrapping your app in a Provider component</li>
+  <li>[ ] Redux Toolkit's <code>createSlice</code> automatically generates action creators</li>
+  <li>[ ] Context API re-renders all consumers when the context value changes, even if they only use part of it</li>
+  <li>[ ] Zustand stores can be accessed from outside React components</li>
+  <li>[ ] Redux requires all components to be class-based</li>
+  <li>[ ] Context API is well-optimized for high-frequency updates like animations</li>
+</ul>
+<p><strong>Answers:</strong></p>
+<ul>
+  <li>FALSE — Zustand does NOT need a Provider</li>
+  <li>TRUE — <code>createSlice</code> auto-generates action creators</li>
+  <li>TRUE — Context API re-renders all consumers</li>
+  <li>TRUE — Zustand stores work outside React via <code>getState()</code>/<code>setState()</code></li>
+  <li>FALSE — Redux works with hooks: <code>useSelector</code>/<code>useDispatch</code></li>
+  <li>FALSE — Context API causes unnecessary re-renders on high-frequency updates</li>
+</ul>
+
+<h3 class="g-h3">Q3 — Written Answer (6 pts)</h3>
+<p><strong>Describe the following Redux concepts: Connected Components, Actions, Reducers, Dispatch.</strong></p>
+<div class="tw"><table>
+  <thead><tr><th>Concept</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Connected Components</strong></td><td>Components linked to the Redux store via <code>useSelector</code> / <code>useDispatch</code> (or legacy <code>connect()</code>). They read state and dispatch actions without prop drilling.</td></tr>
+    <tr><td><strong>Actions</strong></td><td>Plain objects describing what happened: <code>{ type: 'cart/add', payload: item }</code>. The ONLY way to signal a state change. Must have a <code>type</code> property.</td></tr>
+    <tr><td><strong>Reducers</strong></td><td>Pure functions <code>(state, action) =&gt; newState</code> that define how state changes for each action type. No side effects allowed. Same input always produces same output.</td></tr>
+    <tr><td><strong>Dispatch</strong></td><td>The method that sends an action to the store: <code>dispatch(action)</code>. Routes the action through reducers to produce new state. The bridge between the View and the store.</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Q4 — Fill in the Blanks</h3>
+<p><strong>Complete the sentences about Redux Toolkit:</strong></p>
+<ol>
+  <li><code>configureStore</code> automatically calls ________ when you pass an object to the <code>reducer</code> field.</li>
+  <li><code>createSlice</code> generates ________ for all reducer functions automatically.</li>
+  <li>RTK uses ________ internally to allow "mutating" syntax in reducers.</li>
+  <li><code>createAsyncThunk</code> automatically generates ________, ________, and ________ action types.</li>
+  <li><code>extraReducers</code> is needed (instead of <code>reducers</code>) because <code>createAsyncThunk</code> generates actions ________ the slice.</li>
+</ol>
+<p><strong>Answers:</strong></p>
+<ol>
+  <li><code>combineReducers</code></li>
+  <li>action creators (and action types)</li>
+  <li>Immer</li>
+  <li><code>pending</code>, <code>fulfilled</code>, <code>rejected</code></li>
+  <li>external to / outside of</li>
+</ol>
+
+<h3 class="g-h3">Q5 — Essay (8 pts): Shopping Cart</h3>
+<p><strong>You are building a shopping cart for a Next.js e-commerce application. The cart must be accessible from multiple pages, support adding/removing items, and persist when navigating.</strong></p>
+<p><strong>a) Compare Context API, Zustand, and Redux Toolkit. One advantage and one disadvantage each.</strong></p>
+<div class="tw"><table>
+  <thead><tr><th></th><th>Context API</th><th>Zustand</th><th>Redux Toolkit</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Advantage</strong></td><td>Zero dependencies, built into React</td><td>Minimal boilerplate, works outside React, easy persistence with <code>persist</code> middleware</td><td>Best DevTools, middleware support, predictable enforced patterns</td></tr>
+    <tr><td><strong>Disadvantage</strong></td><td>Re-renders ALL consumers on every cart update — terrible for a cart that changes often</td><td>Less opinionated, no built-in DevTools (less powerful than Redux)</td><td>Most boilerplate, steeper learning curve — overkill for a cart</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>b) Implementation — Zustand (best choice for this case):</strong></p>
+<div class="cb"><pre>import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+interface CartItem { id: string; name: string; price: number; quantity: number; }
+interface CartStore {
+  items: CartItem[];
+  addItem: (item: CartItem) =&gt; void;
+  removeItem: (id: string) =&gt; void;
+  updateQuantity: (id: string, qty: number) =&gt; void;
+  clearCart: () =&gt; void;
+  total: () =&gt; number;
+}
+
+const useCartStore = create&lt;CartStore&gt;()(
+  persist(
+    (set, get) =&gt; ({
+      items: [],
+      addItem: (item) =&gt; set((s) =&gt; {
+        const exists = s.items.find((i) =&gt; i.id === item.id);
+        return exists
+          ? { items: s.items.map((i) =&gt; i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i) }
+          : { items: [...s.items, { ...item, quantity: 1 }] };
+      }),
+      removeItem: (id) =&gt; set((s) =&gt; ({ items: s.items.filter((i) =&gt; i.id !== id) })),
+      updateQuantity: (id, qty) =&gt; set((s) =&gt; ({
+        items: s.items.map((i) =&gt; i.id === id ? { ...i, quantity: qty } : i),
+      })),
+      clearCart: () =&gt; set({ items: [] }),
+      total: () =&gt; get().items.reduce((sum, i) =&gt; sum + i.price * i.quantity, 0),
+    }),
+    { name: 'cart-storage' }
+  )
+);
+
+// Usage in a component — each selector = separate subscription
+function CartPage() {
+  const items = useCartStore((s) =&gt; s.items);
+  const removeItem = useCartStore((s) =&gt; s.removeItem);
+  const total = useCartStore((s) =&gt; s.total);
+
+  return (
+    &lt;div&gt;
+      {items.map(item =&gt; (
+        &lt;div key={item.id}&gt;
+          {item.name} x{item.quantity} — ${item.price * item.quantity}
+          &lt;button onClick={() =&gt; removeItem(item.id)}&gt;Remove&lt;/button&gt;
+        &lt;/div&gt;
+      ))}
+      &lt;p&gt;Total: ${total()}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+
+<h3 class="g-h3">Q6 — createAsyncThunk</h3>
+<p><strong>a) What two parameters does <code>createAsyncThunk</code> accept?</strong></p>
+<ol>
+  <li>A single string for the action type prefix (e.g. <code>'users/fetchByIdStatus'</code>)</li>
+  <li>A payload creator function — an async callback that performs the actual logic and returns the data</li>
+</ol>
+<p><strong>b) Why is <code>extraReducers</code> used instead of <code>reducers</code> for handling thunk lifecycle states?</strong></p>
+<p><code>createAsyncThunk</code> generates its own action types (<code>pending</code>, <code>fulfilled</code>, <code>rejected</code>) that are external to the slice. Regular <code>reducers</code> only handle actions defined within the slice itself. <code>extraReducers</code> allows the slice to respond to actions defined outside of it.</p>
+<p><strong>c) What does <code>fetchUserById.fulfilled</code> refer to? Name the other two lifecycle states.</strong></p>
+<p><code>fetchUserById.fulfilled</code> refers to the action type dispatched when the async thunk resolves successfully. The other two:</p>
+<ul>
+  <li><code>fetchUserById.pending</code> (dispatched when thunk starts)</li>
+  <li><code>fetchUserById.rejected</code> (dispatched when thunk throws an error)</li>
+</ul>
+<p><strong>d) Is it safe to write <code>state.entities.push(action.payload)</code> in <code>extraReducers</code>?</strong></p>
+<p>Yes. <code>createSlice</code> (and therefore <code>extraReducers</code>) uses Immer automatically. Immer tracks the "mutation" and performs safe, immutable operations under the hood.</p>
+
+<h3 class="g-h3">Q7 — Context API</h3>
+<p><strong>What is the biggest issue with Context API and how does splitting contexts "fix" it?</strong></p>
+<p>The biggest issue is that every consumer re-renders when the context changes, <strong>even if they don't use the data that changed</strong>. There are no built-in selectors.</p>
+<p>Splitting into separate contexts (e.g., <code>AuthContext</code>, <code>ThemeContext</code>, <code>CartContext</code>) reduces the scope of re-renders — components only subscribe to the context they use. However, this "fix" leads to deeply nested providers — what the slides call <strong>"Context Hell"</strong>.</p>
+
+<h3 class="g-h3">Q8 — RTK Query</h3>
+<p><strong>a) Is RTK Query mandatory when using Redux Toolkit?</strong></p>
+<p>No. The slides explicitly state: "RTK Query is an addition to Redux Toolkit, and not mandatory to use when using RTK."</p>
+<p><strong>b) What libraries inspired RTK Query?</strong></p>
+<p>React Query and SWR.</p>
+<p><strong>c) What does it mean that RTK Query is "UI-agnostic"?</strong></p>
+<p>It works for all JavaScript solutions that have compatibility to use RTK — e.g. React for web and React Native for mobile apps. It is not tied to a specific UI framework.</p>
+<p><strong>d) Why must <code>pokemonApi.middleware</code> be added to the store?</strong></p>
+<p>The middleware enables caching, invalidation, polling, and other RTK Query features. Without it, RTK Query cannot manage its cache lifecycle or handle automatic refetching.</p>
+
+<h3 class="g-h3">Q9 — Fill in the Blanks (State Management Decisions)</h3>
+<p><strong>Complete the decision tree for choosing state management:</strong></p>
+<ol>
+  <li>Small app with minimal shared state → <strong>Context API</strong></li>
+  <li>State changes frequently (cart, real-time) → Context API is <strong>out</strong> due to re-render issues</li>
+  <li>Large team (5+ devs) or strict structure needed → <strong>Redux Toolkit</strong></li>
+  <li>Need advanced debugging (time-travel, action logs) → <strong>Redux Toolkit</strong></li>
+  <li>Complex async flows → <strong>Redux with createAsyncThunk</strong></li>
+  <li>Otherwise → <strong>Zustand</strong></li>
+</ol>
+
+<h3 class="g-h3">Q10 — Explain Immer</h3>
+<p><strong>A student says: "This code mutates state, which is illegal in Redux." The code is inside a <code>createSlice</code> reducer: <code>state.value += 1</code>. Is the student correct?</strong></p>
+<p><strong>Answer:</strong> The student is <strong>incorrect</strong>. While the code looks like a direct mutation, Redux Toolkit uses <strong>Immer</strong> under the hood inside <code>createSlice</code>. Immer creates a draft proxy of the state. Any "mutations" you write to the draft are tracked and used to produce a new immutable state object. The original state is never modified. This is one of RTK's biggest benefits — simpler reducer syntax while maintaining immutability guarantees.</p>
+
+<h2 class="g-h2">8. Quick-Reference Cheat Sheet</h2>
+
+<h3 class="g-h3">Context API</h3>
+<div class="cb"><pre>const MyCtx = createContext(defaultValue);           // 1. Create
+&lt;MyCtx.Provider value={...}&gt;{children}&lt;/MyCtx.Provider&gt; // 2. Provide
+const value = useContext(MyCtx);                     // 3. Consume</pre></div>
+<p><strong>Remember:</strong> All consumers re-render when value changes. Use for: theme, auth, locale.</p>
+
+<h3 class="g-h3">Redux Toolkit — Full Setup</h3>
+<div class="cb"><pre>// 1. Create slice
+const slice = createSlice({
+  name: 'feature',
+  initialState: { value: 0 },
+  reducers: {
+    set: (state, action: PayloadAction&lt;number&gt;) =&gt; { state.value = action.payload; }
+  }
+});
+export const { set } = slice.actions;
+export default slice.reducer;
+
+// 2. Create store
+const store = configureStore({ reducer: { feature: slice.reducer } });
+export type RootState = ReturnType&lt;typeof store.getState&gt;;
+export type AppDispatch = typeof store.dispatch;
+
+// 3. Wrap app
+&lt;Provider store={store}&gt;&lt;App /&gt;&lt;/Provider&gt;
+
+// 4. Use in components
+const value = useSelector((s: RootState) =&gt; s.feature.value);
+const dispatch = useDispatch&lt;AppDispatch&gt;();
+dispatch(set(42));</pre></div>
+
+<h3 class="g-h3">createAsyncThunk Pattern</h3>
+<div class="cb"><pre>// 1. Define thunk (OUTSIDE the slice)
+const fetchData = createAsyncThunk('feature/fetch', async (id: string) =&gt; {
+  return fetch(`/api/data/${id}`).then(r =&gt; r.json());
+});
+
+// 2. Handle in extraReducers
+extraReducers: (builder) =&gt; {
+  builder
+    .addCase(fetchData.pending,   (state) =&gt; { state.loading = 'pending'; })
+    .addCase(fetchData.fulfilled, (state, action) =&gt; {
+      state.loading = 'succeeded';
+      state.data = action.payload;
+    })
+    .addCase(fetchData.rejected,  (state, action) =&gt; {
+      state.loading = 'failed';
+      state.error = action.error.message ?? null;
+    });
+}
+
+// 3. Dispatch from component
+dispatch(fetchData('user-123'));</pre></div>
+
+<h3 class="g-h3">RTK Query Setup</h3>
+<div class="cb"><pre>// 1. Define API
+const api = createApi({
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: (builder) =&gt; ({
+    getItems: builder.query&lt;Item[], void&gt;({ query: () =&gt; '/items' }),
+    addItem: builder.mutation&lt;Item, Partial&lt;Item&gt;&gt;({
+      query: (body) =&gt; ({ url: '/items', method: 'POST', body }),
+    }),
+  }),
+});
+export const { useGetItemsQuery, useAddItemMutation } = api;
+
+// 2. Add to store (BOTH reducer AND middleware required)
+configureStore({
+  reducer: { [api.reducerPath]: api.reducer },
+  middleware: (get) =&gt; get().concat(api.middleware),
+});
+
+// 3. Use in component
+const { data, isLoading, isError } = useGetItemsQuery();
+const [addItem, { isLoading: isAdding }] = useAddItemMutation();</pre></div>
+
+<h3 class="g-h3">Zustand Store</h3>
+<div class="cb"><pre>const useStore = create&lt;State&gt;()(
+  persist(
+    (set, get) =&gt; ({
+      // State
+      count: 0,
+      items: [],
+
+      // Actions
+      increment: () =&gt; set((s) =&gt; ({ count: s.count + 1 })),
+      addItem: (item) =&gt; set((s) =&gt; ({ items: [...s.items, item] })),
+      removeItem: (id) =&gt; set((s) =&gt; ({ items: s.items.filter(i =&gt; i.id !== id) })),
+
+      // Computed (uses get())
+      total: () =&gt; get().items.reduce((sum, i) =&gt; sum + i.price, 0),
+    }),
+    { name: 'my-storage' }  // persists to localStorage
+  )
+);
+
+// Usage — always use selectors
+const count = useStore((s) =&gt; s.count);
+const addItem = useStore((s) =&gt; s.addItem);
+
+// Multiple values — use useShallow to prevent unnecessary re-renders
+const { count, items } = useStore(useShallow((s) =&gt; ({ count: s.count, items: s.items })));
+
+// Outside React
+const state = useStore.getState();
+useStore.setState({ count: 0 });</pre></div>
+
+<h3 class="g-h3">Key Facts to Memorize</h3>
+<div class="tw"><table>
+  <thead><tr><th>Fact</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>Context re-renders</td><td>ALL consumers re-render when value changes</td></tr>
+    <tr><td>Zustand Provider</td><td>NOT required (unique advantage)</td></tr>
+    <tr><td>Redux Provider</td><td>Required — <code>&lt;Provider store={store}&gt;</code></td></tr>
+    <tr><td>Immer</td><td>Used automatically inside <code>createSlice</code> — write "mutating" code</td></tr>
+    <tr><td><code>extraReducers</code> vs <code>reducers</code></td><td><code>extraReducers</code> = for external action types (e.g. from <code>createAsyncThunk</code>)</td></tr>
+    <tr><td>Thunks location</td><td>Must be declared OUTSIDE the slice</td></tr>
+    <tr><td><code>createAsyncThunk</code> lifecycle</td><td><code>pending</code>, <code>fulfilled</code>, <code>rejected</code></td></tr>
+    <tr><td>RTK Query mandatory</td><td>NO — optional addition</td></tr>
+    <tr><td>RTK Query inspiration</td><td>React Query + SWR</td></tr>
+    <tr><td>RTK Query <code>middleware</code></td><td>REQUIRED — enables caching, invalidation, polling</td></tr>
+    <tr><td><code>useShallow</code></td><td>For selecting multiple values as object — prevents re-renders from reference changes</td></tr>
+    <tr><td>Zustand outside React</td><td><code>useStore.getState()</code>, <code>useStore.setState()</code></td></tr>
+    <tr><td>Context best for</td><td>Theme, auth, locale — LOW frequency changes</td></tr>
+    <tr><td>Zustand best for</td><td>Most apps — pragmatic default</td></tr>
+    <tr><td>Redux best for</td><td>Large teams, complex async, need time-travel debugging</td></tr>
+    <tr><td>Context debugging</td><td>Limited to React DevTools, no action log, no time-travel</td></tr>
+    <tr><td>Redux debugging</td><td>Best-in-class: action log, state diff, time-travel</td></tr>
+    <tr><td>Context Hell</td><td>Deeply nested Providers from splitting contexts</td></tr>
+    <tr><td>Bundle sizes</td><td>Context: 0KB | Zustand: ~1-3KB | Redux: ~14KB</td></tr>
+    <tr><td>Immer rule</td><td>Either mutate draft OR return new value — not both</td></tr>
+    <tr><td><code>Object.is()</code></td><td>How Zustand compares previous and new selector result by default</td></tr>
+    <tr><td>Three Redux principles</td><td>Single source of truth, State is read-only, Changes via pure reducers</td></tr>
+  </tbody>
+</table></div>
+
+<h3 class="g-h3">Flux / Unidirectional Data Flow (draw this from memory)</h3>
+<div class="cb"><pre>View → Action → Dispatch() → Reducer → Store → View
+         |                       |
+   { type, payload }    (state, action) =&gt; newState</pre></div>
+<p>This cycle goes in ONE direction only. This is the foundation of Redux's predictability.</p>

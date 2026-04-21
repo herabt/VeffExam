@@ -1,0 +1,279 @@
+<h2 class="g-h2">Practice Exam 15 — TypeScript (Advanced), DOM Selectors, Next.js Rendering</h2>
+
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>According to the slides, what happens when a type is omitted in TypeScript and cannot be inferred?</p>
+<ul>
+<li>A) TypeScript throws a compilation error immediately</li>
+<li>B) TypeScript assigns the <code>any</code> type</li>
+<li>C) TypeScript assigns the <code>unknown</code> type</li>
+<li>D) TypeScript assigns the <code>void</code> type</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "By omitting the type in TypeScript, and the type cannot be inferred, the type given is the <strong>any</strong> type."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Multiple Choice</h3>
+<p>According to the slides, what does the <code>any</code> type mean and why should it be avoided?</p>
+<blockquote><p>"When working with the <strong>any</strong> type it is identical to working with JavaScript, meaning that variables can be of any possible types and is determined by how it is used"</p></blockquote>
+<ul>
+<li>A) The <code>any</code> type is the most strict type in TypeScript and should be used everywhere</li>
+<li>B) The <code>any</code> type makes TypeScript behave identically to JavaScript, meaning variables can be of any possible types -- this is called giving a type an implicit any and should in most cases be avoided</li>
+<li>C) The <code>any</code> type only applies to numbers and strings</li>
+<li>D) The <code>any</code> type is automatically removed during compilation</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "When working with the <strong>any</strong> type it is identical to working with JavaScript, meaning that variables can be of any possible types and is determined by how it is used." And: "This is called given a type an implicit any and should in most cases be avoided."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Multiple Choice</h3>
+<p>Given the following code from the slides, what happens when <code>noImplicitAny</code> is disabled vs. enabled?</p>
+<div class="cb"><pre>// When noImplicitAny is disabled:
+function sum(a, b, c) {
+  return a + b + c;
+}
+// This is perfectly legal when noImplicitAny is disabled
+sum("A", 1, [1, 2, 3]);</pre></div>
+<div class="cb"><pre>// When noImplicitAny is enabled:
+function sum(a: any, b: any, c: any) {
+  return a + b + c;
+}
+// This is perfectly legal when noImplicitAny is enabled
+// but you must explicitly state the any type
+sum("A", 1, [1, 2, 3]);</pre></div>
+<ul>
+<li>A) Both versions produce a compilation error</li>
+<li>B) When <code>noImplicitAny</code> is disabled, parameters without types are implicitly <code>any</code> and no error is produced. When <code>noImplicitAny</code> is enabled, you must explicitly state the <code>any</code> type on each parameter or TypeScript will produce an error</li>
+<li>C) <code>noImplicitAny</code> has no effect on function parameters</li>
+<li>D) When <code>noImplicitAny</code> is enabled, the <code>any</code> type is completely forbidden</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides show two code examples: when <code>noImplicitAny</code> is disabled, <code>function sum(a, b, c)</code> is perfectly legal with no type annotations. When <code>noImplicitAny</code> is enabled, you must explicitly state <code>function sum(a: any, b: any, c: any)</code> -- you must explicitly state the any type.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Multiple Choice</h3>
+<p>According to the slides, what are the two equivalent syntaxes for typing arrays in TypeScript?</p>
+<div class="cb"><pre>const numberArray: number[] = [1, 2, 3];
+const numberArray: Array&lt;number&gt; = [1, 2, 3];</pre></div>
+<ul>
+<li>A) Only <code>number[]</code> is valid syntax; <code>Array&lt;number&gt;</code> is deprecated</li>
+<li>B) <code>number[]</code> and <code>Array&lt;number&gt;</code> are both valid and equivalent syntaxes for typing arrays</li>
+<li>C) <code>Array&lt;number&gt;</code> is for read-only arrays, while <code>number[]</code> is for mutable arrays</li>
+<li>D) <code>number[]</code> creates a tuple, while <code>Array&lt;number&gt;</code> creates an array</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides show both syntaxes side by side: <code>const numberArray: number[] = [1, 2, 3];</code> and <code>const numberArray: Array&lt;number&gt; = [1, 2, 3];</code> as equivalent ways to type arrays.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Multiple Choice</h3>
+<p>According to the slides, what are the two categories of type declarations for functions?</p>
+<blockquote><p>"Functions are a little bit more complex than variables because they can accept multiple parameters, which all have a specific type and also a return value with a certain type"</p></blockquote>
+<ul>
+<li>A) Input types and Output types</li>
+<li>B) Parameter Type Annotations and Return Type Annotations</li>
+<li>C) Argument types and Result types</li>
+<li>D) Generic types and Specific types</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "These type declarations are called: Parameter Type Annotations, Return Type Annotations."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Multiple Choice</h3>
+<p>Given the following code from the slides, why does <code>greet(42)</code> produce an error?</p>
+<div class="cb"><pre>function greet(name: string) {
+  return `Hello ${name}! What a wonderful day today.`;
+}
+
+// Will not work because a number is not compatible with string
+greet(42);</pre></div>
+<ul>
+<li>A) The function <code>greet</code> does not exist</li>
+<li>B) The number <code>42</code> is not compatible with the parameter type <code>string</code> -- the Parameter Type Annotation enforces the user of the function to pass in the correct types</li>
+<li>C) The template literal syntax is incorrect</li>
+<li>D) The function must have a return type annotation to work</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides show that <code>greet(42)</code> will not work "because a number is not compatible with string." The Parameter Type Annotation enforces that the user of the function passes in the correct types to the function.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 7 — Multiple Choice</h3>
+<p>Given the following code from the slides, why does the function produce an error even though it is called correctly with <code>greet("John")</code>?</p>
+<div class="cb"><pre>function greet(name: string): string {
+  // Will not work because a number is not compatible with
+  // the return type string
+  return 444 + 555;
+}
+
+greet("John");</pre></div>
+<ul>
+<li>A) <code>"John"</code> is not a valid string</li>
+<li>B) The function call <code>greet("John")</code> is incorrect</li>
+<li>C) The Return Type Annotation declares that the function must return a <code>string</code>, but <code>444 + 555</code> evaluates to a <code>number</code> which is not compatible with the return type <code>string</code></li>
+<li>D) Addition of numbers is not allowed in TypeScript</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>C</strong></p>
+<p><strong>Explanation:</strong> The slides show that even though <code>greet("John")</code> is called correctly, the function body returns <code>444 + 555</code> (a number), which is "not compatible with the return type string." The Return Type Annotation enforces the writer of the function to return the correct type stated in the function declaration.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>According to the slides about optional properties, what is the default behavior when declaring an object type, and how do you make a property optional?</p>
+<div class="cb"><pre>function printName(obj: { first: string; last?: string }) {
+  // You will be notified by the IDE that last might be null
+  const fullName = `${obj.first} ${obj.last.toUpperCase()}`;
+}
+// Both OK
+printName({ first: "Bob" });
+printName({ first: "Alice", last: "Alisson" });</pre></div>
+<ul>
+<li>A) All properties are optional by default; you use <code>!</code> to make them required</li>
+<li>B) When declaring an object type then by default all properties are set as required. We can change that behaviour by explicitly setting the property as optional, which is done by using the <code>?</code> syntax</li>
+<li>C) Optional properties are declared using the <code>undefined</code> keyword</li>
+<li>D) There is no way to make properties optional in TypeScript</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "When declaring an object type then by default all properties are set as required. We can change that behaviour by explicitly setting the property as optional, which is done by using the ? syntax." The example shows <code>last?: string</code> making the <code>last</code> property optional.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Multiple Choice</h3>
+<p>According to the slides about object types, what is the simplest way to define an object type in TypeScript?</p>
+<div class="cb"><pre>// The parameter's type annotation is an object type
+function printCoord(pt: { x: number; y: number }) {
+  console.log("The coordinate's x value is " + pt.x);
+  console.log("The coordinate's y value is " + pt.y);
+}
+printCoord({ x: 3, y: 7 });</pre></div>
+<ul>
+<li>A) You must always create an interface or type alias first</li>
+<li>B) Object types are among the most common form of types, and the most simple way is just to list out their properties and types inline in the function signature</li>
+<li>C) You can only use classes to define object types</li>
+<li>D) Object types require a separate type definition file</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "Object types are among the most common form of types. There are many ways to define object types in TypeScript, but the most simple one is just to list out their properties and types." The example shows inline object type annotation: <code>function printCoord(pt: { x: number; y: number })</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Multiple Choice</h3>
+<p>According to the slides about anonymous functions, what is "contextual typing"?</p>
+<div class="cb"><pre>const numbers = [1, 2, 3];
+// Here both the 'acc' and 'elem' are inferred as numbers
+// because the array has the type number[]
+const sumOfNumbers = numbers.reduce((acc, elem) =&gt; acc + elem, 0);
+
+const names = ["Alice", "Bob", "Lucy"];
+// Here the name within the anonymous function is inferred as a string
+// and therefore the IDE can determine what functions are available
+// for the string and provides help
+const paddedNames = names.map(name =&gt; name.padStart(3, "X"));</pre></div>
+<ul>
+<li>A) You must always explicitly type parameters in anonymous functions</li>
+<li>B) TypeScript infers the types of parameters in anonymous functions by looking at the parent type (e.g., the array's type), so if the array is typed then the types in the anonymous functions are correctly inferred types. This is called contextual typing, meaning that the type is inferred based on the context</li>
+<li>C) Contextual typing only works with the <code>forEach</code> method</li>
+<li>D) Contextual typing means that types are determined at runtime</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "Anonymous functions which are passed in parameters have inferred parameter types. When using a function such as forEach, map or filter on an array the parameters in the anonymous functions are inferred by the type of the array. TypeScript infers the types by looking at the parent type, so if the array is typed then the types in the anonymous functions are correctly inferred types. This is called contextual typing, meaning that the type is inferred based on the context."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Multiple Choice</h3>
+<p>According to the slides, what is <code>querySelectorAll()</code> and what makes it powerful?</p>
+<ul>
+<li>A) It is a method that only selects elements by their <code>id</code> attribute</li>
+<li>B) <code>querySelectorAll()</code> is probably the most powerful selector the document has to offer. It accepts any valid CSS selector and matches that to elements in the DOM</li>
+<li>C) It is identical to <code>getElementsByClassName()</code> and only selects by class name</li>
+<li>D) It can only select a single element at a time</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "querySelectorAll() is probably the most powerful selector the document has to offer. It accepts any valid CSS selector and matches that to elements in the DOM."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>According to the slides, what is the difference between the <code>children</code> property and the <code>childNodes</code> property?</p>
+<ul>
+<li>A) They are identical and return the same result</li>
+<li>B) <code>children</code> is just like the property <code>childNodes</code> but excludes text and comment nodes and only contains element nodes</li>
+<li>C) <code>childNodes</code> only returns element nodes, while <code>children</code> returns all node types</li>
+<li>D) <code>children</code> is deprecated and should not be used</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "<strong>children</strong> is just like the property <strong>childNodes</strong> but excludes text and comment nodes and only contains element nodes."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Multiple Choice</h3>
+<p>According to the slides, what are the two types of server rendering in Next.js, and when does each happen?</p>
+<ul>
+<li>A) Client Rendering happens in the browser; Server Rendering happens on the CDN</li>
+<li>B) Static Rendering (or Prerendering) happens at build time or during revalidation and the result is cached. Dynamic Rendering happens at request time in response to a client request</li>
+<li>C) Static Rendering uses JavaScript; Dynamic Rendering uses HTML only</li>
+<li>D) Both types of rendering happen at the same time</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "Static Rendering (or Prerendering) happens at build time or during revalidation and the result is cached. Dynamic Rendering happens at request time in response to a client request."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Multiple Choice</h3>
+<p>According to the slides, how does Next.js determine whether a route is static or dynamic?</p>
+<ul>
+<li>A) You must manually set a <code>static</code> or <code>dynamic</code> flag in every page component</li>
+<li>B) A route is determined as static if the HTML is pre-generated and cached and serves same content to all users (e.g. <code>/about</code>). A route is determined as dynamic if the page is rendered at request time and generates fresh data on each request (e.g. <code>/products</code>)</li>
+<li>C) All routes are dynamic by default in Next.js</li>
+<li>D) Static routes can only serve JSON data</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "A route is determined as static if the HTML is pre-generated and cached and serves same content to all users, e.g. <code>/about</code>. A route is determined as dynamic if the page is rendered at request time and generates fresh data on each request, e.g. <code>/products</code>."</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Multiple Choice</h3>
+<p>According to the slides, what is streaming in Next.js, how do you enable it, and what does <code>loading.tsx</code> do?</p>
+<ul>
+<li>A) Streaming is a way to send all data at once to the client after the entire page is rendered</li>
+<li>B) Streaming allows the server to send parts of a dynamic route to the client as soon as they're ready, rather than waiting for the entire route to be rendered. To use streaming, you must create a <code>loading.tsx</code> in your route folder. Behind the scenes, Next.js will automatically wrap the page.tsx contents in a <code>&lt;Suspense&gt;</code> boundary, and the prefetched fallback UI will be shown while the route is loading and swapped for the actual content once ready</li>
+<li>C) Streaming only works with static routes</li>
+<li>D) Streaming requires a WebSocket connection to function</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong></p>
+<p><strong>Explanation:</strong> The slides state: "Streaming allows the server to send parts of a dynamic route to the client as soon as they're ready, rather than waiting for the entire route to be rendered." And: "To use streaming, you must create a <code>loading.tsx</code> in your route folder." And: "Behind the scenes, Next.js will automatically wrap the page.tsx contents in a <code>&lt;Suspense&gt;</code> boundary. The prefetched fallback UI will be shown while the route is loading, and swapped for the actual content once ready."</p>
+</div>
+</details>

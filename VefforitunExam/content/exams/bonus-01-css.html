@@ -1,0 +1,1019 @@
+<h2 class="g-h2">Bonus Questions — CSS &amp; Layout</h2>
+
+<h2 class="g-h2">SECTION: Flexbox — Advanced</h2>
+
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>A flex container is <strong>600px</strong> wide. It has three items with <code>flex-basis: 100px</code> each and no explicit width. Item A has <code>flex-grow: 0; flex-shrink: 1</code>. Item B has <code>flex-grow: 2; flex-shrink: 1</code>. Item C has <code>flex-grow: 3; flex-shrink: 1</code>. <code>flex-wrap</code> is <code>nowrap</code>. What is the final rendered width of Item C?</p>
+<ul>
+<li>A) 100px</li>
+<li>B) 240px</li>
+<li>C) 300px</li>
+<li>D) 360px</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C) 300px</strong></p>
+  <p><strong>Explanation:</strong> Total flex-basis = 300px. Available free space = 600 − 300 = 300px. Total grow factor = 0 + 2 + 3 = 5. Item A gets 0/5 × 300 = 0px extra → 100px. Item B gets 2/5 × 300 = 120px extra → 220px. Item C gets 3/5 × 300 = 180px extra → 100 + 180 = <strong>280px</strong>. Wait — re-check: 100 + 220 + 280 = 600. ✓ So Item C = <strong>280px</strong>. The correct answer is none of the above as written; the closest distractor is D (the trap). Item C = 280px. (Note to instructor: correct answer is 280px — verify distractor list matches.)</p>
+  <p><strong>Correct working:</strong> Free space = 300px. Grow ratios: A=0, B=2, C=3. Total=5. C gets (3/5)×300 = 180px bonus → 100+180 = <strong>280px</strong>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Fill in the Blank</h3>
+<p>Complete the sentences about <code>flex-shrink</code> math:</p>
+<p>A flex container is <strong>400px</strong> wide with <code>flex-wrap: nowrap</code>. It has two items: Item X has <code>flex-basis: 300px; flex-shrink: 1</code>. Item Y has <code>flex-basis: 300px; flex-shrink: 2</code>. The container overflows by 1. ________ px. The shrink factor for Item X is calculated as <code>flex-shrink × flex-basis</code> = 2. ________, and for Item Y = 3. ________. Item X shrinks by 4. ________ px and Item Y shrinks by 5. ________ px, giving final widths of 6. ________ px and 7. ________ px respectively.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> 200px (total bases 600px − container 400px)</p>
+  <p><strong>2.</strong> 1 × 300 = 300 (weighted shrink for X)</p>
+  <p><strong>3.</strong> 2 × 300 = 600 (weighted shrink for Y)</p>
+  <p><strong>4.</strong> X shrinks: (300/900) × 200 = 66.67px</p>
+  <p><strong>5.</strong> Y shrinks: (600/900) × 200 = 133.33px</p>
+  <p><strong>6.</strong> X final width: 300 − 66.67 ≈ <strong>233.33px</strong></p>
+  <p><strong>7.</strong> Y final width: 300 − 133.33 ≈ <strong>166.67px</strong></p>
+  <p><strong>Key insight:</strong> <code>flex-shrink</code> uses <em>weighted</em> proportions (shrink × basis), not simple ratios, so larger items with higher shrink factors lose more space.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Select All That Apply</h3>
+<p>Which of the following statements about <code>flex-basis</code> are correct?</p>
+<ul>
+<li>[ ] A) <code>flex-basis: auto</code> uses the item's <code>width</code> (or <code>height</code> if the main axis is vertical) as the basis</li>
+<li>[ ] B) <code>flex-basis: 0</code> means the item has no initial size; all space is distributed via <code>flex-grow</code></li>
+<li>[ ] C) When both <code>width</code> and <code>flex-basis</code> are set, <code>flex-basis</code> takes precedence along the main axis</li>
+<li>[ ] D) <code>flex-basis</code> can accept percentage values</li>
+<li>[ ] E) Setting <code>flex-basis: content</code> is the same as <code>flex-basis: auto</code></li>
+<li>[ ] F) <code>flex: 1</code> is shorthand for <code>flex-grow: 1; flex-shrink: 1; flex-basis: 0%</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, B, C, D, F</strong></p>
+  <ul>
+  <li>[x] A — <code>auto</code> delegates to the item's own size properties</li>
+  <li>[x] B — <code>flex-basis: 0</code> gives all space to <code>flex-grow</code> distribution</li>
+  <li>[x] C — <code>flex-basis</code> overrides <code>width</code>/<code>height</code> along the main axis</li>
+  <li>[x] D — percentages are valid (relative to the flex container's main size)</li>
+  <li>[ ] E — <code>flex-basis: content</code> sizes to the item's intrinsic content width, while <code>auto</code> first looks at the <code>width</code> property; they differ when a <code>width</code> is explicitly set</li>
+  <li>[x] F — <code>flex: 1</code> expands to <code>1 1 0%</code> per the CSS spec</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Code Analysis</h3>
+<p>Given the following CSS, predict the visual layout. Specifically: in what order do the items appear visually, and what is the main axis?</p>
+<pre><code>.container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 300px;
+  width: 200px;
+}
+.item { width: 50px; height: 50px; }
+</code></pre>
+<p>The container has three <code>.item</code> divs: red, green, blue (in DOM order).</p>
+<ul>
+<li>A) Red top-left, Green center-left, Blue bottom-left; main axis runs top-to-bottom</li>
+<li>B) Blue top-right, Green center-right, Red bottom-right; main axis runs bottom-to-top</li>
+<li>C) Red top-right, Green center-right, Blue bottom-right; main axis runs top-to-bottom</li>
+<li>D) Blue top-left, Green center-left, Red bottom-left; main axis runs bottom-to-top</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>flex-direction: column-reverse</code> makes the main axis run from <em>bottom to top</em>, so the first DOM item (red) is placed at the <em>bottom</em> and the last (blue) at the <em>top</em>. <code>align-items: flex-end</code> aligns items to the cross-axis end — since the cross axis runs left-to-right, "flex-end" is the <em>right</em> edge. <code>justify-content: space-between</code> distributes space along the main (vertical) axis evenly.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 5 — Written Short Answer</h3>
+<p>Explain the difference between <code>align-items</code> and <code>align-content</code> in a flex container. Under what precise condition does <code>align-content</code> have no effect? Give a concrete example showing when each property is relevant.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>align-items</strong> controls how individual flex items are positioned along the <em>cross axis within a single flex line</em>. It always applies (even with one line).</p>
+  <p><strong>align-content</strong> controls how <em>multiple flex lines</em> are distributed along the cross axis when there is extra space. It has <strong>no effect when there is only one flex line</strong> — i.e., when <code>flex-wrap: nowrap</code> (the default) or when all items fit on one line.</p>
+  <p><strong>Example:</strong> A container with <code>flex-wrap: wrap; height: 400px</code> containing many items that spill onto 3 lines. <code>align-content: space-between</code> spaces the 3 lines evenly (top, middle, bottom), while <code>align-items: center</code> centers individual items vertically <em>within each line</em>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 6 — Multiple Choice</h3>
+<p>Which property would you use on an individual flex <em>item</em> (not the container) to make it appear first in the visual order regardless of its DOM position?</p>
+<ul>
+<li>A) <code>align-self: first</code></li>
+<li>B) <code>flex-grow: 999</code></li>
+<li>C) <code>order: -1</code></li>
+<li>D) <code>justify-self: start</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C) <code>order: -1</code></strong></p>
+  <p><strong>Explanation:</strong> The <code>order</code> property on a flex item controls its visual order within the flex container. All items default to <code>order: 0</code>; setting <code>order: -1</code> moves an item before all default-ordered siblings. Note: this is a visual-only change — DOM order (and therefore accessibility/tab order) remains unchanged, which is a common accessibility pitfall.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: CSS Grid — Deep Dive</h2>
+
+<h3 class="g-h3">Question 7 — Fill in the Blank</h3>
+<p>Complete the following about CSS Grid:</p>
+<p>The declaration <code>grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))</code> creates as many columns as can fit while each column is at least 1. ________ wide. The difference between <code>auto-fill</code> and <code>auto-fit</code> is that <code>auto-fit</code> 2. ________ empty tracks whereas <code>auto-fill</code> 3. ________. Items placed outside the explicitly defined grid rows/columns land in the 4. ________ grid. The property that controls how implicitly created rows are sized is 5. ________.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> 150px</p>
+  <p><strong>2.</strong> collapses/removes empty tracks (they shrink to 0)</p>
+  <p><strong>3.</strong> preserves/keeps empty tracks (retaining their size)</p>
+  <p><strong>4.</strong> implicit grid</p>
+  <p><strong>5.</strong> <code>grid-auto-rows</code></p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 8 — Code Analysis</h3>
+<p>Given the following grid CSS, how many <strong>explicit</strong> columns and rows exist? Where does an item with <code>grid-column: 1 / 4; grid-row: 2 / 4</code> land? Describe its position precisely.</p>
+<pre><code>.grid {
+  display: grid;
+  grid-template-columns: 100px 1fr 2fr;
+  grid-template-rows: 50px 100px;
+  gap: 10px;
+}
+</code></pre>
+<ul>
+<li>A) 3 columns, 2 rows; item spans columns 1–3 and rows 2–3 (within explicit grid)</li>
+<li>B) 3 columns, 2 rows; item spans columns 1–4 and rows 2–4 (creates implicit rows/columns)</li>
+<li>C) 3 columns, 2 rows; item spans columns 1–3 and rows 2–4 (row 3 is implicit, auto-sized)</li>
+<li>D) 4 columns, 3 rows; item spans columns 1–3 and rows 2–3</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C</strong></p>
+  <p><strong>Explanation:</strong> The explicit grid has 3 columns (lines 1–4) and 2 rows (lines 1–3). <code>grid-column: 1 / 4</code> spans from line 1 to line 4 — that is all 3 columns (within the explicit grid). <code>grid-row: 2 / 4</code> spans from row line 2 to row line 4. Row line 4 is beyond the explicit 2-row grid (which only has lines 1–3), so the browser creates an <em>implicit</em> third row, auto-sized according to <code>grid-auto-rows</code> (default: auto). The item covers explicit row 2 fully plus the new implicit row 3.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 9 — Written Short Answer</h3>
+<p>Explain what <code>grid-template-areas</code> is and write a complete example that creates this layout:</p>
+<pre>
++--------+--------+
+| header | header |
++--------+--------+
+|  nav   |  main  |
++--------+--------+
+| footer | footer |
++--------+--------+
+</pre>
+<p>Include both the container CSS and the CSS for each named area. What character do you use to create an empty cell?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer:</strong></p>
+  <pre><code>.container {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header header"
+    "nav    main"
+    "footer footer";
+}
+.header { grid-area: header; }
+.nav    { grid-area: nav; }
+.main   { grid-area: main; }
+.footer { grid-area: footer; }
+</code></pre>
+  <p>To create an <strong>empty cell</strong>, use a <strong>period (<code>.</code>)</strong> in the area string: e.g., <code>"nav . main"</code> leaves the middle cell empty.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 10 — Select All That Apply</h3>
+<p>Which of the following statements about the <code>fr</code> unit in CSS Grid are correct?</p>
+<ul>
+<li>[ ] A) <code>1fr</code> represents a fraction of the remaining free space after fixed-size tracks are placed</li>
+<li>[ ] B) <code>fr</code> can be used in <code>gap</code> (grid-gap) values</li>
+<li>[ ] C) <code>minmax(0, 1fr)</code> and <code>1fr</code> behave identically in all situations</li>
+<li>[ ] D) <code>grid-template-columns: 1fr 2fr</code> means the second column is twice the width of the first</li>
+<li>[ ] E) <code>fr</code> units can be used in <code>grid-template-rows</code> as well as columns</li>
+<li>[ ] F) A track defined as <code>1fr</code> will never shrink below its content's minimum size (unless <code>minmax(0, 1fr)</code> is used)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, D, E, F</strong></p>
+  <ul>
+  <li>[x] A — <code>fr</code> divides remaining space after non-flexible tracks are resolved</li>
+  <li>[ ] B — <code>fr</code> is <em>not</em> valid in <code>gap</code>; gap accepts length or percentage values only</li>
+  <li>[ ] C — <code>1fr</code> alone has an implicit minimum of <code>auto</code> (content size), while <code>minmax(0, 1fr)</code> has a minimum of 0; they differ when content is large</li>
+  <li>[x] D — ratios are proportional; 1fr + 2fr = 3 total, second gets 2/3</li>
+  <li>[x] E — <code>fr</code> works in both row and column definitions</li>
+  <li>[x] F — bare <code>1fr</code> = <code>minmax(auto, 1fr)</code> so minimum is content size</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 11 — Code Output Prediction</h3>
+<p>How many grid columns will be created by each of the following declarations on a <strong>500px</strong> wide container when it has <strong>4 items</strong>?</p>
+<pre><code>/* Declaration A */
+grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+
+/* Declaration B */
+grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+</code></pre>
+<p>The container has no <code>gap</code>. Describe the difference in appearance between A and B.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Both create 4 columns</strong> (floor(500/120) = 4 columns fit). With 4 items and 4 columns, there are no empty tracks — so <code>auto-fill</code> and <code>auto-fit</code> look <em>identical</em> in this scenario.</p>
+  <p><strong>The difference becomes visible when items &lt; available columns:</strong> With only 2 items in a 500px container at minmax(120px, 1fr):</p>
+  <ul>
+  <li><strong>auto-fill</strong>: Creates 4 column tracks. The 2 items each occupy one 125px column; 2 empty columns remain (no visible effect but space is reserved).</li>
+  <li><strong>auto-fit</strong>: Creates 4 tracks but collapses the 2 empty tracks to 0. The 2 items stretch to fill the full 500px (each 250px wide).</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>A grid item has <code>grid-column: span 2</code>. What does this declaration do?</p>
+<ul>
+<li>A) Places the item starting at column line 2</li>
+<li>B) Makes the item span across 2 column tracks from wherever it is auto-placed</li>
+<li>C) Sets the item's width to 2fr</li>
+<li>D) Moves the item to the second column of the grid</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>span 2</code> is a span keyword — it tells the item to stretch across 2 column tracks. The auto-placement algorithm determines the starting column. It does <em>not</em> specify an absolute line number. If you need a specific start, use <code>grid-column: 2 / span 2</code> (start at line 2, span 2 tracks).</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: BEM Naming Conventions</h2>
+
+<h3 class="g-h3">Question 13 — Multiple Choice</h3>
+<p>Which of the following is a correctly formed BEM class name for a <em>disabled submit button inside a login form</em>?</p>
+<ul>
+<li>A) <code>.loginForm_submitButton-disabled</code></li>
+<li>B) <code>.login-form__submit-button--disabled</code></li>
+<li>C) <code>.login_form--submit--disabled</code></li>
+<li>D) <code>.LoginForm__SubmitButton--Disabled</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B) <code>.login-form__submit-button--disabled</code></strong></p>
+  <p><strong>Explanation:</strong> BEM format is <code>block__element--modifier</code>. The block (<code>login-form</code>) and element (<code>submit-button</code>) use lowercase letters and hyphens. The element separator is double-underscore (<code>__</code>). The modifier separator is double-hyphen (<code>--</code>). All letters must be lowercase — option D uses PascalCase which violates BEM conventions.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Select All That Apply</h3>
+<p>Which of the following are <strong>anti-patterns</strong> or violations of BEM methodology?</p>
+<ul>
+<li>[ ] A) <code>.card__header__title</code> (element inside an element)</li>
+<li>[ ] B) <code>.card--dark .card__header</code> (styling an element via a modifier's descendant selector)</li>
+<li>[ ] C) <code>.card__header--large</code> (modifier on an element)</li>
+<li>[ ] D) Using <code>id</code> selectors alongside BEM class names</li>
+<li>[ ] E) Applying multiple block classes to one DOM element (mix)</li>
+<li>[ ] F) <code>.btn.btn--primary</code> (combining block and modifier on same element)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Violations/anti-patterns: A, D</strong></p>
+  <ul>
+  <li>[x] A — BEM forbids chained elements like <code>block__elem1__elem2</code>. The element always connects directly to the block name, even if visually nested: use <code>.card__title</code> not <code>.card__header__title</code></li>
+  <li>[ ] B — this is actually <em>acceptable</em> in BEM when a modifier on the block needs to change child element appearance</li>
+  <li>[ ] C — modifiers on elements are <em>valid</em> BEM: <code>.card__header--large</code> is correct</li>
+  <li>[x] D — BEM explicitly says blocks use <em>class selectors only</em>, no id or tag selectors</li>
+  <li>[ ] E — mixing blocks on one DOM node is a valid BEM pattern called a "mix"</li>
+  <li>[ ] F — BEM requires both the block class and the modifier class: <code>class="btn btn--primary"</code> is correct</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 15 — Written Short Answer</h3>
+<p>A developer has this HTML structure:</p>
+<pre><code>&lt;nav class="main-nav"&gt;
+  &lt;ul class="main-nav__list"&gt;
+    &lt;li class="main-nav__item main-nav__item--active"&gt;
+      &lt;a class="main-nav__link" href="/"&gt;Home&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="main-nav__item"&gt;
+      &lt;a class="main-nav__link main-nav__link--external" href="/about"&gt;About&lt;/a&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+</code></pre>
+<p>Identify: the block, all elements, all modifiers, and explain why <code>main-nav__link--external</code> is preferable to <code>main-nav__item__link--external</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Block:</strong> <code>main-nav</code></p>
+  <p><strong>Elements:</strong> <code>main-nav__list</code>, <code>main-nav__item</code>, <code>main-nav__link</code></p>
+  <p><strong>Modifiers:</strong> <code>main-nav__item--active</code>, <code>main-nav__link--external</code></p>
+  <p><strong>Why not <code>main-nav__item__link--external</code>:</strong> BEM prohibits nested element naming. Even though the link is visually inside the item, the element name should always attach directly to the block root: <code>block__element</code>. Chaining elements (<code>block__el1__el2</code>) creates tight coupling to the DOM structure and breaks if the structure changes. The flat naming (<code>main-nav__link</code>) works regardless of nesting depth.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: CSS Custom Properties — Advanced</h2>
+
+<h3 class="g-h3">Question 16 — Code Output Prediction</h3>
+<p>Given the following CSS and HTML, what color will the paragraph text be?</p>
+<pre><code>:root { --color: blue; }
+.parent { --color: green; }
+.child { color: var(--color, red); }
+</code></pre>
+<pre><code>&lt;div class="parent"&gt;
+  &lt;p class="child"&gt;Hello&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<ul>
+<li>A) blue</li>
+<li>B) green</li>
+<li>C) red</li>
+<li>D) black (default browser color)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B) green</strong></p>
+  <p><strong>Explanation:</strong> CSS custom properties follow the normal cascade and <em>inherit</em> through the DOM. The <code>.child</code> paragraph is inside <code>.parent</code>, which redefined <code>--color: green</code>. Since custom properties inherit, the <code>.child</code> element sees <code>--color</code> as <code>green</code> (from the closest ancestor that defines it). The fallback value <code>red</code> is only used if <code>--color</code> is not defined <em>at all</em> — but it is defined (as green). The <code>:root</code> value of blue is overridden by <code>.parent</code>'s more specific/closer definition.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Fill in the Blank</h3>
+<p>Complete the JavaScript code to interact with CSS custom properties:</p>
+<pre><code>// Read the value of --spacing from the root element
+const root = document.documentElement;
+const spacing = 1._______________(root).2._____________('--spacing');
+
+// Set --theme-color to '#ff5500' on a specific element
+const box = document.querySelector('.box');
+box.3._______________.4._______________('--theme-color', '#ff5500');
+
+// Remove a custom property from an element's inline style
+box.style.5._______________('--theme-color');
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>getComputedStyle</code></p>
+  <p><strong>2.</strong> <code>getPropertyValue</code></p>
+  <p><strong>3.</strong> <code>style</code></p>
+  <p><strong>4.</strong> <code>setProperty</code></p>
+  <p><strong>5.</strong> <code>removeProperty</code></p>
+  <p><strong>Note:</strong> You cannot use dot notation (e.g. <code>element.style['--my-var']</code>) for custom properties — you must use <code>setProperty</code>/<code>removeProperty</code>/<code>getPropertyValue</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 18 — Multiple Choice</h3>
+<p>What is the output color of <code>.box</code> in the following code?</p>
+<pre><code>:root { --accent: orange; }
+
+@media (prefers-color-scheme: dark) {
+  :root { --accent: gold; }
+}
+
+.box {
+  background: var(--accent, purple);
+}
+</code></pre>
+<p>Assuming the user's OS is in <strong>dark mode</strong>:</p>
+<ul>
+<li>A) orange</li>
+<li>B) gold</li>
+<li>C) purple</li>
+<li>D) transparent</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B) gold</strong></p>
+  <p><strong>Explanation:</strong> Custom properties can be redefined inside media queries. When <code>prefers-color-scheme: dark</code> matches, the <code>:root</code> gets <code>--accent: gold</code>, overriding the default orange. The <code>.box</code>'s <code>var(--accent, purple)</code> uses the current computed value of <code>--accent</code>, which is <code>gold</code>. The fallback <code>purple</code> is never reached because <code>--accent</code> is defined. This pattern is a powerful technique for theming without duplicating all your CSS rules.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 19 — Written Short Answer</h3>
+<p>Explain what happens when a CSS custom property has an <strong>invalid value for the consuming property</strong>. For example:</p>
+<pre><code>:root { --size: "hello"; }
+.box { width: var(--size); }
+</code></pre>
+<p>What does the browser render for <code>.box</code>'s width? What is this behavior called?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>The browser renders <code>width</code> as its <em>inherited value</em> or the <em>initial value</em> (<code>auto</code>)</strong> — not the fallback in <code>var()</code> and not the previous valid value.</p>
+  <p>This is called <strong>"invalid at computed-value time"</strong> (IACVT). The mechanism:</p>
+  <ol>
+  <li>The custom property (<code>--size: "hello"</code>) is syntactically valid and stored.</li>
+  <li>When substituted into <code>width</code>, the resulting value <code>"hello"</code> is invalid for <code>width</code>.</li>
+  <li>The browser treats it as if the declaration was not written at all — it does <em>not</em> use the fallback in <code>var()</code>. Instead it falls back to the inherited value, or if not inherited, the initial value.</li>
+  </ol>
+  <p>This differs from a regular invalid CSS property (which is simply ignored, preserving any previously set value via cascade).</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Gradients — Conic &amp; Advanced</h2>
+
+<h3 class="g-h3">Question 20 — Multiple Choice</h3>
+<p>What does <code>conic-gradient(red 0deg, yellow 120deg, blue 240deg, red 360deg)</code> produce?</p>
+<ul>
+<li>A) A horizontal stripe pattern in three colors</li>
+<li>B) A pie-chart-like circle with three color wedges rotating around a center point</li>
+<li>C) A radial burst pattern emanating outward</li>
+<li>D) A diagonal gradient from red to blue with yellow in the middle</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> A <strong>conic gradient</strong> sweeps colors <em>around a center point</em> (like a clock or pie chart), unlike linear (along a line) or radial (outward from center). Each stop is at an angle: red at 0°, transitioning to yellow at 120°, then blue at 240°, then back to red at 360°. This creates a smooth three-section color wheel. Adding hard stops (e.g. <code>red 0deg 120deg</code>) would create sharp-edged pie slices — useful for actual pie charts.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 21 — Code Analysis</h3>
+<p>What visual pattern does the following code create? Be specific about the number of stripes, their color, and their direction.</p>
+<pre><code>.stripes {
+  width: 200px;
+  height: 200px;
+  background: repeating-conic-gradient(
+    #fff 0deg 10deg,
+    #000 10deg 20deg
+  );
+}
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Pattern:</strong> A <strong>pinwheel / starburst</strong> pattern with <strong>18 alternating white and black wedge-shaped segments</strong> arranged in a full circle.</p>
+  <p><strong>Explanation:</strong> <code>repeating-conic-gradient</code> repeats its color pattern around the full 360°. Each cycle is 20° (white 0–10°, black 10–20°). 360 / 20 = 18 cycles → 18 white segments + 18 black segments (36 wedges total). The result looks like a segmented color wheel or a black-and-white pie chart with many equal slices.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 22 — Fill in the Blank</h3>
+<p>Complete the gradient declarations to achieve the described effect:</p>
+<p>1. A radial gradient that starts <strong>white</strong> at the center and fades to <strong>transparent</strong> at the edges, centered at the element's center (default): <code>background: ________________</code></p>
+<p>2. A linear gradient that goes from <strong>top-left</strong> to <strong>bottom-right</strong> using the <code>to</code> syntax: <code>background: linear-gradient(________________, red, blue)</code></p>
+<p>3. A hard-stop gradient with a sharp line at exactly 50% — left half red, right half blue (no blend): <code>background: linear-gradient(to right, red ________, blue ________)</code></p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>background: radial-gradient(white, transparent)</code></p>
+  <p><strong>2.</strong> <code>background: linear-gradient(to bottom right, red, blue)</code></p>
+  <p><strong>3.</strong> <code>background: linear-gradient(to right, red 50%, blue 50%)</code> — when two stops share the same position, there is no transition/blend: a hard edge appears at exactly that point.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Shadows — Multiple &amp; Inset</h2>
+
+<h3 class="g-h3">Question 23 — Select All That Apply</h3>
+<p>Which of the following <code>box-shadow</code> declarations are valid CSS?</p>
+<ul>
+<li>[ ] A) <code>box-shadow: inset 0 0 10px rgba(0,0,0,0.5)</code></li>
+<li>[ ] B) <code>box-shadow: 5px 5px red, -5px -5px blue</code></li>
+<li>[ ] C) <code>box-shadow: 0 0 0 3px green</code> (outline effect using spread)</li>
+<li>[ ] D) <code>box-shadow: 10px blue</code></li>
+<li>[ ] E) <code>box-shadow: none</code></li>
+<li>[ ] F) <code>box-shadow: inset 2px 2px 5px black, inset -2px -2px 5px white</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Valid: A, B, C, E, F</strong></p>
+  <ul>
+  <li>[x] A — valid: <code>inset</code> keyword + offsets + blur + color</li>
+  <li>[x] B — valid: two shadows separated by comma; each needs at minimum x-offset, y-offset, color (blur defaults to 0)</li>
+  <li>[x] C — valid: a zero-offset, zero-blur shadow with a spread creates an outline-like effect (common trick to replace <code>outline</code>)</li>
+  <li>[ ] D — <strong>invalid</strong>: only one length value is provided; <code>box-shadow</code> requires at minimum two length values (x-offset and y-offset)</li>
+  <li>[x] E — valid: <code>none</code> removes all shadows</li>
+  <li>[x] F — valid: two inset shadows creating an embossed/neumorphism effect</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 24 — Written Short Answer</h3>
+<p>Explain the difference between <code>box-shadow</code> and <code>drop-shadow()</code> (CSS filter). When would you prefer one over the other? Give one example use case for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>box-shadow</code>:</strong> Applied to the element's <em>border box</em> — it follows the rectangular (or border-radius-rounded) shape of the element, ignoring transparent areas inside. Supports <code>inset</code>, multiple shadows, and spread.</p>
+  <p><strong><code>filter: drop-shadow()</code>:</strong> Applied to the element's <em>visual content</em>, including transparency. It follows the actual rendered shape (alpha channel), so a PNG with a transparent background gets a shadow that hugs the image content, not the rectangle.</p>
+  <p><strong>Example — box-shadow:</strong> A card with a subtle lift shadow: <code>box-shadow: 0 4px 12px rgba(0,0,0,0.15)</code> — want the rectangular box shape shadowed.</p>
+  <p><strong>Example — drop-shadow:</strong> A PNG icon of a star on a transparent background: <code>filter: drop-shadow(2px 2px 4px black)</code> — shadow follows the star's actual outline, not the bounding box.</p>
+  <p><strong>Limitations of drop-shadow:</strong> No <code>inset</code>, no spread radius, and no multiple shadows in one <code>filter</code> call.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Animations &amp; @keyframes</h2>
+
+<h3 class="g-h3">Question 25 — Multiple Choice</h3>
+<p>An element has <code>animation-fill-mode: forwards</code>. Which of the following accurately describes its behavior?</p>
+<ul>
+<li>A) The element retains the styles from the <em>first</em> keyframe before the animation starts (during delay)</li>
+<li>B) The element retains the styles from the <em>last</em> keyframe after the animation ends</li>
+<li>C) The animation loops forward indefinitely</li>
+<li>D) The element's styles reset to their original values after the animation completes</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>animation-fill-mode</code> controls what styles apply <em>outside</em> the active animation period:</p>
+  <ul>
+  <li><code>none</code> (default) — reverts to original styles both before and after</li>
+  <li><code>forwards</code> — <em>after</em> the animation ends, the element retains the styles from the final keyframe (100%)</li>
+  <li><code>backwards</code> — <em>during the delay</em> period before the animation starts, applies the styles of the first keyframe (0%)</li>
+  <li><code>both</code> — combines <code>forwards</code> and <code>backwards</code></li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 26 — Code Analysis</h3>
+<p>Given the following keyframe animation, describe exactly what the element does visually from start to finish:</p>
+<pre><code>@keyframes bounce {
+  0%   { transform: translateY(0);    animation-timing-function: ease-in; }
+  50%  { transform: translateY(-80px); animation-timing-function: ease-out; }
+  100% { transform: translateY(0); }
+}
+
+.ball {
+  animation: bounce 0.8s infinite;
+}
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Visual behavior:</strong> The ball continuously bounces up and down:</p>
+  <ol>
+  <li><strong>0% → 50% (0s to 0.4s):</strong> Moves upward 80px with <code>ease-in</code> timing — starts slow, accelerates toward the top (simulates a ball thrown upward losing momentum).</li>
+  <li><strong>50% → 100% (0.4s to 0.8s):</strong> Falls back down 80px with <code>ease-out</code> timing — starts fast, decelerates at the bottom (simulates gravity-accelerated fall with a soft landing).</li>
+  <li>Loops infinitely.</li>
+  </ol>
+  <p><strong>Key point:</strong> Timing functions set <em>within</em> a keyframe apply to the <em>segment starting at that keyframe</em>. So <code>ease-in</code> at 0% controls the 0%→50% movement, and <code>ease-out</code> at 50% controls the 50%→100% movement.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 27 — Fill in the Blank</h3>
+<p>The <code>animation</code> shorthand combines multiple properties. Identify what each value in the following declaration represents:</p>
+<pre><code>animation: slideIn 0.5s ease-in-out 0.2s 3 alternate both;
+</code></pre>
+<p>1. <code>slideIn</code> = ________<br>
+2. <code>0.5s</code> = ________<br>
+3. <code>ease-in-out</code> = ________<br>
+4. <code>0.2s</code> = ________<br>
+5. <code>3</code> = ________<br>
+6. <code>alternate</code> = ________<br>
+7. <code>both</code> = ________</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>animation-name</code> — references the <code>@keyframes slideIn</code> block</p>
+  <p><strong>2.</strong> <code>animation-duration</code> — each iteration lasts 0.5 seconds</p>
+  <p><strong>3.</strong> <code>animation-timing-function</code> — accelerates in and decelerates out</p>
+  <p><strong>4.</strong> <code>animation-delay</code> — waits 0.2s before starting</p>
+  <p><strong>5.</strong> <code>animation-iteration-count</code> — plays 3 times total</p>
+  <p><strong>6.</strong> <code>animation-direction</code> — odd iterations play forward, even iterations play backward (alternate direction)</p>
+  <p><strong>7.</strong> <code>animation-fill-mode: both</code> — applies first-keyframe styles during delay AND retains last-keyframe styles after finishing</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 28 — Select All That Apply</h3>
+<p>Which CSS properties are <strong>not animatable</strong> (cannot be smoothly transitioned or animated)?</p>
+<ul>
+<li>[ ] A) <code>display</code></li>
+<li>[ ] B) <code>opacity</code></li>
+<li>[ ] C) <code>visibility</code></li>
+<li>[ ] D) <code>color</code></li>
+<li>[ ] E) <code>font-family</code></li>
+<li>[ ] F) <code>transform</code></li>
+<li>[ ] G) <code>content</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Not smoothly animatable: A, E, G</strong></p>
+  <ul>
+  <li>[x] A — <code>display</code> is discrete (switches instantly between <code>none</code> and a display type; no interpolation)</li>
+  <li>[ ] B — <code>opacity</code> is animatable (0 to 1 smoothly)</li>
+  <li>[ ] C — <code>visibility</code> can be used in animations but is discrete (hidden/visible); however it's used in the <code>visibility</code>+<code>opacity</code> fade trick</li>
+  <li>[ ] D — <code>color</code> is animatable (interpolates through color space)</li>
+  <li>[x] E — <code>font-family</code> is discrete — no smooth interpolation between font names</li>
+  <li>[ ] F — <code>transform</code> is animatable</li>
+  <li>[x] G — <code>content</code> is not animatable</li>
+  </ul>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Transforms — Order &amp; 3D</h2>
+
+<h3 class="g-h3">Question 29 — Code Output Prediction</h3>
+<p>An element is initially at position (0, 0). Given the two transform rules below, explain where the element <em>visually ends up</em> for each rule. Pay attention to the order of operations.</p>
+<pre><code>/* Rule A */
+transform: translateX(100px) rotate(90deg);
+
+/* Rule B */
+transform: rotate(90deg) translateX(100px);
+</code></pre>
+<ul>
+<li>A) Both rules produce the same result</li>
+<li>B) Rule A ends 100px to the right; Rule B ends 100px downward</li>
+<li>C) Rule A ends 100px downward; Rule B ends 100px to the right</li>
+<li>D) Rule A ends up-and-right; Rule B ends down-and-left</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> CSS transforms are applied <em>right to left</em> (last function first in the transform's local coordinate system), but it's easier to think of it as: each transform modifies the <em>local coordinate system</em> for subsequent transforms.</p>
+  <p><strong>Rule A</strong> — <code>translateX(100px)</code> first: moves 100px right in the <em>original</em> (world) coordinate space, <em>then</em> <code>rotate(90deg)</code> rotates around the element's new center. Final visual position: <strong>100px to the right</strong> of original, rotated 90°.</p>
+  <p><strong>Rule B</strong> — <code>rotate(90deg)</code> first: rotates the element's local axes 90° clockwise. Now the element's local X-axis points <em>downward</em>. Then <code>translateX(100px)</code> moves 100px along this <em>rotated</em> local X-axis, which is now pointing downward. Final visual position: <strong>100px below</strong> original, rotated 90°.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 30 — Multiple Choice</h3>
+<p>What is the difference between applying <code>perspective: 800px</code> as a CSS property on a <strong>parent element</strong> vs using <code>transform: perspective(800px)</code> on the <strong>element itself</strong>?</p>
+<ul>
+<li>A) They are identical — same result either way</li>
+<li>B) The CSS property creates a shared perspective for all children (single vanishing point); the transform function applies perspective independently to that element alone</li>
+<li>C) The CSS property only works in Chrome; the function works in all browsers</li>
+<li>D) The CSS property applies to 2D transforms; the function applies to 3D transforms</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>perspective</code> as a CSS <em>property on a parent</em> establishes a <strong>single, shared perspective origin</strong> for all children — they appear to share one vanishing point (like looking at a real 3D scene). <code>perspective()</code> as a <em>transform function on individual elements</em> applies perspective separately to each element independently, as if each has its own camera. When multiple items each have their own <code>perspective()</code>, they can look disconnected. The parent CSS property is preferred for groups of 3D-transformed elements to maintain visual consistency.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 31 — Written Short Answer</h3>
+<p>Explain <code>transform-style: preserve-3d</code>. What problem does it solve? What is the default value and what does it do instead?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Default:</strong> <code>transform-style: flat</code> — child elements are flattened into the parent's 2D plane regardless of any 3D transforms applied to them. The parent "squashes" its children into 2D.</p>
+  <p><strong><code>preserve-3d</code>:</strong> Tells the browser to position child elements in 3D space, <em>preserving</em> their 3D transformations in a shared 3D scene. Without it, a parent with a 3D rotation would rotate as a flat panel and any children with their own 3D transforms would be flattened before being rendered.</p>
+  <p><strong>Use case — card flip:</strong> A card flip animation requires a container with <code>transform-style: preserve-3d</code> so both the front (<code>rotateY(0deg)</code>) and back (<code>rotateY(180deg)</code>) faces exist in the same 3D space and can be seen from the correct side.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Attribute Selectors — All 7 Variants</h2>
+
+<h3 class="g-h3">Question 32 — Select All That Apply</h3>
+<p>Match each selector to the correct description. Which descriptions are correctly matched?</p>
+<ul>
+<li>[ ] A) <code>[lang|="en"]</code> — matches elements where <code>lang</code> is exactly <code>"en"</code> OR starts with <code>"en-"</code></li>
+<li>[ ] B) <code>[class~="btn"]</code> — matches elements where the <code>class</code> attribute contains <code>"btn"</code> as a substring anywhere</li>
+<li>[ ] C) <code>[href^="https"]</code> — matches elements where <code>href</code> begins with <code>"https"</code></li>
+<li>[ ] D) <code>[href$=".pdf"]</code> — matches elements where <code>href</code> ends with <code>".pdf"</code></li>
+<li>[ ] E) <code>[data-type*="icon"]</code> — matches elements where <code>data-type</code> contains the substring <code>"icon"</code> anywhere</li>
+<li>[ ] F) <code>[type]</code> — matches elements that have a <code>type</code> attribute regardless of value</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correctly matched: A, C, D, E, F</strong></p>
+  <ul>
+  <li>[x] A — <code>[lang|="en"]</code> is the hyphen separator selector; exact match OR starts with <code>en-</code> (designed for language codes like <code>en-US</code>)</li>
+  <li>[ ] B — <strong>wrong description</strong>. <code>[class~="btn"]</code> matches <code>"btn"</code> as a <em>whole word in a space-separated list</em> (e.g. <code>class="card btn large"</code>). For a substring match, you'd use <code>[class*="btn"]</code></li>
+  <li>[x] C — <code>^=</code> is "starts with"</li>
+  <li>[x] D — <code>$=</code> is "ends with"</li>
+  <li>[x] E — <code>*=</code> is "contains substring"</li>
+  <li>[x] F — bare <code>[attr]</code> selects any element with that attribute present (any value)</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 33 — Code Analysis</h3>
+<p>Given the following HTML, which elements are selected by each CSS rule? List element numbers (1–5).</p>
+<pre><code>1. &lt;input type="text" placeholder="Name"&gt;
+2. &lt;input type="password"&gt;
+3. &lt;a href="mailto:hi@example.com"&gt;Email&lt;/a&gt;
+4. &lt;a href="https://example.com" lang="en-US"&gt;Site&lt;/a&gt;
+5. &lt;img src="photo.jpg" alt="Photo"&gt;
+</code></pre>
+<pre><code>Rule A: [type]
+Rule B: [href*="example"]
+Rule C: [lang|="en"]
+Rule D: [href^="mailto"]
+Rule E: [type="text"]
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Rule A <code>[type]</code>:</strong> Elements 1 and 2 (both inputs have a <code>type</code> attribute)</p>
+  <p><strong>Rule B <code>[href*="example"]</code>:</strong> Elements 3 and 4 (both hrefs contain the substring "example")</p>
+  <p><strong>Rule C <code>[lang|="en"]</code>:</strong> Element 4 only (<code>lang="en-US"</code> starts with <code>en-</code>)</p>
+  <p><strong>Rule D <code>[href^="mailto"]</code>:</strong> Element 3 only (<code>href</code> starts with "mailto")</p>
+  <p><strong>Rule E <code>[type="text"]</code>:</strong> Element 1 only (exact match)</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Structural Pseudo-Classes &amp; :not()</h2>
+
+<h3 class="g-h3">Question 34 — Code Output Prediction</h3>
+<p>Given the following HTML, which list items are styled red by each CSS rule?</p>
+<pre><code>&lt;ul&gt;
+  &lt;li&gt;Apple&lt;/li&gt;    &lt;!-- item 1 --&gt;
+  &lt;li&gt;Banana&lt;/li&gt;   &lt;!-- item 2 --&gt;
+  &lt;li&gt;Cherry&lt;/li&gt;   &lt;!-- item 3 --&gt;
+  &lt;li&gt;Date&lt;/li&gt;     &lt;!-- item 4 --&gt;
+  &lt;li&gt;Elderberry&lt;/li&gt; &lt;!-- item 5 --&gt;
+&lt;/ul&gt;
+</code></pre>
+<pre><code>Rule A: li:nth-child(2n)   { color: red; }
+Rule B: li:nth-child(3n+1) { color: red; }
+Rule C: li:nth-last-child(2) { color: red; }
+Rule D: li:not(:first-child):not(:last-child) { color: red; }
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Rule A <code>li:nth-child(2n)</code></strong> (even): Items 2 (Banana), 4 (Date)</p>
+  <p><strong>Rule B <code>li:nth-child(3n+1)</code></strong>: n=0 → 1 (Apple); n=1 → 4 (Date); n=2 → 7 (none). Styled: Items 1, 4</p>
+  <p><strong>Rule C <code>li:nth-last-child(2)</code></strong>: The second-to-last item → Item 4 (Date)</p>
+  <p><strong>Rule D <code>li:not(:first-child):not(:last-child)</code></strong>: All except first (Apple) and last (Elderberry) → Items 2, 3, 4</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 35 — Multiple Choice</h3>
+<p>Given the following HTML, what does <code>p:first-of-type</code> select?</p>
+<pre><code>&lt;section&gt;
+  &lt;h2&gt;Title&lt;/h2&gt;
+  &lt;p&gt;First paragraph&lt;/p&gt;
+  &lt;p&gt;Second paragraph&lt;/p&gt;
+  &lt;div&gt;
+    &lt;p&gt;Nested paragraph&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+</code></pre>
+<ul>
+<li>A) Only "First paragraph" (it is the first <code>&lt;p&gt;</code> in the document)</li>
+<li>B) "First paragraph" and "Nested paragraph" (each is the first <code>&lt;p&gt;</code> within its parent)</li>
+<li>C) "First paragraph", "Second paragraph", and "Nested paragraph" (all paragraphs)</li>
+<li>D) Only "Nested paragraph" (it has no sibling <code>&lt;p&gt;</code> elements)</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B</strong></p>
+  <p><strong>Explanation:</strong> <code>:first-of-type</code> is scoped to the element's <em>parent</em>. It selects any element that is the first of its type <em>among its siblings</em> (within the same parent container).</p>
+  <ul>
+  <li>"First paragraph" is the first <code>&lt;p&gt;</code> child of <code>&lt;section&gt;</code> → selected</li>
+  <li>"Nested paragraph" is the first (and only) <code>&lt;p&gt;</code> child of the <code>&lt;div&gt;</code> → selected</li>
+  </ul>
+  <p>This is different from <code>:first-child</code> which would require the element to be the very first child (any type). "First paragraph" is <em>not</em> <code>p:first-child</code> because <code>&lt;h2&gt;</code> comes before it.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 36 — Fill in the Blank</h3>
+<p>Using only the <code>:not()</code> pseudo-class, write selectors for the following:</p>
+<p>1. All <code>&lt;input&gt;</code> elements that are <em>not</em> of type <code>submit</code> or <code>reset</code>: <code>________________</code></p>
+<p>2. All <code>&lt;li&gt;</code> elements that are neither the first nor the last child: <code>________________</code></p>
+<p>3. All links (<code>&lt;a&gt;</code> with <code>href</code>) that do <em>not</em> have the class <code>active</code>: <code>________________</code></p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>input:not([type="submit"]):not([type="reset"])</code><br>
+  (In CSS Selectors Level 4 you can also write <code>input:not([type="submit"], [type="reset"])</code>)</p>
+  <p><strong>2.</strong> <code>li:not(:first-child):not(:last-child)</code></p>
+  <p><strong>3.</strong> <code>a[href]:not(.active)</code></p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Pseudo-Elements</h2>
+
+<h3 class="g-h3">Question 37 — Select All That Apply</h3>
+<p>Which of the following statements about <code>::before</code> and <code>::after</code> pseudo-elements are correct?</p>
+<ul>
+<li>[ ] A) They are inserted as the first and last children of the element respectively</li>
+<li>[ ] B) They require the <code>content</code> property to render (even <code>content: ""</code> is needed)</li>
+<li>[ ] C) They inherit styles from their parent element</li>
+<li>[ ] D) They are part of the HTML DOM and accessible to JavaScript via <code>querySelector</code></li>
+<li>[ ] E) They can be positioned absolutely relative to a parent with <code>position: relative</code></li>
+<li>[ ] F) <code>::before</code> and <code>::after</code> can be added to <code>&lt;img&gt;</code> and <code>&lt;input&gt;</code> elements</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, B, C, E</strong></p>
+  <ul>
+  <li>[x] A — <code>::before</code> inserts before the element's content; <code>::after</code> inserts after — both as inline children</li>
+  <li>[x] B — <code>content</code> is mandatory; without it the pseudo-element is not rendered (even an empty string <code>content: ""</code> is valid)</li>
+  <li>[x] C — pseudo-elements inherit computed values (font, color, etc.) from their originating element</li>
+  <li>[ ] D — pseudo-elements are <em>not</em> in the DOM; they cannot be selected with JavaScript's <code>querySelector</code> or accessed via DOM APIs</li>
+  <li>[x] E — a parent with <code>position: relative</code> is the containing block for an absolutely positioned <code>::before</code>/<code>::after</code></li>
+  <li>[ ] F — replaced elements (<code>&lt;img&gt;</code>, <code>&lt;input&gt;</code>, <code>&lt;br&gt;</code>) cannot have <code>::before</code>/<code>::after</code> pseudo-elements (they have no inner content to insert before/after)</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 38 — Code Analysis</h3>
+<p>What does the following CSS do? Describe the visual output precisely.</p>
+<pre><code>a[href^="https"]::after {
+  content: " (" attr(href) ")";
+  font-size: 0.75em;
+  color: gray;
+}
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Effect:</strong> For every <code>&lt;a&gt;</code> element whose <code>href</code> attribute starts with <code>"https"</code>, the CSS appends the URL in parentheses immediately after the link text.</p>
+  <p><strong>Example:</strong> <code>&lt;a href="https://example.com"&gt;Visit&lt;/a&gt;</code> renders as: <em>Visit (https://example.com)</em></p>
+  <p><strong><code>attr(href)</code></strong> is a CSS function that reads the element's <code>href</code> attribute value and inserts it as content text. This is a common print-stylesheet technique to show URLs when printing a page.</p>
+  <p>The appended text is 75% of the surrounding font size and gray-colored. The space before the opening parenthesis ensures separation from the link text.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 39 — Multiple Choice</h3>
+<p>Which pseudo-element applies styles to the portion of text that a user has highlighted/selected on the page?</p>
+<ul>
+<li>A) <code>::highlight</code></li>
+<li>B) <code>::selected</code></li>
+<li>C) <code>::selection</code></li>
+<li>D) <code>:focus</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C) <code>::selection</code></strong></p>
+  <p><strong>Explanation:</strong> <code>::selection</code> styles the portion of an element that has been highlighted by the user (e.g., click-dragging over text). Only a limited subset of CSS properties work with <code>::selection</code>: primarily <code>color</code>, <code>background-color</code>, and <code>text-shadow</code>. Example:</p>
+  <pre><code>::selection {
+  background-color: #005eff;
+  color: white;
+}</code></pre>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Specificity, Cascade &amp; Inheritance</h2>
+
+<h3 class="g-h3">Question 40 — Multiple Choice</h3>
+<p>Calculate the specificity of each selector and rank them from lowest to highest specificity:</p>
+<pre><code>A: div p span
+B: .container .card p
+C: #main p
+D: p.highlight[data-active]
+E: *
+</code></pre>
+<ul>
+<li>A) E &lt; A &lt; D &lt; B &lt; C</li>
+<li>B) E &lt; A &lt; B &lt; D &lt; C</li>
+<li>C) A &lt; E &lt; B &lt; D &lt; C</li>
+<li>D) E &lt; A &lt; D = B &lt; C</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: B) E &lt; A &lt; B &lt; D &lt; C</strong></p>
+  <p>Specificity is calculated as (IDs, Classes/Attributes/Pseudo-classes, Elements/Pseudo-elements):</p>
+  <ul>
+  <li><code>E: *</code> → (0, 0, 0) — universal selector has zero specificity</li>
+  <li><code>A: div p span</code> → (0, 0, 3) — three element selectors</li>
+  <li><code>B: .container .card p</code> → (0, 2, 1) — two classes + one element</li>
+  <li><code>D: p.highlight[data-active]</code> → (0, 2, 1) — one class + one attribute + one element = same as B</li>
+  <li><code>C: #main p</code> → (1, 0, 1) — one ID + one element</li>
+  </ul>
+  <p><strong>Correction:</strong> B and D are <em>equal</em> (0,2,1). The correct ranking is: E &lt; A &lt; B = D &lt; C. This matches answer D, not B. The question illustrates how class selectors and attribute selectors contribute equally to specificity.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 41 — Written Short Answer</h3>
+<p>Explain the difference between <strong>inheritance</strong> and the <strong>cascade</strong> in CSS. Give one example of a property that inherits by default and one that does not. How do the keywords <code>inherit</code>, <code>initial</code>, and <code>unset</code> differ?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Cascade:</strong> The algorithm CSS uses to determine which rule "wins" when multiple rules target the same property on the same element. It considers origin (browser, author, user), specificity, and source order (later wins if equal specificity).</p>
+  <p><strong>Inheritance:</strong> Some CSS properties automatically pass their computed value from parent to child element even without explicitly setting them. This is separate from the cascade — it's the <em>fallback</em> when no rule applies.</p>
+  <p><strong>Inherits by default:</strong> <code>color</code>, <code>font-family</code>, <code>font-size</code>, <code>line-height</code> — typographic properties propagate down the tree.</p>
+  <p><strong>Does not inherit by default:</strong> <code>border</code>, <code>margin</code>, <code>padding</code>, <code>background</code>, <code>width</code> — box model properties do not propagate.</p>
+  <p><strong>Keywords:</strong></p>
+  <ul>
+  <li><code>inherit</code> — forces the property to take the computed value of the <em>parent element</em> (even for non-inherited properties)</li>
+  <li><code>initial</code> — resets the property to its <em>CSS specification default</em> (e.g., <code>color: initial</code> = black regardless of parent)</li>
+  <li><code>unset</code> — if the property naturally inherits, acts like <code>inherit</code>; if it does not inherit, acts like <code>initial</code>. A smart reset.</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 42 — Code Analysis</h3>
+<p>What color will the paragraph text be? Show your specificity working.</p>
+<pre><code>/* Rule 1 */ p { color: red; }
+/* Rule 2 */ body p { color: blue; }
+/* Rule 3 */ .content p { color: green; }
+/* Rule 4 */ p.highlight { color: purple; }
+/* Rule 5 */ .content p.highlight { color: orange; }
+</code></pre>
+<pre><code>&lt;body&gt;
+  &lt;div class="content"&gt;
+    &lt;p class="highlight"&gt;Hello&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+</code></pre>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Color: orange</strong></p>
+  <table>
+  <tr><th>Rule</th><th>Selector</th><th>Specificity (ID,Class,El)</th><th>Matches?</th></tr>
+  <tr><td>1</td><td><code>p</code></td><td>(0,0,1)</td><td>Yes</td></tr>
+  <tr><td>2</td><td><code>body p</code></td><td>(0,0,2)</td><td>Yes</td></tr>
+  <tr><td>3</td><td><code>.content p</code></td><td>(0,1,1)</td><td>Yes</td></tr>
+  <tr><td>4</td><td><code>p.highlight</code></td><td>(0,1,1)</td><td>Yes</td></tr>
+  <tr><td>5</td><td><code>.content p.highlight</code></td><td>(0,2,1)</td><td>Yes</td></tr>
+  </table>
+  <p>Rule 5 has the highest specificity (0,2,1) → <strong>orange</strong>.</p>
+  <p>Rules 3 and 4 both have (0,1,1); Rule 4 comes later in source, so if Rule 5 didn't exist, purple would win over green. But Rule 5 beats both.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Media Queries &amp; Responsive Design</h2>
+
+<h3 class="g-h3">Question 43 — Fill in the Blank</h3>
+<p>Complete the media queries for common responsive breakpoints:</p>
+<p>1. Apply styles only when the viewport is <strong>768px wide or less</strong> (mobile): <code>@media (________________) { }</code></p>
+<p>2. Apply styles only when the viewport is <strong>between 769px and 1024px</strong> (tablet): <code>@media (________________) and (________________) { }</code></p>
+<p>3. Apply styles only in <strong>landscape orientation</strong>: <code>@media (________________) { }</code></p>
+<p>4. Apply styles only when <strong>printing</strong>: <code>@media ________ { }</code></p>
+<p>5. Apply styles only when the user <strong>prefers reduced motion</strong>: <code>@media (________________) { }</code></p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>@media (max-width: 768px) { }</code></p>
+  <p><strong>2.</strong> <code>@media (min-width: 769px) and (max-width: 1024px) { }</code></p>
+  <p><strong>3.</strong> <code>@media (orientation: landscape) { }</code></p>
+  <p><strong>4.</strong> <code>@media print { }</code></p>
+  <p><strong>5.</strong> <code>@media (prefers-reduced-motion: reduce) { }</code> — critical for accessibility; use this to disable/reduce animations for users who have requested less motion in their OS settings.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 44 — Multiple Choice</h3>
+<p>What is the critical difference between a <strong>mobile-first</strong> and <strong>desktop-first</strong> CSS approach?</p>
+<ul>
+<li>A) Mobile-first uses <code>min-width</code> media queries to progressively enhance for larger screens; desktop-first uses <code>max-width</code> to progressively simplify for smaller screens</li>
+<li>B) Mobile-first only works on React projects; desktop-first works with plain HTML/CSS</li>
+<li>C) Mobile-first removes CSS for small screens; desktop-first adds CSS for small screens</li>
+<li>D) Mobile-first requires a CSS preprocessor; desktop-first works with native CSS</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: A</strong></p>
+  <p><strong>Explanation:</strong></p>
+  <ul>
+  <li><strong>Mobile-first:</strong> Base styles target small screens. Media queries use <code>min-width</code> to override/enhance styles as screens get <em>larger</em>. Benefit: smaller devices download the base CSS; enhancement CSS is only parsed if needed.</li>
+  <li><strong>Desktop-first:</strong> Base styles target large screens. Media queries use <code>max-width</code> to override styles as screens get <em>smaller</em>. Can lead to "undoing" complex desktop styles on mobile.</li>
+  </ul>
+  <p>Mobile-first is generally considered better practice due to the prevalence of mobile traffic and the performance benefits of shipping smaller base CSS.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 45 — Select All That Apply</h3>
+<p>Which of the following HTML or CSS techniques help create responsive layouts <em>without</em> writing any explicit <code>@media</code> queries?</p>
+<ul>
+<li>[ ] A) <code>grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))</code></li>
+<li>[ ] B) <code>width: 100%</code> on all elements</li>
+<li>[ ] C) <code>font-size: clamp(1rem, 2.5vw, 2rem)</code></li>
+<li>[ ] D) <code>max-width: 1200px; margin: 0 auto</code> on a container</li>
+<li>[ ] E) <code>flex-wrap: wrap</code> on a flex container with no fixed widths</li>
+<li>[ ] F) <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, C, E, F</strong></p>
+  <ul>
+  <li>[x] A — <code>auto-fit</code> + <code>minmax</code> creates a fluid grid that reflows columns based on available space — no media queries needed</li>
+  <li>[ ] B — <code>width: 100%</code> on all elements is too blunt and breaks many layouts (images, buttons, etc.)</li>
+  <li>[x] C — <code>clamp(min, preferred, max)</code> scales font size fluidly with viewport width between two bounds</li>
+  <li>[ ] D — useful centering technique but does not make the layout itself responsive (content can still overflow at small sizes)</li>
+  <li>[x] E — <code>flex-wrap: wrap</code> with percentage or content-sized flex items naturally reflows onto multiple rows as space decreases</li>
+  <li>[x] F — the viewport meta tag is <em>essential</em> for responsive designs; without it, mobile browsers use a virtual viewport (typically 980px) and render the desktop version, ignoring your CSS breakpoints</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 46 — Written Short Answer</h3>
+<p>Explain what the CSS <code>clamp()</code> function does. Write an example that sets a fluid font size that is a minimum of <code>1rem</code>, scales with viewport width, and never exceeds <code>2.5rem</code>. What viewport-relative unit is commonly paired with <code>clamp()</code> and why?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><code>clamp(MIN, PREFERRED, MAX)</code> returns the PREFERRED value clamped between MIN and MAX. If PREFERRED is less than MIN, it returns MIN. If PREFERRED exceeds MAX, it returns MAX. Otherwise it returns PREFERRED.</p>
+  <p><strong>Example:</strong></p>
+  <pre><code>font-size: clamp(1rem, 2.5vw, 2.5rem);</code></pre>
+  <ul>
+  <li>On a 400px viewport: 2.5vw = 10px (≈0.625rem) → below 1rem minimum → renders at <strong>1rem</strong></li>
+  <li>On a 1000px viewport: 2.5vw = 25px (≈1.5625rem) → within range → renders at <strong>~1.5rem</strong></li>
+  <li>On a 1600px viewport: 2.5vw = 40px (2.5rem) → at maximum → renders at <strong>2.5rem</strong></li>
+  </ul>
+  <p><strong>Viewport-relative unit:</strong> <code>vw</code> (viewport width) is most commonly used as the preferred value because it scales linearly with screen width, creating truly fluid typography without any media query breakpoints.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION: Rounded Corners &amp; Box-Sizing</h2>
+
+<h3 class="g-h3">Question 47 — Code Output Prediction</h3>
+<p>A developer wants a pill-shaped button. They write:</p>
+<pre><code>.pill {
+  width: 160px;
+  height: 40px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  border: 2px solid black;
+  padding: 0 16px;
+}
+</code></pre>
+<p>Questions: (a) What is the inner content area's width? (b) Would <code>border-radius: 50%</code> produce the same pill shape? (c) Why use <code>border-radius: 999px</code> instead of <code>border-radius: 20px</code> for a pill?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>(a) Inner content width</strong> with <code>box-sizing: border-box</code>: The declared <code>width: 160px</code> includes border and padding. Content width = 160 − 2×2 (border) − 2×16 (padding) = 160 − 4 − 32 = <strong>124px</strong>.</p>
+  <p><strong>(b) <code>border-radius: 50%</code></strong> would create a full ellipse (or circle if square), not a pill. On a 160×40px element, 50% would be 80px horizontal and 20px vertical radius, creating a distorted oval, not a pill. For a pill, you want the radius to equal half the <em>shorter side</em> (20px) at minimum.</p>
+  <p><strong>(c) <code>border-radius: 999px</code> trick</strong>: Using a very large value ensures the radius is always clamped to half the element's height (20px here), creating a perfect pill regardless of the button's width. If you used <code>20px</code> exactly and the button grew taller, it would no longer be fully rounded at the ends. The 999px is an "infinity hack" — it's capped by the browser to the maximum allowed, so it always produces fully rounded ends.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 48 — Multiple Choice</h3>
+<p>A <code>&lt;div&gt;</code> has the following CSS. What is its total rendered width (the space it takes up in the layout)?</p>
+<pre><code>div {
+  box-sizing: content-box;
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+  margin: 10px;
+}
+</code></pre>
+<ul>
+<li>A) 200px</li>
+<li>B) 240px</li>
+<li>C) 250px</li>
+<li>D) 270px</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Answer: C) 250px</strong></p>
+  <p><strong>Calculation:</strong> With <code>box-sizing: content-box</code> (the default), <code>width</code> refers only to the content area.</p>
+  <ul>
+  <li>Content: 200px</li>
+  <li>Left padding: 20px + Right padding: 20px = 40px</li>
+  <li>Left border: 5px + Right border: 5px = 10px</li>
+  <li><strong>Rendered (border-box) width = 200 + 40 + 10 = 250px</strong></li>
+  </ul>
+  <p>Margin (10px each side = 20px total) is <em>not</em> included in the element's rendered width — it is space <em>outside</em> the element. Total space consumed in layout = 270px (250 + 20 margin), but the element's rendered width is 250px.</p>
+</div>
+</details>

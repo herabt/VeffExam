@@ -1,0 +1,477 @@
+<h2 class="g-h2">Practice Exam 13 — CSS Animations &amp; Media Queries</h2>
+
+<h3 class="g-h3">Question 1 — Fill in the Blank (Animations)</h3>
+<p>CSS Animations can be declared by using the <code>____________</code> keyword in CSS. The keyframes are a <code>____________</code> for the animation. The <code>animation</code> property is then applied within a specific CSS <code>____________</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>CSS Animations can be declared by using the <code>@keyframes</code> keyword in CSS. The keyframes are a <strong>recipe</strong> for the animation. The <code>animation</code> property is then applied within a specific CSS <strong>selector</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — Code Analysis (@keyframes syntax)</h3>
+<p>Look at the two @keyframes blocks below. Both are named <code>text-color-changer</code>.</p>
+
+<p><strong>Block A:</strong></p>
+<div class="cb"><pre>@keyframes text-color-changer {
+    from { color: blue; }
+    to { color: red; }
+}</pre></div>
+
+<p><strong>Block B:</strong></p>
+<div class="cb"><pre>@keyframes text-color-changer {
+    0% { color: blue; }
+    50% { color: red; }
+    100% { color: yellow; }
+}</pre></div>
+
+<p>a) What are the two different syntaxes for defining keyframe steps shown above?</p>
+<p>b) Which block allows you to define an intermediate step at the halfway point of the animation?</p>
+<p>c) In Block A, what does <code>from</code> correspond to in percentage terms? What does <code>to</code> correspond to?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> The two syntaxes are:</p>
+  <ul>
+    <li><strong>from/to</strong> syntax (Block A)</li>
+    <li><strong>percentage</strong> syntax using 0%, 50%, 100% etc. (Block B)</li>
+  </ul>
+  <p><strong>b)</strong> <strong>Block B</strong> — the percentage syntax allows intermediate steps like 50%.</p>
+  <p><strong>c)</strong> <code>from</code> corresponds to <strong>0%</strong> and <code>to</code> corresponds to <strong>100%</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Code Analysis (Applying Keyframes)</h3>
+<p>Given the following CSS:</p>
+
+<div class="cb"><pre>@keyframes text-color-changer {
+    0% { color: blue; }
+    50% { color: red; }
+    100% { color: yellow; }
+}
+
+p {
+    animation: text-color-changer 5s ease-in infinite;
+}</pre></div>
+
+<p>a) What is the name of the keyframe being applied?</p>
+<p>b) How long does one full cycle of the animation take?</p>
+<p>c) What timing function is being used?</p>
+<p>d) How many times will the animation repeat?</p>
+<p>e) What color will the text be at the halfway point of each cycle?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> <code>text-color-changer</code></p>
+  <p><strong>b)</strong> <strong>5 seconds</strong> (5s)</p>
+  <p><strong>c)</strong> <strong>ease-in</strong></p>
+  <p><strong>d)</strong> <strong>Infinitely</strong> — it will repeat forever (infinite)</p>
+  <p><strong>e)</strong> <strong>Red</strong> — at 50% the color is red</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Fill in the Blank (Animation Shorthand)</h3>
+<p>The <code>animation</code> shorthand property follows this order:</p>
+
+<div class="cb"><pre>animation: [______] [______] [______] [______] [______] [______] [______] [______];</pre></div>
+
+<p>Fill in the eight values using the following example from the slides:</p>
+
+<div class="cb"><pre>.myElement {
+    animation: myAnimation 5s ease-in 2s 10 reverse backwards running;
+}</pre></div>
+
+<p>Identify what each value represents.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>The animation shorthand order is:</p>
+  <div class="cb"><pre>animation: [name] [duration] [timing-function] [delay] [iteration-count] [direction] [fill-mode] [play-state];</pre></div>
+  <p>From the example <code>animation: myAnimation 5s ease-in 2s 10 reverse backwards running;</code>:</p>
+  <ol>
+    <li><strong>myAnimation</strong> = Name of keyframe (animation-name)</li>
+    <li><strong>5s</strong> = Duration (animation-duration)</li>
+    <li><strong>ease-in</strong> = Timing function (animation-timing-function)</li>
+    <li><strong>2s</strong> = Delay (animation-delay)</li>
+    <li><strong>10</strong> = Iterations (animation-iteration-count)</li>
+    <li><strong>reverse</strong> = Direction (animation-direction)</li>
+    <li><strong>backwards</strong> = Fill mode (animation-fill-mode)</li>
+    <li><strong>running</strong> = Play state (animation-play-state)</li>
+  </ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Multiple Choice (Animation Properties)</h3>
+<p>Match each animation sub-property on the left with its valid values on the right. Each property has exactly ONE correct set of values.</p>
+
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Property</th>
+      <th>Values</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>animation-name</td>
+      <td>A. paused / running</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>animation-duration</td>
+      <td>B. number / infinite</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>animation-timing-function</td>
+      <td>C. @keyframes name</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>animation-delay</td>
+      <td>D. forwards / backwards / both</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>animation-iteration-count</td>
+      <td>E. [0-N]s</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>animation-direction</td>
+      <td>F. normal / reverse / alternate</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>animation-fill-mode</td>
+      <td>G. linear / ease / step-end / cubic-bezier</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>animation-play-state</td>
+      <td>H. [0-N]s</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ul>
+    <li>1 → C (@keyframes name)</li>
+    <li>2 → E ([0-N]s)</li>
+    <li>3 → G (linear / ease / step-end / cubic-bezier)</li>
+    <li>4 → H ([0-N]s)</li>
+    <li>5 → B (number / infinite)</li>
+    <li>6 → F (normal / reverse / alternate)</li>
+    <li>7 → D (forwards / backwards / both)</li>
+    <li>8 → A (paused / running)</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Written (Transitions vs. Animations)</h3>
+<p>According to the slides, what is the key difference between CSS <strong>transitions</strong> and CSS <strong>animations</strong>?</p>
+<p>In your answer, address:</p>
+<p>a) When does a transition take effect?</p>
+<p>b) How do animations differ in this regard?</p>
+<p>c) Give one specific use case for transitions mentioned in the slides.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> <strong>Transitions</strong> can only take effect when the property they are applied to <strong>changes</strong>. They require a trigger — for example, when a user hovers a button, or when an element moves, appears, or disappears.</p>
+  <p><strong>b)</strong> <strong>Animations</strong> can be executed independently — they change the state of the property/properties on their own, without requiring an external trigger or property change.</p>
+  <p><strong>c)</strong> Use cases for transitions mentioned in the slides:</p>
+  <ul>
+    <li>When a user hovers a button</li>
+    <li>When an element moves</li>
+    <li>When an element disappears</li>
+    <li>When an element appears</li>
+  </ul>
+  <p><strong>Additional context from slides:</strong> When CSS properties are applied to an element it usually happens really fast (too fast for the eye to see). Transitions are useful to slow down the effects taking place on the element, moving elements from one state to the next in a smooth manner.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 7 — Select All That Apply (Media Queries)</h3>
+<p>According to the slides, media queries are a way to target a specific device (e.g. phone, tablet, and more). Which of the following are <strong>media types</strong> shown in the slides?</p>
+<ul>
+  <li>[ ] A. <code>screen</code></li>
+  <li>[ ] B. <code>print</code></li>
+  <li>[ ] C. <code>speech</code></li>
+  <li>[ ] D. <code>all</code></li>
+  <li>[ ] E. <code>mobile</code></li>
+  <li>[ ] F. <code>desktop</code></li>
+  <li>[ ] G. <code>tablet</code></li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers: A, B, C, D</strong></p>
+  <ul>
+    <li>[x] A. <code>screen</code></li>
+    <li>[x] B. <code>print</code></li>
+    <li>[x] C. <code>speech</code></li>
+    <li>[x] D. <code>all</code></li>
+    <li>[ ] E. <code>mobile</code> — not a valid media type</li>
+    <li>[ ] F. <code>desktop</code> — not a valid media type</li>
+    <li>[ ] G. <code>tablet</code> — not a valid media type</li>
+  </ul>
+  <p>The four media types shown in the slides are: <strong>screen, print, speech, all</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 8 — Fill in the Blank (Media Query Syntax)</h3>
+<p>According to the slides, the general syntax for a media query is:</p>
+
+<div class="cb"><pre>@media [______] and [______] and [______] {
+    ...styles
+}</pre></div>
+
+<p>The three parts of the media query correspond to:</p>
+<ul>
+  <li>First blank: media type (e.g. <code>____________</code>, <code>____________</code>, <code>____________</code>, <code>____________</code>)</li>
+  <li>Second blank: expression / media feature (e.g. <code>____________</code>: 400px or <code>____________</code>: 400px)</li>
+  <li>Third blank: <code>____________</code> (e.g. landscape, portrait)</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <div class="cb"><pre>@media [media] and [expression] and [orientation] {
+    ...styles
+}</pre></div>
+  <ul>
+    <li>First blank: media type — <strong>screen</strong>, <strong>print</strong>, <strong>speech</strong>, <strong>all</strong></li>
+    <li>Second blank: expression / media feature — <strong>min-width</strong>: 400px or <strong>max-width</strong>: 400px</li>
+    <li>Third blank: <strong>orientation</strong> — e.g. landscape, portrait</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — Code Analysis (Media Query Examples)</h3>
+<p>Examine the following media query code from the slides:</p>
+
+<div class="cb"><pre>@media screen and (max-width: 400px) {
+    .column { width: 100%; }
+}
+@media screen and (max-width: 768px) and (min-width: 400px) {
+    .column { width: 50%; }
+}
+@media screen and (min-width: 768px) {
+    .column { width: 33.3%; }
+}</pre></div>
+
+<p>a) On a device with a screen width of 350px, what will the width of <code>.column</code> be?</p>
+<p>b) On a device with a screen width of 500px, what will the width of <code>.column</code> be?</p>
+<p>c) On a device with a screen width of 1024px, what will the width of <code>.column</code> be?</p>
+<p>d) How many columns would fit side-by-side on a 1024px screen (approximately)?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> On a 350px screen: <code>.column</code> width = <strong>100%</strong> (matches <code>max-width: 400px</code>)</p>
+  <p><strong>b)</strong> On a 500px screen: <code>.column</code> width = <strong>50%</strong> (matches <code>max-width: 768px</code> AND <code>min-width: 400px</code>)</p>
+  <p><strong>c)</strong> On a 1024px screen: <code>.column</code> width = <strong>33.3%</strong> (matches <code>min-width: 768px</code>)</p>
+  <p><strong>d)</strong> Approximately <strong>3 columns</strong> would fit side-by-side (100% / 33.3% = ~3)</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — Multiple Choice (Applying Media Queries)</h3>
+<p>According to the slides, there are two common ways to apply media queries. Which two methods are described?</p>
+<ul>
+  <li>A. Using JavaScript <code>window.matchMedia()</code></li>
+  <li>B. External stylesheets using the <code>&lt;link&gt;</code> element with a <code>media</code> attribute</li>
+  <li>C. Using <code>@media</code> rules within the stylesheet</li>
+  <li>D. Using the <code>&lt;style media="..."&gt;</code> attribute in HTML</li>
+</ul>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct answers: B and C</strong></p>
+  <ul>
+    <li>B. External stylesheets using the <code>&lt;link&gt;</code> element with a <code>media</code> attribute</li>
+    <li>C. Using <code>@media</code> rules within the stylesheet</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — Code Analysis (External Stylesheet Media Query)</h3>
+<p>The slides show the following example of an external stylesheet with a media query:</p>
+
+<div class="cb"><pre>&lt;link rel='stylesheet' media='screen and (min-width: 768px) and (max-width: 1024px)' href='css/medium.css' /&gt;</pre></div>
+
+<p>a) What file will be loaded when this media query matches?</p>
+<p>b) What is the minimum screen width for this stylesheet to apply?</p>
+<p>c) What is the maximum screen width for this stylesheet to apply?</p>
+<p>d) Will this stylesheet apply when the page is printed? Why or why not?</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> The file <code>css/medium.css</code> will be loaded.</p>
+  <p><strong>b)</strong> Minimum screen width: <strong>768px</strong></p>
+  <p><strong>c)</strong> Maximum screen width: <strong>1024px</strong></p>
+  <p><strong>d)</strong> <strong>No</strong>, it will not apply when printing because the media type is set to <code>screen</code>, not <code>print</code> or <code>all</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 12 — Code Analysis (Media Query Use Cases)</h3>
+<p>Look at the following five media query blocks from the slides. For each one, describe what it does and when it applies.</p>
+
+<p><strong>Block 1:</strong></p>
+<div class="cb"><pre>@media print {
+    a[href^=http]:after {
+        content: '( ' attr(href) ' )';
+    }
+    * { color: black !important; }
+}</pre></div>
+
+<p><strong>Block 2:</strong></p>
+<div class="cb"><pre>@media screen and (max-width: 400px) {
+    .navigation-burger-menu {
+        display: block;
+    }
+}</pre></div>
+
+<p><strong>Block 3:</strong></p>
+<div class="cb"><pre>@media not print {
+    .print-icon {
+        display: inline-block;
+    }
+}</pre></div>
+
+<p><strong>Block 4:</strong></p>
+<div class="cb"><pre>@media screen and (max-width: 400px) and (orientation: portrait) {
+    .col { width: 100%; }
+}</pre></div>
+
+<p><strong>Block 5:</strong></p>
+<div class="cb"><pre>@media all {
+    * { font-size: 24px !important; }
+}</pre></div>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Block 1:</strong> Applies only when the page is being <strong>printed</strong> (<code>@media print</code>). It adds the URL after every link that starts with "http" using the <code>:after</code> pseudo-element and <code>attr(href)</code>. It also forces all text to be black with <code>!important</code>.</p>
+
+  <p><strong>Block 2:</strong> Applies on <strong>screens 400px wide or less</strong>. It shows the hamburger/burger navigation menu by setting <code>display: block;</code> — this is a common responsive pattern for mobile navigation.</p>
+
+  <p><strong>Block 3:</strong> Applies to <strong>all media types EXCEPT print</strong> (<code>@media not print</code>). It shows a print icon as <code>inline-block</code> — the icon is visible on screen but hidden when printing.</p>
+
+  <p><strong>Block 4:</strong> Applies on <strong>screens 400px wide or less AND in portrait orientation</strong>. It sets columns to full width (100%) — useful for narrow phone screens held vertically.</p>
+
+  <p><strong>Block 5:</strong> Applies to <strong>all media types</strong> (<code>@media all</code>). It forces all elements to have a font-size of 24px using <code>!important</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — Written (Media Features)</h3>
+<p>a) According to the slides, the <strong>expressions</strong> in media queries are called <code>____________</code>.</p>
+<p>b) They test for specific characteristics of the <code>____________</code>, <code>____________</code> or <code>____________</code>.</p>
+<p>c) Are media features required in a media query? Can you have more than one?</p>
+<p>d) Name four media features from the table shown in the slides.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> The expressions in media queries are called <strong>Media features</strong>.</p>
+  <p><strong>b)</strong> They test for specific characteristics of the <strong>user agent</strong>, <strong>output device</strong> or <strong>environment</strong>.</p>
+  <p><strong>c)</strong> Media features are <strong>optional</strong> and you can have <strong>as many as you like</strong>.</p>
+  <p><strong>d)</strong> Any four from the table: <strong>width</strong>, <strong>height</strong>, <strong>aspect-ratio</strong>, <strong>orientation</strong>, <strong>resolution</strong>, <strong>scan</strong>, <strong>grid</strong>, <strong>update</strong>, <strong>overflow-block</strong>, <strong>overflow-inline</strong>, <strong>color</strong>, <strong>color-gamut</strong>, <strong>color-index</strong>, <strong>display-mode</strong>, <strong>monochrome</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 14 — Code Writing (Create a Complete Animation)</h3>
+<p>Write the complete CSS code to create an animation with the following requirements:</p>
+<ul>
+  <li>Name the keyframe <code>pulse</code></li>
+  <li>At 0%: <code>transform: scale(1);</code></li>
+  <li>At 50%: <code>transform: scale(1.2);</code></li>
+  <li>At 100%: <code>transform: scale(1);</code></li>
+  <li>Apply the animation to a <code>.button</code> class</li>
+  <li>Duration: 2 seconds</li>
+  <li>Timing function: ease-in</li>
+  <li>Repeat infinitely</li>
+  <li>Direction: alternate</li>
+</ul>
+<p>Use the shorthand <code>animation</code> property when applying the animation.</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <div class="cb"><pre>@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.button {
+    animation: pulse 2s ease-in infinite alternate;
+}</pre></div>
+
+  <p><strong>Breakdown of the shorthand:</strong></p>
+  <ul>
+    <li><code>pulse</code> = animation-name</li>
+    <li><code>2s</code> = animation-duration</li>
+    <li><code>ease-in</code> = animation-timing-function</li>
+    <li><code>infinite</code> = animation-iteration-count</li>
+    <li><code>alternate</code> = animation-direction</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — Code Writing (Media Queries)</h3>
+<p>Write a complete set of media queries for a responsive layout where:</p>
+<p>a) On screens 400px and below, the <code>.sidebar</code> has <code>display: none;</code> and <code>.content</code> has <code>width: 100%;</code></p>
+<p>b) On screens between 401px and 768px, <code>.sidebar</code> has <code>width: 30%;</code> and <code>.content</code> has <code>width: 70%;</code></p>
+<p>c) On screens 769px and above, <code>.sidebar</code> has <code>width: 25%;</code> and <code>.content</code> has <code>width: 75%;</code></p>
+<p>Use the <code>@media</code> syntax from the slides (not external stylesheets).</p>
+
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <div class="cb"><pre>@media screen and (max-width: 400px) {
+    .sidebar { display: none; }
+    .content { width: 100%; }
+}
+
+@media screen and (min-width: 401px) and (max-width: 768px) {
+    .sidebar { width: 30%; }
+    .content { width: 70%; }
+}
+
+@media screen and (min-width: 769px) {
+    .sidebar { width: 25%; }
+    .content { width: 75%; }
+}</pre></div>
+
+  <p><strong>Key points:</strong></p>
+  <ul>
+    <li>Each query uses <code>@media screen and (...)</code> syntax</li>
+    <li>The <code>and</code> keyword combines multiple media features</li>
+    <li><code>min-width</code> and <code>max-width</code> are used to define breakpoint ranges</li>
+    <li>The ranges should not overlap to avoid conflicts</li>
+  </ul>
+</div>
+</details>

@@ -1,0 +1,1351 @@
+<h2 class="g-h2">Bonus Questions — JavaScript, TypeScript &amp; React</h2>
+
+<hr>
+
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>What does the following code print to the console?</p>
+<div class="cb"><pre>const obj = {
+  name: 'Alice',
+  greet: () =&gt; {
+    console.log(this.name);
+  }
+};
+obj.greet();</pre></div>
+<ul>
+  <li>A) <code>'Alice'</code></li>
+  <li>B) <code>undefined</code></li>
+  <li>C) A ReferenceError</li>
+  <li>D) <code>null</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B — <code>undefined</code></strong></p>
+  <p>Arrow functions do <strong>not</strong> have their own <code>this</code>. They capture <code>this</code> from the surrounding <strong>lexical scope</strong> at the time they are defined. Here the arrow function is defined at the top level (or inside a module), so <code>this</code> is the global object (or <code>undefined</code> in strict mode). Either way, <code>this.name</code> is not <code>'Alice'</code>. This is the classic "method shorthand vs. arrow function" trap — arrow functions should not be used as object methods when you need <code>this</code> to refer to the object.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — What Does This Print?</h3>
+<p>Predict the exact console output, in order:</p>
+<div class="cb"><pre>function Counter() {
+  this.count = 0;
+  setInterval(function() {
+    this.count++;
+    console.log(this.count);
+  }, 100);
+}
+
+const c = new Counter();
+// (after 2 ticks)</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output: <code>NaN</code>, <code>NaN</code></strong></p>
+  <p>The callback passed to <code>setInterval</code> is a regular function. When invoked by the timer, <code>this</code> is the global object (or <code>undefined</code> in strict mode), <strong>not</strong> the <code>Counter</code> instance. <code>this.count</code> on the global object is <code>undefined</code>, so <code>undefined++</code> yields <code>NaN</code>.</p>
+  <p><strong>Fix:</strong> Use an arrow function instead — <code>setInterval(() =&gt; { this.count++; ... }, 100)</code> — so that <code>this</code> is inherited from the constructor's lexical scope (the <code>Counter</code> instance).</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Select All That Apply</h3>
+<p>Which of the following statements about arrow functions and <code>this</code> are correct?</p>
+<ul>
+  <li>[ ] A) Arrow functions have their own <code>this</code> determined at call time</li>
+  <li>[ ] B) Arrow functions capture <code>this</code> from their enclosing lexical scope at definition time</li>
+  <li>[ ] C) You can change the <code>this</code> of an arrow function using <code>.call()</code> or <code>.apply()</code></li>
+  <li>[ ] D) Arrow functions are unsuitable as object method definitions when <code>this</code> needs to refer to the object</li>
+  <li>[ ] E) Arrow functions work well as callbacks inside regular methods because they inherit the method's <code>this</code></li>
+  <li>[ ] F) Arrow functions can be used as constructors with <code>new</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: B, D, E</strong></p>
+  <ul>
+    <li>[x] <strong>B</strong> — Correct. <code>this</code> is lexically bound at definition time.</li>
+    <li>[ ] <strong>A</strong> — False. Arrow functions do NOT have their own <code>this</code>.</li>
+    <li>[ ] <strong>C</strong> — False. <code>.call()</code>/<code>.apply()</code> cannot override the lexically-bound <code>this</code> of an arrow function.</li>
+    <li>[x] <strong>D</strong> — Correct. As an object literal method, <code>this</code> would not refer to the object.</li>
+    <li>[x] <strong>E</strong> — Correct. This is the primary use-case: arrow function callbacks inside regular methods preserve the method's <code>this</code>.</li>
+    <li>[ ] <strong>F</strong> — False. Calling <code>new</code> on an arrow function throws a TypeError.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Fill in the Blanks</h3>
+<p>Complete the following sentences about the prototype chain:</p>
+<p>Every JavaScript object has an internal link to another object called its 1. ________. When you access a property on an object and it is not found directly on that object, JavaScript walks up the 2. ________ until it finds it or reaches 3. ________, at which point it returns <code>undefined</code>. For objects created with a constructor function <code>Foo</code>, the prototype object is accessed via 4. ________. The <code>instanceof</code> operator checks whether 5. ________ appears anywhere in the prototype chain of an object.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> prototype (internal <code>[[Prototype]]</code>, accessible via <code>__proto__</code> or <code>Object.getPrototypeOf()</code>)</p>
+  <p><strong>2.</strong> prototype chain</p>
+  <p><strong>3.</strong> <code>null</code> (the end of every prototype chain is <code>Object.prototype</code>, whose prototype is <code>null</code>)</p>
+  <p><strong>4.</strong> <code>Foo.prototype</code></p>
+  <p><strong>5.</strong> <code>Constructor.prototype</code> (the constructor's prototype property)</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Code Analysis</h3>
+<p>What is the output of the following code? Explain each line.</p>
+<div class="cb"><pre>function Animal(name) {
+  this.name = name;
+}
+Animal.prototype.speak = function() {
+  return this.name + ' makes a noise.';
+};
+
+function Dog(name) {
+  Animal.call(this, name);
+}
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+Dog.prototype.speak = function() {
+  return this.name + ' barks.';
+};
+
+const d = new Dog('Rex');
+console.log(d.speak());
+console.log(d instanceof Dog);
+console.log(d instanceof Animal);
+console.log(Object.getPrototypeOf(d) === Dog.prototype);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output:</strong></p>
+  <ol>
+    <li><code>'Rex barks.'</code> — <code>Dog.prototype.speak</code> overrides <code>Animal.prototype.speak</code>. Method lookup finds the override first.</li>
+    <li><code>true</code> — <code>d</code> was created with <code>new Dog</code>, so <code>Dog.prototype</code> is in its chain.</li>
+    <li><code>true</code> — <code>Dog.prototype</code> was set to <code>Object.create(Animal.prototype)</code>, so <code>Animal.prototype</code> is also in the chain.</li>
+    <li><code>true</code> — <code>Object.getPrototypeOf(d)</code> returns <code>Dog.prototype</code> directly.</li>
+  </ol>
+  <p><strong>Key point:</strong> <code>Dog.prototype.constructor = Dog</code> is needed because <code>Object.create(Animal.prototype)</code> produces an object whose <code>constructor</code> property points to <code>Animal</code>. Without the reset, <code>d.constructor === Animal</code> would be true instead of <code>Dog</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Multiple Choice</h3>
+<p>Which of the following correctly describes the three states of a JavaScript Promise?</p>
+<ul>
+  <li>A) loading, success, error</li>
+  <li>B) pending, fulfilled, rejected</li>
+  <li>C) waiting, resolved, failed</li>
+  <li>D) idle, complete, broken</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B — pending, fulfilled, rejected</strong></p>
+  <p>A Promise starts as <strong>pending</strong>. It transitions to <strong>fulfilled</strong> when the async operation succeeds (the <code>resolve</code> callback is called) and to <strong>rejected</strong> when it fails (the <code>reject</code> callback is called). Once settled (fulfilled or rejected), a Promise cannot change state again. The collective term for fulfilled or rejected is <strong>settled</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 7 — What Does This Print?</h3>
+<p>Predict the exact console output, in order:</p>
+<div class="cb"><pre>Promise.resolve(1)
+  .then(v =&gt; { console.log(v); return v + 1; })
+  .then(v =&gt; { throw new Error('oops'); })
+  .then(v =&gt; { console.log('then:', v); })
+  .catch(e =&gt; { console.log('caught:', e.message); return 99; })
+  .then(v =&gt; { console.log('final:', v); });</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output (in order):</strong></p>
+  <ol>
+    <li><code>1</code></li>
+    <li><code>caught: oops</code></li>
+    <li><code>final: 99</code></li>
+  </ol>
+  <p><strong>Explanation:</strong></p>
+  <ul>
+    <li>The first <code>.then</code> logs <code>1</code> and returns <code>2</code>.</li>
+    <li>The second <code>.then</code> throws — the chain short-circuits, skipping the third <code>.then</code>.</li>
+    <li><code>.catch</code> handles the error, logs <code>'caught: oops'</code>, and returns <code>99</code>.</li>
+    <li>After <code>.catch</code> returns a non-throwing value, the chain resumes fulfilled with <code>99</code>, so the final <code>.then</code> logs <code>'final: 99'</code>.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 8 — Select All That Apply</h3>
+<p>Which of the following statements about <code>Promise.allSettled</code> vs <code>Promise.all</code> are correct?</p>
+<ul>
+  <li>[ ] A) <code>Promise.all</code> rejects immediately when any single promise rejects (short-circuit)</li>
+  <li>[ ] B) <code>Promise.allSettled</code> waits for every promise to settle before resolving, regardless of rejections</li>
+  <li>[ ] C) <code>Promise.allSettled</code> always resolves (never rejects) with an array of result descriptors</li>
+  <li>[ ] D) Each item in the <code>Promise.allSettled</code> result has a <code>status</code> field of either <code>'fulfilled'</code> or <code>'rejected'</code></li>
+  <li>[ ] E) <code>Promise.all</code> resolves with the first fulfilled value, not an array</li>
+  <li>[ ] F) <code>Promise.race</code> resolves or rejects with whichever promise settles first</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, B, C, D, F</strong></p>
+  <ul>
+    <li>[x] <strong>A</strong> — <code>Promise.all</code> short-circuits on the first rejection.</li>
+    <li>[x] <strong>B</strong> — <code>Promise.allSettled</code> waits for all.</li>
+    <li>[x] <strong>C</strong> — <code>Promise.allSettled</code> itself always resolves.</li>
+    <li>[x] <strong>D</strong> — Each descriptor is <code>{ status: 'fulfilled', value: ... }</code> or <code>{ status: 'rejected', reason: ... }</code>.</li>
+    <li>[ ] <strong>E</strong> — FALSE. <code>Promise.all</code> resolves with an <em>array</em> of all values (that's <code>Promise.any</code> for the first fulfilled).</li>
+    <li>[x] <strong>F</strong> — <code>Promise.race</code> settles (resolve or reject) with whichever promise settles first.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — Fill in the Blanks</h3>
+<p>Complete the sentences about Promise combinators:</p>
+<p><code>Promise.1.________</code> rejects as soon as any promise rejects, but resolves with an array of all values if all succeed. <code>Promise.2.________</code> resolves as soon as <em>any one</em> promise fulfills, or rejects if <em>all</em> promises reject. <code>Promise.3.________</code> settles (resolve or reject) with the outcome of whichever promise settles first. <code>Promise.4.________</code> waits for every promise to settle and returns an array of status/value descriptors.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>all</code></p>
+  <p><strong>2.</strong> <code>any</code></p>
+  <p><strong>3.</strong> <code>race</code></p>
+  <p><strong>4.</strong> <code>allSettled</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — What Does This Print?</h3>
+<p>Predict the exact console output, in order. This is an event loop ordering puzzle.</p>
+<div class="cb"><pre>console.log('A');
+
+setTimeout(() =&gt; console.log('B'), 0);
+
+Promise.resolve().then(() =&gt; console.log('C'));
+
+console.log('D');</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output: A, D, C, B</strong></p>
+  <p><strong>Explanation:</strong></p>
+  <ol>
+    <li><code>'A'</code> — synchronous, runs immediately.</li>
+    <li><code>setTimeout</code> callback is placed in the <strong>macrotask queue</strong>.</li>
+    <li>The <code>Promise.resolve().then</code> callback is placed in the <strong>microtask queue</strong>.</li>
+    <li><code>'D'</code> — synchronous, runs immediately.</li>
+    <li>After the synchronous call stack is empty, the event loop drains the <strong>microtask queue first</strong> → <code>'C'</code>.</li>
+    <li>Then it picks the next <strong>macrotask</strong> → <code>'B'</code>.</li>
+  </ol>
+  <p><strong>Rule:</strong> Microtasks (Promise callbacks, <code>queueMicrotask</code>) always run before the next macrotask (<code>setTimeout</code>, <code>setInterval</code>, I/O callbacks).</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — What Does This Print?</h3>
+<p>A more complex event loop puzzle. Predict the output in order:</p>
+<div class="cb"><pre>console.log('start');
+
+setTimeout(() =&gt; {
+  console.log('timeout 1');
+  Promise.resolve().then(() =&gt; console.log('micro inside timeout'));
+}, 0);
+
+Promise.resolve()
+  .then(() =&gt; {
+    console.log('micro 1');
+    return Promise.resolve();
+  })
+  .then(() =&gt; console.log('micro 2'));
+
+setTimeout(() =&gt; console.log('timeout 2'), 0);
+
+console.log('end');</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output:</strong> start, end, micro 1, micro 2, timeout 1, micro inside timeout, timeout 2</p>
+  <p><strong>Step-by-step:</strong></p>
+  <ol>
+    <li><code>'start'</code> — sync</li>
+    <li><code>'end'</code> — sync</li>
+    <li>Microtask queue drains: <code>'micro 1'</code>. Returning <code>Promise.resolve()</code> schedules another microtask.</li>
+    <li>Microtask queue: <code>'micro 2'</code>.</li>
+    <li>First macrotask: <code>'timeout 1'</code>. Its <code>Promise.resolve().then</code> is queued as a microtask.</li>
+    <li>Microtask queue drains again before next macrotask: <code>'micro inside timeout'</code>.</li>
+    <li>Second macrotask: <code>'timeout 2'</code>.</li>
+  </ol>
+  <p><strong>Key insight:</strong> After <em>each</em> macrotask, the entire microtask queue is drained before moving to the next macrotask.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>Consider the following <code>async/await</code> code:</p>
+<div class="cb"><pre>async function fetchUser(id) {
+  const res = await fetch(`/api/users/${id}`);
+  const data = await res.json();
+  return data;
+}
+
+fetchUser(1).then(u =&gt; console.log(u.name));</pre></div>
+<p>The server responds with HTTP 404. Which of the following best describes what happens?</p>
+<ul>
+  <li>A) The <code>fetch</code> call throws a network error and <code>fetchUser</code> rejects</li>
+  <li>B) <code>fetch</code> resolves successfully; <code>res.json()</code> might succeed and <code>data</code> could be an error body; no automatic rejection occurs</li>
+  <li>C) <code>res.json()</code> throws because 404 responses have no body</li>
+  <li>D) <code>async</code> functions automatically throw when the response status is not 2xx</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <p>The <code>fetch</code> API only rejects its Promise on a <strong>network failure</strong> (no connection, DNS error, etc.). A 404 is a valid HTTP response — <code>fetch</code> resolves with a <code>Response</code> object where <code>res.ok === false</code> and <code>res.status === 404</code>. The server may still send a JSON body (e.g., an error message). You must manually check <code>res.ok</code> and throw if needed:</p>
+  <div class="cb"><pre>if (!res.ok) throw new Error(`HTTP error: ${res.status}`);</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — Code Analysis (Written Short-Answer)</h3>
+<p>A developer writes the following to make a POST request with a JSON body. Identify ALL mistakes and provide the corrected version.</p>
+<div class="cb"><pre>async function createPost(title, body) {
+  const res = await fetch('/api/posts', {
+    method: 'POST',
+    body: { title, body }
+  });
+  return res.json();
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Two mistakes:</strong></p>
+  <ol>
+    <li><strong>Body is not serialized:</strong> <code>body</code> must be a string (or a <code>Blob</code>/<code>FormData</code>). Passing a plain object sends <code>[object Object]</code>. Fix: <code>body: JSON.stringify({ title, body })</code>.</li>
+    <li><strong>Missing <code>Content-Type</code> header:</strong> The server needs to know the body is JSON. Fix: add <code>headers: { 'Content-Type': 'application/json' }</code>.</li>
+  </ol>
+  <p><strong>Corrected code:</strong></p>
+  <div class="cb"><pre>async function createPost(title, body) {
+  const res = await fetch('/api/posts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, body })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 14 — What Does This Print?</h3>
+<p>Predict the console output:</p>
+<div class="cb"><pre>async function run() {
+  console.log('1');
+  const result = await Promise.resolve('2');
+  console.log(result);
+  console.log('3');
+}
+
+console.log('A');
+run();
+console.log('B');</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output:</strong> A, 1, B, 2, 3</p>
+  <p><strong>Explanation:</strong></p>
+  <ol>
+    <li><code>'A'</code> — sync before <code>run()</code> is called.</li>
+    <li><code>'1'</code> — the body of <code>run</code> executes synchronously up to the first <code>await</code>.</li>
+    <li>At <code>await</code>, execution suspends and control returns to the caller.</li>
+    <li><code>'B'</code> — sync code after <code>run()</code> continues.</li>
+    <li>The call stack is now empty; microtask queue runs: <code>'2'</code>, then <code>'3'</code>.</li>
+  </ol>
+  <p><strong>Key:</strong> <code>await</code> always yields execution back to the caller, even when awaiting an already-resolved Promise. The continuation is scheduled as a microtask.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — Written Short-Answer</h3>
+<p>Explain the difference between <code>interface</code> and <code>type</code> in TypeScript. Give one thing each can do that the other cannot.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Similarities:</strong> Both can describe the shape of objects, be used as type annotations, and be extended/intersected.</p>
+  <p><strong>What <code>interface</code> can do that <code>type</code> cannot:</strong></p>
+  <ul>
+    <li><strong>Declaration merging</strong> — declaring the same interface name twice causes TypeScript to merge them. This is how library authors augment existing types.</li>
+  </ul>
+  <div class="cb"><pre>interface User { name: string; }
+interface User { age: number; }
+// merged: { name: string; age: number }</pre></div>
+  <p><strong>What <code>type</code> can do that <code>interface</code> cannot:</strong></p>
+  <ul>
+    <li><strong>Union and intersection types, mapped types, conditional types, tuples</strong> as top-level aliases.</li>
+  </ul>
+  <div class="cb"><pre>type StringOrNumber = string | number;
+type Nullable&lt;T&gt; = T | null;</pre></div>
+  <p><strong>Common advice:</strong> Use <code>interface</code> for object shapes (especially in public APIs), use <code>type</code> for unions, primitives, and complex type expressions.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Multiple Choice</h3>
+<p>What is the difference between <code>any</code> and <code>unknown</code> in TypeScript?</p>
+<ul>
+  <li>A) They are identical — both opt out of type checking entirely</li>
+  <li>B) <code>any</code> allows all operations without type checking; <code>unknown</code> requires a type check (narrowing) before you can perform operations on the value</li>
+  <li>C) <code>unknown</code> is only for function return types; <code>any</code> is for parameters</li>
+  <li>D) <code>any</code> causes a compile error; <code>unknown</code> is the safe alternative</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <p><code>any</code> is a full escape hatch — you can call methods, access properties, or pass it anywhere. <code>unknown</code> is the <strong>type-safe counterpart</strong>: you must first narrow the type (with <code>typeof</code>, <code>instanceof</code>, or a type guard) before performing any operations. Use <code>unknown</code> when you genuinely don't know a type but still want the compiler to enforce safety.</p>
+  <div class="cb"><pre>let x: unknown = getData();
+x.toUpperCase();           // TS ERROR
+if (typeof x === 'string') x.toUpperCase(); // OK</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Fill in the Blanks</h3>
+<p>Complete the following about TypeScript utility types:</p>
+<p><code>1.________&lt;T&gt;</code> makes all properties of <code>T</code> optional. <code>2.________&lt;T&gt;</code> makes all properties required. <code>3.________&lt;T&gt;</code> makes all properties read-only. <code>4.________&lt;T, K&gt;</code> picks only the specified keys <code>K</code> from type <code>T</code>. <code>5.________&lt;T, K&gt;</code> creates a type with all keys from <code>T</code> except those in <code>K</code>. <code>6.________&lt;K, V&gt;</code> constructs a type with keys from <code>K</code> and values of type <code>V</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>Partial</code></p>
+  <p><strong>2.</strong> <code>Required</code></p>
+  <p><strong>3.</strong> <code>Readonly</code></p>
+  <p><strong>4.</strong> <code>Pick</code></p>
+  <p><strong>5.</strong> <code>Omit</code></p>
+  <p><strong>6.</strong> <code>Record</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 18 — Code Analysis</h3>
+<p>What TypeScript errors (if any) exist in the following code? Explain each one.</p>
+<div class="cb"><pre>function identity&lt;T&gt;(value: T): T {
+  return value;
+}
+
+const result1 = identity&lt;string&gt;(42);
+const result2 = identity('hello');
+const result3: number = identity&lt;number&gt;(100);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Only one error: <code>result1</code></strong></p>
+  <p><code>identity&lt;string&gt;(42)</code> — the type parameter is explicitly set to <code>string</code>, but the argument <code>42</code> is a <code>number</code>. TypeScript will error: <em>Argument of type 'number' is not assignable to parameter of type 'string'</em>.</p>
+  <p><code>result2</code> is fine — TypeScript <strong>infers</strong> <code>T = string</code> from the argument <code>'hello'</code>.</p>
+  <p><code>result3</code> is fine — explicit generic with matching argument type, and the return type is annotated correctly.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 19 — Multiple Choice</h3>
+<p>What does <code>keyof</code> return in TypeScript?</p>
+<div class="cb"><pre>interface Car {
+  make: string;
+  model: string;
+  year: number;
+}
+
+type CarKey = keyof Car;</pre></div>
+<ul>
+  <li>A) <code>string</code></li>
+  <li>B) <code>{ make: string; model: string; year: number }</code></li>
+  <li>C) <code>'make' | 'model' | 'year'</code></li>
+  <li>D) <code>string[]</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>C — <code>'make' | 'model' | 'year'</code></strong></p>
+  <p><code>keyof T</code> produces a <strong>union of the string literal types</strong> of all keys of <code>T</code>. It is commonly used with generics to create type-safe property accessor functions:</p>
+  <div class="cb"><pre>function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+  return obj[key];
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 20 — Select All That Apply</h3>
+<p>Which of the following are valid TypeScript type narrowing techniques?</p>
+<ul>
+  <li>[ ] A) <code>typeof x === 'string'</code></li>
+  <li>[ ] B) <code>x instanceof Date</code></li>
+  <li>[ ] C) <code>'swim' in animal</code> (checking if a property exists)</li>
+  <li>[ ] D) A user-defined type guard function returning <code>x is SomeType</code></li>
+  <li>[ ] E) Assigning a value to a variable annotated with a narrower type</li>
+  <li>[ ] F) Using the <code>as</code> keyword to cast a value</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, B, C, D</strong></p>
+  <ul>
+    <li>[x] <strong>A</strong> — <code>typeof</code> guard narrows primitive types.</li>
+    <li>[x] <strong>B</strong> — <code>instanceof</code> narrows class instances.</li>
+    <li>[x] <strong>C</strong> — <code>in</code> operator checks for property existence and narrows union members.</li>
+    <li>[x] <strong>D</strong> — User-defined type guards (<code>predicate: x is T</code>) are a core TypeScript narrowing mechanism.</li>
+    <li>[ ] <strong>E</strong> — FALSE. Assigning to a narrower annotation is a compile error, not narrowing.</li>
+    <li>[ ] <strong>F</strong> — FALSE. <code>as</code> is a type <em>assertion</em> (you override the compiler), not narrowing. It can hide bugs.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 21 — Written Short-Answer</h3>
+<p>Explain the difference between <code>never</code> and <code>void</code> in TypeScript. When would you use each?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>void</code></strong> means a function returns no meaningful value (it returns <code>undefined</code>). It is used for callbacks and functions whose return value is irrelevant.</p>
+  <p><strong><code>never</code></strong> means a function <em>never returns at all</em> — it either throws unconditionally, or runs an infinite loop. It is also the type inferred for unreachable code and for the bottom of exhaustive type checks.</p>
+  <div class="cb"><pre>// void — returns, but the return value is unused
+function log(msg: string): void {
+  console.log(msg);
+}
+
+// never — throws unconditionally, never returns
+function fail(msg: string): never {
+  throw new Error(msg);
+}
+
+// never — exhaustiveness check
+function assertNever(x: never): never {
+  throw new Error('Unhandled case: ' + x);
+}</pre></div>
+  <p><strong>Key distinction:</strong> A <code>void</code> function reaches its end; a <code>never</code> function cannot.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 22 — Multiple Choice</h3>
+<p>What is the type inferred for <code>status</code> in the following TypeScript code?</p>
+<div class="cb"><pre>const status = 'loading' as const;
+type StatusType = typeof status;</pre></div>
+<ul>
+  <li>A) <code>string</code></li>
+  <li>B) <code>'loading'</code> (string literal type)</li>
+  <li>C) <code>const</code></li>
+  <li>D) <code>string | undefined</code></li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B — <code>'loading'</code></strong></p>
+  <p>Without <code>as const</code>, TypeScript widens the type to <code>string</code>. With <code>as const</code>, the value is treated as a <strong>literal type</strong> — the narrowest possible type. This is essential when building discriminated unions, <code>keyof</code> operations on constant objects, and exhaustive checks.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 23 — Code Analysis</h3>
+<p>Identify the Rules of Hooks violation(s) in the component below and explain why each is a problem:</p>
+<div class="cb"><pre>function UserList({ isAdmin }) {
+  const [users, setUsers] = useState([]);
+
+  if (isAdmin) {
+    const [adminData, setAdminData] = useState(null);
+  }
+
+  for (let i = 0; i &lt; 3; i++) {
+    useEffect(() =&gt; {
+      console.log('effect', i);
+    }, []);
+  }
+
+  return &lt;div&gt;{users.length}&lt;/div&gt;;
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Two violations:</strong></p>
+  <ol>
+    <li><strong>Hook inside a conditional (<code>if (isAdmin)</code>):</strong> <code>useState</code> is called only when <code>isAdmin</code> is true. React relies on the <em>order</em> of hook calls being identical on every render. If <code>isAdmin</code> changes between renders, the hook call order changes, causing React to mismap hook state to the wrong slot — leading to corrupted state or crashes.</li>
+    <li><strong>Hook inside a loop (<code>for</code> loop):</strong> Same principle — <code>useEffect</code> is called a variable number of times. Hook calls must be unconditional and at the top level of the component function.</li>
+  </ol>
+  <p><strong>Fix:</strong> Move all hooks to the top level. Use conditional logic <em>inside</em> the hook's callback, not around the hook call itself.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 24 — What Does This Print? (React)</h3>
+<p>What value is alerted when the button is clicked, and why?</p>
+<div class="cb"><pre>function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () =&gt; {
+    setTimeout(() =&gt; {
+      alert(count);
+    }, 3000);
+    setCount(count + 1);
+  };
+
+  return &lt;button onClick={handleClick}&gt;Click me ({count})&lt;/button&gt;;
+}</pre></div>
+<p>The user clicks the button once. Three seconds later, what does the alert show?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>The alert shows <code>0</code></strong> (the count value at the time the click handler ran).</p>
+  <p><strong>This is a stale closure.</strong> The <code>handleClick</code> arrow function closes over the <code>count</code> variable from the render it was created in. At the time of the click, <code>count</code> is <code>0</code>. Even though <code>setCount(1)</code> triggers a re-render, the <code>setTimeout</code> callback still holds a reference to the old <code>count = 0</code> closure, not the new render's <code>count = 1</code>.</p>
+  <p><strong>Fix:</strong> Use a ref to always read the latest value:</p>
+  <div class="cb"><pre>const countRef = useRef(count);
+useEffect(() =&gt; { countRef.current = count; }, [count]);
+// then inside setTimeout: alert(countRef.current);</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 25 — Multiple Choice</h3>
+<p>A component receives an <code>&lt;input&gt;</code> with both a <code>value</code> prop and an <code>onChange</code> handler. What kind of component is this?</p>
+<ul>
+  <li>A) Uncontrolled — the DOM owns the input's state</li>
+  <li>B) Controlled — React state owns the input's value</li>
+  <li>C) Hybrid — both React and the DOM share ownership</li>
+  <li>D) Ref-controlled — only a ref manages the input</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B — Controlled</strong></p>
+  <p>A <strong>controlled component</strong> has its form data driven by React state. The <code>value</code> prop locks the input to the state value; the <code>onChange</code> handler updates state in response to user input. This gives React full control over the input's value at all times.</p>
+  <p>An <strong>uncontrolled component</strong> uses <code>defaultValue</code> (or no value prop at all) and relies on a <code>ref</code> to read the DOM value imperatively when needed.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 26 — Code Analysis</h3>
+<p>Explain the bug in the following <code>useState</code> usage and provide the correct fix:</p>
+<div class="cb"><pre>function TodoApp() {
+  const [todos, setTodos] = useState([]);
+
+  const addTodo = (text) =&gt; {
+    todos.push({ id: Date.now(), text });
+    setTodos(todos);
+  };
+
+  return (
+    &lt;div&gt;
+      {todos.map(t =&gt; &lt;p key={t.id}&gt;{t.text}&lt;/p&gt;)}
+      &lt;button onClick={() =&gt; addTodo('new item')}&gt;Add&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Bug: mutating state directly.</strong> <code>todos.push(...)</code> mutates the existing array in place. Then <code>setTodos(todos)</code> passes the same array reference. React uses <strong>Object.is</strong> (reference equality) to decide whether to re-render. Since the reference hasn't changed, React may skip the re-render entirely.</p>
+  <p><strong>Correct fix — always produce a new array:</strong></p>
+  <div class="cb"><pre>const addTodo = (text) =&gt; {
+  setTodos(prev =&gt; [...prev, { id: Date.now(), text }]);
+};</pre></div>
+  <p>Using the <strong>functional updater form</strong> (<code>prev =&gt; ...</code>) is also safer if multiple state updates are batched, as it always operates on the latest state.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 27 — Select All That Apply</h3>
+<p>Which of the following are valid <code>useEffect</code> dependency array patterns and their corresponding behaviors?</p>
+<ul>
+  <li>[ ] A) No second argument — effect runs after every render</li>
+  <li>[ ] B) Empty array <code>[]</code> — effect runs once on mount; cleanup runs on unmount</li>
+  <li>[ ] C) <code>[id]</code> — effect runs on mount and whenever <code>id</code> changes</li>
+  <li>[ ] D) <code>[id]</code> — effect runs only when <code>id</code> first becomes truthy</li>
+  <li>[ ] E) An effect with a <code>return</code> function — the returned function runs before the next effect and on unmount</li>
+  <li>[ ] F) Putting a function created inside the component in deps without wrapping in <code>useCallback</code> can cause the effect to re-run every render</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, B, C, E, F</strong></p>
+  <ul>
+    <li>[x] <strong>A</strong> — No deps array → runs after every render.</li>
+    <li>[x] <strong>B</strong> — <code>[]</code> → runs once on mount.</li>
+    <li>[x] <strong>C</strong> — <code>[id]</code> → runs on mount and on every change of <code>id</code>.</li>
+    <li>[ ] <strong>D</strong> — FALSE. React doesn't care whether <code>id</code> is truthy; it runs whenever <code>id</code>'s value changes from the previous render.</li>
+    <li>[x] <strong>E</strong> — The cleanup function runs before the <em>next</em> effect execution and on unmount.</li>
+    <li>[x] <strong>F</strong> — A new function object is created every render, so the dependency changes every render, triggering the effect repeatedly.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 28 — Multiple Choice</h3>
+<p>What is the primary purpose of the <code>key</code> prop in React lists?</p>
+<ul>
+  <li>A) To give each list item a CSS class for styling</li>
+  <li>B) To help React's reconciliation algorithm identify which items have changed, been added, or removed</li>
+  <li>C) To ensure items are rendered in alphabetical order</li>
+  <li>D) To pass a unique identifier to the item's child components</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <p>The <code>key</code> prop is a hint to the React reconciler. When a list re-renders, React uses keys to match old virtual DOM nodes to new ones. Without stable unique keys, React falls back to index-based matching, which can cause incorrect re-use of component instances when items are reordered, inserted, or deleted — leading to subtle state bugs.</p>
+  <p><strong>Do not use array index as key</strong> when the list can be reordered or items can be inserted/removed. Use a stable, unique ID instead.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 29 — Code Analysis</h3>
+<p>Explain the difference between the two <code>useReducer</code> approaches below and when you'd prefer one over the other:</p>
+<div class="cb"><pre>// Approach A
+const [count, setCount] = useState(0);
+const increment = () =&gt; setCount(count + 1);
+const decrement = () =&gt; setCount(count - 1);
+const reset = () =&gt; setCount(0);
+
+// Approach B
+const initialState = { count: 0 };
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment': return { count: state.count + 1 };
+    case 'decrement': return { count: state.count - 1 };
+    case 'reset':     return initialState;
+    default: throw new Error('Unknown action: ' + action.type);
+  }
+}
+const [state, dispatch] = useReducer(reducer, initialState);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Approach A (<code>useState</code>)</strong> is simpler and appropriate for independent, simple state updates.</p>
+  <p><strong>Approach B (<code>useReducer</code>)</strong> is better when:</p>
+  <ul>
+    <li>State updates involve <strong>multiple sub-values</strong> (e.g., a form with many fields).</li>
+    <li>The next state depends on the previous in <strong>complex ways</strong>.</li>
+    <li>You want the <strong>update logic in one testable place</strong> (the reducer), separate from the component.</li>
+    <li>You pass <code>dispatch</code> deep via context, avoiding the need to pass many setter functions.</li>
+  </ul>
+  <p>Both are valid; <code>useReducer</code> scales better with complex state machines.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 30 — Fill in the Blanks</h3>
+<p>Complete the following about <code>useRef</code>:</p>
+<p><code>useRef</code> returns a mutable object with a single property: 1. ________. Changes to this property do <strong>not</strong> cause a 2. ________. This makes it suitable for storing values that need to persist across renders without triggering UI updates, such as 3. ________ IDs, previous state values, or DOM 4. ________. To attach a ref to a DOM element, pass it as the element's 5. ________ prop.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>current</code></p>
+  <p><strong>2.</strong> re-render</p>
+  <p><strong>3.</strong> timer / interval (e.g., from <code>setTimeout</code> or <code>setInterval</code>)</p>
+  <p><strong>4.</strong> element references (DOM nodes)</p>
+  <p><strong>5.</strong> <code>ref</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 31 — Code Analysis</h3>
+<p>What is the output of the following React-like pseudocode? Describe the render and effect sequence.</p>
+<div class="cb"><pre>function App() {
+  const [count, setCount] = useState(0);
+
+  console.log('render', count);
+
+  useEffect(() =&gt; {
+    console.log('effect', count);
+    return () =&gt; console.log('cleanup', count);
+  }, [count]);
+
+  return &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;{count}&lt;/button&gt;;
+}</pre></div>
+<p>User clicks the button twice. List all console outputs in order.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output in order:</strong></p>
+  <ol>
+    <li><code>render 0</code> — initial render</li>
+    <li><code>effect 0</code> — effect runs after initial render</li>
+    <li><code>render 1</code> — after first click</li>
+    <li><code>cleanup 0</code> — cleanup from previous effect (with old count = 0)</li>
+    <li><code>effect 1</code> — new effect with count = 1</li>
+    <li><code>render 2</code> — after second click</li>
+    <li><code>cleanup 1</code> — cleanup with count = 1</li>
+    <li><code>effect 2</code> — new effect with count = 2</li>
+  </ol>
+  <p><strong>Key:</strong> The cleanup function captures the <em>old</em> value of <code>count</code> from its closure and runs before the new effect fires. Effects run <em>after</em> the browser has painted.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 32 — Multiple Choice</h3>
+<p>When should you use <code>React.memo</code>?</p>
+<ul>
+  <li>A) Always — it makes every component faster</li>
+  <li>B) On components that receive the same props frequently and are expensive to re-render, to skip unnecessary re-renders</li>
+  <li>C) Only on class components</li>
+  <li>D) On components that manage their own state and never receive props</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <p><code>React.memo</code> wraps a component and performs a shallow prop comparison before re-rendering. If the props haven't changed, the previous render result is reused. It is useful when:</p>
+  <ul>
+    <li>The component renders the same output for the same props.</li>
+    <li>The component is re-rendered often by a parent that changes other state.</li>
+    <li>The component is expensive to render (large lists, complex computations).</li>
+  </ul>
+  <p><strong>Not a silver bullet:</strong> It adds the overhead of prop comparison on every render. If props change nearly every render, <code>React.memo</code> adds cost without benefit. Always profile first.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 33 — Code Analysis</h3>
+<p>The following component uses <code>React.memo</code> and <code>useCallback</code> but still re-renders the child on every parent render. Identify why and fix it.</p>
+<div class="cb"><pre>const Child = React.memo(({ onClick }) =&gt; {
+  console.log('Child rendered');
+  return &lt;button onClick={onClick}&gt;Click&lt;/button&gt;;
+});
+
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () =&gt; {
+    setCount(c =&gt; c + 1);
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;{count}&lt;/p&gt;
+      &lt;Child onClick={handleClick} /&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Problem:</strong> <code>handleClick</code> is a regular function created fresh on every render of <code>Parent</code>. Even though <code>Child</code> is wrapped in <code>React.memo</code>, the shallow prop comparison sees a <em>new function reference</em> for <code>onClick</code> every time — so it re-renders.</p>
+  <p><strong>Fix:</strong> Wrap <code>handleClick</code> in <code>useCallback</code> with a stable dependency array:</p>
+  <div class="cb"><pre>const handleClick = useCallback(() =&gt; {
+  setCount(c =&gt; c + 1);
+}, []); // empty deps — uses functional updater so no closure over count</pre></div>
+  <p>Now <code>handleClick</code> is the same reference across renders, and <code>React.memo</code>'s shallow comparison will correctly skip re-rendering <code>Child</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 34 — Written Short-Answer</h3>
+<p>Explain the concept of "lifting state up" in React. Give a concrete scenario where you would apply it.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Lifting state up</strong> means moving shared state to the <strong>closest common ancestor</strong> of the components that need to read or update it. React data flows one-way (parent to child), so the only way two sibling components can share state is if their parent owns it and passes it down as props (with callback props for updates).</p>
+  <p><strong>Scenario:</strong> You have a temperature converter with a Celsius input and a Fahrenheit input. Each needs to reflect the value the other changes. Solution: lift the temperature value (and its setter) up to the parent. Both inputs receive the current value as a prop and call a parent-provided handler on change.</p>
+  <div class="cb"><pre>function TemperatureConverter() {
+  const [celsius, setCelsius] = useState(0);
+  return (
+    &lt;&gt;
+      &lt;CelsiusInput value={celsius} onChange={setCelsius} /&gt;
+      &lt;FahrenheitInput
+        value={celsius * 9/5 + 32}
+        onChange={f =&gt; setCelsius((f - 32) * 5/9)}
+      /&gt;
+    &lt;/&gt;
+  );
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 35 — Code Analysis</h3>
+<p>What does the following code do? Explain <code>forwardRef</code> and <code>useImperativeHandle</code>.</p>
+<div class="cb"><pre>const FancyInput = React.forwardRef((props, ref) =&gt; {
+  const inputRef = useRef(null);
+
+  useImperativeHandle(ref, () =&gt; ({
+    focus: () =&gt; inputRef.current.focus(),
+    clear: () =&gt; { inputRef.current.value = ''; }
+  }));
+
+  return &lt;input ref={inputRef} {...props} /&gt;;
+});
+
+function Form() {
+  const fancyRef = useRef(null);
+  return (
+    &lt;&gt;
+      &lt;FancyInput ref={fancyRef} /&gt;
+      &lt;button onClick={() =&gt; fancyRef.current.focus()}&gt;Focus&lt;/button&gt;
+      &lt;button onClick={() =&gt; fancyRef.current.clear()}&gt;Clear&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>forwardRef</code></strong> allows a parent component to pass a <code>ref</code> down to a child component's DOM element (or to a custom imperative handle). Without it, refs on function components are ignored.</p>
+  <p><strong><code>useImperativeHandle</code></strong> customizes what value is exposed to the parent when they hold a ref to the child. Instead of exposing the raw DOM node (which would let the parent do anything), the child exposes only a controlled API — in this case <code>focus()</code> and <code>clear()</code> methods.</p>
+  <p><strong>Effect:</strong> <code>fancyRef.current</code> in <code>Form</code> is the object <code>{ focus: fn, clear: fn }</code>, not the raw <code>&lt;input&gt;</code> DOM element. Clicking "Focus" calls the exposed <code>focus</code> method, and clicking "Clear" zeroes the input's value.</p>
+  <p><strong>When to use:</strong> Use <code>useImperativeHandle</code> sparingly — for exposing a minimal imperative API (focus management, animation triggers, scroll commands) while keeping the internal implementation encapsulated.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 36 — Fill in the Blanks</h3>
+<p>Complete the following about <code>useContext</code>:</p>
+<p>To share data without prop drilling, first create a context with 1. ________. Wrap the tree that needs access in a 2. ________ component and pass the shared value via its 3. ________ prop. Any descendant component can read the value by calling the 4. ________ hook with the context object. The component re-renders whenever the context 5. ________ changes. To avoid unnecessary re-renders, combine context with 6. ________ to stabilize values.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> <code>React.createContext(defaultValue)</code></p>
+  <p><strong>2.</strong> <code>Context.Provider</code></p>
+  <p><strong>3.</strong> <code>value</code></p>
+  <p><strong>4.</strong> <code>useContext</code></p>
+  <p><strong>5.</strong> value</p>
+  <p><strong>6.</strong> <code>useMemo</code> (or <code>useCallback</code> for function values) — so that the context value reference only changes when its contents actually change, not on every parent render.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 37 — Multiple Choice</h3>
+<p>What is the main difference between <code>useMemo</code> and <code>useCallback</code>?</p>
+<ul>
+  <li>A) <code>useMemo</code> runs effects; <code>useCallback</code> memoizes components</li>
+  <li>B) <code>useMemo</code> memoizes a computed <strong>value</strong>; <code>useCallback</code> memoizes a <strong>function reference</strong></li>
+  <li>C) They are identical — <code>useCallback(fn, deps)</code> is syntactic sugar for <code>useMemo(() =&gt; fn, deps)</code></li>
+  <li>D) <code>useMemo</code> only works with arrays; <code>useCallback</code> works with any type</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B — and actually C is also technically true.</strong> In React's implementation, <code>useCallback(fn, deps)</code> is equivalent to <code>useMemo(() =&gt; fn, deps)</code>. Both memoize a value across renders. The distinction is <em>semantic</em>: <code>useMemo</code> is idiomatic for expensive computed values (filtered arrays, derived objects), and <code>useCallback</code> is idiomatic for stable function references passed as props. The "best" answer here is <strong>B</strong> — it describes the intended use case distinction.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 38 — Written Short-Answer</h3>
+<p>What is a custom hook in React? Write a simple custom hook called <code>useWindowWidth</code> that tracks the browser window's width and returns it.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>A <strong>custom hook</strong> is a regular JavaScript function whose name starts with <code>use</code> that can call other hooks. Custom hooks let you extract and reuse stateful logic across multiple components without duplicating code or changing the component tree.</p>
+  <div class="cb"><pre>function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() =&gt; {
+    const handleResize = () =&gt; setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () =&gt; window.removeEventListener('resize', handleResize);
+  }, []); // empty deps — listener registered once, cleaned up on unmount
+
+  return width;
+}
+
+// Usage
+function MyComponent() {
+  const width = useWindowWidth();
+  return &lt;p&gt;Window is {width}px wide&lt;/p&gt;;
+}</pre></div>
+  <p><strong>Rules:</strong> Custom hooks must follow the Rules of Hooks — only call hooks at the top level, never inside conditions or loops.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 39 — Select All That Apply</h3>
+<p>Which of the following violate the Rules of Hooks?</p>
+<div class="cb"><pre>// A
+function useData(id) {
+  if (id) {
+    const [data, setData] = useState(null);
+  }
+}
+
+// B
+function MyComponent() {
+  const handlers = ['click', 'hover'].map(type =&gt;
+    useCallback(() =&gt; console.log(type), [type])
+  );
+}
+
+// C
+function useTimer() {
+  const [tick, setTick] = useState(0);
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; setTick(t =&gt; t + 1), 1000);
+    return () =&gt; clearInterval(id);
+  }, []);
+  return tick;
+}
+
+// D
+class Counter extends React.Component {
+  render() {
+    const [n, setN] = useState(0); // inside class component
+    return &lt;div&gt;{n}&lt;/div&gt;;
+  }
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Violations: A, B, D</strong></p>
+  <ul>
+    <li>[x] <strong>A</strong> — Hook inside a conditional block. Breaks the ordering guarantee.</li>
+    <li>[x] <strong>B</strong> — Hook inside a <code>map</code> loop. Hooks must not be called inside loops.</li>
+    <li>[ ] <strong>C</strong> — Valid. <code>useTimer</code> is a properly written custom hook: hooks at the top level, no conditionals.</li>
+    <li>[x] <strong>D</strong> — Hooks cannot be used inside class components. They are only valid in function components and custom hooks.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 40 — What Does This Print?</h3>
+<p>Predict the complete console output of the following async/await code:</p>
+<div class="cb"><pre>async function fetchA() {
+  console.log('fetchA start');
+  await new Promise(resolve =&gt; setTimeout(resolve, 0));
+  console.log('fetchA end');
+  return 'A';
+}
+
+async function fetchB() {
+  console.log('fetchB start');
+  const result = await fetchA();
+  console.log('fetchB got:', result);
+  return 'B';
+}
+
+console.log('main start');
+fetchB();
+console.log('main end');</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output:</strong> main start, fetchB start, fetchA start, main end, fetchA end, fetchB got: A</p>
+  <p><strong>Step-by-step:</strong></p>
+  <ol>
+    <li><code>'main start'</code> — sync</li>
+    <li><code>fetchB()</code> starts; <code>'fetchB start'</code> — sync inside async function up to first <code>await</code></li>
+    <li><code>fetchA()</code> starts; <code>'fetchA start'</code> — sync inside fetchA up to its <code>await</code></li>
+    <li>At <code>await new Promise(resolve =&gt; setTimeout(resolve, 0))</code>, a macrotask is scheduled; fetchA suspends, fetchB suspends, control returns to the caller.</li>
+    <li><code>'main end'</code> — sync code after <code>fetchB()</code> continues</li>
+    <li>Macrotask fires, resolving the Promise inside fetchA; fetchA resumes as a microtask: <code>'fetchA end'</code></li>
+    <li>fetchA returns <code>'A'</code>; fetchB resumes: <code>'fetchB got: A'</code></li>
+  </ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 41 — Multiple Choice</h3>
+<p>In TypeScript, what is the difference between a <code>const enum</code> and a regular <code>enum</code>?</p>
+<ul>
+  <li>A) They are identical at runtime</li>
+  <li>B) <code>const enum</code> members are inlined at compile time and leave no runtime object; regular <code>enum</code> compiles to a real JavaScript object</li>
+  <li>C) <code>const enum</code> allows string values; regular <code>enum</code> only allows numbers</li>
+  <li>D) Regular <code>enum</code> supports reverse mapping for numbers; <code>const enum</code> adds that plus string reverse mapping</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <p>A regular <code>enum</code> compiles to a JavaScript object that exists at runtime:</p>
+  <div class="cb"><pre>// TypeScript enum
+enum Direction { Up = 1, Down }
+// Compiled JS
+var Direction;
+(function (Direction) {
+  Direction[Direction["Up"] = 1] = "Up";
+  Direction[Direction["Down"] = 2] = "Down";
+})(Direction || (Direction = {}));</pre></div>
+  <p>A <code>const enum</code> is erased entirely — each reference is replaced with its literal value inline. This produces smaller output but means you cannot iterate over the enum at runtime or use it with <code>Object.keys()</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 42 — Code Analysis</h3>
+<p>Explain what this TypeScript generic utility type does and give an example of its use:</p>
+<div class="cb"><pre>type ReturnType&lt;T extends (...args: any) =&gt; any&gt; =
+  T extends (...args: any) =&gt; infer R ? R : never;</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>This is a <strong>conditional type</strong> using the <code>infer</code> keyword. It extracts the <strong>return type</strong> of a function type <code>T</code>.</p>
+  <ul>
+    <li><code>T extends (...args: any) =&gt; infer R</code> — if <code>T</code> is a function type, TypeScript "infers" (captures) the return type into the type variable <code>R</code>.</li>
+    <li>If it matches, the result is <code>R</code> (the return type); otherwise <code>never</code>.</li>
+  </ul>
+  <p><strong>Example:</strong></p>
+  <div class="cb"><pre>function greet(name: string): string { return `Hello, ${name}`; }
+type GreetReturn = ReturnType&lt;typeof greet&gt;; // string
+
+async function fetchUser(): Promise&lt;User&gt; { ... }
+type FetchReturn = ReturnType&lt;typeof fetchUser&gt;; // Promise&lt;User&gt;</pre></div>
+  <p>This is actually the <strong>built-in <code>ReturnType&lt;T&gt;</code> utility type</strong> — used to derive types from existing functions without repeating yourself.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 43 — Multiple Choice</h3>
+<p>What is the difference between a TypeScript <code>tuple</code> and a regular array type?</p>
+<ul>
+  <li>A) Tuples are for objects; regular arrays are for primitives</li>
+  <li>B) A tuple has a fixed length and each position has a specific type; a regular array has homogeneous elements of one type</li>
+  <li>C) Tuples can only contain strings; arrays can contain any type</li>
+  <li>D) Tuples are mutable; regular arrays are read-only in TypeScript</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <div class="cb"><pre>// Regular array: all elements are the same type
+const names: string[] = ['Alice', 'Bob'];
+
+// Tuple: fixed length, specific type per position
+const point: [number, number] = [10, 20];
+const entry: [string, number] = ['age', 25];
+
+// Useful for function return values with mixed types
+function useState&lt;T&gt;(init: T): [T, (val: T) =&gt; void] { ... }</pre></div>
+  <p>TypeScript uses tuples heavily for hook return types and when you want to destructure a fixed-structure return value rather than a named object.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 44 — Select All That Apply</h3>
+<p>Which of the following are true about the virtual DOM and React's reconciliation process?</p>
+<ul>
+  <li>[ ] A) React always updates the entire real DOM when any state changes</li>
+  <li>[ ] B) React creates a virtual DOM tree — a JavaScript object representation of the UI</li>
+  <li>[ ] C) On a state change, React diffs the new virtual DOM against the previous one (reconciliation)</li>
+  <li>[ ] D) React updates only the real DOM nodes that correspond to changed virtual DOM nodes</li>
+  <li>[ ] E) Changing an element's <code>type</code> (e.g., from <code>&lt;div&gt;</code> to <code>&lt;span&gt;</code>) causes React to reuse the existing DOM node</li>
+  <li>[ ] F) Stable <code>key</code> props help React correctly identify which list items changed during reconciliation</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: B, C, D, F</strong></p>
+  <ul>
+    <li>[ ] <strong>A</strong> — FALSE. React only updates changed parts.</li>
+    <li>[x] <strong>B</strong> — Correct. The virtual DOM is a lightweight JS representation.</li>
+    <li>[x] <strong>C</strong> — Correct. Diffing is the reconciliation algorithm.</li>
+    <li>[x] <strong>D</strong> — Correct. Only the minimum set of real DOM updates is applied.</li>
+    <li>[ ] <strong>E</strong> — FALSE. When an element's type changes, React destroys the existing tree and mounts a new one from scratch (it does not reuse the DOM node).</li>
+    <li>[x] <strong>F</strong> — Correct. Stable keys allow React to match old nodes to new ones accurately.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 45 — Written Short-Answer</h3>
+<p>Describe what happens in each of the four <code>this</code>-binding rules in JavaScript. For each rule, give a one-line code example showing when it applies.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1. Default binding</strong> — applies when a function is called as a plain function (no object, no <code>new</code>, no explicit binding). <code>this</code> is the global object (or <code>undefined</code> in strict mode).</p>
+  <div class="cb"><pre>function greet() { console.log(this); }
+greet(); // window (or undefined in strict)</pre></div>
+  <p><strong>2. Implicit binding</strong> — applies when a function is called as a method on an object. <code>this</code> is the object to the left of the dot.</p>
+  <div class="cb"><pre>const obj = { name: 'Bob', greet() { console.log(this.name); } };
+obj.greet(); // 'Bob'</pre></div>
+  <p><strong>3. Explicit binding</strong> — applies when <code>.call()</code>, <code>.apply()</code>, or <code>.bind()</code> is used to explicitly set <code>this</code>.</p>
+  <div class="cb"><pre>greet.call({ name: 'Carol' }); // 'Carol'</pre></div>
+  <p><strong>4. <code>new</code> binding</strong> — applies when a function is called with the <code>new</code> keyword. A new empty object is created, <code>this</code> is set to it, and the function populates it.</p>
+  <div class="cb"><pre>function Person(name) { this.name = name; }
+const p = new Person('Dave'); // this === p inside the function</pre></div>
+  <p><strong>Priority:</strong> <code>new</code> &gt; explicit (<code>.call</code>/<code>.bind</code>) &gt; implicit (method) &gt; default.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 46 — Code Analysis</h3>
+<p>The following TypeScript code has a type error. Identify it and explain how to fix it using a type guard:</p>
+<div class="cb"><pre>function processInput(input: string | number) {
+  console.log(input.toUpperCase());
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Error:</strong> <code>toUpperCase()</code> is a method on <code>string</code>, but <code>input</code> could be a <code>number</code>. TypeScript will raise: <em>Property 'toUpperCase' does not exist on type 'string | number'</em>.</p>
+  <p><strong>Fix using a <code>typeof</code> type guard:</strong></p>
+  <div class="cb"><pre>function processInput(input: string | number) {
+  if (typeof input === 'string') {
+    console.log(input.toUpperCase()); // narrowed to string here
+  } else {
+    console.log(input.toFixed(2));    // narrowed to number here
+  }
+}</pre></div>
+  <p>Inside each branch, TypeScript narrows the type based on the <code>typeof</code> check, allowing safe access to type-specific methods.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 47 — Fill in the Blanks</h3>
+<p>Complete the following about <code>class</code> syntax in JavaScript and TypeScript:</p>
+<p>A <code>class</code> in JavaScript is syntactic sugar over 1. ________ -based inheritance. The special method 2. ________ is called when a class is instantiated with <code>new</code>. To inherit from another class, use the 3. ________ keyword. In the subclass constructor, you must call 4. ________ before accessing <code>this</code>. In TypeScript, class members can be marked as 5. ________ (accessible only within the class), 6. ________ (accessible within the class and subclasses), or default to <code>public</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>1.</strong> prototype</p>
+  <p><strong>2.</strong> <code>constructor</code></p>
+  <p><strong>3.</strong> <code>extends</code></p>
+  <p><strong>4.</strong> <code>super()</code></p>
+  <p><strong>5.</strong> <code>private</code></p>
+  <p><strong>6.</strong> <code>protected</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 48 — What Does This Print?</h3>
+<p>Predict all console outputs in order:</p>
+<div class="cb"><pre>class Base {
+  constructor() {
+    console.log('Base constructor');
+    this.init();
+  }
+  init() {
+    console.log('Base init');
+  }
+}
+
+class Child extends Base {
+  constructor() {
+    super();
+    console.log('Child constructor');
+  }
+  init() {
+    console.log('Child init');
+  }
+}
+
+const c = new Child();</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Output:</strong> Base constructor, Child init, Child constructor</p>
+  <p><strong>Explanation:</strong></p>
+  <ol>
+    <li><code>new Child()</code> calls <code>Child</code>'s constructor, which immediately calls <code>super()</code>.</li>
+    <li><code>super()</code> runs the <code>Base</code> constructor: <code>'Base constructor'</code>.</li>
+    <li>Inside <code>Base</code>'s constructor, <code>this.init()</code> is called. Because <code>this</code> is the <code>Child</code> instance (JavaScript uses dynamic dispatch), <code>Child.prototype.init</code> is called: <code>'Child init'</code>.</li>
+    <li>Back in <code>Child</code>'s constructor after <code>super()</code> returns: <code>'Child constructor'</code>.</li>
+  </ol>
+  <p>This demonstrates <strong>polymorphic dispatch</strong> — the method called depends on the runtime type of <code>this</code>, not the class whose constructor is running.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 49 — Multiple Choice</h3>
+<p>A <code>useEffect</code> hook fetches data and sets state. The component unmounts before the fetch completes. What is the best way to prevent the "Can't perform a React state update on an unmounted component" warning?</p>
+<ul>
+  <li>A) Wrap <code>setData</code> in a try/catch</li>
+  <li>B) Use <code>useRef</code> to track if the component is still mounted, and check before calling <code>setState</code>; or use the cleanup function to cancel the fetch using <code>AbortController</code></li>
+  <li>C) Add the fetch URL to the effect's dependency array</li>
+  <li>D) Switch to a class component, which handles unmounting automatically</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong></p>
+  <p>The modern best practice is to use <code>AbortController</code> to cancel the in-flight request in the effect's cleanup function:</p>
+  <div class="cb"><pre>useEffect(() =&gt; {
+  const controller = new AbortController();
+  fetch('/api/data', { signal: controller.signal })
+    .then(res =&gt; res.json())
+    .then(data =&gt; setData(data))
+    .catch(err =&gt; {
+      if (err.name !== 'AbortError') console.error(err);
+    });
+  return () =&gt; controller.abort(); // cleanup: cancel the request
+}, []);</pre></div>
+  <p>The <code>isMounted</code> ref pattern also works but <code>AbortController</code> is preferred because it actually cancels the network request, saving bandwidth.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 50 — Select All That Apply</h3>
+<p>Which of the following statements about the JavaScript event loop are correct?</p>
+<ul>
+  <li>[ ] A) The call stack is single-threaded — only one piece of code executes at a time</li>
+  <li>[ ] B) <code>setTimeout(fn, 0)</code> guarantees <code>fn</code> will run after exactly 0 milliseconds</li>
+  <li>[ ] C) Microtasks (Promise callbacks) are processed between each macrotask</li>
+  <li>[ ] D) Multiple microtasks can be queued and all of them run before the next macrotask is picked up</li>
+  <li>[ ] E) <code>requestAnimationFrame</code> callbacks run as microtasks</li>
+  <li>[ ] F) <code>MutationObserver</code> callbacks are microtasks</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct: A, C, D, F</strong></p>
+  <ul>
+    <li>[x] <strong>A</strong> — The JS call stack is single-threaded.</li>
+    <li>[ ] <strong>B</strong> — FALSE. <code>setTimeout(fn, 0)</code> schedules <code>fn</code> at the <em>earliest opportunity</em> after the current task and all microtasks finish — browser minimum is typically 4ms+ when nested; it is never guaranteed to be exact.</li>
+    <li>[x] <strong>C</strong> — Microtasks run after each macrotask and after each task's synchronous code completes.</li>
+    <li>[x] <strong>D</strong> — The entire microtask queue is drained before the next macrotask.</li>
+    <li>[ ] <strong>E</strong> — FALSE. <code>requestAnimationFrame</code> is a macrotask (it runs before paint, but it's not a microtask).</li>
+    <li>[x] <strong>F</strong> — <code>MutationObserver</code> callbacks are dispatched as microtasks.</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 51 — Code Analysis</h3>
+<p>The following component has a performance problem. Identify it and propose a fix.</p>
+<div class="cb"><pre>function ExpensiveList({ items }) {
+  const sorted = items
+    .filter(i =&gt; i.active)
+    .sort((a, b) =&gt; a.name.localeCompare(b.name));
+
+  return (
+    &lt;ul&gt;
+      {sorted.map(i =&gt; &lt;li key={i.id}&gt;{i.name}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+}</pre></div>
+<p>The parent component re-renders frequently for unrelated state changes. <code>items</code> itself rarely changes. What is the problem and how do you fix it?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Problem:</strong> The <code>filter + sort</code> computation runs on <strong>every render</strong> of <code>ExpensiveList</code>, even when <code>items</code> hasn't changed. If <code>items</code> is a large array, this is wasteful.</p>
+  <p><strong>Fix — two complementary steps:</strong></p>
+  <ol>
+    <li>Wrap the component in <code>React.memo</code> to skip re-renders when <code>items</code> reference hasn't changed.</li>
+    <li>Memoize the expensive computation with <code>useMemo</code> so it only recalculates when <code>items</code> changes:</li>
+  </ol>
+  <div class="cb"><pre>const ExpensiveList = React.memo(function ExpensiveList({ items }) {
+  const sorted = useMemo(() =&gt;
+    items
+      .filter(i =&gt; i.active)
+      .sort((a, b) =&gt; a.name.localeCompare(b.name)),
+    [items]
+  );
+
+  return (
+    &lt;ul&gt;
+      {sorted.map(i =&gt; &lt;li key={i.id}&gt;{i.name}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+});</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 52 — Written Short-Answer</h3>
+<p>Explain the difference between <code>Promise.race</code> and <code>Promise.any</code>. Give a practical use case for each.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong><code>Promise.race(promises)</code></strong> — settles with whatever promise settles <em>first</em>, whether fulfilled or rejected. If the first promise to settle is rejected, <code>race</code> rejects too.</p>
+  <p><strong>Use case:</strong> Implementing a timeout for a network request:</p>
+  <div class="cb"><pre>const result = await Promise.race([
+  fetch('/api/data'),
+  new Promise((_, reject) =&gt;
+    setTimeout(() =&gt; reject(new Error('Timeout')), 5000))
+]);</pre></div>
+  <p><strong><code>Promise.any(promises)</code></strong> — resolves as soon as <em>any one</em> promise fulfills, ignoring rejections. Only rejects (with an <code>AggregateError</code>) if <strong>all</strong> promises reject.</p>
+  <p><strong>Use case:</strong> Fetching from multiple CDN mirrors and using whichever responds first:</p>
+  <div class="cb"><pre>const asset = await Promise.any([
+  fetch('https://cdn1.example.com/asset.js'),
+  fetch('https://cdn2.example.com/asset.js'),
+  fetch('https://cdn3.example.com/asset.js'),
+]);</pre></div>
+  <p><strong>Key distinction:</strong> <code>race</code> cares about the first settlement (reject or resolve); <code>any</code> cares only about the first <em>fulfillment</em>.</p>
+</div>
+</details>

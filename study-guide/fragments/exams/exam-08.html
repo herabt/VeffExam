@@ -1,0 +1,555 @@
+<h2 class="g-h2">Practice Exam 8 — Server &amp; Client Components, Data Fetching, Server Functions, Error Handling, Static Assets, Route Handlers, Redux Toolkit</h2>
+
+<p><strong>22 questions. Closed-book format.</strong></p>
+
+<hr>
+
+<h3 class="g-h3">Question 1 — Server to Client boundary</h3>
+<p>A Server Component can render Client Components and other Server Components, but Client Components cannot render Server Components. According to the slides, there is one way to render Server Components inside Client Components. What is it, and what determines whether a component is a Server Component or not?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>By <strong>passing a Server Component as props</strong> (e.g., <code>children</code>) to the Client Component, which then renders the Server Component. Rendering a Server Component is considered a "one way street" — once the transition to client has been made, you cannot go back.</p>
+<p>What determines if it is a Server Component or not is <strong>where the component was imported</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — Code analysis – component composition</h3>
+<p>Study the following code from the slides:</p>
+<div class="cb"><pre>// app/restaurants/page.tsx - Server Component
+async function RestaurantsPage() {
+  const response = await fetch('https://api.example.com/restaurants');
+  const restaurants = await response.json();
+
+  return (
+    &lt;InteractiveList&gt;
+      {restaurants.map(restaurant =&gt; (
+        &lt;RestaurantCard key={restaurant.id} restaurant={restaurant} /&gt;
+      ))}
+    &lt;/InteractiveList&gt;
+  );
+}
+
+// app/components/InteractiveList.tsx - Client Component
+'use client';
+import { useState } from 'react';
+
+export default function InteractiveList({ children }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setIsExpanded(!isExpanded)}&gt;
+        {isExpanded ? 'Collapse' : 'Expand'} List
+      &lt;/button&gt;
+      {isExpanded &amp;&amp; &lt;div&gt;{children}&lt;/div&gt;}
+    &lt;/div&gt;
+  );
+}
+
+// app/components/RestaurantCard.tsx - Server Component
+async function RestaurantCard({ restaurant }) {
+  const details = await fetch(`https://api.example.com/restaurants/${restaurant.id}`);
+  const data = await details.json();
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{restaurant.name}&lt;/h2&gt;
+      &lt;p&gt;{restaurant.cuisine}&lt;/p&gt;
+      &lt;p&gt;Rating: {data.rating}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</pre></div>
+<p><strong>a)</strong> <code>InteractiveList</code> is a Client Component, yet <code>RestaurantCard</code> (a Server Component) renders inside it. Why does this work without errors?</p>
+<p><strong>b)</strong> Why does <code>InteractiveList</code> need the <code>'use client'</code> directive but <code>RestaurantCard</code> does not?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> It works because <code>RestaurantCard</code> is <strong>passed as props</strong> (<code>children</code>) to <code>InteractiveList</code>. The Server Component (<code>RestaurantsPage</code>) renders both components — it passes <code>RestaurantCard</code> elements as children to the Client Component. The Client Component does not import or render the Server Component directly; it just renders <code>{children}</code>.</p>
+<p><strong>b)</strong> <code>InteractiveList</code> needs <code>'use client'</code> because it uses <code>useState</code> (a React hook) and <code>onClick</code> (an event handler), which only work in Client Components. <code>RestaurantCard</code> does not need it because it is a Server Component that uses <code>async/await</code> and <code>fetch</code> to get data on the server — it never sends JavaScript to the browser.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Third-party components</h3>
+<p>When using third-party components from libraries such as MaterialUI or Bootstrap in a Next.js application, the slides say they are not built for Next.js. According to the slides:</p>
+<p><strong>a)</strong> When do problems occur with these components?</p>
+<p><strong>b)</strong> What is the solution? Write the exact code pattern shown in the slides for wrapping a third-party <code>Carousel</code> component.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Problems occur <strong>when you render these components within server components</strong>. It won't cause any problems if you render them within other client components.</p>
+<p><strong>b)</strong> Wrap the component using the <code>'use client'</code> directive:</p>
+<div class="cb"><pre>'use client'
+
+import { Carousel } from 'acme-carousel'
+
+export default Carousel
+</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Fetching data – Server vs. Client</h3>
+<p>List the three ways you can fetch data in <strong>Server Components</strong> and the three ways you can fetch data in <strong>Client Components</strong>, as described in the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Server Components:</strong></p>
+<ol>
+<li>The <code>fetch</code> API</li>
+<li>An ORM / Database</li>
+<li>Reading from the filesystem using <code>fs</code></li>
+</ol>
+<p><strong>Client Components:</strong></p>
+<ol>
+<li>React's <code>use</code> API</li>
+<li>A community library such as SWR or React Query</li>
+<li><code>useEffect</code> with <code>fetch</code></li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Server-side data fetching with fetch()</h3>
+<p>According to the slides, to fetch data with the fetch API in a Server Component, you must do two things to your component. What are they? Also, are fetch responses automatically cached?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> Turn your component into an <strong>asynchronous function</strong> (<code>async</code>)</p>
+<p><strong>2.</strong> <strong>Await</strong> the fetch call</p>
+<p>Fetch responses are <strong>not automatically cached</strong>, but the route is pre-rendered and output cached.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Server-side data fetching with ORM</h3>
+<p>Complete the missing code to fetch a restaurant using an ORM in a Server Component, following the exact pattern from the slides:</p>
+<div class="cb"><pre>import { db } from '@/lib/db';
+
+export default async function Page() {
+  const restaurant = await _____________________;
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{restaurant.name}&lt;/h1&gt;
+      &lt;p&gt;{restaurant.cuisine}&lt;/p&gt;
+      &lt;p&gt;{restaurant.location}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<div class="cb"><pre>const restaurant = await db.restaurant.findFirst({
+  where: {
+    name: "McDonald's"
+  }
+});
+</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 7 — Client-side data fetching with use API</h3>
+<p>The slides describe a pattern for streaming data from server to client using React's <code>use</code> API. Explain the four steps of this pattern. Then, given the code below, fill in the blanks:</p>
+<div class="cb"><pre>// Server Component
+import { fetchMessage } from './lib.js';
+import { Message } from './message.js';
+
+export default function App() {
+  const messagePromise = fetchMessage();
+  return (
+    &lt;Suspense fallback={&lt;p&gt;waiting for message ... &lt;/p&gt;}&gt;
+      &lt;Message _________={messagePromise} /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+
+// Client Component
+'use client';
+import { ___ } from 'react';
+
+export function Message({ messagePromise }) {
+  const messageContent = ___(messagePromise);
+  return &lt;p&gt;Here is the message: {messageContent}&lt;/p&gt;;
+}
+</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Four steps:</strong></p>
+<ol>
+<li>Start by fetching data in your Server component, and pass the <strong>promise</strong> to your Client Component as prop</li>
+<li>The Client Component takes the Promise it received as a prop</li>
+<li>The Client Component passes the promise to the <code>use</code> API</li>
+<li>This allows the Client Component to read the value from the Promise that was initially created by the Server Component</li>
+</ol>
+<p><strong>Filled-in code:</strong></p>
+<div class="cb"><pre>&lt;Message messagePromise={messagePromise} /&gt;
+</pre></div>
+<div class="cb"><pre>import { use } from 'react';
+
+const messageContent = use(messagePromise);
+</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 8 — Client-side data fetching with SWR</h3>
+<p>In the SWR code example from the slides, what three values are destructured from the <code>useSWR</code> hook, and what does the <code>fetcher</code> function do?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The three destructured values are: <code>data: restaurant</code>, <code>error</code>, and <code>isLoading</code>.</p>
+<p>The <code>fetcher</code> function is:</p>
+<div class="cb"><pre>const fetcher = (url: string) =&gt; fetch(url).then(res =&gt; res.json());
+</pre></div>
+<p>It takes a URL, calls <code>fetch</code>, and returns the parsed JSON response.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — Choosing client side vs. server side</h3>
+<p>According to the slides, what is the "best practice" when choosing between server-side and client-side data fetching? Give two reasons to opt for server-side and two reasons to opt for client-side.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Best practice:</strong> "Combine both worlds, try to load as much as possible server side but opt for client side when needed."</p>
+<p><strong>Server-side reasons (any two):</strong></p>
+<ul>
+<li>Initial page load data</li>
+<li>SEO-critical content</li>
+<li>Private/sensitive data</li>
+<li>Direct database access</li>
+</ul>
+<p><strong>Client-side reasons (any two):</strong></p>
+<ul>
+<li>User interactions (search, filters)</li>
+<li>Real-time updates</li>
+<li>Dynamic data after initial load</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — Server Functions – definition</h3>
+<p>According to the slides, what is a Server Function? List four key facts about Server Functions as stated in the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>A Server Function is <strong>an asynchronous function that runs on the server</strong>. They can be called from the client through a network request, which is why they must be asynchronous.</p>
+<p><strong>Four key facts:</strong></p>
+<ol>
+<li>They are also called <strong>Server Actions</strong> when used in the context of handling form submissions and mutations</li>
+<li>They use <strong>HTTP POST by default</strong>, and that is the only way to invoke them</li>
+<li>They remind us of <strong>RPC / Remote Procedure Calls</strong> which look like you are calling a function, but in reality you are making a network request to a server</li>
+<li>They can be <strong>invoked inside Client Components and Server Components</strong> by importing them from their relative path</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — Server Functions – declaration</h3>
+<p>The slides describe two places where Server Functions can be declared. What are they, and what directive must be used in each case? Also, is it possible to declare Server Functions inside a Client Component?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li>In their <strong>own file</strong> — mark the top of the file with <code>'use server'</code></li>
+<li><strong>Inside a Server Component</strong> — mark the function declaration with <code>'use server'</code></li>
+</ol>
+<p>It is <strong>not possible</strong> to declare Server Functions inside a Client Component. However, Server Functions can be invoked inside Client Components by importing them, or they can be passed as props to Client Components from another component.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 12 — Server Functions – createRestaurant</h3>
+<p>Study the following Server Function from the slides:</p>
+<div class="cb"><pre>// app/actions/restaurants.ts
+'use server';
+
+import { db } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+
+export async function createRestaurant(formData: FormData) {
+  const name = formData.get('name') as string;
+  const cuisine = formData.get('cuisine') as string;
+  const location = formData.get('location') as string;
+
+  if (!name || !cuisine || !location) {
+    return { error: 'All fields are required' };
+  }
+
+  const restaurant = await db.restaurant.create({
+    data: { name, cuisine, location },
+  });
+
+  revalidatePath('/restaurants');
+  return { success: true, restaurant };
+}
+</pre></div>
+<p><strong>a)</strong> Why is <code>'use server'</code> placed at the top of the file rather than inside the function?</p>
+<p><strong>b)</strong> What does <code>revalidatePath('/restaurants')</code> do?</p>
+<p><strong>c)</strong> How does the Client Component call this Server Function? Show the pattern from the slides using <code>&lt;form action={handleSubmit}&gt;</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Because it is declared in its <strong>own file</strong> (a dedicated actions file). When <code>'use server'</code> is at the top of the file, all exported functions in that file are Server Functions.</p>
+<p><strong>b)</strong> <code>revalidatePath('/restaurants')</code> <strong>revalidates the cache</strong> for the <code>/restaurants</code> path so that the page will show the new data after a restaurant is created.</p>
+<p><strong>c)</strong> The Client Component pattern from the slides:</p>
+<div class="cb"><pre>// app/components/add-restaurant-form.tsx
+'use client';
+
+import { createRestaurant } from '@/app/actions/restaurants';
+import { useState } from 'react';
+
+export default function AddRestaurantForm() {
+  const [error, setError] = useState&lt;string&gt;();
+
+  async function handleSubmit(formData: FormData) {
+    const result = await createRestaurant(formData);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setError(undefined);
+    }
+  }
+
+  return (
+    &lt;form action={handleSubmit}&gt;
+      &lt;input name="name" placeholder="Restaurant Name" required /&gt;
+      &lt;input name="cuisine" placeholder="Cuisine Type" required /&gt;
+      &lt;input name="location" placeholder="Location" required /&gt;
+      &lt;button type="submit"&gt;Add Restaurant&lt;/button&gt;
+      {error &amp;&amp; &lt;p style={{ color: 'red' }}&gt;{error}&lt;/p&gt;}
+    &lt;/form&gt;
+  );
+}
+</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — Server Functions – side effects</h3>
+<p>The slides list four side effects that are useful when dealing with Server Functions. Name all four, and for each one, identify the function or import used (e.g., <code>revalidatePath</code>, <code>redirect</code>, <code>refresh</code>).</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li><strong>Showing a pending state</strong> — <code>useActionState</code> hook with <code>pending</code> + <code>startTransition</code></li>
+<li><strong>Refreshing the page</strong> — <code>refresh()</code> from <code>next/cache</code> (refreshes the client router; does not revalidate tagged data)</li>
+<li><strong>Revalidating the cache</strong> — <code>revalidatePath()</code> from <code>next/cache</code></li>
+<li><strong>Redirecting to another page</strong> — <code>redirect()</code> from <code>next/navigation</code></li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 14 — Showing a pending state with useActionState</h3>
+<p>Fill in the blanks in this code from the slides:</p>
+<div class="cb"><pre>'use client';
+
+import { useActionState, startTransition } from 'react';
+import { createRestaurant } from '@/app/actions/restaurants';
+import { LoadingSpinner } from '@/app/ui/loading-spinner';
+
+export function CreateRestaurantButton() {
+  const [state, action, ________] = useActionState(createRestaurant, null);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; _________(action)}&gt;
+        {________ ? &lt;LoadingSpinner /&gt; : 'Create Restaurant'}
+      &lt;/button&gt;
+      {state?.error &amp;&amp; &lt;p style={{ color: 'red' }}&gt;{state.error}&lt;/p&gt;}
+      {state?.success &amp;&amp; &lt;p style={{ color: 'green' }}&gt;Restaurant created!&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}
+</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<div class="cb"><pre>const [state, action, pending] = useActionState(createRestaurant, null);
+
+&lt;button onClick={() =&gt; startTransition(action)}&gt;
+  {pending ? &lt;LoadingSpinner /&gt; : 'Create Restaurant'}
+&lt;/button&gt;
+</pre></div>
+<p>The three blanks are all <code>pending</code>, <code>startTransition</code>, and <code>pending</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — Errors in Next.js – two categories</h3>
+<p>The slides divide errors into two categories. Name them, describe each one, and explain how each should be handled according to the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li><strong>Expected errors</strong> — errors that can occur during the normal operation of the application, such as those from server-side form validation or failed requests. These should be <strong>handled explicitly and returned to the client</strong>.</li>
+<li><strong>Uncaught exceptions</strong> — unexpected errors that indicate bugs or issues that should not occur during the normal flow of the application. These should be <strong>handled by throwing errors, which will then be caught by error boundaries</strong>.</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Handling expected exceptions</h3>
+<p>Expected exceptions can occur in three places according to the slides. Name the three places, and for each one, describe the recommended way to handle them.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<ol>
+<li><strong>Server Functions</strong> — handled through the use of the <code>useActionState</code> hook</li>
+<li><strong>Server Components</strong> — use the response to conditionally render an error message or redirect</li>
+<li><strong>Client Components</strong> — make use of community libraries like SWR to handle errors and react accordingly, or wrap <code>fetch()</code> calls in <code>try...catch</code> and react accordingly</li>
+</ol>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Error boundaries</h3>
+<p><strong>a)</strong> What file do you create to make an error boundary in Next.js?</p>
+<p><strong>b)</strong> What two props does the error boundary component receive?</p>
+<p><strong>c)</strong> What is the <code>global-error.js</code> file, and what special HTML elements must its component render that a regular error boundary does not?</p>
+<p><strong>d)</strong> Do error boundaries catch errors from event handlers? Why or why not?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> An <code>error.js</code> (or <code>error.tsx</code>) file inside a route segment, exporting a React component.</p>
+<p><strong>b)</strong> The two props are:</p>
+<ul>
+<li><code>error</code>: <code>Error &amp; { digest?: string }</code> — the error object</li>
+<li><code>reset</code>: <code>() =&gt; void</code> — a function to attempt re-rendering the component</li>
+</ul>
+<p><strong>c)</strong> <code>global-error.js</code> is a <strong>catch-all error boundary</strong> that catches errors at the global level. Its component must render <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> tags (because it replaces the root layout when active), unlike a regular error boundary.</p>
+<p><strong>d)</strong> Error boundaries <strong>do not catch errors from event handlers</strong> because they are designed to catch errors <strong>during rendering</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 18 — Error boundary code</h3>
+<p>Write the complete <code>error.tsx</code> file for the route <code>app/restaurants/[id]/error.tsx</code> as shown in the slides, including the directive, the props type, and the JSX that displays an error message and a "Try again" button.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<div class="cb"><pre>// app/restaurants/[id]/error.tsx
+'use client';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error &amp; { digest?: string };
+  reset: () =&gt; void;
+}) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Something went wrong while loading the restaurant!&lt;/h2&gt;
+      &lt;p&gt;{error.message}&lt;/p&gt;
+      &lt;button onClick={() =&gt; reset()}&gt;
+        Try again
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 19 — Image optimizations</h3>
+<p>According to the slides, the Next.js <code>&lt;Image&gt;</code> component extends the HTML <code>&lt;img&gt;</code> element. List the four key feature categories of <code>&lt;Image&gt;</code> optimization mentioned in the slides. Also, what is the difference between local and remote images regarding width/height configuration?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Four key feature categories:</strong></p>
+<ol>
+<li><strong>Size Optimization</strong> — automatically serves correctly sized images for each device; uses modern formats like WebP and AVIF</li>
+<li><strong>Visual Stability</strong> — prevents layout shift during image loading; reserves space automatically</li>
+<li><strong>Faster Page Loads</strong> — lazy loading using native browser APIs; only loads images when they enter the viewport; optional blur-up placeholders</li>
+<li><strong>Asset Flexibility</strong> — on-demand image resizing; works with remote images from any server</li>
+</ol>
+<p><strong>Local images:</strong> Stored in the project (e.g., <code>/public</code> folder). Next.js automatically determines width and height. No configuration needed. Optimized at build time.</p>
+<p><strong>Remote images:</strong> Hosted on external servers. Must specify width and height <strong>explicitly</strong>. Must configure allowed domains in <code>next.config.js</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 20 — Font optimizations</h3>
+<p>According to the slides, what does the <code>next/font</code> module do, and what two sources can you import fonts from? Show the code pattern for applying a Google font to the root layout.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p>The <code>next/font</code> module <strong>automatically optimizes your fonts and removes external network requests</strong> for improved privacy and performance.</p>
+<p><strong>Two sources:</strong> <code>next/font/local</code> and <code>next/font/google</code>.</p>
+<p><strong>Code pattern:</strong></p>
+<div class="cb"><pre>import { Geist } from 'next/font/google'
+
+const geist = Geist({
+  subsets: ['latin'],
+})
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="en" className={geist.className}&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}
+</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 21 — Route Handlers</h3>
+<p><strong>a)</strong> What file do you create to define a Route Handler, and where does it live?</p>
+<p><strong>b)</strong> List all the HTTP methods Route Handlers support according to the slides.</p>
+<p><strong>c)</strong> According to the slides, there is one important restriction about where <code>route.js</code> can exist relative to <code>page.js</code>. What is it?</p>
+<p><strong>d)</strong> Name two use cases for Route Handlers from the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> A <code>route.js</code> (or <code>route.ts</code>) file inside the <code>app</code> directory.</p>
+<p><strong>b)</strong> <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>, <code>HEAD</code>, and <code>OPTIONS</code>.</p>
+<p><strong>c)</strong> There <strong>cannot be a <code>route.js</code> file at the same route segment level as <code>page.js</code></strong>. Route Handlers can be nested anywhere inside the app directory, similar to <code>page.js</code> and <code>layout.js</code>, but not at the same level as <code>page.js</code>.</p>
+<p><strong>d)</strong> Any two from the slides:</p>
+<ul>
+<li>Building REST APIs</li>
+<li>External integrations (webhooks)</li>
+<li>Third-party access to your data</li>
+<li>OAuth/authentication flows</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 22 — Redux Toolkit – configureStore and createSlice</h3>
+<p><strong>a)</strong> According to the slides, what two main functions does Redux Toolkit (RTK) expose?</p>
+<p><strong>b)</strong> What library does <code>createSlice</code> use internally that allows you to write immutable code using "mutating" syntax?</p>
+<p><strong>c)</strong> Given the <code>todosSlice</code> code from the slides, how are action creators exported? Write the exact export line.</p>
+<p><strong>d)</strong> Write the <code>configureStore</code> setup from the slides that combines <code>todosReducer</code> and <code>filtersReducer</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> <code>configureStore</code> and <code>createSlice</code>.</p>
+<p><strong>b)</strong> The <strong>Immer</strong> library, which allows you to write immutable code using "mutating" syntax.</p>
+<p><strong>c)</strong> The exact export line:</p>
+<div class="cb"><pre>export const { todoAdded, todoToggled } = todosSlice.actions
+export default todosSlice.reducer
+</pre></div>
+<p><strong>d)</strong> The <code>configureStore</code> setup:</p>
+<div class="cb"><pre>import { configureStore } from '@reduxjs/toolkit'
+import todosReducer from '../features/todos/todosSlice'
+import filtersReducer from '../features/filters/filtersSlice'
+
+export const store = configureStore({
+  reducer: {
+    todos: todosReducer,
+    filters: filtersReducer,
+  },
+})
+</pre></div>
+</div>
+</details>

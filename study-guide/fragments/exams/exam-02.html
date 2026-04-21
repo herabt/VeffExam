@@ -1,0 +1,502 @@
+<h2 class="g-h2">Practice Exam 2 — React, State Management, Next.js &amp; Forms</h2>
+
+<h2 class="g-h2">SECTION A: REACT CORE</h2>
+
+<h3 class="g-h3">Question 1 — Fill in the blanks</h3>
+<p>Complete the following sentences about React:</p>
+<p>A React component is a reusable piece of 1. ________ that can accept inputs called 2. ________ and manage internal data called 3. ________. When state changes, React schedules a 4. ________ of the component. The virtual 5. ________ is React's in-memory representation of the actual browser DOM, used for efficient diffing.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>UI</code> (user interface)</p>
+<p><strong>2.</strong> <code>props</code></p>
+<p><strong>3.</strong> <code>state</code></p>
+<p><strong>4.</strong> <code>re-render</code></p>
+<p><strong>5.</strong> <code>DOM</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — Multiple Choice</h3>
+<p>Which of the following correctly describes when a <code>useEffect</code> with a dependency array of <code>[userId]</code> will run?</p>
+<ul>
+<li>A) Only once, when the component first mounts</li>
+<li>B) After every render, regardless of what changed</li>
+<li>C) On mount, and then again whenever <code>userId</code> changes</li>
+<li>D) Only when <code>userId</code> is explicitly set to a new value by the user</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>C</strong> — On mount, and whenever <code>userId</code> changes</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Select All That Apply</h3>
+<p>Which of the following are correct use cases for <code>useRef</code> in React?</p>
+<ul>
+<li>[ ] Storing a reference to a DOM element to measure its dimensions</li>
+<li>[ ] Triggering a re-render when its value changes</li>
+<li>[ ] Keeping track of a previous state value between renders</li>
+<li>[ ] Replacing useState for form input values to improve performance</li>
+<li>[ ] Storing a WebSocket connection instance that should persist across renders</li>
+<li>[ ] Storing a timer ID from setInterval so it can be cleared on unmount</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct:</strong></p>
+<ul>
+<li>[x] Storing a reference to a DOM element to measure its dimensions</li>
+<li>[ ] Triggering a re-render — <strong>FALSE</strong> (useRef changes do NOT trigger re-renders)</li>
+<li>[x] Keeping track of a previous state value between renders</li>
+<li>[ ] Replacing useState for form inputs — <strong>FALSE</strong> (not a replacement for state management)</li>
+<li>[x] Storing a WebSocket connection instance that should persist across renders</li>
+<li>[x] Storing a timer ID from setInterval so it can be cleared on unmount</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Multiple Choice</h3>
+<p>What problem does the Context API solve?</p>
+<ul>
+<li>A) It replaces Redux entirely for all state management needs</li>
+<li>B) It eliminates the problem of prop drilling by allowing components to access shared data without passing props through every level</li>
+<li>C) It provides automatic state persistence to localStorage</li>
+<li>D) It optimizes high-frequency state updates like animations</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong> — Eliminates prop drilling</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Fill in the blanks</h3>
+<p>Complete the following sentences about React hooks:</p>
+<p>The 1. ________ hook memoizes a function reference so it is not recreated on every render. The 2. ________ hook memoizes a computed value to avoid expensive recalculations. The 3. ________ hook is an alternative to useState for complex state logic, following the pattern <code>(state, action) =&gt; newState</code>. To read a value from Context, you use the 4. ________ hook.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>useCallback</code></p>
+<p><strong>2.</strong> <code>useMemo</code></p>
+<p><strong>3.</strong> <code>useReducer</code></p>
+<p><strong>4.</strong> <code>useContext</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Written Answer (4 pts)</h3>
+<p>A junior developer writes the following component:</p>
+<div class="cb"><pre>&lt;span&gt;function&lt;/span&gt; &lt;span&gt;UserProfile&lt;/span&gt;({ &lt;span&gt;userId&lt;/span&gt; }) {
+    &lt;span&gt;const&lt;/span&gt; [&lt;span&gt;user&lt;/span&gt;, &lt;span&gt;setUser&lt;/span&gt;] = &lt;span&gt;useState&lt;/span&gt;(&lt;span&gt;null&lt;/span&gt;);
+
+    &lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
+        &lt;span&gt;fetch&lt;/span&gt;(&lt;span&gt;`/api/users/${userId}`&lt;/span&gt;)
+            .then(&lt;span&gt;res&lt;/span&gt; =&gt; &lt;span&gt;res&lt;/span&gt;.&lt;span&gt;json&lt;/span&gt;())
+            .then(&lt;span&gt;data&lt;/span&gt; =&gt; &lt;span&gt;setUser&lt;/span&gt;(&lt;span&gt;data&lt;/span&gt;));
+    });
+
+    &lt;span&gt;return&lt;/span&gt; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;{&lt;span&gt;user&lt;/span&gt;?.&lt;span&gt;name&lt;/span&gt;}&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;;
+}</pre></div>
+<p>a) Identify the performance problem with this code and explain why it occurs. (2 pts)</p>
+<p>b) How would you fix it? Show the corrected code and explain why your fix works. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a) Performance problem:</strong> The useEffect has <strong>NO dependency array</strong>, which means it runs after <strong>EVERY render</strong>. Each time it runs, it calls <code>setUser(data)</code>, which triggers a re-render, which runs the effect again → infinite loop of fetching.</p>
+<p><strong>b) Fix:</strong> Add <code>[userId]</code> as the dependency array:</p>
+<div class="cb"><pre>&lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
+    &lt;span&gt;fetch&lt;/span&gt;(&lt;span&gt;`/api/users/${userId}`&lt;/span&gt;)
+        .then(&lt;span&gt;res&lt;/span&gt; =&gt; &lt;span&gt;res&lt;/span&gt;.&lt;span&gt;json&lt;/span&gt;())
+        .then(&lt;span&gt;data&lt;/span&gt; =&gt; &lt;span&gt;setUser&lt;/span&gt;(&lt;span&gt;data&lt;/span&gt;));
+}, [&lt;span&gt;userId&lt;/span&gt;]); // ← Only re-fetch when userId changes</pre></div>
+<p>This runs once on mount and only re-runs when <code>userId</code> actually changes.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 7 — Code Analysis (4 pts)</h3>
+<p>What is wrong with this component? Explain the issue and provide the correct implementation.</p>
+<div class="cb"><pre>&lt;span&gt;function&lt;/span&gt; &lt;span&gt;Timer&lt;/span&gt;() {
+    &lt;span&gt;const&lt;/span&gt; [&lt;span&gt;seconds&lt;/span&gt;, &lt;span&gt;setSeconds&lt;/span&gt;] = &lt;span&gt;useState&lt;/span&gt;(0);
+    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;intervalId&lt;/span&gt; = &lt;span&gt;useState&lt;/span&gt;(&lt;span&gt;null&lt;/span&gt;);
+
+    &lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
+        &lt;span&gt;intervalId&lt;/span&gt; = &lt;span&gt;setInterval&lt;/span&gt;(() =&gt; {
+            &lt;span&gt;setSeconds&lt;/span&gt;(&lt;span&gt;seconds&lt;/span&gt; + 1);
+        }, 1000);
+
+        &lt;span&gt;return&lt;/span&gt; () =&gt; &lt;span&gt;clearInterval&lt;/span&gt;(&lt;span&gt;intervalId&lt;/span&gt;);
+    }, []);
+
+    &lt;span&gt;return&lt;/span&gt; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;Time: {&lt;span&gt;seconds&lt;/span&gt;}s&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;;
+}</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Multiple issues:</strong></p>
+<ol>
+<li><code>intervalId</code> uses <code>useState(null)</code> but is used as a variable — should be <code>useRef(null)</code> since we need a mutable value that persists without causing re-renders.</li>
+<li><code>setSeconds(seconds + 1)</code> uses stale closure — <code>seconds</code> is captured from initial render (always 0). Should use functional update: <code>setSeconds(prev =&gt; prev + 1)</code>.</li>
+<li>Direct assignment <code>intervalId = ...</code> won't work with useState's array return.</li>
+</ol>
+<p><strong>Correct implementation:</strong></p>
+<div class="cb"><pre>&lt;span&gt;function&lt;/span&gt; &lt;span&gt;Timer&lt;/span&gt;() {
+    &lt;span&gt;const&lt;/span&gt; [&lt;span&gt;seconds&lt;/span&gt;, &lt;span&gt;setSeconds&lt;/span&gt;] = &lt;span&gt;useState&lt;/span&gt;(0);
+    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;intervalRef&lt;/span&gt; = &lt;span&gt;useRef&lt;/span&gt;(&lt;span&gt;null&lt;/span&gt;);
+
+    &lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
+        &lt;span&gt;intervalRef&lt;/span&gt;.&lt;span&gt;current&lt;/span&gt; = &lt;span&gt;setInterval&lt;/span&gt;(() =&gt; {
+            &lt;span&gt;setSeconds&lt;/span&gt;(&lt;span&gt;prev&lt;/span&gt; =&gt; &lt;span&gt;prev&lt;/span&gt; + 1); // functional update
+        }, 1000);
+
+        &lt;span&gt;return&lt;/span&gt; () =&gt; &lt;span&gt;clearInterval&lt;/span&gt;(&lt;span&gt;intervalRef&lt;/span&gt;.&lt;span&gt;current&lt;/span&gt;);
+    }, []);
+
+    &lt;span&gt;return&lt;/span&gt; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;Time: {&lt;span&gt;seconds&lt;/span&gt;}s&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;;
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION B: STATE MANAGEMENT</h2>
+
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>Which pattern does Redux follow for state updates?</p>
+<ul>
+<li>A) Two-way data binding between components and store</li>
+<li>B) Unidirectional data flow: Action → Dispatch → Reducer → Store → View</li>
+<li>C) Observer pattern where components subscribe directly to individual state properties</li>
+<li>D) Event sourcing with automatic state snapshots</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong> — Unidirectional data flow: Action → Dispatch → Reducer → Store → View</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — Select All That Apply</h3>
+<p>Which of the following statements about global state management are true?</p>
+<ul>
+<li>[ ] Zustand requires wrapping your app in a Provider component</li>
+<li>[ ] Redux Toolkit's <code>createSlice</code> automatically generates action creators</li>
+<li>[ ] Context API re-renders all consumers when the context value changes, even if they only use part of it</li>
+<li>[ ] Zustand stores can be accessed from outside React components</li>
+<li>[ ] Redux requires all components to be class-based</li>
+<li>[ ] Context API is well-optimized for high-frequency updates like animations</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct:</strong></p>
+<ul>
+<li>[ ] Zustand requires Provider — <strong>FALSE</strong> (Zustand does NOT need a Provider)</li>
+<li>[x] RTK's createSlice auto-generates action creators</li>
+<li>[x] Context API re-renders all consumers when value changes</li>
+<li>[x] Zustand stores can be accessed outside React</li>
+<li>[ ] Redux requires class-based components — <strong>FALSE</strong> (works with hooks: useSelector, useDispatch)</li>
+<li>[ ] Context API optimized for high-frequency updates — <strong>FALSE</strong> (causes unnecessary re-renders)</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — Written Answer (6 pts)</h3>
+<p>Describe the following Redux concepts. For each, explain what it does and how it fits within the Redux/Flux pattern:</p>
+<p>a) <strong>Store</strong> (1.5 pts)<br>
+b) <strong>Actions</strong> (1.5 pts)<br>
+c) <strong>Reducers</strong> (1.5 pts)<br>
+d) <strong>Dispatch</strong> (1.5 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a) Store:</strong> The single source of truth for the entire application state. It holds the state tree and provides methods to access it (<code>getState</code>), update it (<code>dispatch</code>), and subscribe to changes. There is only ONE store in a Redux application.</p>
+<p><strong>b) Actions:</strong> Plain JavaScript objects that describe WHAT happened. They have a required <code>type</code> property (string) and an optional <code>payload</code>. Example: <code>{ type: 'cart/addItem', payload: { id: 1, name: 'Book' } }</code>. Actions are the ONLY way to trigger state changes.</p>
+<p><strong>c) Reducers:</strong> Pure functions that take the current state and an action, and return a NEW state: <code>(state, action) =&gt; newState</code>. They determine HOW the state changes in response to actions. Must be pure — no side effects, no mutations, same input = same output.</p>
+<p><strong>d) Dispatch:</strong> The method used to send actions to the store. <code>dispatch(action)</code> triggers the reducer, which computes the new state. Components call <code>dispatch</code> to initiate state updates. It's the bridge between the component (View) and the reducer.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — Written Answer (8 pts)</h3>
+<p>You are building a <strong>music player</strong> for a Next.js application. The player state must:</p>
+<ul>
+<li>Be accessible from any page (playlist, album page, now-playing bar)</li>
+<li>Track currently playing song, queue, volume, and play/pause status</li>
+<li>Update frequently (progress bar updates every second)</li>
+<li>Persist the queue when navigating between pages</li>
+</ul>
+<p>a) Compare <strong>Context API</strong>, <strong>Zustand</strong>, and <strong>Redux Toolkit</strong> as options for managing the player state. For each, describe one advantage and one disadvantage for this specific use case. (4 pts)</p>
+<p>b) Choose the most appropriate approach for this use case and justify your choice. Sketch out the state shape and how a component would read the current song and toggle play/pause. (4 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a) Comparison:</strong></p>
+<ul>
+<li><strong>Context API:</strong> Advantage — built into React, no dependencies. Disadvantage — re-renders all consumers on every update, which is terrible for a progress bar updating every second.</li>
+<li><strong>Zustand:</strong> Advantage — simple API, selector-based re-renders (only components using specific state re-render), built-in persist middleware for queue. Disadvantage — less ecosystem/devtools than Redux.</li>
+<li><strong>Redux Toolkit:</strong> Advantage — powerful devtools for debugging complex state, middleware for side effects. Disadvantage — more boilerplate setup compared to Zustand for this use case.</li>
+</ul>
+<p><strong>b) Zustand is best</strong> because:</p>
+<ul>
+<li>High-frequency updates (progress bar) need selective re-renders — Zustand's selector pattern avoids re-rendering every consumer</li>
+<li>Simple API means less boilerplate for the player state</li>
+<li>Persist middleware handles queue persistence automatically</li>
+</ul>
+<p><strong>State shape and implementation:</strong></p>
+<div class="cb"><pre>// State shape
+&lt;span&gt;interface&lt;/span&gt; &lt;span&gt;PlayerStore&lt;/span&gt; {
+    &lt;span&gt;currentSong&lt;/span&gt;: &lt;span&gt;Song&lt;/span&gt; | &lt;span&gt;null&lt;/span&gt;;
+    &lt;span&gt;queue&lt;/span&gt;: &lt;span&gt;Song&lt;/span&gt;[];
+    &lt;span&gt;volume&lt;/span&gt;: &lt;span&gt;number&lt;/span&gt;;
+    &lt;span&gt;isPlaying&lt;/span&gt;: &lt;span&gt;boolean&lt;/span&gt;;
+    &lt;span&gt;progress&lt;/span&gt;: &lt;span&gt;number&lt;/span&gt;;
+    &lt;span&gt;play&lt;/span&gt;: () =&gt; &lt;span&gt;void&lt;/span&gt;;
+    &lt;span&gt;pause&lt;/span&gt;: () =&gt; &lt;span&gt;void&lt;/span&gt;;
+    &lt;span&gt;togglePlay&lt;/span&gt;: () =&gt; &lt;span&gt;void&lt;/span&gt;;
+    &lt;span&gt;setQueue&lt;/span&gt;: (&lt;span&gt;songs&lt;/span&gt;: &lt;span&gt;Song&lt;/span&gt;[]) =&gt; &lt;span&gt;void&lt;/span&gt;;
+}
+
+// Store creation
+&lt;span&gt;const&lt;/span&gt; &lt;span&gt;usePlayerStore&lt;/span&gt; = &lt;span&gt;create&lt;/span&gt;&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;PlayerStore&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;()(
+    &lt;span&gt;persist&lt;/span&gt;(
+        (&lt;span&gt;set&lt;/span&gt;) =&gt; ({
+            &lt;span&gt;currentSong&lt;/span&gt;: &lt;span&gt;null&lt;/span&gt;,
+            &lt;span&gt;queue&lt;/span&gt;: [],
+            &lt;span&gt;volume&lt;/span&gt;: 80,
+            &lt;span&gt;isPlaying&lt;/span&gt;: &lt;span&gt;false&lt;/span&gt;,
+            &lt;span&gt;progress&lt;/span&gt;: 0,
+            &lt;span&gt;togglePlay&lt;/span&gt;: () =&gt; &lt;span&gt;set&lt;/span&gt;((&lt;span&gt;s&lt;/span&gt;) =&gt; ({ &lt;span&gt;isPlaying&lt;/span&gt;: !&lt;span&gt;s&lt;/span&gt;.&lt;span&gt;isPlaying&lt;/span&gt; })),
+            &lt;span&gt;play&lt;/span&gt;: () =&gt; &lt;span&gt;set&lt;/span&gt;({ &lt;span&gt;isPlaying&lt;/span&gt;: &lt;span&gt;true&lt;/span&gt; }),
+            &lt;span&gt;pause&lt;/span&gt;: () =&gt; &lt;span&gt;set&lt;/span&gt;({ &lt;span&gt;isPlaying&lt;/span&gt;: &lt;span&gt;false&lt;/span&gt; }),
+            &lt;span&gt;setQueue&lt;/span&gt;: (&lt;span&gt;songs&lt;/span&gt;) =&gt; &lt;span&gt;set&lt;/span&gt;({ &lt;span&gt;queue&lt;/span&gt;: &lt;span&gt;songs&lt;/span&gt; }),
+        }),
+        { &lt;span&gt;name&lt;/span&gt;: &lt;span&gt;'player-storage'&lt;/span&gt; }
+    )
+);
+
+// Component usage
+&lt;span&gt;function&lt;/span&gt; &lt;span&gt;NowPlayingBar&lt;/span&gt;() {
+    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;currentSong&lt;/span&gt; = &lt;span&gt;usePlayerStore&lt;/span&gt;((&lt;span&gt;s&lt;/span&gt;) =&gt; &lt;span&gt;s&lt;/span&gt;.&lt;span&gt;currentSong&lt;/span&gt;);
+    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;isPlaying&lt;/span&gt; = &lt;span&gt;usePlayerStore&lt;/span&gt;((&lt;span&gt;s&lt;/span&gt;) =&gt; &lt;span&gt;s&lt;/span&gt;.&lt;span&gt;isPlaying&lt;/span&gt;);
+    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;togglePlay&lt;/span&gt; = &lt;span&gt;usePlayerStore&lt;/span&gt;((&lt;span&gt;s&lt;/span&gt;) =&gt; &lt;span&gt;s&lt;/span&gt;.&lt;span&gt;togglePlay&lt;/span&gt;);
+
+    &lt;span&gt;return&lt;/span&gt; (
+        &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;
+            &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;span&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;{&lt;span&gt;currentSong&lt;/span&gt;?.&lt;span&gt;title&lt;/span&gt;}&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;span&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;
+            &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;button&lt;/span&gt; &lt;span&gt;onClick&lt;/span&gt;={&lt;span&gt;togglePlay&lt;/span&gt;}&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;
+                {&lt;span&gt;isPlaying&lt;/span&gt; ? &lt;span&gt;'Pause'&lt;/span&gt; : &lt;span&gt;'Play'&lt;/span&gt;}
+            &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;button&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;
+    );
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION C: NEXT.JS APP ROUTER</h2>
+
+<h3 class="g-h3">Question 12 — Multiple Choice</h3>
+<p>Which of the following correctly describes Server Components in Next.js App Router?</p>
+<ul>
+<li>A) They can use useState and useEffect for interactivity</li>
+<li>B) They run on the server and can directly access databases and environment variables without sending JavaScript to the client</li>
+<li>C) They must be placed in a special <code>/server</code> directory</li>
+<li>D) They are identical to Client Components but rendered on a different thread</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong> — Runs on server, can access databases and env vars, no JS sent to client</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — Select All That Apply</h3>
+<p>Which of the following are true about Server Components?</p>
+<ul>
+<li>[ ] They can directly <code>await fetch()</code> without useEffect</li>
+<li>[ ] They can use <code>onClick</code> event handlers</li>
+<li>[ ] They reduce the amount of JavaScript sent to the browser</li>
+<li>[ ] They can import and render Client Components as children</li>
+<li>[ ] They can use useState to manage local state</li>
+<li>[ ] They can read environment variables and access the file system</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct:</strong></p>
+<ul>
+<li>[x] Can directly <code>await fetch()</code> without useEffect</li>
+<li>[ ] Can use <code>onClick</code> handlers — <strong>FALSE</strong> (Server Components cannot handle interactivity)</li>
+<li>[x] Reduce JavaScript sent to browser</li>
+<li>[x] Can import and render Client Components as children</li>
+<li>[ ] Can use useState — <strong>FALSE</strong> (no hooks in Server Components)</li>
+<li>[x] Can read environment variables and access the file system</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 14 — Fill in the blanks</h3>
+<p>Complete the following sentences about Next.js App Router:</p>
+<p>To mark a component as a Client Component, you add the directive 1. ________ at the top of the file. A Server Action is an async function marked with 2. ________. The file 3. ________ defines shared UI that wraps child pages and persists across navigation. Dynamic routes use folder names with 4. ________ brackets, like <code>[id]</code>.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>"use client"</code></p>
+<p><strong>2.</strong> <code>"use server"</code></p>
+<p><strong>3.</strong> <code>layout.tsx</code> (or <code>layout.js</code>)</p>
+<p><strong>4.</strong> <code>square</code> (i.e., <code>[brackets]</code>)</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — Multiple Choice</h3>
+<p>When should you use an API Route instead of a Server Action in Next.js?</p>
+<ul>
+<li>A) When submitting a form from a Client Component</li>
+<li>B) When mutating data after a button click in a Server Component</li>
+<li>C) When handling a webhook from an external service like Stripe</li>
+<li>D) When revalidating cached data after a form submission</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>C</strong> — Handling a webhook from an external service like Stripe</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Select All That Apply</h3>
+<p>Which of the following are situations where you should use an API Route instead of a Server Action?</p>
+<ul>
+<li>[ ] A Stripe webhook needs to notify your app about a payment</li>
+<li>[ ] A mobile app needs to fetch user data from your backend</li>
+<li>[ ] A Client Component submits a form to create a new blog post</li>
+<li>[ ] You're building a public REST API for third-party developers</li>
+<li>[ ] A user clicks a "like" button that needs to update the database</li>
+<li>[ ] An external monitoring service needs to check your app's health</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct:</strong></p>
+<ul>
+<li>[x] Stripe webhook notification</li>
+<li>[x] Mobile app fetching user data</li>
+<li>[ ] Client Component form submission — <strong>better as Server Action</strong></li>
+<li>[x] Public REST API for third-party developers</li>
+<li>[ ] Like button database update — <strong>better as Server Action</strong></li>
+<li>[x] External monitoring service health check</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Written Answer (8 pts)</h3>
+<p>You are building a <strong>contact form</strong> in a Next.js App Router application. The form has fields for name, email, subject, and message. Requirements:</p>
+<ul>
+<li>Validate inputs on the client side using react-hook-form</li>
+<li>Email must be a valid email format</li>
+<li>Message must be at least 20 characters</li>
+<li>Submit data securely to the server</li>
+<li>Display validation errors inline below each field</li>
+</ul>
+<p>a) Describe how you would implement the form using react-hook-form. What hooks and methods would you use, and how would you display validation errors? (3 pts)</p>
+<p>b) Would you use a Server Action or an API Route to handle the submission? Justify your choice and describe the data flow from submit to save. (3 pts)</p>
+<p>c) Why is server-side validation still necessary even though you validate on the client? Give a concrete example of what could go wrong. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a) Implementation with react-hook-form:</strong></p>
+<ul>
+<li>Use <code>useForm()</code> to initialize with <code>mode: "onBlur"</code> or <code>"onChange"</code> for real-time validation</li>
+<li>Use <code>register("fieldName", { rules })</code> to connect each input with validation rules</li>
+<li>Use <code>handleSubmit(onValid)</code> on the form's <code>onSubmit</code></li>
+<li>Display errors: <code>{errors.email &amp;&amp; &lt;span&gt;{errors.email.message}&lt;/span&gt;}</code></li>
+</ul>
+<div class="cb"><pre>&lt;span&gt;const&lt;/span&gt; { &lt;span&gt;register&lt;/span&gt;, &lt;span&gt;handleSubmit&lt;/span&gt;, &lt;span&gt;formState&lt;/span&gt;: { &lt;span&gt;errors&lt;/span&gt; } } = &lt;span&gt;useForm&lt;/span&gt;({ &lt;span&gt;mode&lt;/span&gt;: &lt;span&gt;"onBlur"&lt;/span&gt; });
+
+&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;input&lt;/span&gt; {...&lt;span&gt;register&lt;/span&gt;(&lt;span&gt;"email"&lt;/span&gt;, {
+    &lt;span&gt;required&lt;/span&gt;: &lt;span&gt;"Email is required"&lt;/span&gt;,
+    &lt;span&gt;pattern&lt;/span&gt;: { &lt;span&gt;value&lt;/span&gt;: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, &lt;span&gt;message&lt;/span&gt;: &lt;span&gt;"Invalid email"&lt;/span&gt; }
+})} /&gt;
+{&lt;span&gt;errors&lt;/span&gt;.&lt;span&gt;email&lt;/span&gt; &amp;&amp; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;p&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;{&lt;span&gt;errors&lt;/span&gt;.&lt;span&gt;email&lt;/span&gt;.&lt;span&gt;message&lt;/span&gt;}&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;p&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;}
+
+&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;textarea&lt;/span&gt; {...&lt;span&gt;register&lt;/span&gt;(&lt;span&gt;"message"&lt;/span&gt;, {
+    &lt;span&gt;required&lt;/span&gt;: &lt;span&gt;"Message required"&lt;/span&gt;,
+    &lt;span&gt;minLength&lt;/span&gt;: { &lt;span&gt;value&lt;/span&gt;: 20, &lt;span&gt;message&lt;/span&gt;: &lt;span&gt;"At least 20 characters"&lt;/span&gt; }
+})} /&gt;</pre></div>
+<p><strong>b) Server Action</strong> — because this is a simple form submission from a React component. No external consumers need this endpoint. Data flow: user fills form → client validation with react-hook-form → if valid, <code>handleSubmit</code> calls the Server Action → Server Action validates again on server → saves to database → returns success/error to the client.</p>
+<p><strong>c) Server-side validation is necessary</strong> because client validation can be bypassed. A user could disable JavaScript, use browser DevTools to remove validation attributes, or use tools like Postman/curl to send a POST request directly to the server with invalid data (e.g., empty name, fake email, SQL injection in the message field). Without server validation, this malicious data would be saved to the database.</p>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION D: FORMS (react-hook-form)</h2>
+
+<h3 class="g-h3">Question 18 — Fill in the blanks</h3>
+<p>Complete the following sentences about react-hook-form:</p>
+<p>The core hook to initialize a form is 1. ________. To connect an input to the form, you spread the result of calling 2. ________ onto the input element. To validate as the user types, you set the mode to 3. ________. Validation errors for a field named <code>password</code> are accessed via 4. ________. To integrate Zod validation, you pass it via the 5. ________ option.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>1.</strong> <code>useForm</code></p>
+<p><strong>2.</strong> <code>register</code></p>
+<p><strong>3.</strong> <code>"onChange"</code></p>
+<p><strong>4.</strong> <code>errors.password</code></p>
+<p><strong>5.</strong> <code>resolver</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 19 — Select All That Apply</h3>
+<p>Which of the following are valid built-in validation rules for <code>register()</code> in react-hook-form?</p>
+<ul>
+<li>[ ] required</li>
+<li>[ ] minLength</li>
+<li>[ ] type</li>
+<li>[ ] pattern</li>
+<li>[ ] sanitize</li>
+<li>[ ] validate</li>
+<li>[ ] maxLength</li>
+<li>[ ] format</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Correct:</strong> <code>required</code>, <code>minLength</code>, <code>pattern</code>, <code>validate</code>, <code>maxLength</code></p>
+<ul>
+<li>[x] required</li>
+<li>[x] minLength</li>
+<li>[ ] type — NOT a validation rule</li>
+<li>[x] pattern</li>
+<li>[ ] sanitize — NOT a validation rule</li>
+<li>[x] validate</li>
+<li>[x] maxLength</li>
+<li>[ ] format — NOT a validation rule</li>
+</ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 20 — Multiple Choice</h3>
+<p>What is the primary advantage of react-hook-form over managing form state with useState?</p>
+<ul>
+<li>A) It automatically sends form data to a REST API</li>
+<li>B) It reduces unnecessary re-renders by using uncontrolled inputs</li>
+<li>C) It only works with Server Components for better security</li>
+<li>D) It eliminates the need for any validation logic</li>
+</ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong> — Reduces unnecessary re-renders by using uncontrolled inputs</p>
+</div>
+</details>

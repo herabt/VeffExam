@@ -1,0 +1,633 @@
+<h2 class="g-h2">Practice Exam 6 — Next.js Routing, Redux Toolkit, and Zustand</h2>
+
+<h2 class="g-h2">SECTION A: Next.js Routing (6 questions)</h2>
+
+<h3 class="g-h3">Question 1 — Routing Files</h3>
+<p>According to the slides, Next.js App Router uses special file conventions for routing. List all 9 routing files covered in the slides and explain what each one does.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <ol>
+    <li><strong>layout</strong> — "UI that is shared between multiple pages. On navigation, layouts preserve state, remain interactive, and do not rerender." The component should accept a <code>children</code> prop which can be a page or another layout.</li>
+    <li><strong>page</strong> — "Unique UI for a route, makes the route publicly accessible" (from slides). To create a page, add a page file inside the app directory and default export a React component.</li>
+    <li><strong>loading</strong> — "Loading UI shown while page/layout is fetching data" (from slides). Behind the scenes, Next.js wraps page.tsx in a <code>&lt;Suspense&gt;</code> boundary. Benefits: immediate navigation and visual feedback, shared layouts remain interactive, improved Core Web Vitals.</li>
+    <li><strong>not-found</strong> — "UI shown when notFound() is called or route doesn't exist" (from slides).</li>
+    <li><strong>error</strong> — "Error boundary UI for handling runtime errors in route segment" (from slides).</li>
+    <li><strong>global-error</strong> — "Error boundary for root layout errors (wraps entire app)" (from slides).</li>
+    <li><strong>route</strong> — Server-side API endpoint (Route Handler). Defined in a <code>route.ts</code> file. Note: <code>route.js</code> and <code>page.js</code> cannot coexist in the same route segment.</li>
+    <li><strong>template</strong> — Similar to layout but creates a new instance on navigation (does not preserve state).</li>
+    <li><strong>default</strong> — "Fallback UI for parallel routes when slot isn't matched" (from slides).</li>
+  </ol>
+  <p><strong>Component hierarchy nesting order (from slides):</strong><br>
+  <code>&lt;Layout&gt;</code> &gt; <code>&lt;Template&gt;</code> &gt; <code>&lt;ErrorBoundary&gt;</code> &gt; <code>&lt;Suspense&gt;</code> &gt; <code>&lt;ErrorBoundary (not-found)&gt;</code> &gt; <code>&lt;Page&gt;</code></p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 2 — Route Groups and Multiple Root Layouts</h3>
+<p>The slides show a folder structure using parentheses in the <code>app</code> directory:</p>
+<div class="cb"><pre>app/
+  (marketing)/
+    layout.js
+    ...
+  (shop)/
+    layout.js
+    ...</pre></div>
+<p><strong>a)</strong> What is this feature called?<br>
+<strong>b)</strong> What is the purpose shown in the slide caption?<br>
+<strong>c)</strong> Do the parenthesized folder names appear in the URL path?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> <strong>Route Groups</strong> — folders wrapped in parentheses <code>(folderName)</code>.</p>
+  <p><strong>b)</strong> The slide caption says: <strong>"Creating multiple root layouts."</strong> Each route group can have its own <code>layout.js</code>, allowing completely different layouts for different sections of the application (e.g., a marketing site vs. a shop).</p>
+  <p><strong>c)</strong> No. The parenthesized folder names are excluded from the URL. For example, <code>(marketing)/about/page.tsx</code> maps to <code>/about</code>, not <code>/(marketing)/about</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 3 — Dynamic Routes</h3>
+<p>The slides describe three types of dynamic segments. Complete the table below with the correct syntax and what URL patterns they match.</p>
+<div class="tw"><table>
+  <thead>
+    <tr>
+      <th>Syntax</th>
+      <th>Type</th>
+      <th>Example route</th>
+      <th>Matches</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <div class="tw"><table>
+    <thead>
+      <tr>
+        <th>Syntax</th>
+        <th>Type</th>
+        <th>Example route</th>
+        <th>Matches</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>[segment]</code></td>
+        <td>Single param</td>
+        <td><code>app/blog/[slug]/page.tsx</code></td>
+        <td><code>/blog/my-first-post</code></td>
+      </tr>
+      <tr>
+        <td><code>[...segment]</code></td>
+        <td>Catch-all</td>
+        <td><code>app/shop/[...slug]/page.tsx</code></td>
+        <td><code>/shop/clothing</code>, <code>/shop/clothing/shirts</code></td>
+      </tr>
+      <tr>
+        <td><code>[[...segment]]</code></td>
+        <td>Optional catch-all</td>
+        <td><code>app/docs/[[...slug]]/page.tsx</code></td>
+        <td><code>/docs</code>, <code>/docs/layouts-and-pages</code>, <code>/docs/api-reference/use-router</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p>Access values via the <code>params</code> prop (from slides).</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 4 — Creating a Layout</h3>
+<p>According to the slides, what are the key characteristics of a layout in Next.js? Write the code for a root layout as shown in the slides.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides:</p>
+  <ul>
+    <li>"A layout is UI that is shared between multiple pages. On navigation, layouts preserve state, remain interactive, and do not rerender"</li>
+    <li>"You can define a layout by default exporting a React component from a layout file. The component should accept a children prop which can be a page or another layout"</li>
+    <li>"Layouts are especially useful to wrap shared logic between similar pages, e.g. settings. Shared logic could be UI logic or shared data, e.g. context"</li>
+    <li>"By default, layouts in the folder hierarchy are also nested, which means they wrap child layouts via their children prop"</li>
+  </ul>
+  <p>Root layout code from slides:</p>
+  <div class="cb"><pre>export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        {/* Layout UI */}
+        {/* Place children where you want to render a page or nested layout */}
+        &lt;main&gt;{children}&lt;/main&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 5 — Navigation: Link and Prefetching</h3>
+<p><strong>a)</strong> What does the <code>&lt;Link&gt;</code> component do according to the slides?<br>
+<strong>b)</strong> What is prefetching and when does it happen?<br>
+<strong>c)</strong> What is the difference between prefetching a static vs. dynamic route?<br>
+<strong>d)</strong> According to the slides, what is the difference between using <code>&lt;Link&gt;</code> and a regular <code>&lt;a&gt;</code> tag?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> From slides: "You can use the <code>&lt;Link&gt;</code> component to navigate between routes. <code>&lt;Link&gt;</code> is a built-in Next.js component that extends the HTML <code>&lt;a&gt;</code> tag to provide prefetching and client-side navigation." Also: "Another way of routing is programmatically routing through the use of <code>useRouter</code> hook."</p>
+  <p><strong>b)</strong> From slides: "Prefetching is the process of loading a route in the background before the user navigates to it. This makes navigation between routes in your application feel instant, because by the time a user clicks on a link, the data to render the next route is already available client side." Next.js automatically prefetches routes linked with the <code>&lt;Link&gt;</code> component when they enter the user's viewport.</p>
+  <p><strong>c)</strong> From slides:</p>
+  <ul>
+    <li>"If the route is declared static it will be prefetched completely"</li>
+    <li>"If the route is declared dynamic it will be skipped unless <code>loading.tsx</code> is declared and in those cases it will be partially prefetched"</li>
+  </ul>
+  <p><strong>d)</strong> From the slides' code example: <code>&lt;Link href="/blog"&gt;Blog&lt;/Link&gt;</code> is "Prefetched when the link is hovered or enters the viewport", while <code>&lt;a href="/contact"&gt;Contact&lt;/a&gt;</code> has "No prefetching". The <code>&lt;Link&gt;</code> component enables client-side transitions (keeping shared layouts and UI), while <code>&lt;a&gt;</code> triggers a full page load.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 6 — Streaming and loading.tsx</h3>
+<p>According to the slides, what is streaming and what role does <code>loading.tsx</code> play?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From slides:</p>
+  <ul>
+    <li>"Streaming allows the server to send parts of a dynamic route to the client as soon as they're ready, rather than waiting for the entire route to be rendered"</li>
+    <li>"This means users see something sooner, even if parts of the page are still loading"</li>
+    <li>"For dynamic routes, it means they can be partially prefetched. That is, shared layouts and loading skeletons can be requested ahead of time"</li>
+    <li>"To use streaming, you must create a <code>loading.tsx</code> in your route folder"</li>
+    <li>"Behind the scenes, Next.js will automatically wrap the page.tsx contents in a <code>&lt;Suspense&gt;</code> boundary"</li>
+    <li>"The prefetched fallback UI will be shown while the route is loading, and swapped for the actual content once ready"</li>
+  </ul>
+  <p>Benefits of <code>loading.tsx</code>:</p>
+  <ul>
+    <li>Immediate navigation and visual feedback for the user</li>
+    <li>Shared layouts remain interactive and navigation is interruptible</li>
+    <li>Improved Core Web Vitals</li>
+  </ul>
+  <p>Code from slides:</p>
+  <div class="cb"><pre>export default function Loading() {
+  // Add fallback UI that will be shown while the route is loading.
+  return &lt;LoadingSkeleton /&gt;;
+}</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION B: Redux Toolkit — Concepts (5 questions)</h2>
+
+<h3 class="g-h3">Question 7 — What is RTK and Why?</h3>
+<p>According to the slides, what is Redux Toolkit (RTK) and why was it created? Use the teacher's exact wording.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides:</p>
+  <ul>
+    <li>RTK <strong>"has been established as the best practice to incorporate Redux into your React application"</strong></li>
+    <li>Prior to RTK there was significant <strong>boilerplate for store creation, middleware, reducers, actions</strong></li>
+    <li>Why RTK:
+      <ul>
+        <li><strong>"Eliminates boilerplate"</strong></li>
+        <li><strong>"Immer eliminates immutability bugs"</strong></li>
+        <li><strong>"Good TypeScript support"</strong></li>
+        <li><strong>"Single file for the whole slice"</strong></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 8 — configureStore</h3>
+<p><strong>a)</strong> What does <code>configureStore</code> do according to the slides?<br>
+<strong>b)</strong> What three things does it set up automatically?<br>
+<strong>c)</strong> Write the <code>configureStore</code> call from the RTK demonstration code.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> From slides: <code>configureStore</code> <strong>"sets up a well-configured Redux store with a single function call"</strong></p>
+  <p><strong>b)</strong> From slides, <code>configureStore</code> automatically:</p>
+  <ol>
+    <li><strong>Combines reducers</strong> — uses <code>combineReducers</code> automatically</li>
+    <li><strong>Adds Redux Thunk middleware</strong> — included by default</li>
+    <li><strong>Enables Redux DevTools</strong> — by default</li>
+  </ol>
+  <p><strong>c)</strong> From the rtk-demonstration <code>store.ts</code>:</p>
+  <div class="cb"><pre>import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./features/counter/counter-slice";
+import userReducer from "./features/user/user-slice";
+import { pokemonApi } from "../services/pokemon-service";
+
+export const store = configureStore({
+  reducer: {
+    counter: counterReducer,
+    user: userReducer,
+    [pokemonApi.reducerPath]: pokemonApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =&gt;
+    getDefaultMiddleware().concat(pokemonApi.middleware),
+});
+
+export type RootState = ReturnType&lt;typeof store.getState&gt;;
+export type AppDispatch = typeof store.dispatch;</pre></div>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 9 — createSlice</h3>
+<p><strong>a)</strong> What does <code>createSlice</code> do according to the slides? Use the teacher's exact definition.<br>
+<strong>b)</strong> Write the counter slice from the RTK demonstration code and explain how Immer is used.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> From slides: <code>createSlice</code> <strong>"allows you to create reducers that use the Immer library, which allows you to write immutable code using 'mutating' syntax. It also generates action creators for all reducer functions"</strong></p>
+  <p><strong>b)</strong> From the rtk-demonstration <code>counter-slice.ts</code>:</p>
+  <div class="cb"><pre>import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  value: 0,
+};
+
+export const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) =&gt; {
+      state.value += 1;  // Looks like mutation, but Immer makes it immutable!
+    },
+  },
+});
+
+// Action creators are generated for each case reducer function
+export const { increment } = counterSlice.actions;
+
+export default counterSlice.reducer;</pre></div>
+  <p><strong>Immer usage:</strong> The line <code>state.value += 1</code> looks like a direct mutation, but thanks to Immer (built into <code>createSlice</code>), this is actually producing a new immutable state object behind the scenes. Without Immer, you would need to write <code>return { ...state, value: state.value + 1 }</code>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 10 — RTK Query</h3>
+<p><strong>a)</strong> What is RTK Query according to the slides?<br>
+<strong>b)</strong> Write the Pokemon service from the RTK demonstration code and explain what <code>createApi</code> does.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> From slides: RTK Query is a <strong>"powerful data fetching and caching tool"</strong> built into Redux Toolkit.</p>
+  <p><strong>b)</strong> From the rtk-demonstration <code>pokemon-service.ts</code>:</p>
+  <div class="cb"><pre>import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { PokemonListItem } from "../types/pokemon-list-item";
+import { Pokemon } from "../types/pokemon";
+
+export const pokemonApi = createApi({
+  reducerPath: "pokemonApi",
+  baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2/" }),
+  endpoints: (builder) =&gt; ({
+    getPokemonByName: builder.query&lt;Pokemon, string&gt;({
+      query: (name: string) =&gt; `pokemon/${name}`,
+      transformResponse: (response: any) =&gt; ({
+        ...response,
+        image: response.sprites["front_default"],
+      }),
+    }),
+    getPokemons: builder.query&lt;PokemonListItem[], void&gt;({
+      query: () =&gt; "pokemon",
+      transformResponse: (response: any) =&gt; response.results,
+    }),
+  }),
+});
+
+export const { useGetPokemonByNameQuery, useGetPokemonsQuery } = pokemonApi;</pre></div>
+  <p>Key points:</p>
+  <ul>
+    <li><code>createApi</code> defines the API service with a <code>baseQuery</code> and <code>endpoints</code></li>
+    <li>It auto-generates React hooks: <code>useGetPokemonByNameQuery</code> and <code>useGetPokemonsQuery</code></li>
+    <li>The hooks provide <code>data</code>, <code>isLoading</code>, <code>isError</code>, and <code>error</code> properties</li>
+    <li>The service's reducer and middleware must be added to the store</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 11 — Using RTK in Components</h3>
+<p>Given the counter slice and store from the RTK demonstration, write a component that reads the counter value and dispatches the increment action. Show how <code>useSelector</code> and <code>useDispatch</code> are used.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the rtk-demonstration <code>counter.tsx</code>:</p>
+  <div class="cb"><pre>import { Box, Button, Heading } from "@chakra-ui/react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { increment } from "../../redux/features/counter/counter-slice";
+
+export function Counter() {
+  const counter = useSelector((state: RootState) =&gt; state.counter.value);
+  const dispatch = useDispatch&lt;AppDispatch&gt;();
+
+  return (
+    &lt;Box&gt;
+      &lt;Heading&gt;Current counter: {counter}&lt;/Heading&gt;
+      &lt;Button onClick={() =&gt; dispatch(increment())}&gt;Increase&lt;/Button&gt;
+    &lt;/Box&gt;
+  );
+}</pre></div>
+  <ul>
+    <li><code>useSelector</code> takes a selector function that receives the entire <code>RootState</code> and returns the specific piece of state needed</li>
+    <li><code>useDispatch</code> returns the typed dispatch function</li>
+    <li><code>dispatch(increment())</code> dispatches the auto-generated action creator from the slice</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION C: Redux Core vs RTK (2 questions)</h2>
+
+<h3 class="g-h3">Question 12 — Redux Core Boilerplate</h3>
+<p>According to the slides, what steps were required with Redux Core (before RTK) to set up a Redux store? List all the things that were needed.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides, prior to RTK you needed:</p>
+  <ol>
+    <li><strong>Individual reducers</strong> — each enforcing immutability manually (spreading state: <code>return { ...state, ... }</code>)</li>
+    <li><strong><code>combineReducers</code></strong> — to merge all individual reducers into one root reducer</li>
+    <li><strong><code>createStore</code></strong> — to create the store with the combined reducer</li>
+    <li><strong>Action constants</strong> — defining string constants for each action type</li>
+    <li><strong>Action creators</strong> — functions that return action objects with <code>type</code> and payload</li>
+    <li><strong><code>applyMiddleware</code></strong> — to add middleware like Redux Thunk for async operations</li>
+  </ol>
+  <p>All of this is boilerplate that RTK eliminates.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 13 — RTK vs Redux Core Comparison</h3>
+<p>Explain how RTK's <code>configureStore</code> replaces all the Redux Core boilerplate from Question 12. What does each feature of <code>configureStore</code> replace?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides, <code>configureStore</code> replaces all the boilerplate:</p>
+  <div class="tw"><table>
+    <thead>
+      <tr>
+        <th>Redux Core (Before)</th>
+        <th>RTK (After)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Manual <code>combineReducers</code> call</td>
+        <td><code>configureStore</code> combines reducers <strong>automatically</strong> from the <code>reducer</code> object</td>
+      </tr>
+      <tr>
+        <td><code>applyMiddleware(thunk)</code></td>
+        <td><strong>Redux Thunk middleware</strong> is included by default</td>
+      </tr>
+      <tr>
+        <td>Manual Redux DevTools setup</td>
+        <td><strong>DevTools</strong> enabled by default</td>
+      </tr>
+      <tr>
+        <td><code>createStore(rootReducer, middleware)</code></td>
+        <td>Single <code>configureStore({ reducer: {...} })</code> call</td>
+      </tr>
+      <tr>
+        <td>Action constants + action creators</td>
+        <td><code>createSlice</code> <strong>generates action creators</strong> for all reducer functions</td>
+      </tr>
+      <tr>
+        <td>Manual immutable updates (<code>...state</code>)</td>
+        <td><strong>Immer</strong> allows "mutating" syntax that produces immutable updates</td>
+      </tr>
+      <tr>
+        <td>Multiple files for actions, constants, reducers</td>
+        <td><strong>"Single file for the whole slice"</strong></td>
+      </tr>
+    </tbody>
+  </table></div>
+</div>
+</details>
+
+<hr>
+
+<h2 class="g-h2">SECTION D: Zustand (5 questions)</h2>
+
+<h3 class="g-h3">Question 14 — Zustand Re-render Prevention</h3>
+<p>According to the slides, how does Zustand prevent unnecessary re-renders?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides:</p>
+  <ul>
+    <li>"In Zustand re-renders are prevented using a selector, e.g. <code>useCart</code>"</li>
+    <li>"If relying on a computed state it can cause re-renders, as the default behaviour is using <code>Object.is()</code> to determine if a new object has been selected or not"</li>
+    <li>"If the object has not really changed although the reference has changed, you can choose to use <code>useShallow()</code> instead which shallow compares the two objects."</li>
+    <li><strong>"If it walks like a duck it is a duck"</strong> (the teacher's analogy for shallow comparison)</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 15 — useShallow() Code Example</h3>
+<p>The slides show two versions of a <code>CartItemNames</code> component. Write both versions and explain why the second one using <code>useShallow()</code> prevents unnecessary re-renders.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides:</p>
+  <div class="cb"><pre>import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
+
+const useCartStore = create(() =&gt; ({
+  cart: [
+    { id: 1, name: "Shoes", price: 79.99 },
+    { id: 2, name: "Hat", price: 24.99 },
+  ],
+}));
+
+// WITHOUT useShallow -- re-renders on every state change
+// .map() returns a new array reference each time, even if names haven't changed
+export const CartItemNames = () =&gt; {
+  const names = useCartStore((state) =&gt; state.cart.map((item) =&gt; item.name));
+  return &lt;div&gt;{names.join(", ")}&lt;/div&gt;;
+};
+
+// With useShallow -- only re-renders if item names actually change
+export const CartItemNames = () =&gt; {
+  const names = useCartStore(useShallow((state) =&gt; state.cart.map((item) =&gt; item.name)));
+  return &lt;div&gt;{names.join(", ")}&lt;/div&gt;;
+};</pre></div>
+  <p><strong>Explanation:</strong> When <code>useCartStore.setState</code> updates the cart (e.g., changing a price from 79.99 to 109.99 but NOT changing names), the first version re-renders because <code>.map()</code> always returns a new array reference and <code>Object.is()</code> sees it as a different object. The second version with <code>useShallow()</code> does a shallow comparison of the array contents — since the names are the same strings, it determines that nothing meaningful changed and <strong>skips the re-render</strong>.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Zustand Middlewares</h3>
+<p><strong>a)</strong> What middlewares does Zustand offer according to the slides?<br>
+<strong>b)</strong> What storage options are available for the persist middleware?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> From slides: "Zustand offers middleware support, e.g. a persistence of store data." The most used middlewares are:</p>
+  <ul>
+    <li><strong><code>persist</code></strong> — for persisting store data</li>
+    <li><strong><code>devtools</code></strong> — for Redux DevTools integration</li>
+    <li><strong><code>immer</code></strong> — for Immer-style immutable updates</li>
+  </ul>
+  <p><strong>b)</strong> From slides: "The store data could be persisted using <code>localStorage</code>, <code>sessionStorage</code>, <code>IndexedDB</code>, etc."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Zustand Persist Code Example</h3>
+<p>Write the <code>useCartStore</code> with the persist middleware as shown in the slides. Explain all the configuration options.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the slides:</p>
+  <div class="cb"><pre>import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+type CartStore = {
+  cart: CartItem[];
+  addItem: (item: CartItem) =&gt; void;
+  removeItem: (id: CartItem["id"]) =&gt; void;
+  clearCart: () =&gt; void;
+};
+
+export const useCartStore = create&lt;CartStore&gt;()(
+  persist(
+    (set, get) =&gt; ({
+      cart: [],
+      addItem: (item) =&gt; set({ cart: [...get().cart, item] }),
+      removeItem: (id) =&gt; set({ cart: get().cart.filter((item) =&gt; item.id !== id) }),
+      clearCart: () =&gt; set({ cart: [] }),
+    }),
+    {
+      name: "cart-storage",  // name of the item in the storage (must be unique)
+      storage: createJSONStorage(() =&gt; sessionStorage),  // (optional) by default, 'localStorage' is used
+    },
+  ),
+);</pre></div>
+  <p>Configuration:</p>
+  <ul>
+    <li><strong><code>name: "cart-storage"</code></strong> — the key used in storage; must be unique</li>
+    <li><strong><code>storage: createJSONStorage(() =&gt; sessionStorage)</code></strong> — specifies the storage engine; defaults to <code>localStorage</code> if omitted</li>
+    <li>The store state (<code>cart</code>) will be automatically saved to and loaded from the specified storage</li>
+  </ul>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 18 — Server vs Client Components</h3>
+<p>According to the slides:<br>
+<strong>a)</strong> What are Server Components and what are their key characteristics?<br>
+<strong>b)</strong> What are Client Components and what are their key characteristics?<br>
+<strong>c)</strong> How do you mark a component as a Client Component?</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a)</strong> From slides: "Server Components are React components that run only on the server and never send JavaScript to the browser." Key characteristics:</p>
+  <ul>
+    <li>Execute during rendering on the server (build time or request time)</li>
+    <li>Can directly access backend resources (databases, file system, APIs)</li>
+    <li>Don't include JavaScript in the client bundle</li>
+    <li>Cannot use browser APIs or interactive hooks (useState, useEffect, event handlers)</li>
+  </ul>
+  <p><strong>b)</strong> From slides: "Client Components are React components that run in the browser and can be interactive." Key characteristics:</p>
+  <ul>
+    <li>Execute on the client (browser)</li>
+    <li>Can use interactive hooks (useState, useEffect, useContext)</li>
+    <li>Can handle user events (clicks, form inputs, etc.)</li>
+    <li>Have access to browser APIs (window, localStorage, etc.)</li>
+    <li>JavaScript is included in the client bundle</li>
+  </ul>
+  <p><strong>c)</strong> Add <code>'use client';</code> directive at the top of the file. From slides: "The solution here is to wrap the component using the <code>'use client'</code> directive."</p>
+  <p>Note from slides: "By default, layouts and pages are Server Components." And: "A Server Component can render Client Components and other Server Components, but Client Components cannot render Server Components."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 19 — Fetching Data: Server vs Client</h3>
+<p>According to the slides, how do you fetch data in Server Components versus Client Components? List all the approaches covered.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From slides:</p>
+  <p><strong>Server Components</strong> — can fetch data using any asynchronous I/O:</p>
+  <ul>
+    <li>The <code>fetch</code> API (turn component into async function and await the fetch call)</li>
+    <li>An ORM / Database (e.g., <code>await db.restaurant.findFirst(...)</code>)</li>
+    <li>Reading from the filesystem using <code>fs</code></li>
+  </ul>
+  <p><strong>Client Components</strong> — can fetch data using:</p>
+  <ul>
+    <li>React's <code>use</code> API (pass a Promise from Server Component as prop, resolve it with <code>use()</code>)</li>
+    <li>A community library such as <strong>SWR</strong> or <strong>React Query</strong></li>
+    <li><code>useEffect</code> with <code>fetch</code></li>
+  </ul>
+  <p>From slides on choosing: "Opt for server side default... Best practice is to combine both worlds, try to load as much as possible server side but opt for client side when needed."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 20 — RTK Query Usage in Components</h3>
+<p>From the RTK demonstration code, how is <code>useGetPokemonsQuery</code> used in the <code>PokemonsView</code> component? Write the key parts and explain the destructured values.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+  <p>From the rtk-demonstration <code>pokemons-view.tsx</code>:</p>
+  <div class="cb"><pre>import { useGetPokemonsQuery } from "../../services/pokemon-service";
+
+export function PokemonsView() {
+  const navigate = useNavigate();
+
+  const { data: pokemons, isLoading, isError, error } = useGetPokemonsQuery();
+
+  return (
+    &lt;Box&gt;
+      {isLoading ? (
+        &lt;Stack&gt;
+          &lt;Skeleton height="20px" /&gt;
+          &lt;Skeleton height="20px" /&gt;
+          &lt;Skeleton height="20px" /&gt;
+        &lt;/Stack&gt;
+      ) : isError ? (
+        &lt;Alert status="error"&gt;
+          &lt;AlertIcon /&gt;
+          &lt;AlertTitle&gt;Failed to load Pokemons&lt;/AlertTitle&gt;
+          &lt;AlertDescription&gt;
+            {"error" in error ? error.error : ""}
+          &lt;/AlertDescription&gt;
+        &lt;/Alert&gt;
+      ) : (
+        &lt;List spacing={3}&gt;
+          {pokemons?.map((p) =&gt; (
+            &lt;ListItem key={p.name} onClick={() =&gt; navigate(`/pokemons/${p.name}`)}&gt;
+              &lt;ListIcon as={SunIcon} color="yellow.500" /&gt;
+              {_.capitalize(p.name)}
+            &lt;/ListItem&gt;
+          ))}
+        &lt;/List&gt;
+      )}
+    &lt;/Box&gt;
+  );
+}</pre></div>
+  <p>Destructured values from the auto-generated hook:</p>
+  <ul>
+    <li><strong><code>data</code></strong> (aliased as <code>pokemons</code>) — the fetched data after transformation</li>
+    <li><strong><code>isLoading</code></strong> — <code>true</code> while the request is in flight</li>
+    <li><strong><code>isError</code></strong> — <code>true</code> if the request failed</li>
+    <li><strong><code>error</code></strong> — the error object if the request failed</li>
+  </ul>
+  <p>The hook automatically handles caching, loading states, and error states — no need to write <code>useEffect</code> + <code>useState</code> manually.</p>
+</div>
+</details>

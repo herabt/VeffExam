@@ -1,0 +1,13 @@
+# backups from the HTML merge pipeline
+*.bak
+*.bak2
+*.bak3
+
+# Next.js build / deps in the nested app
+VefforitunExam/node_modules
+VefforitunExam/.next
+VefforitunExam/out
+VefforitunExam/.turbo
+
+# macOS
+.DS_Store
