@@ -1,387 +1,610 @@
-<h2 class="g-h2">Practice Exam 1 — CSS, JavaScript &amp; Async Patterns</h2>
+<h2 class="g-h2">Practice Exam 1 — Flexbox &amp; CSS Grid</h2>
 
-<h2 class="g-h2">SECTION A: CSS FLEXBOX &amp; GRID</h2>
+<h2 class="g-h2">SECTION A: FLEXBOX FUNDAMENTALS</h2>
 
-<h3 class="g-h3">Question 1 — Fill in the blanks</h3>
-<p>Complete the following sentences about Flexbox:</p>
-<p>The <code>flex-direction</code> property defaults to 1. ________, which lays items out horizontally. The property <code>align-items</code> defaults to 2. ________, which is why flex items stretch to fill the container's cross-axis. The shorthand property 3. ________ combines both <code>flex-direction</code> and <code>flex-wrap</code> into one declaration. On a flex item, the 4. ________ property overrides the container's <code>align-items</code> for that specific item only.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
+<h3 class="g-h3">Question 1 — Fill in the blanks (4 pts)</h3>
+<p>Complete the following sentences about Flexbox. Each blank is a CSS property name, value, or keyword.</p>
+<p>When you set <code>display: flex</code> on a container, its direct children become flex items and are laid out along the 1. ________ axis by default (left to right). The shorthand property 2. ________ lets you combine <code>flex-direction</code> and <code>flex-wrap</code> in a single declaration. If a flex item should override the container's <code>align-items</code> value for itself alone, you use the 3. ________ property on that item. By default, flex items will <strong>not</strong> wrap to a new line because <code>flex-wrap</code> defaults to 4. ________.</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>1.</strong> <code>row</code> — this is why flex items appear side by side by default; set <code>column</code> to stack vertically.</p>
-  <p><strong>2.</strong> <code>stretch</code> — this is why flex items fill the container's height even without explicit height; items expand to match the tallest sibling.</p>
-  <p><strong>3.</strong> <code>flex-flow</code> — e.g., <code>flex-flow: row wrap</code> combines direction and wrapping in one line.</p>
-  <p><strong>4.</strong> <code>align-self</code> — useful when one item in a row needs different vertical alignment (e.g., a button at the bottom while others are centered).</p>
+  <p><strong>1.</strong> <code>main</code></p>
+  <p><em>Why:</em> Flexbox always lays items along a <strong>main axis</strong> and a perpendicular <strong>cross axis</strong>. The default <code>flex-direction</code> is <code>row</code>, which makes the main axis horizontal (left to right in LTR languages). Understanding the axis model is essential because every alignment property in Flexbox is defined relative to either the main axis or the cross axis &mdash; if you don't know which axis you're operating on, <code>justify-content</code> and <code>align-items</code> become impossible to reason about.</p>
+
+  <p><strong>2.</strong> <code>flex-flow</code></p>
+  <p><em>Why:</em> <code>flex-flow</code> is shorthand for <code>flex-direction</code> + <code>flex-wrap</code>. For example, <code>flex-flow: row wrap</code> sets both at once. This is useful in practice because you almost always need to think about direction and wrapping together &mdash; a <code>column</code> layout that wraps behaves very differently from a <code>row</code> layout that wraps.</p>
+
+  <p><strong>3.</strong> <code>align-self</code></p>
+  <p><em>Why:</em> <code>align-items</code> on the container sets the cross-axis alignment for <em>all</em> items. But sometimes one item needs to differ &mdash; for example, a "new" badge that should sit at the top of a card while the rest of the content is centered. <code>align-self</code> overrides <code>align-items</code> for a single item. It accepts the same values: <code>flex-start</code>, <code>flex-end</code>, <code>center</code>, <code>stretch</code>, <code>baseline</code>.</p>
+
+  <p><strong>4.</strong> <code>nowrap</code></p>
+  <p><em>Why:</em> The default <code>flex-wrap: nowrap</code> means all items are forced onto one line, even if they overflow the container. This is a deliberate design choice &mdash; Flexbox was created primarily for one-dimensional layouts. You must explicitly opt in to wrapping with <code>flex-wrap: wrap</code>. This is a common source of confusion: students expect items to wrap automatically like text, but they don't.</p>
 </div>
 </details>
 
-<h3 class="g-h3">Question 2 — Multiple Choice</h3>
-<p>A developer has a horizontal flex container with <code>flex-direction: row</code>. They want to vertically center the items inside it. Which property should they use?</p>
+<h3 class="g-h3">Question 2 — Multiple Choice (2 pts)</h3>
+<p>A developer writes the following CSS:</p>
+<div class="cb"><pre>.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.toolbar .logo {
+  align-self: flex-start;
+}</pre></div>
+<p>The toolbar contains a logo, a search bar, and a settings icon. The developer expects all items to be vertically aligned to the top of the toolbar. Instead, only the logo sits at the top while the other items stretch to fill the toolbar's height. <strong>Why does this happen?</strong></p>
 <ul>
-<li>A) <code>justify-content: center</code></li>
-<li>B) <code>align-items: center</code></li>
-<li>C) <code>align-content: center</code></li>
-<li>D) <code>vertical-align: middle</code></li>
+<li>A) <code>justify-content: center</code> overrides vertical alignment, pushing items to the middle</li>
+<li>B) <code>align-items</code> defaults to <code>stretch</code>, so all items stretch vertically &mdash; the logo escapes this only because <code>align-self: flex-start</code> overrides the default for that one item</li>
+<li>C) <code>flex-direction: row</code> disables vertical alignment entirely</li>
+<li>D) The <code>.logo</code> rule has higher specificity, causing it to inherit a different box model</li>
 </ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>B</strong> — In a row-direction flex container, the cross-axis is vertical. <code>align-items</code> controls positioning along the cross-axis, so <code>align-items: center</code> vertically centers items.</p>
+  <p><strong>B</strong> &mdash; <code>align-items</code> defaults to <code>stretch</code>, so all items stretch vertically. The logo overrides this with <code>align-self: flex-start</code>.</p>
+
+  <p><strong>Why B is correct:</strong> When no <code>align-items</code> is set on a flex container, it defaults to <code>stretch</code>. This means every flex item expands to fill the container's cross-axis dimension (height, in a row layout). The <code>.logo</code> has <code>align-self: flex-start</code>, which overrides the container's <code>align-items: stretch</code> for that item only, pinning it to the top. The other items have no override, so they still stretch. To fix the toolbar, add <code>align-items: flex-start</code> (or <code>center</code>) to <code>.toolbar</code>.</p>
+
   <p><strong>Why the others are wrong:</strong></p>
   <ul>
-  <li><strong>A</strong> — <code>justify-content</code> controls the main-axis (horizontal in row), so it would center horizontally, not vertically.</li>
-  <li><strong>C</strong> — <code>align-content</code> only affects multi-line flex containers (requires <code>flex-wrap: wrap</code> with multiple lines).</li>
-  <li><strong>D</strong> — <code>vertical-align</code> has no effect on flex items.</li>
+  <li><strong>A</strong> &mdash; <code>justify-content</code> operates on the <em>main</em> axis (horizontal in <code>row</code>). It has absolutely nothing to do with vertical alignment. This is the most common Flexbox misconception.</li>
+  <li><strong>C</strong> &mdash; <code>flex-direction: row</code> does not disable vertical alignment. It simply defines the main axis as horizontal, which means the <em>cross</em> axis is vertical &mdash; and <code>align-items</code> / <code>align-self</code> control that cross axis.</li>
+  <li><strong>D</strong> &mdash; Specificity determines which CSS rule wins when there are conflicts, but here there is no conflict. <code>align-self</code> on the item and <code>align-items</code> on the container are different properties targeting different elements.</li>
   </ul>
 </div>
 </details>
 
-<h3 class="g-h3">Question 3 — Select All That Apply</h3>
-<p>Which of the following statements about Flexbox are correct?</p>
-<ul>
-<li>[ ] Flex containers only affect their immediate children, not deeper descendants</li>
-<li>[ ] The <code>float</code> property has an effect on flex items</li>
-<li>[ ] <code>align-content</code> only has an effect when <code>flex-wrap</code> is set to <code>wrap</code></li>
-<li>[ ] By default, flex items will wrap to the next line when they overflow</li>
-<li>[ ] <code>flex-grow: 0</code> means the item will not grow to fill available space</li>
-<li>[ ] <code>vertical-align</code> affects flex items</li>
-</ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<h3 class="g-h3">Question 3 — Code Analysis: Explain what happens and why (6 pts)</h3>
+<p>Study the following CSS and HTML:</p>
+<div class="cb"><pre>&lt;div class="container"&gt;
+  &lt;div class="item a"&gt;A&lt;/div&gt;
+  &lt;div class="item b"&gt;B&lt;/div&gt;
+  &lt;div class="item c"&gt;C&lt;/div&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>.container {
+  display: flex;
+  width: 600px;
+}
+.item { flex-basis: 100px; }
+.a { flex-grow: 1; }
+.b { flex-grow: 2; }
+.c { flex-grow: 0; }</pre></div>
+<p>a) Explain what <code>flex-grow</code> does conceptually &mdash; not just "makes items bigger," but <strong>what specifically is being distributed and how</strong>. (2 pts)</p>
+<p>b) Calculate the final width of each item. Show your reasoning step by step. (2 pts)</p>
+<p>c) If item C had <code>flex-grow: 0</code> but also <code>flex-shrink: 0</code>, how would its behaviour differ from the default when the container is <strong>narrower</strong> than the combined <code>flex-basis</code> of all items? Explain why. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>Correct answers:</strong></p>
+  <p><strong>a) What flex-grow distributes:</strong></p>
+  <p><code>flex-grow</code> distributes the <strong>remaining free space</strong> in the container after all items have been sized at their <code>flex-basis</code>. It does <em>not</em> set proportional widths &mdash; a common misconception. The value is a ratio that determines how much of the leftover space each item claims. An item with <code>flex-grow: 0</code> claims none of the leftover space and stays at its <code>flex-basis</code> size.</p>
+
+  <p><strong>b) Calculation:</strong></p>
   <ul>
-  <li>[x] Flex containers only affect their immediate children, not deeper descendants</li>
-  <li>[ ] The <code>float</code> property has an effect on flex items — <strong>FALSE</strong> (float has no effect on flex items)</li>
-  <li>[x] <code>align-content</code> only has an effect when <code>flex-wrap</code> is set to <code>wrap</code></li>
-  <li>[ ] By default, flex items will wrap — <strong>FALSE</strong> (default is <code>nowrap</code>)</li>
-  <li>[x] <code>flex-grow: 0</code> means the item will not grow to fill available space</li>
-  <li>[ ] <code>vertical-align</code> affects flex items — <strong>FALSE</strong> (no effect on flex items)</li>
+  <li>Container width: 600px</li>
+  <li>Total flex-basis: 100 + 100 + 100 = 300px</li>
+  <li>Remaining free space: 600 &minus; 300 = <strong>300px</strong></li>
+  <li>Total grow factors: 1 + 2 + 0 = <strong>3</strong></li>
+  <li>Space per grow unit: 300 / 3 = <strong>100px</strong></li>
+  <li>Item A: 100 + (1 &times; 100) = <strong>200px</strong></li>
+  <li>Item B: 100 + (2 &times; 100) = <strong>300px</strong></li>
+  <li>Item C: 100 + (0 &times; 100) = <strong>100px</strong> (stays at flex-basis)</li>
+  </ul>
+  <p><em>Key insight:</em> Item B is not "twice the width" of item A (300 vs 200). It received twice the <em>extra space</em>, but both started from the same 100px base. This distinction matters: if item A had <code>flex-basis: 200px</code> and item B had <code>flex-basis: 50px</code>, even with the same grow factors the final sizes would be very different.</p>
+
+  <p><strong>c) flex-shrink: 0 behaviour:</strong></p>
+  <p>By default, <code>flex-shrink</code> is <code>1</code>, meaning all items will shrink proportionally when the container is too small. If item C has <code>flex-shrink: 0</code>, it <strong>refuses to shrink</strong> below its <code>flex-basis</code> (100px), even if the container overflows. Items A and B would absorb all the shrinking. This is useful in practice for elements that must maintain a fixed size &mdash; like an icon or a fixed-width sidebar &mdash; while other items adapt to the available space.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 4 — Select All That Apply (3 pts)</h3>
+<p>Which of the following statements about Flexbox are correct? For each statement, consider <strong>why</strong> it is true or false.</p>
+<ul>
+<li>[ ] The <code>float</code> property has no effect on flex items</li>
+<li>[ ] <code>align-content</code> works even when <code>flex-wrap</code> is set to <code>nowrap</code></li>
+<li>[ ] <code>justify-content: space-between</code> distributes space between items but not before the first or after the last</li>
+<li>[ ] Setting <code>flex: 1</code> on an item is shorthand for <code>flex-grow: 1; flex-shrink: 1; flex-basis: 0</code></li>
+<li>[ ] <code>order: -1</code> on a flex item will visually move it before all items with the default order</li>
+<li>[ ] Flexbox is a two-dimensional layout system that controls rows and columns simultaneously</li>
+</ul>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <p><strong>Correct statements:</strong></p>
+  <ul>
+  <li><strong>[x] <code>float</code> has no effect on flex items</strong> &mdash; The Flexbox specification explicitly states that <code>float</code> and <code>clear</code> have no effect on flex items. This is because Flexbox establishes its own layout algorithm that completely replaces the normal block/inline flow. The item is taken out of float context. However, <code>float</code> still affects the element's <code>display</code> computation if the element is <em>not</em> a flex item.</li>
+
+  <li><strong>[ ] <code>align-content</code> works with <code>nowrap</code></strong> &mdash; <strong>FALSE.</strong> <code>align-content</code> distributes space between <em>flex lines</em> (rows of wrapped items). With <code>nowrap</code>, there is only one flex line, so there is nothing to distribute between. This is identical to how <code>justify-content</code> is meaningless if there's only one item &mdash; you need multiple things to distribute space <em>between</em>.</li>
+
+  <li><strong>[x] <code>justify-content: space-between</code> distributes space between items</strong> &mdash; <code>space-between</code> places the first item flush to the start, the last item flush to the end, and distributes remaining space evenly <em>between</em> items. Compare with <code>space-around</code> (equal space on each side of every item) and <code>space-evenly</code> (equal gaps everywhere, including edges).</li>
+
+  <li><strong>[x] <code>flex: 1</code> equals <code>flex-grow: 1; flex-shrink: 1; flex-basis: 0</code></strong> &mdash; This is a critical detail. Note that <code>flex-basis: 0</code> (not <code>auto</code>) means the item starts with zero size and grows to fill space. This is why <code>flex: 1</code> on all items makes them equal width &mdash; they all start at 0 and share the space equally. If the shorthand were <code>flex-basis: auto</code>, items with different content widths would end up different sizes.</li>
+
+  <li><strong>[x] <code>order: -1</code> moves the item before default-order items</strong> &mdash; The default <code>order</code> value is <code>0</code>. Items are laid out in ascending order. So <code>order: -1</code> places the item before all items with <code>order: 0</code>. This is useful for accessibility: you can keep a logical DOM order for screen readers while changing visual order for sighted users.</li>
+
+  <li><strong>[ ] Flexbox is two-dimensional</strong> &mdash; <strong>FALSE.</strong> Flexbox is a <strong>one-dimensional</strong> layout system. It handles either a row OR a column, never both simultaneously. CSS Grid is the two-dimensional system. Even when <code>flex-wrap: wrap</code> creates multiple rows, each row is laid out independently &mdash; items in row 2 don't align with columns in row 1.</li>
   </ul>
 </div>
 </details>
 
-<h3 class="g-h3">Question 4 — Fill in the blanks</h3>
+<h3 class="g-h3">Question 5 — Written Answer: Compare and Justify (4 pts)</h3>
+<p>Consider these two approaches to centering a <code>&lt;div&gt;</code> both horizontally and vertically inside its parent:</p>
+<p><strong>Approach A &mdash; Flexbox:</strong></p>
+<div class="cb"><pre>.parent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}</pre></div>
+<p><strong>Approach B &mdash; Absolute positioning + transform:</strong></p>
+<div class="cb"><pre>.parent {
+  position: relative;
+  height: 100vh;
+}
+.child {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}</pre></div>
+<p>a) Explain <strong>how</strong> each approach achieves centering &mdash; what is the mechanism? (2 pts)</p>
+<p>b) In what situation would you choose one over the other? Justify your choice with a concrete scenario. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a) How each works:</strong></p>
+  <p><strong>Approach A (Flexbox):</strong> <code>display: flex</code> activates flex layout. <code>justify-content: center</code> centers items along the main axis (horizontal in the default <code>row</code> direction). <code>align-items: center</code> centers items along the cross axis (vertical). Together, these place the child at the exact center. The parent participates in the layout &mdash; it "knows" about its children and positions them.</p>
+
+  <p><strong>Approach B (Absolute + transform):</strong> <code>position: absolute</code> removes the child from normal document flow. <code>top: 50%; left: 50%</code> places the child's <em>top-left corner</em> at the center of the parent. But this isn't true centering yet &mdash; the child is offset by its own width and height. <code>transform: translate(-50%, -50%)</code> shifts the child back by 50% of <em>its own</em> dimensions, moving the center of the child to the center of the parent.</p>
+
+  <p><strong>b) When to choose each:</strong></p>
+  <ul>
+  <li><strong>Choose Flexbox</strong> when you have multiple children to center or when the centered content should participate in the layout flow. For example, a hero section with a heading, subtitle, and button all centered vertically: Flexbox centers the group and lets you use <code>gap</code> between them. The children remain in flow and interact with each other predictably.</li>
+  <li><strong>Choose absolute positioning</strong> when you need to overlay content on top of other content. For example, a "Loading..." spinner centered over an image: the spinner must be positioned independently of the image, not pushing it aside. Absolute positioning takes the spinner out of flow entirely, which is exactly what you want for an overlay.</li>
+  </ul>
+  <p><em>General recommendation:</em> Prefer Flexbox for most centering tasks. It is more maintainable, adapts to different content sizes, and doesn't require the parent-child <code>position</code> relationship. The absolute positioning approach is a legacy technique that still has its place for overlays and layered UIs.</p>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION B: CSS GRID</h2>
+
+<h3 class="g-h3">Question 6 — Fill in the blanks (4 pts)</h3>
 <p>Complete the following sentences about CSS Grid:</p>
-<p>The property 1. ________ is used to define named layout regions in a grid container. To make a grid responsive without media queries, you combine <code>repeat()</code> with 2. ________ and <code>minmax()</code> in <code>grid-template-columns</code>. The 3. ________ unit represents a fraction of the available space in a grid container. The property 4. ________ sets the spacing between grid items.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
+<p>The property 1. ________ lets you define named layout regions so you can place elements visually, like mapping out a floor plan. The 2. ________ unit represents a fraction of the available free space in the grid container &mdash; it is not a fixed unit like <code>px</code> or <code>%</code>. To create a responsive grid that automatically adjusts the number of columns without media queries, you combine <code>repeat()</code> with 3. ________ and <code>minmax()</code> in <code>grid-template-columns</code>. The property 4. ________ controls the spacing between grid tracks (both rows and columns).</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
   <p><strong>1.</strong> <code>grid-template-areas</code></p>
-  <p><strong>2.</strong> <code>auto-fit</code> (or <code>auto-fill</code>) — these keywords tell the grid to automatically create as many tracks as will fit. Without them, <code>repeat()</code> alone requires a fixed count and does not adapt to screen size.</p>
-  <p><strong>3.</strong> <code>fr</code></p>
-  <p><strong>4.</strong> <code>gap</code> (or <code>grid-gap</code>)</p>
+  <p><em>Why:</em> This property lets you "draw" your layout with named strings. Each string represents a row, and each word in the string names a cell. For example:</p>
+  <div class="cb"><pre>grid-template-areas:
+  "header header"
+  "sidebar main"
+  "footer footer";</pre></div>
+  <p>Then you assign elements to areas with <code>grid-area: header</code>. This is powerful because the layout is visually obvious in the code &mdash; you can see the structure just by reading the CSS. It also makes responsive redesign easy: change the area strings in a media query and the entire layout restructures without touching the HTML.</p>
+
+  <p><strong>2.</strong> <code>fr</code></p>
+  <p><em>Why:</em> The <code>fr</code> unit divides <em>remaining</em> free space after fixed-size tracks are accounted for. So <code>grid-template-columns: 250px 1fr</code> means "the first column is exactly 250px, and the second column gets all the remaining space." This is fundamentally different from percentages: <code>1fr</code> is calculated after <code>gap</code> and fixed-width columns are subtracted, while percentages are calculated from the container's total width (which can cause overflow when combined with gaps).</p>
+
+  <p><strong>3.</strong> <code>auto-fit</code> (also acceptable: <code>auto-fill</code>)</p>
+  <p><em>Why:</em> <code>repeat(auto-fit, minmax(200px, 1fr))</code> tells the browser: "create as many columns as will fit, each at least 200px wide, and distribute remaining space equally." Without <code>auto-fit</code>, <code>repeat()</code> requires a fixed number like <code>repeat(3, ...)</code>, which doesn't adapt to screen size. The difference between <code>auto-fit</code> and <code>auto-fill</code> is subtle: <code>auto-fit</code> collapses empty tracks so remaining items expand, while <code>auto-fill</code> keeps empty tracks, preserving minimum sizes.</p>
+
+  <p><strong>4.</strong> <code>gap</code> (also acceptable: <code>grid-gap</code>)</p>
+  <p><em>Why:</em> <code>gap</code> sets spacing between tracks (rows and columns). It replaces the older <code>grid-gap</code> and also works in Flexbox. The key advantage over margins is that <code>gap</code> only adds space <em>between</em> items, not around the outside edges. This eliminates the classic problem of needing to remove the margin from the last item in a row.</p>
 </div>
 </details>
 
-<h3 class="g-h3">Question 5 — Multiple Choice</h3>
-<p>You have a 750px wide flex container with three flex items, each 100px wide. The first two items have <code>flex-grow: 1</code> and the third has <code>flex-grow: 3</code>. What will be the final width of the third item?</p>
-<ul>
-<li>A) 250px</li>
-<li>B) 370px</li>
-<li>C) 550px</li>
-<li>D) 450px</li>
-</ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<h3 class="g-h3">Question 7 — Code Analysis: Explain the layout and why (6 pts)</h3>
+<p>Study the following CSS from the teacher's course material:</p>
+<div class="cb"><pre>.page {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: 250px 1fr;
+}</pre></div>
+<p>a) Describe the layout this creates. How many rows and columns are there? What does each area occupy? (2 pts)</p>
+<p>b) Explain what <code>1fr</code> means in <code>grid-template-columns: 250px 1fr</code>. Why is <code>1fr</code> better than <code>calc(100% - 250px)</code> for the second column? (2 pts)</p>
+<p>c) A colleague suggests replacing the grid with Flexbox: <code>display: flex; flex-wrap: wrap;</code>. Explain why Flexbox would struggle with this specific layout and what problems would arise. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>B</strong> — 370px</p>
+  <p><strong>a) Layout description:</strong></p>
+  <p>This creates a <strong>3-row, 2-column</strong> grid:</p>
   <ul>
-  <li>Remaining space: 750 - (3 × 100) = 450px</li>
-  <li>Total grow factors: 1 + 1 + 3 = 5</li>
-  <li>Per unit: 450 / 5 = 90px</li>
-  <li>Third item: 100 + (90 × 3) = 370px</li>
+  <li><strong>Row 1:</strong> The <code>header</code> spans both columns (the name "header" appears twice)</li>
+  <li><strong>Row 2:</strong> The <code>sidebar</code> occupies the left column (250px wide), and <code>main</code> occupies the right column</li>
+  <li><strong>Row 3:</strong> The <code>footer</code> spans both columns</li>
+  </ul>
+  <p>Elements are placed by setting <code>grid-area: header</code>, <code>grid-area: sidebar</code>, etc. The visual structure in the CSS mirrors the actual page layout, making it self-documenting.</p>
+
+  <p><strong>b) Why <code>1fr</code> is better than <code>calc(100% - 250px)</code>:</strong></p>
+  <p><code>1fr</code> means "one fraction of the remaining free space." The browser first allocates the fixed 250px to column 1, then gives <em>everything that's left</em> to column 2. Using <code>calc(100% - 250px)</code> seems equivalent, but it breaks when <code>gap</code> is added. If you set <code>gap: 20px</code>, the <code>1fr</code> calculation automatically accounts for the 20px gap: the second column becomes <code>container - 250px - 20px</code>. With <code>calc(100% - 250px)</code>, the gap is not subtracted, causing the total to exceed 100% and triggering overflow. The <code>fr</code> unit is gap-aware by design.</p>
+
+  <p><strong>c) Why Flexbox struggles here:</strong></p>
+  <p>Flexbox is one-dimensional &mdash; it manages items along a single axis. With <code>flex-wrap: wrap</code>, items flow into new rows, but each row is independent. The problems:</p>
+  <ul>
+  <li>The sidebar and main content in row 2 need to align with specific column widths (250px + rest). In Flexbox, you'd have to manually set widths and hope they add up correctly. Grid inherently defines column tracks that all rows share.</li>
+  <li>Making the header and footer span "both columns" requires them to be <code>width: 100%</code> in Flexbox, which works, but the sidebar/main row requires careful <code>flex-basis</code> calculations that break when padding or gaps change.</li>
+  <li>The fundamental issue: this layout has both row AND column structure (header spans columns, sidebar has a fixed column width). That is a two-dimensional layout problem, which is exactly what Grid was designed for. Flexbox would require workarounds that Grid handles natively.</li>
   </ul>
 </div>
 </details>
 
-<h3 class="g-h3">Question 6 — Written Answer (4 pts)</h3>
-<p>Explain the difference between <code>align-items</code> and <code>align-content</code> in Flexbox. When would each be useful? Give a concrete example for each.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>Model answer:</strong></p>
-  <ul>
-  <li><strong>align-items</strong> aligns individual flex <strong>items</strong> along the cross-axis within their flex line. Use it when you want to vertically center items in a row, for example a nav bar where the logo and links should be vertically centered: <code>align-items: center</code>.</li>
-  <li><strong>align-content</strong> aligns the <strong>flex lines themselves</strong> (not individual items) when there is extra space in the cross-axis direction. It only works when <code>flex-wrap: wrap</code> is set and there are multiple lines. Use it when you have a wrapping grid of cards and want to control the spacing between rows: <code>align-content: space-between</code>.</li>
-  <li><strong>Key difference:</strong> align-items = items within a line. align-content = the lines themselves.</li>
-  </ul>
-</div>
-</details>
-
-<h3 class="g-h3">Question 7 — Select All That Apply</h3>
-<p>Which of the following CSS class names correctly follow BEM naming conventions?</p>
+<h3 class="g-h3">Question 8 — Multiple Choice (2 pts)</h3>
+<p>Consider this CSS:</p>
+<div class="cb"><pre>.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}</pre></div>
+<p>A student says: "This grid always creates exactly 3 columns because <code>1fr</code> divides the space into thirds." <strong>Why is this incorrect?</strong></p>
 <ul>
-<li>[ ] <code>.nav__item--active</code></li>
-<li>[ ] <code>.nav-item-active</code></li>
-<li>[ ] <code>.Nav__Item--Active</code></li>
-<li>[ ] <code>.navigation__link--disabled</code></li>
-<li>[ ] <code>.navItemActive</code></li>
+<li>A) <code>auto-fit</code> creates a fixed number of columns based on the number of child elements, not three</li>
+<li>B) The number of columns depends on the container's width &mdash; <code>auto-fit</code> creates as many columns as will fit at their minimum size (200px), and <code>1fr</code> distributes leftover space equally among them</li>
+<li>C) <code>minmax(200px, 1fr)</code> means columns are always exactly 200px wide, so the number depends on the container divided by 200</li>
+<li>D) <code>repeat()</code> always requires a number as its first argument; <code>auto-fit</code> defaults to 3</li>
 </ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>Correct:</strong> <code>.nav__item--active</code> and <code>.navigation__link--disabled</code></p>
+  <p><strong>B</strong> &mdash; The number of columns depends on the container's width. <code>auto-fit</code> creates as many columns as will fit at their minimum size (200px), and <code>1fr</code> distributes leftover space equally among them.</p>
+
+  <p><strong>Why B is correct:</strong> The expression <code>repeat(auto-fit, minmax(200px, 1fr))</code> means: "Repeat columns as many times as will fit. Each column must be at least 200px wide (minimum) and can grow up to 1fr (maximum)." On an 800px-wide container, you'd get roughly 4 columns. On a 500px-wide container, roughly 2. This is the core mechanism for responsive grids without media queries. The <code>1fr</code> maximum ensures leftover space is distributed, so columns grow beyond 200px rather than leaving a gap at the end.</p>
+
   <p><strong>Why the others are wrong:</strong></p>
   <ul>
-  <li><code>.nav-item-active</code> — uses only single dashes, so BEM cannot distinguish block from element from modifier. Is "item" an element? Is "active" a modifier? Ambiguous.</li>
-  <li><code>.Nav__Item--Active</code> — BEM requires lowercase only. PascalCase violates the naming rules.</li>
-  <li><code>.navItemActive</code> — camelCase is not BEM. There are no separators to identify the block, element, or modifier parts.</li>
+  <li><strong>A</strong> &mdash; <code>auto-fit</code> does <em>not</em> base the column count on the number of children. It bases it on how many columns of the <em>minimum</em> size can fit in the container. If you have 2 items but space for 5 columns, <code>auto-fit</code> creates tracks for 5 but collapses the empty ones (unlike <code>auto-fill</code>, which keeps them).</li>
+  <li><strong>C</strong> &mdash; <code>minmax(200px, 1fr)</code> does not make columns exactly 200px. The <code>200px</code> is the <em>minimum</em>; columns can grow up to <code>1fr</code>. If only 2 columns fit, each will be much wider than 200px.</li>
+  <li><strong>D</strong> &mdash; <code>auto-fit</code> is a valid keyword for <code>repeat()</code> and does not default to any number. It dynamically calculates the column count at render time.</li>
   </ul>
 </div>
 </details>
 
-<h3 class="g-h3">Question 8 — Written Answer (4 pts)</h3>
-<p>A colleague says: "CSS Grid and Flexbox do the same thing, just pick one and use it everywhere." Explain why this is incorrect. Describe what each layout system is best suited for and how they complement each other in a real project.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
+<h3 class="g-h3">Question 9 — Select All That Apply (3 pts)</h3>
+<p>Which of the following statements about CSS Grid are correct?</p>
+<ul>
+<li>[ ] Grid items can span multiple rows and columns using <code>grid-row</code> and <code>grid-column</code></li>
+<li>[ ] <code>grid-template-areas</code> requires that every area name appears only once in the template</li>
+<li>[ ] The <code>fr</code> unit divides the <strong>total</strong> container width, including space taken by fixed columns and gaps</li>
+<li>[ ] Grid and Flexbox can be nested &mdash; a grid item can itself be a flex container</li>
+<li>[ ] <code>auto-fit</code> and <code>auto-fill</code> behave identically in all cases</li>
+<li>[ ] You can use a period (<code>.</code>) in <code>grid-template-areas</code> to define an empty cell</li>
+</ul>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>Model answer:</strong></p>
+  <p><strong>Correct statements:</strong></p>
   <ul>
-  <li><strong>CSS Grid</strong> is a two-dimensional layout system — it handles both rows AND columns simultaneously. Best for page-level layouts like defining header, sidebar, main content, and footer regions using <code>grid-template-areas</code>.</li>
-  <li><strong>Flexbox</strong> is a one-dimensional layout system — it works along a single axis (row OR column). Best for component-level layouts like arranging cards in a row, centering content, or building navigation bars.</li>
-  <li><strong>Complementary use:</strong> Use Grid for the overall page structure, then Flexbox inside individual components. For example, Grid defines the page areas, while Flexbox arranges product cards within the main content area.</li>
+  <li><strong>[x] Grid items can span multiple rows and columns</strong> &mdash; Using <code>grid-column: 1 / 3</code> or <code>grid-column: span 2</code>, an item can occupy multiple tracks. This is fundamental to Grid &mdash; it's what makes Grid two-dimensional. You can also use named areas, where repeating the same name in <code>grid-template-areas</code> causes an element to span those cells.</li>
+
+  <li><strong>[ ] Each area name appears only once</strong> &mdash; <strong>FALSE.</strong> The whole point of <code>grid-template-areas</code> is that an area name can appear in <em>multiple cells</em> to indicate spanning. In the teacher's example, <code>"header header"</code> makes the header span two columns. The name must form a rectangle &mdash; L-shapes or disjoint areas are not allowed.</li>
+
+  <li><strong>[ ] <code>fr</code> divides the total container width</strong> &mdash; <strong>FALSE.</strong> <code>fr</code> divides the <em>remaining free space</em> after fixed tracks (like <code>250px</code>) and gaps have been subtracted. This is the critical difference between <code>fr</code> and <code>%</code>. With <code>grid-template-columns: 250px 1fr</code> and <code>gap: 20px</code>, the <code>1fr</code> column gets <code>container - 250px - 20px</code>, not <code>container - 250px</code>.</li>
+
+  <li><strong>[x] Grid and Flexbox can be nested</strong> &mdash; This is the recommended approach from the teacher's material. Use Grid for the page-level macro layout, then use Flexbox inside individual components. For example, the <code>main</code> grid area might contain a flex container for card components: <code>.card { display: flex; flex-direction: column; justify-content: space-between; }</code></li>
+
+  <li><strong>[ ] <code>auto-fit</code> and <code>auto-fill</code> are identical</strong> &mdash; <strong>FALSE.</strong> They differ when there are fewer items than available tracks. <code>auto-fill</code> creates empty tracks that consume space. <code>auto-fit</code> collapses empty tracks to zero width, allowing items to stretch. With 2 items in an 800px container using <code>minmax(200px, 1fr)</code>: <code>auto-fill</code> might create 4 tracks (items stay at ~200px), while <code>auto-fit</code> collapses the 2 empty tracks and lets the 2 items expand to ~400px each.</li>
+
+  <li><strong>[x] A period (<code>.</code>) defines an empty cell</strong> &mdash; In <code>grid-template-areas</code>, a <code>.</code> represents a cell with no named area. For example: <code>"header header" ". main" "footer footer"</code> leaves the left cell of row 2 empty. This is useful for creating visual gaps in the layout without dummy elements.</li>
   </ul>
 </div>
 </details>
 
-<h2 class="g-h2">SECTION B: JAVASCRIPT FUNDAMENTALS</h2>
+<h2 class="g-h2">SECTION C: GRID VS FLEXBOX &mdash; CHOOSING THE RIGHT TOOL</h2>
 
-<h3 class="g-h3">Question 9 — Fill in the blanks</h3>
-<p>Complete the following sentences about JavaScript:</p>
-<p>When a function is called with the <code>new</code> keyword, <code>this</code> refers to the 1. ________. The method <code>.bind()</code> returns a 2. ________ with <code>this</code> permanently set to the provided object. When a function is passed to <code>setTimeout</code>, the value of <code>this</code> inside that function will be 3. ________ (in non-strict mode). To call a parent constructor from within a child constructor function, you use 4. ________.call(this, args).</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>1.</strong> newly created object (instance)</p>
-  <p><strong>2.</strong> new function</p>
-  <p><strong>3.</strong> <code>window</code> (global object)</p>
-  <p><strong>4.</strong> Parent (e.g., <code>Animal</code>)</p>
-</div>
-</details>
-
-<h3 class="g-h3">Question 10 — Code Analysis (6 pts)</h3>
-<p>Study the following code:</p>
-<div class="cb"><pre>function Animal(name) {
-    this.name = name;
-    console.log(this);  // Line A
-}
-
-Animal.prototype.speak = function() {
-    console.log('Speak!');
-    console.log(this);  // Line B
-};
-
-function Dog(name, breed) {
-    Animal.call(this, name);
-    this.breed = breed;
-    console.log(this);  // Line C
-}
-
-Dog.prototype = Object.create(Animal.prototype);
-Dog.prototype.constructor = Dog;
-
-var stray = {};
-
-var a = Animal('Cat');           // 1
-var b = new Animal('Parrot');    // 2
-var c = new Dog('Rex', 'Lab');   // 3 (two console.logs)
-b.speak();                       // 4
-b.speak.bind(stray).call();      // 5
-setTimeout(b.speak, 1000);       // 6</pre></div>
-<p>For lines 1-6, state what <code>this</code> refers to at each console.log. Possible answers: <code>window</code>, object <code>a</code>, object <code>b</code>, object <code>c</code>, <code>stray</code>, or describe the object.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>1.</strong> <code>window</code> — <code>Animal('Cat')</code> called without <code>new</code>, so <code>this</code> = window</p>
-  <p><strong>2.</strong> <code>Animal { name: 'Parrot' }</code> — called with <code>new</code>, <code>this</code> = new instance (object <code>b</code>)</p>
-  <p><strong>3.</strong> First log (from Animal.call): <code>Dog { name: 'Rex' }</code> — <code>this</code> is the Dog instance being created. Second log: <code>Dog { name: 'Rex', breed: 'Lab' }</code> — same instance, now with breed added (object <code>c</code>)</p>
-  <p><strong>4.</strong> <code>Animal { name: 'Parrot' }</code> — method called on <code>b</code>, so <code>this</code> = <code>b</code> (object <code>b</code>)</p>
-  <p><strong>5.</strong> <code>{}</code> (the <code>stray</code> object) — <code>.bind(stray)</code> permanently sets <code>this</code> to <code>stray</code>. Even <code>.call()</code> after it can't override <code>bind</code></p>
-  <p><strong>6.</strong> <code>window</code> — setTimeout loses the <code>this</code> context, so it defaults to <code>window</code></p>
-</div>
-</details>
-
-<h3 class="g-h3">Question 11 — Multiple Choice</h3>
-<p>You have a function <code>greet</code> and an object <code>user</code>. A colleague writes: <code>var boundGreet = greet.bind(user);</code> and later calls <code>boundGreet.call(otherUser);</code>. What will <code>this</code> be inside the function?</p>
+<h3 class="g-h3">Question 10 — Written Answer: Compare and Justify (4 pts)</h3>
+<p>From the teacher's course material: <em>"Grid = macro layout (2D control). Flexbox = micro layout (1D flow). They are complementary."</em></p>
+<p>You are building a large e-commerce website. The design requires:</p>
 <ul>
-<li>A) <code>otherUser</code> — because <code>.call()</code> is called last and overrides the binding</li>
-<li>B) <code>user</code> — because <code>.bind()</code> permanently sets <code>this</code> and cannot be overridden by <code>.call()</code></li>
-<li>C) <code>window</code> — because combining <code>.bind()</code> and <code>.call()</code> cancels both out</li>
-<li>D) An error is thrown because you cannot call <code>.call()</code> on a bound function</li>
+<li>A complex page-level layout (header, sidebar, main content area, footer)</li>
+<li>Flexible product card components inside the main content area</li>
+<li>Each card has an image, title, price, and "Add to cart" button that should be pushed to the bottom</li>
 </ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<p>a) Explain how you would use CSS Grid and Flexbox <strong>together</strong> to implement this layout. Be specific about which tool handles which part, and write the key CSS declarations. (2 pts)</p>
+<p>b) A colleague says "I'll just use Grid for everything, including the card internals." Explain one concrete problem they will encounter with the card layout that Flexbox handles better. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>B</strong> — <code>.bind()</code> permanently sets <code>this</code>. Once a function is bound, neither <code>.call()</code> nor <code>.apply()</code> can change it. This is the key difference: <code>.call()</code> and <code>.apply()</code> set <code>this</code> temporarily for one invocation, while <code>.bind()</code> creates a new function with <code>this</code> permanently fixed.</p>
+  <p><strong>a) Using Grid and Flexbox together:</strong></p>
+  <p><strong>CSS Grid for the page layout</strong> (two-dimensional, rows and columns):</p>
+  <div class="cb"><pre>.page {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: 250px 1fr;
+}</pre></div>
+  <p>Grid is the right choice here because the page layout is inherently two-dimensional: the header and footer span both columns, the sidebar has a fixed width, and the main content fills the remaining space. <code>grid-template-areas</code> makes the layout visually obvious and easy to restructure in media queries.</p>
+
+  <p><strong>Flexbox for the card components</strong> (one-dimensional, vertical flow):</p>
+  <div class="cb"><pre>.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}</pre></div>
+  <p>Flexbox is the right choice here because each card is a single-column layout: image on top, text in the middle, button at the bottom. <code>flex-direction: column</code> stacks the elements vertically, and <code>justify-content: space-between</code> pushes the button to the bottom regardless of how much text content there is.</p>
+
+  <p>For the card grid inside the main area, you might use Grid again:</p>
+  <div class="cb"><pre>.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}</pre></div>
+
+  <p><strong>b) Problem with Grid for card internals:</strong></p>
+  <p>The card has variable content &mdash; some products have long titles, some have short ones. The "Add to cart" button must always sit at the bottom of the card, regardless of content height. With <code>flex-direction: column</code> and <code>justify-content: space-between</code>, Flexbox pushes the first child to the top and the last child to the bottom automatically, adapting to any content height.</p>
+  <p>With Grid, you'd need to define explicit row tracks: <code>grid-template-rows: auto 1fr auto</code>. This works, but it requires knowing the exact number of content sections. If a card variant adds a "Sale" badge or a rating, you must update the row template. Flexbox handles variable numbers of children naturally &mdash; <code>space-between</code> always pushes the last child to the bottom, no matter how many children exist. Flexbox is more flexible for component internals where content is dynamic.</p>
 </div>
 </details>
 
-<h2 class="g-h2">SECTION C: ASYNC JAVASCRIPT &amp; TYPESCRIPT</h2>
-
-<h3 class="g-h3">Question 12 — Multiple Choice</h3>
-<p>Which of the following correctly describes the order of execution in the Event Loop?</p>
+<h3 class="g-h3">Question 11 — Multiple Choice (2 pts)</h3>
+<p>You are building a navigation bar with a logo on the left, navigation links in the center, and a user avatar on the right. All items should be vertically centered. Which approach is most appropriate and why?</p>
 <ul>
-<li>A) Macrotasks first, then microtasks, then rendering</li>
-<li>B) Call stack, then macrotasks and microtasks in FIFO order</li>
-<li>C) Call stack empties, then ALL microtasks run, then ONE macrotask runs</li>
-<li>D) Microtasks and macrotasks alternate one-by-one</li>
+<li>A) CSS Grid with <code>grid-template-columns: 1fr 1fr 1fr</code> &mdash; because you need three distinct sections</li>
+<li>B) Flexbox with <code>justify-content: space-between; align-items: center</code> &mdash; because a navbar is a single row of items distributed along one axis</li>
+<li>C) Absolute positioning for each element &mdash; because you need precise pixel control</li>
+<li>D) <code>float: left</code> for the logo and links, <code>float: right</code> for the avatar</li>
 </ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>C</strong> — Call stack empties, then ALL microtasks, then ONE macrotask</p>
-  <p><strong>Why this matters:</strong> This priority system is why <code>Promise.then()</code> callbacks always run before <code>setTimeout(..., 0)</code> callbacks. After any synchronous code finishes, the Event Loop drains the entire microtask queue before picking up the next macrotask. This also means microtasks can "starve" macrotasks if they keep adding more microtasks.</p>
+  <p><strong>B</strong> &mdash; Flexbox with <code>justify-content: space-between; align-items: center</code>.</p>
+
+  <p><strong>Why B is correct:</strong> A navigation bar is a textbook case for Flexbox. It is a <em>single row</em> of items (one-dimensional), and you want to distribute them along the main axis while vertically centering them. <code>justify-content: space-between</code> pushes the logo to the left edge and the avatar to the right edge, with the links occupying the center. <code>align-items: center</code> vertically centers everything, handling items of different heights (a tall logo next to small text links).</p>
+
   <p><strong>Why the others are wrong:</strong></p>
   <ul>
-  <li><strong>A</strong> — Reverses the priority. Microtasks run BEFORE macrotasks, not after.</li>
-  <li><strong>B</strong> — Microtasks and macrotasks are NOT in the same queue; they have different priorities.</li>
-  <li><strong>D</strong> — They do not alternate. ALL microtasks drain first, then one macrotask.</li>
+  <li><strong>A</strong> &mdash; Grid <em>would work</em>, but it's overkill. A navbar is not a two-dimensional layout. Using Grid for a single row of items adds unnecessary complexity. However, Grid <em>is</em> a valid choice if the navbar has more complex structure (e.g., items that need to align with grid columns in the content below).</li>
+  <li><strong>C</strong> &mdash; Absolute positioning removes items from the flow, making the navbar unable to adapt to different content sizes. If the logo is wider than expected, it would overlap the links. Absolute positioning also makes responsive design much harder.</li>
+  <li><strong>D</strong> &mdash; <code>float</code> was the pre-Flexbox solution for navbars. It requires clearfix hacks, doesn't support vertical centering, and makes it nearly impossible to center the middle group between the floated sides. Modern CSS has replaced float-based layouts entirely.</li>
   </ul>
 </div>
 </details>
 
-<h3 class="g-h3">Question 13 — Select All That Apply</h3>
-<p>Which of the following statements about Promises are correct?</p>
-<ul>
-<li>[ ] <code>Promise.all()</code> rejects immediately if any one promise rejects</li>
-<li>[ ] <code>Promise.race()</code> resolves when ALL promises have resolved</li>
-<li>[ ] <code>Promise.allSettled()</code> waits for all promises to settle, whether they resolve or reject</li>
-<li>[ ] <code>Promise.any()</code> resolves when the first promise resolves</li>
-<li>[ ] Microtask queue (Promises) is processed before the macrotask queue (setTimeout)</li>
-<li>[ ] <code>await</code> can be used at the top level of any JavaScript file without issues</li>
-</ul>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>Correct:</strong></p>
-  <ul>
-  <li>[x] <code>Promise.all()</code> rejects immediately if any one promise rejects</li>
-  <li>[ ] <code>Promise.race()</code> resolves when ALL promises have resolved — <strong>FALSE</strong> (first to settle)</li>
-  <li>[x] <code>Promise.allSettled()</code> waits for all promises to settle</li>
-  <li>[x] <code>Promise.any()</code> resolves when the first promise resolves</li>
-  <li>[x] Microtask queue is processed before macrotask queue</li>
-  <li>[ ] <code>await</code> can be used at top level without issues — <strong>FALSE</strong> (needs async context, or top-level await with ES modules)</li>
-  </ul>
-</div>
-</details>
-
-<h3 class="g-h3">Question 14 — Code Analysis (4 pts)</h3>
-<p>Study the following TypeScript code:</p>
-<div class="cb"><pre>async function fetchProducts(category: string) {
-    const response = await fetch(`/api/products/${category}`);
-    const data = response.json();
-    return data.filter(p =&gt; p.price &gt; 0);
+<h3 class="g-h3">Question 12 — Code Analysis: Explain what happens and why (6 pts)</h3>
+<p>A student writes the following CSS to create a responsive card grid:</p>
+<div class="cb"><pre>.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.card {
+  flex: 1 1 300px;
 }</pre></div>
-<p>a) Identify <strong>two bugs</strong> in this code and explain why each is a problem. (2 pts)</p>
-<p>b) Rewrite the function correctly with a proper <strong>interface</strong> for the product data shape and appropriate <strong>error handling</strong>. (2 pts)</p>
-<details class="ans"><summary>▸ Show Answer</summary>
+<p>Another student writes this alternative:</p>
+<div class="cb"><pre>.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}</pre></div>
+<p>a) Both approaches create responsive card grids. Explain how each one works &mdash; what happens when the viewport is wide? What happens when it narrows? (2 pts)</p>
+<p>b) The Flexbox version has a well-known problem with the last row when there are, say, 5 cards in a 3-column layout. Describe this problem and explain <strong>why</strong> it occurs. (2 pts)</p>
+<p>c) Which approach would you recommend for a product listing page and why? (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>a) Two bugs:</strong></p>
+  <p><strong>a) How each approach works:</strong></p>
+  <p><strong>Flexbox version:</strong> <code>flex: 1 1 300px</code> means each card starts at <code>flex-basis: 300px</code>, can grow (<code>flex-grow: 1</code>), and can shrink (<code>flex-shrink: 1</code>). With <code>flex-wrap: wrap</code>, cards flow into new rows when they can't fit. When the viewport is wide, multiple cards fit on one row and grow to fill the space. When the viewport narrows, fewer cards fit per row, and the cards on each row grow to fill that row.</p>
+
+  <p><strong>Grid version:</strong> <code>repeat(auto-fit, minmax(300px, 1fr))</code> creates as many columns as will fit at a minimum of 300px. When the viewport is wide, more columns are created. When it narrows, columns are removed and remaining columns grow. The key difference: Grid defines <em>column tracks</em> that are consistent across all rows.</p>
+
+  <p><strong>b) The last-row problem in Flexbox:</strong></p>
+  <p>With 5 cards in a 3-column layout: the first row has 3 cards, each taking ~33% of the width. The second row has only 2 cards. Because <code>flex-grow: 1</code> distributes available space among the items <em>in that row</em>, the 2 remaining cards each grow to ~50% of the width. They become wider than the cards in the first row, breaking the visual grid alignment.</p>
+  <p><em>Why this happens:</em> Flexbox is one-dimensional. Each row is an independent flex line. Items in row 2 have no knowledge of the column structure in row 1. They simply grow to fill their own row. Grid does not have this problem because column tracks span all rows &mdash; items always align to the same column widths.</p>
+
+  <p><strong>c) Recommendation:</strong></p>
+  <p>Use the <strong>Grid version</strong> for a product listing page. The last-row problem in Flexbox is a deal-breaker for card grids: cards changing width depending on which row they're in looks unprofessional. Grid ensures all cards maintain consistent column widths. Grid also handles the responsive column count automatically with <code>auto-fit</code>, without any additional calculation. The only reason to prefer Flexbox would be if you need cards to have varying widths based on their content, which is rarely desired in a product listing.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 13 — Written Answer: Explain reasoning (4 pts)</h3>
+<p>Consider the following two ways to make the card grid from Question 12 responsive on small screens:</p>
+<p><strong>Approach A &mdash; Media query:</strong></p>
+<div class="cb"><pre>.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .cards { grid-template-columns: 1fr; }
+}</pre></div>
+<p><strong>Approach B &mdash; Intrinsic sizing:</strong></p>
+<div class="cb"><pre>.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}</pre></div>
+<p>a) Explain how each approach handles responsiveness. What is the fundamental difference in strategy? (2 pts)</p>
+<p>b) When would you choose Approach A over Approach B? Give a concrete design scenario where media queries are necessary. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a) Fundamental difference:</strong></p>
+  <p><strong>Approach A (Media queries)</strong> uses <em>extrinsic</em> breakpoints: the developer decides at exactly which viewport widths the layout changes. At 769px you get 3 columns; at 768px it snaps to 2. The transitions are sharp and predefined. The developer must anticipate every screen size and write a rule for it.</p>
+
+  <p><strong>Approach B (Intrinsic sizing)</strong> uses the <em>content's own needs</em> to determine the layout. The browser calculates how many 250px-minimum columns fit at any given width. There are no breakpoints &mdash; the layout adapts fluidly. A 900px container gets 3 columns; 800px still gets 3 (slightly narrower); at ~520px it drops to 2; at ~260px it drops to 1. The transitions are smooth and automatic.</p>
+
+  <p>The fundamental difference: Approach A puts the developer in control of when layout changes happen. Approach B puts the content and container in control. Approach B is often called "intrinsic design" &mdash; the layout responds to its own constraints, not arbitrary pixel breakpoints.</p>
+
+  <p><strong>b) When Approach A is necessary:</strong></p>
+  <p>Media queries are necessary when the layout change involves <em>structural reorganization</em>, not just column count. For example: on desktop, a dashboard shows a sidebar navigation + main content + detail panel (3-region layout). On tablet, the sidebar becomes a top navigation bar and the detail panel moves below the main content. On mobile, the navigation becomes a hamburger menu. These are not just "fewer columns" &mdash; they are completely different layouts that require different <code>grid-template-areas</code> at each breakpoint. <code>auto-fit</code> cannot restructure named areas; you need media queries to redefine them.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 14 — Select All That Apply (3 pts)</h3>
+<p>You are reviewing a colleague's CSS. Which of the following are <strong>valid criticisms</strong> of their code?</p>
+<div class="cb"><pre>.layout {
+  display: grid;
+  grid-template-columns: 25% 75%;
+  grid-gap: 20px;
+}</pre></div>
+<ul>
+<li>[ ] Using <code>%</code> instead of <code>fr</code> will cause overflow when combined with <code>grid-gap</code></li>
+<li>[ ] <code>grid-gap</code> is deprecated and should be replaced with <code>gap</code></li>
+<li>[ ] The columns should add up to <code>100%</code> but <code>25% + 75% = 100%</code> is correct, so there is no problem</li>
+<li>[ ] Using <code>fr</code> units instead of <code>%</code> would make the layout gap-aware and prevent overflow</li>
+<li>[ ] The <code>grid-gap</code> property does not work in modern browsers</li>
+</ul>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <ul>
+  <li><strong>[x] Using <code>%</code> instead of <code>fr</code> will cause overflow with <code>grid-gap</code></strong> &mdash; This is correct and is a common bug. The percentages are calculated from the container's total width: 25% + 75% = 100%. But the 20px gap is <em>added on top</em> of the column widths, making the total 100% + 20px, which overflows the container. This is the same reason <code>width: 50%</code> on two floated elements breaks when you add a margin between them.</li>
+
+  <li><strong>[x] <code>grid-gap</code> is deprecated and should be <code>gap</code></strong> &mdash; <code>grid-gap</code> was the original property name, but the CSS Working Group renamed it to <code>gap</code> so it could also work in Flexbox. <code>grid-gap</code> still works in all browsers (for backward compatibility), but <code>gap</code> is the standard going forward. It's a valid criticism in a code review.</li>
+
+  <li><strong>[ ] <code>25% + 75% = 100%</code> means no problem</strong> &mdash; <strong>FALSE.</strong> This is exactly the trap. The percentages do add up to 100%, but the gap is additional space that pushes the total beyond 100%. If there were no gap, this would be fine. The <code>fr</code> unit avoids this because it divides only the <em>remaining</em> space after gaps.</li>
+
+  <li><strong>[x] Using <code>fr</code> units would be gap-aware</strong> &mdash; Correct. <code>grid-template-columns: 1fr 3fr</code> would first subtract the 20px gap from the container width, then divide the remaining space in a 1:3 ratio. This is gap-aware by design and will never overflow.</li>
+
+  <li><strong>[ ] <code>grid-gap</code> doesn't work in modern browsers</strong> &mdash; <strong>FALSE.</strong> It works perfectly in all modern browsers. It is <em>deprecated</em> (meaning you should prefer the newer name), but deprecated does not mean removed. Browser vendors maintain backward compatibility.</li>
+  </ul>
+</div>
+</details>
+
+<h2 class="g-h2">SECTION D: BEM &amp; CSS ARCHITECTURE</h2>
+
+<h3 class="g-h3">Question 15 — Multiple Choice (2 pts)</h3>
+<p>Which of the following class names correctly follows BEM naming conventions?</p>
+<ul>
+<li>A) <code>.cardTitleActive</code></li>
+<li>B) <code>.card__title--active</code></li>
+<li>C) <code>.card-title-active</code></li>
+<li>D) <code>.Card__Title</code></li>
+</ul>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <p><strong>B</strong> &mdash; <code>.card__title--active</code></p>
+
+  <p><strong>Why B is correct:</strong> BEM stands for <strong>Block__Element--Modifier</strong>. The naming convention uses:</p>
+  <ul>
+  <li><strong>Block:</strong> The standalone component (<code>card</code>)</li>
+  <li><strong>Element:</strong> A part of the block, separated by double underscores (<code>__title</code>)</li>
+  <li><strong>Modifier:</strong> A variation or state, separated by double hyphens (<code>--active</code>)</li>
+  </ul>
+  <p>BEM uses lowercase with hyphens for multi-word names (e.g., <code>.search-form__submit-button--disabled</code>).</p>
+
+  <p><strong>Why the others are wrong:</strong></p>
+  <ul>
+  <li><strong>A</strong> &mdash; <code>.cardTitleActive</code> uses camelCase, which is a JavaScript convention, not BEM. There are no separators to distinguish block, element, and modifier. In a large codebase, you can't tell if "Title" is an element of "card" or part of the block name.</li>
+  <li><strong>C</strong> &mdash; <code>.card-title-active</code> uses single hyphens throughout. This is valid CSS and commonly used, but it is <em>not</em> BEM. BEM requires <code>__</code> between block and element and <code>--</code> between element and modifier. With single hyphens, you can't tell whether <code>title</code> is a separate word in the block name or an element.</li>
+  <li><strong>D</strong> &mdash; <code>.Card__Title</code> uses the correct <code>__</code> separator, but BEM convention requires <strong>lowercase</strong>. PascalCase is used in React component names, not CSS class names. Mixing conventions creates confusion in a codebase that uses both React and BEM.</li>
+  </ul>
+
+  <p><em>Practical context:</em> BEM solves the specificity and naming collision problem in large CSS codebases. By encoding the component hierarchy into the class name itself, BEM eliminates the need for nested selectors (like <code>.card .title.active</code>), keeping specificity flat and predictable.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 16 — Written Answer: Explain reasoning (4 pts)</h3>
+<p>A junior developer on your team writes the following CSS for a navigation component:</p>
+<div class="cb"><pre>.nav { display: flex; gap: 8px; }
+.nav ul { list-style: none; display: flex; gap: 16px; }
+.nav ul li a { color: blue; text-decoration: none; }
+.nav ul li a:hover { color: darkblue; }
+.nav ul li a.active { color: red; font-weight: bold; }</pre></div>
+<p>a) Identify <strong>two problems</strong> with this CSS architecture (not visual bugs, but maintainability/scalability issues). (2 pts)</p>
+<p>b) Rewrite the selectors using BEM naming conventions. Explain how BEM solves each problem you identified. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a) Two architecture problems:</strong></p>
   <ol>
-  <li>Missing <code>await</code> before <code>response.json()</code> — <code>.json()</code> returns a Promise, not the data directly. Without <code>await</code>, <code>data</code> is a Promise object, and <code>.filter()</code> will fail.</li>
-  <li>No error handling — if the fetch fails (network error) or returns a non-OK response (404, 500), the function will crash. Should check <code>response.ok</code> and use try/catch.</li>
+  <li><strong>Deep nesting / high specificity:</strong> The selector <code>.nav ul li a</code> has a specificity of 0-1-3 (one class, three element selectors). To override <code>color: blue</code> on a specific link, you'd need an even more specific selector. As the project grows, this leads to a "specificity war" where developers keep adding more selectors to win. Eventually someone resorts to <code>!important</code>, which makes things worse.</li>
+  <li><strong>Tight coupling to HTML structure:</strong> The selectors assume the exact DOM hierarchy: <code>nav &gt; ul &gt; li &gt; a</code>. If you refactor the HTML (e.g., removing the <code>ul</code> and using <code>&lt;div&gt;</code> elements, or nesting the nav inside another component), all the CSS breaks. The styling is coupled to the markup structure rather than to the component's meaning.</li>
   </ol>
-  <p><strong>b) Corrected code:</strong></p>
-  <div class="cb"><pre>interface Product {
-    name: string;
-    price: number;
-    category: string;
+
+  <p><strong>b) BEM rewrite:</strong></p>
+  <div class="cb"><pre>.nav { display: flex; gap: 8px; }
+.nav__list { list-style: none; display: flex; gap: 16px; }
+.nav__link { color: blue; text-decoration: none; }
+.nav__link:hover { color: darkblue; }
+.nav__link--active { color: red; font-weight: bold; }</pre></div>
+
+  <p><strong>How BEM solves each problem:</strong></p>
+  <ul>
+  <li><strong>Flat specificity:</strong> Every selector is a single class (specificity 0-1-0). No nesting, no element selectors. Overriding any style requires just another single class. This makes the CSS predictable and easy to debug.</li>
+  <li><strong>Structure independence:</strong> <code>.nav__link</code> targets any element with that class, regardless of its position in the DOM. You can refactor the HTML from <code>&lt;ul&gt;&lt;li&gt;&lt;a&gt;</code> to <code>&lt;div&gt;&lt;a&gt;</code> without changing a single line of CSS. The class name describes the component relationship, not the DOM hierarchy.</li>
+  </ul>
+</div>
+</details>
+
+<h3 class="g-h3">Question 17 — Code Analysis: Explain the layout (4 pts)</h3>
+<p>Study the following complete layout that combines all the concepts from this exam:</p>
+<div class="cb"><pre>&lt;div class="page"&gt;
+  &lt;header class="page__header"&gt;...&lt;/header&gt;
+  &lt;aside class="page__sidebar"&gt;...&lt;/aside&gt;
+  &lt;main class="page__main"&gt;
+    &lt;div class="products"&gt;
+      &lt;article class="card"&gt;
+        &lt;img class="card__image" /&gt;
+        &lt;h3 class="card__title"&gt;Product&lt;/h3&gt;
+        &lt;p class="card__price"&gt;$29&lt;/p&gt;
+        &lt;button class="card__button"&gt;Add to cart&lt;/button&gt;
+      &lt;/article&gt;
+      &lt;!-- more cards... --&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+  &lt;footer class="page__footer"&gt;...&lt;/footer&gt;
+&lt;/div&gt;</pre></div>
+<div class="cb"><pre>.page {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
+.page__header  { grid-area: header; }
+.page__sidebar { grid-area: sidebar; }
+.page__main    { grid-area: main; }
+.page__footer  { grid-area: footer; }
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
-async function fetchProducts(category: string): Promise&lt;Product[]&gt; {
-    try {
-        const response = await fetch(`/api/products/${category}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data: Product[] = await response.json();
-        return data.filter(p =&gt; p.price &gt; 0);
-    } catch (error) {
-        console.error('Failed to fetch products:', error);
-        return [];
-    }
-}</pre></div>
-</div>
-</details>
-
-<h3 class="g-h3">Question 15 — Fill in the blanks</h3>
-<p>Complete the following sentences about TypeScript:</p>
-<p>The keyword 1. ________ defines a contract that a class or object must follow. The utility type 2. ________ makes all properties of a type optional. When you want to tell TypeScript that a value is definitely a certain type, you use a type 3. ________. When a type can be <code>string</code> or <code>null</code>, this is called a 4. ________ type.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>1.</strong> <code>interface</code></p>
-  <p><strong>2.</strong> <code>Partial</code></p>
-  <p><strong>3.</strong> <code>assertion</code> (as in <code>value as Type</code>)</p>
-  <p><strong>4.</strong> <code>nullable</code> (or <code>union</code>)</p>
-</div>
-</details>
-
-<h3 class="g-h3">Question 16 — Written Answer (4 pts)</h3>
-<p>Explain what the Event Loop is and how it processes asynchronous operations. In your answer, describe the roles of:</p>
-<ul>
-<li>The Call Stack</li>
-<li>Web APIs</li>
-<li>The Microtask Queue</li>
-<li>The Macrotask (Callback) Queue</li>
-</ul>
-<p>Give an example showing the order in which <code>console.log</code>, a resolved Promise <code>.then()</code>, and a <code>setTimeout(..., 0)</code> would execute.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>Model answer:</strong></p>
-  <p>The Event Loop is the mechanism that allows JavaScript (single-threaded) to handle async operations:</p>
-  <ul>
-  <li><strong>Call Stack</strong>: Where synchronous code executes. Functions are pushed on and popped off (LIFO).</li>
-  <li><strong>Web APIs</strong>: Browser-provided services (setTimeout, fetch, DOM events). When an async operation is called, the browser handles it outside the main thread.</li>
-  <li><strong>Microtask Queue</strong>: Holds resolved Promise callbacks (.then/.catch). Processed COMPLETELY before any macrotask.</li>
-  <li><strong>Macrotask Queue</strong>: Holds setTimeout/setInterval callbacks. ONE macrotask is processed per cycle.</li>
-  </ul>
-  <p><strong>Example order:</strong></p>
-  <div class="cb"><pre>console.log('sync');          // 1st — synchronous, runs immediately
-Promise.resolve().then(...)   // 3rd — microtask, runs after sync code
-setTimeout(..., 0)            // 4th — macrotask, runs after microtasks
-console.log('sync2');         // 2nd — synchronous, runs immediately</pre></div>
-</div>
-</details>
-
-<h3 class="g-h3">Question 17 — Written Answer (4 pts)</h3>
-<p>A junior developer writes a data-loading function:</p>
-<div class="cb"><pre>function loadData() {
-    let result = null;
-    fetch('/api/data')
-        .then(res =&gt; res.json())
-        .then(data =&gt; { result = data; });
-    return result;
-}</pre></div>
-<p>They call <code>loadData()</code> and are confused that it always returns <code>null</code>. Using your knowledge of the Event Loop, explain:</p>
-<p>a) Why does this function always return <code>null</code>? (2 pts)</p>
-<p>b) How would you fix it so that the caller actually receives the data? Show the corrected code. (2 pts)</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-  <p><strong>a)</strong> The function returns <code>null</code> because <code>fetch()</code> is asynchronous. When <code>loadData()</code> is called:</p>
-  <ol>
-  <li><code>result = null</code> runs synchronously</li>
-  <li><code>fetch('/api/data')</code> starts the request and immediately returns a Promise — the browser handles the network request via Web APIs</li>
-  <li><code>return result</code> runs synchronously — at this point <code>result</code> is still <code>null</code></li>
-  <li>The <code>.then()</code> callbacks are microtasks that only run AFTER the call stack is empty and the fetch response arrives</li>
-  </ol>
-  <p>The <code>return</code> statement runs before the <code>.then()</code> callback has a chance to set <code>result</code>.</p>
-  <p><strong>b)</strong> Make the function async and await the result:</p>
-  <div class="cb"><pre>async function loadData() {
-    const response = await fetch('/api/data');
-    const data = await response.json();
-    return data;
+.card {
+  display: flex;
+  flex-direction: column;
 }
-// Caller must also await: const data = await loadData();</pre></div>
-  <p>Now the function pauses at each <code>await</code> until the Promise resolves, and the return value is the actual data (wrapped in a Promise that the caller can await).</p>
+.card__button {
+  margin-top: auto;
+}</pre></div>
+<p>a) This layout uses Grid in two places and Flexbox in one place. For each usage, explain <strong>why that specific tool was chosen</strong> and what would go wrong if you swapped it for the other. (2 pts)</p>
+<p>b) Explain what <code>margin-top: auto</code> does on the <code>.card__button</code> element in a flex column layout, and why this technique is preferred over using <code>justify-content: space-between</code> on the card in this case. (2 pts)</p>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
+<div class="ans-body">
+  <p><strong>a) Why each tool was chosen:</strong></p>
+
+  <p><strong>1. Grid for <code>.page</code> (page layout):</strong> The page has a two-dimensional structure &mdash; the header/footer span two columns while the sidebar/main split a row. Grid's <code>grid-template-areas</code> defines this perfectly. If you used Flexbox, you'd need the header, sidebar+main, and footer as three separate row groups, and making the sidebar a fixed 250px while main takes the rest would require nested flex containers. Grid handles the entire structure in one declaration.</p>
+
+  <p><strong>2. Grid for <code>.products</code> (card grid):</strong> The product listing is a grid of cards that should have consistent column widths across all rows. <code>repeat(auto-fit, minmax(250px, 1fr))</code> creates a responsive grid where every card is the same width. If you used Flexbox with <code>flex-wrap: wrap</code>, the last row (with fewer cards) would stretch those cards wider than the others &mdash; the "last row problem" from Question 12.</p>
+
+  <p><strong>3. Flexbox for <code>.card</code> (card internals):</strong> Each card is a vertical stack of content (one-dimensional). The card's content varies in height (different title lengths), but the button must always be at the bottom. Flexbox with <code>flex-direction: column</code> handles this naturally. If you used Grid, you'd need to define explicit row tracks (<code>grid-template-rows: auto auto auto auto</code>), which is rigid and breaks if a card variant has more or fewer elements.</p>
+
+  <p><strong>b) <code>margin-top: auto</code> in a flex column:</strong></p>
+  <p>In a flex container, <code>margin: auto</code> absorbs all available free space in that direction. <code>margin-top: auto</code> on the button pushes it as far down as possible, consuming all the vertical space between the button and the content above it. This effectively "glues" the button to the bottom of the card.</p>
+
+  <p><strong>Why this is preferred over <code>justify-content: space-between</code>:</strong></p>
+  <p><code>justify-content: space-between</code> would put equal space between <em>all</em> children: image, title, price, and button. This might push the title and price apart from each other, creating awkward spacing. With <code>margin-top: auto</code> on only the button, the image/title/price stay naturally grouped together (with their normal margins), and only the button is pushed to the bottom. It's more precise: you control <em>which</em> element gets the extra space, rather than distributing it among all children.</p>
 </div>
 </details>
 
-<h3 class="g-h3">Question 18 — Select All That Apply</h3>
-<p>Which of the following are correct about the <code>fetch()</code> API?</p>
+<h3 class="g-h3">Question 18 — Select All That Apply (3 pts)</h3>
+<p>Which of the following statements about CSS custom properties (variables) are correct?</p>
 <ul>
-<li>[ ] <code>fetch()</code> returns a Promise</li>
-<li>[ ] <code>response.json()</code> returns the parsed data directly (not a Promise)</li>
-<li>[ ] A 404 response will cause <code>fetch()</code> to reject the Promise</li>
-<li>[ ] You should check <code>response.ok</code> to verify the request succeeded</li>
-<li>[ ] The browser handles <code>fetch()</code> via Web APIs, not the main thread</li>
+<li>[ ] They can be updated dynamically with JavaScript at runtime</li>
+<li>[ ] They are scoped and can be overridden within specific selectors</li>
+<li>[ ] They replace the need for a CSS preprocessor like SASS entirely</li>
+<li>[ ] They improve maintainability by centralising repeated values</li>
+<li>[ ] They are natively supported in all CSS-in-JS libraries without any configuration</li>
 </ul>
-<details class="ans"><summary>▸ Show Answer</summary>
+<details class="ans"><summary>&#x25B8; Show Answer</summary>
 <div class="ans-body">
-  <p><strong>Correct:</strong></p>
+  <p><strong>Correct statements:</strong></p>
   <ul>
-  <li>[x] <code>fetch()</code> returns a Promise</li>
-  <li>[ ] <code>response.json()</code> returns parsed data directly — <strong>FALSE</strong> (returns a Promise)</li>
-  <li>[ ] A 404 response will cause fetch to reject — <strong>FALSE</strong> (fetch only rejects on network errors, not HTTP errors)</li>
-  <li>[x] You should check <code>response.ok</code> to verify success</li>
-  <li>[x] The browser handles fetch via Web APIs</li>
+  <li><strong>[x] They can be updated dynamically with JavaScript at runtime</strong> &mdash; CSS custom properties are <em>live</em> in the DOM. You can change them with <code>element.style.setProperty('--color', 'red')</code>, and all elements using that variable update immediately. This is fundamentally different from SASS variables, which are compiled away at build time and cannot change at runtime. This makes custom properties powerful for themes, dark mode toggles, and animations.</li>
+
+  <li><strong>[x] They are scoped and can be overridden within specific selectors</strong> &mdash; Custom properties follow CSS's cascading and inheritance rules. If you define <code>--color: blue</code> on <code>:root</code> and <code>--color: red</code> on <code>.sidebar</code>, elements inside <code>.sidebar</code> will use red. This scoping is a key advantage over SASS variables, which are globally scoped (or block-scoped, but not DOM-scoped).</li>
+
+  <li><strong>[ ] They replace SASS entirely</strong> &mdash; <strong>FALSE.</strong> CSS custom properties handle variables, but SASS also provides mixins, nesting, loops (<code>@for</code>, <code>@each</code>), functions, and modular file imports (<code>@use</code>). Custom properties cover one important feature of SASS, not all of them.</li>
+
+  <li><strong>[x] They improve maintainability by centralising repeated values</strong> &mdash; Instead of writing <code>#3498db</code> in 40 places, you define <code>--primary: #3498db</code> once and reference it everywhere with <code>var(--primary)</code>. Changing the primary color requires editing one line instead of 40. This is the same benefit SASS variables provide, but custom properties work at runtime in the browser.</li>
+
+  <li><strong>[ ] They are natively supported in all CSS-in-JS libraries</strong> &mdash; <strong>FALSE.</strong> CSS custom properties are a browser feature, not a library feature. They work in any context where the browser parses CSS, including CSS-in-JS output. But saying they are "natively supported in CSS-in-JS libraries" implies those libraries have special handling for them, which is misleading. Each library has its own API for variables; some support CSS custom properties directly, others do not.</li>
   </ul>
 </div>
 </details>
