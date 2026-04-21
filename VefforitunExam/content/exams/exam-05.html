@@ -6,37 +6,79 @@
 
 <h2 class="g-h2">SECTION A: useCallback (Slides 430-455)</h2>
 
-<h3 class="g-h3">Question 1</h3>
-<p>What is the definition of <code>useCallback</code> according to the slides?</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-<p><strong>(Slide ~430)</strong></p>
-<p><code>useCallback</code> is "a React Hook that lets you cache a function definition between re-renders."</p>
-</div>
-</details>
-
-<h3 class="g-h3">Question 2</h3>
-<p>What are the two arguments that <code>useCallback</code> takes? Describe each one.</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-<p><strong>(Slide ~432)</strong></p>
-<p><code>useCallback</code> takes two arguments:</p>
-<ol>
-<li><strong>fn</strong> — the function you want to cache. React will return (not call) this function back to you.</li>
-<li><strong>dependencies</strong> — the list of all reactive values referenced inside of the <code>fn</code> code. Reactive values include props, state, and all the variables and functions declared directly inside your component body.</li>
-</ol>
-</div>
-</details>
-
-<h3 class="g-h3">Question 3</h3>
-<p>What does <code>useCallback</code> return on the initial render vs. on subsequent re-renders?</p>
-<details class="ans"><summary>▸ Show Answer</summary>
-<div class="ans-body">
-<p><strong>(Slide ~433)</strong></p>
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>A developer wraps every function inside their component with <code>useCallback</code>, even functions that are only used inside event handlers and never passed as props. What is wrong with this approach?</p>
 <ul>
-<li>On the <strong>initial render</strong>, <code>useCallback</code> returns the <code>fn</code> function you passed.</li>
-<li>On <strong>subsequent renders</strong>, it will either return an already stored <code>fn</code> function from the last render (if the dependencies haven't changed), or return the <code>fn</code> function you have passed during this render (if dependencies have changed).</li>
+<li>A) <code>useCallback</code> can only be used with functions passed to child components</li>
+<li>B) It adds unnecessary overhead — React must compare dependency arrays on every render, and there is no performance benefit if the cached function reference is not being used to prevent child re-renders or effect re-runs</li>
+<li>C) <code>useCallback</code> breaks when used with event handlers</li>
+<li>D) Functions inside <code>useCallback</code> cannot access state or props</li>
 </ul>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>B</strong> — <code>useCallback</code> is an optimization, not a default. It caches a function reference so it stays the same between renders. This only matters when:</p>
+<ul>
+<li>The function is passed as a prop to a child wrapped in <code>React.memo</code> (stable reference prevents child re-renders)</li>
+<li>The function is in a <code>useEffect</code> dependency array (stable reference prevents effect re-runs)</li>
+<li>The function is returned from a custom hook (consumers might use it in either scenario above)</li>
+</ul>
+<p>If none of these apply, <code>useCallback</code> adds overhead (dependency comparison) with zero benefit. The component still re-renders — <code>useCallback</code> doesn't prevent that.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 2 — Code Analysis</h3>
+<p>A developer notices that their <code>Shipping</code> component re-renders every time the parent's counter changes, even though shipping data hasn't changed. They wrap <code>Shipping</code> in <code>React.memo</code> but it still re-renders. Why?</p>
+<div class="cb"><pre>function Page() {
+    const [count, setCount] = useState(0);
+
+    const handleShippingChange = (option) =&gt; {
+        console.log('Shipping changed to:', option);
+    };
+
+    return (
+        &lt;div&gt;
+            &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Count: {count}&lt;/button&gt;
+            &lt;Shipping onShippingChange={handleShippingChange} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+const Shipping = React.memo(({ onShippingChange }) =&gt; {
+    return &lt;select onChange={(e) =&gt; onShippingChange(e.target.value)}&gt;...&lt;/select&gt;;
+});
+</pre></div>
+<p>a) Explain why <code>React.memo</code> alone does not prevent re-renders here. (2 pts)</p>
+<p>b) Show the fix. (2 pts)</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Every time <code>Page</code> re-renders (when <code>count</code> changes), the <code>handleShippingChange</code> function is recreated as a new function object. Even though the function logic is identical, JavaScript sees a new reference. <code>React.memo</code> does a shallow comparison of props — since <code>onShippingChange</code> is a new reference every time, it looks like the prop changed, and <code>Shipping</code> re-renders.</p>
+<p><strong>b)</strong> Wrap <code>handleShippingChange</code> in <code>useCallback</code>:</p>
+<div class="cb"><pre>const handleShippingChange = useCallback((option) =&gt; {
+    console.log('Shipping changed to:', option);
+}, []); // empty deps = stable reference forever
+</pre></div>
+<p>Now the function reference stays the same across re-renders. <code>React.memo</code> sees that the prop hasn't changed and skips re-rendering <code>Shipping</code>.</p>
+</div>
+</details>
+
+<h3 class="g-h3">Question 3 — Code Analysis</h3>
+<p>Compare these two implementations of a "add todo" handler:</p>
+<div class="cb"><pre>// Version A
+const handleAddTodo = useCallback((text) =&gt; {
+    setTodos([...todos, { id: nextId++, text }]);
+}, [todos]);
+
+// Version B
+const handleAddTodo = useCallback((text) =&gt; {
+    setTodos(prev =&gt; [...prev, { id: nextId++, text }]);
+}, []);
+</pre></div>
+<p>Both work correctly, but Version B is considered the better approach. Explain why.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Version A</strong> depends on the <code>todos</code> state variable, so <code>todos</code> must be in the dependency array. Every time <code>todos</code> changes (i.e., every time a todo is added), a new function is created. This defeats the purpose of <code>useCallback</code> — the function reference changes on every state update.</p>
+<p><strong>Version B</strong> uses the functional updater pattern (<code>prev =&gt; ...</code>). Instead of reading <code>todos</code> from the closure, it receives the previous state as a parameter. This means the callback does not reference <code>todos</code> at all, so the dependency array can be empty <code>[]</code>. The function reference remains stable across all re-renders, which is the whole point of <code>useCallback</code>.</p>
+<p><strong>Rule:</strong> When a memoized callback needs to read current state, use the functional updater to remove state from the dependency array.</p>
 </div>
 </details>
 
@@ -128,21 +170,51 @@ const handleAddTodo = useCallback((text: string) =&gt; {
 
 <h2 class="g-h2">SECTION B: useMemo (Slides 455-480)</h2>
 
-<h3 class="g-h3">Question 8</h3>
-<p>What is the definition of <code>useMemo</code> according to the slides? What is this type of caching called?</p>
+<h3 class="g-h3">Question 8 — Multiple Choice</h3>
+<p>A component has an expensive <code>.filter()</code> and <code>.reduce()</code> on a large array of products. The component re-renders frequently because of a chat widget in the sidebar updating state. The filtering and reducing produce the same result every time because the products haven't changed. What is the best optimization?</p>
+<ul>
+<li>A) Move the filter/reduce logic into a <code>useEffect</code> and store the result in state</li>
+<li>B) Wrap the calculation in <code>useMemo</code> with the products array as a dependency</li>
+<li>C) Wrap the calculation in <code>useCallback</code> so it doesn't run on every render</li>
+<li>D) Use <code>useRef</code> to cache the calculation result</li>
+</ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>(Slide ~455-458)</strong></p>
-<p><code>useMemo</code> is "a React Hook that lets you cache the result of a calculation between re-renders." This type of caching is called "memoisation."</p>
+<p><strong>B</strong> — <code>useMemo</code> caches the RESULT of a calculation. With <code>[products]</code> as the dependency, the expensive filter/reduce only re-runs when <code>products</code> actually changes. On re-renders caused by the chat widget, the cached result is returned instantly.</p>
+<p><strong>Why the others are wrong:</strong></p>
+<ul>
+<li><strong>A</strong> — Using <code>useEffect</code> to store derived data in state is an anti-pattern. It adds unnecessary complexity (effect + state), causes an extra render (effect runs after render), and the data is already derivable from props.</li>
+<li><strong>C</strong> — <code>useCallback</code> caches a function reference, not a computed value. The calculation would still run every time you call the function.</li>
+<li><strong>D</strong> — <code>useRef</code> persists values but has no dependency-checking mechanism. You'd have to manually check if products changed, which is what <code>useMemo</code> does automatically.</li>
+</ul>
 </div>
 </details>
 
-<h3 class="g-h3">Question 9</h3>
-<p>According to the slides, what does React do with the body of your component by default every time it re-renders?</p>
+<h3 class="g-h3">Question 9 — Code Analysis</h3>
+<p>A developer writes:</p>
+<div class="cb"><pre>function Dashboard({ data }) {
+    const sorted = data.sort((a, b) =&gt; b.value - a.value);
+    const top5 = sorted.slice(0, 5);
+
+    return &lt;TopItems items={top5} /&gt;;
+}
+</pre></div>
+<p>This component re-renders 10 times per second because of a live clock in the parent. Identify two problems and show how to fix them.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>(Slide ~460)</strong></p>
-<p>"By default React will re-run the entire body of your component every time it re-renders." This means all calculations, filtering, mapping, and other operations inside the component body run again on every render, even if their inputs haven't changed.</p>
+<p><strong>Problem 1: Expensive recalculation on every render.</strong> The <code>.sort()</code> and <code>.slice()</code> run on every render (10 times per second), even when <code>data</code> hasn't changed. Fix: wrap in <code>useMemo</code>.</p>
+<p><strong>Problem 2: <code>.sort()</code> mutates the original array.</strong> <code>Array.sort()</code> sorts in place — it modifies the <code>data</code> prop directly. This violates React's rule that props should not be mutated. Fix: create a copy first with <code>[...data]</code>.</p>
+<div class="cb"><pre>function Dashboard({ data }) {
+    const top5 = useMemo(() =&gt; {
+        return [...data]                            // copy to avoid mutation
+            .sort((a, b) =&gt; b.value - a.value)     // sort the copy
+            .slice(0, 5);
+    }, [data]);                                     // only recalculate when data changes
+
+    return &lt;TopItems items={top5} /&gt;;
+}
+</pre></div>
+<p>Now the sort/slice only runs when <code>data</code> actually changes, and the original array is never mutated.</p>
 </div>
 </details>
 
@@ -197,12 +269,18 @@ const handleAddTodo = useCallback((text: string) =&gt; {
 </div>
 </details>
 
-<h3 class="g-h3">Question 12</h3>
-<p>Can <code>useMemo</code> be used to skip re-rendering of components? If so, how does it compare to wrapping a component in <code>React.memo</code>?</p>
+<h3 class="g-h3">Question 12 — Written Answer (4 pts)</h3>
+<p>For each scenario below, which hook should you use: <code>useState</code>, <code>useRef</code>, <code>useMemo</code>, or <code>useCallback</code>? Justify each choice in one sentence.</p>
+<p>a) You need to store a WebSocket connection instance that persists across renders.</p>
+<p>b) You need to pass an <code>onDelete</code> handler to a memoized child component.</p>
+<p>c) You need to toggle a modal open/closed and the UI should update when it changes.</p>
+<p>d) You need to compute the total price from a list of cart items, and the calculation should not re-run unless the cart changes.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>(Slide ~468-470)</strong></p>
-<p>Yes, <code>useMemo</code> can be used to skip re-rendering of components. You can wrap JSX in <code>useMemo</code> to memoize the rendered output. However, the more common approach is to wrap the child component in <code>React.memo</code> and use <code>useCallback</code> for function props and <code>useMemo</code> for object/array props. Both achieve the same goal of preventing unnecessary re-renders when props haven't changed.</p>
+<p><strong>a) <code>useRef</code></strong> — a WebSocket connection does not affect rendering (changing it should not cause a re-render), and it needs to persist across renders. useRef stores a mutable value without triggering re-renders.</p>
+<p><strong>b) <code>useCallback</code></strong> — the <code>onDelete</code> function reference must stay stable so the memoized child (React.memo) sees the same prop and skips re-rendering. useCallback caches the function reference.</p>
+<p><strong>c) <code>useState</code></strong> — the modal open/closed state directly affects what the UI renders (show/hide the modal). useState triggers a re-render when the value changes, which is exactly what you need.</p>
+<p><strong>d) <code>useMemo</code></strong> — the total price is a derived value computed from cart items. useMemo caches the result and only recalculates when the dependency (cart) changes, avoiding the expensive computation on unrelated re-renders.</p>
 </div>
 </details>
 
@@ -210,12 +288,14 @@ const handleAddTodo = useCallback((text: string) =&gt; {
 
 <h2 class="g-h2">SECTION C: Forms, Events &amp; Refs (Slides 620-640)</h2>
 
-<h3 class="g-h3">Question 13</h3>
-<p>According to the slides, why are forms described as "one of the most crucial parts of our applications"?</p>
+<h3 class="g-h3">Question 13 — Written Answer (4 pts)</h3>
+<p>You are building a form with 15 input fields. A colleague suggests managing all 15 fields with separate <code>useState</code> hooks. Another colleague suggests using react-hook-form.</p>
+<p>a) What performance problem would occur with 15 separate <code>useState</code> hooks? (2 pts)</p>
+<p>b) How does react-hook-form avoid this problem? (2 pts)</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>(Slide ~620)</strong></p>
-<p>Forms are described as "one of the most crucial parts of our applications" because they are the primary way users interact with and send data to the application — login forms, registration, search, creating/editing content, etc. Nearly every web application relies on forms for data input.</p>
+<p><strong>a)</strong> With 15 separate <code>useState</code> hooks, each input would need a controlled approach: <code>value={fieldState}</code> and <code>onChange={(e) =&gt; setFieldState(e.target.value)}</code>. Every keystroke in ANY field calls a setter, which triggers a re-render of the ENTIRE component. With 15 fields, even typing one character re-renders all 15 inputs. This creates noticeable lag, especially on slower devices.</p>
+<p><strong>b)</strong> react-hook-form uses <strong>uncontrolled inputs</strong> by default. When you call <code>register("fieldName")</code>, it attaches refs to the inputs — the DOM manages the input values, not React state. The component does NOT re-render on every keystroke. It only re-renders when validation triggers (based on the <code>mode</code> setting: onSubmit, onBlur, or onChange). On submit, react-hook-form reads all values from the DOM at once via refs.</p>
 </div>
 </details>
 

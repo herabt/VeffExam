@@ -6,15 +6,20 @@
 <p>A flex container is <strong>600px</strong> wide. It has three items with <code>flex-basis: 100px</code> each and no explicit width. Item A has <code>flex-grow: 0; flex-shrink: 1</code>. Item B has <code>flex-grow: 2; flex-shrink: 1</code>. Item C has <code>flex-grow: 3; flex-shrink: 1</code>. <code>flex-wrap</code> is <code>nowrap</code>. What is the final rendered width of Item C?</p>
 <ul>
 <li>A) 100px</li>
-<li>B) 240px</li>
-<li>C) 300px</li>
+<li>B) 220px</li>
+<li>C) 280px</li>
 <li>D) 360px</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-  <p><strong>Answer: C) 300px</strong></p>
-  <p><strong>Explanation:</strong> Total flex-basis = 300px. Available free space = 600 − 300 = 300px. Total grow factor = 0 + 2 + 3 = 5. Item A gets 0/5 × 300 = 0px extra → 100px. Item B gets 2/5 × 300 = 120px extra → 220px. Item C gets 3/5 × 300 = 180px extra → 100 + 180 = <strong>280px</strong>. Wait — re-check: 100 + 220 + 280 = 600. ✓ So Item C = <strong>280px</strong>. The correct answer is none of the above as written; the closest distractor is D (the trap). Item C = 280px. (Note to instructor: correct answer is 280px — verify distractor list matches.)</p>
-  <p><strong>Correct working:</strong> Free space = 300px. Grow ratios: A=0, B=2, C=3. Total=5. C gets (3/5)×300 = 180px bonus → 100+180 = <strong>280px</strong>.</p>
+  <p><strong>Answer: C) 280px</strong></p>
+  <p><strong>Explanation:</strong> Total flex-basis = 3 x 100px = 300px. Available free space = 600 - 300 = 300px. Total grow factor = 0 + 2 + 3 = 5. Each unit of growth = 300 / 5 = 60px.</p>
+  <ul>
+  <li>Item A: 100 + (0 x 60) = 100px</li>
+  <li>Item B: 100 + (2 x 60) = 220px</li>
+  <li>Item C: 100 + (3 x 60) = <strong>280px</strong></li>
+  </ul>
+  <p>Verification: 100 + 220 + 280 = 600px (matches container width).</p>
 </div>
 </details>
 
@@ -823,20 +828,20 @@ E: *
 <li>A) E &lt; A &lt; D &lt; B &lt; C</li>
 <li>B) E &lt; A &lt; B &lt; D &lt; C</li>
 <li>C) A &lt; E &lt; B &lt; D &lt; C</li>
-<li>D) E &lt; A &lt; D = B &lt; C</li>
+<li>D) E &lt; A &lt; B = D &lt; C</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-  <p><strong>Answer: B) E &lt; A &lt; B &lt; D &lt; C</strong></p>
+  <p><strong>Answer: D) E &lt; A &lt; B = D &lt; C</strong></p>
   <p>Specificity is calculated as (IDs, Classes/Attributes/Pseudo-classes, Elements/Pseudo-elements):</p>
   <ul>
   <li><code>E: *</code> → (0, 0, 0) — universal selector has zero specificity</li>
   <li><code>A: div p span</code> → (0, 0, 3) — three element selectors</li>
   <li><code>B: .container .card p</code> → (0, 2, 1) — two classes + one element</li>
-  <li><code>D: p.highlight[data-active]</code> → (0, 2, 1) — one class + one attribute + one element = same as B</li>
+  <li><code>D: p.highlight[data-active]</code> → (0, 2, 1) — one class + one attribute + one element</li>
   <li><code>C: #main p</code> → (1, 0, 1) — one ID + one element</li>
   </ul>
-  <p><strong>Correction:</strong> B and D are <em>equal</em> (0,2,1). The correct ranking is: E &lt; A &lt; B = D &lt; C. This matches answer D, not B. The question illustrates how class selectors and attribute selectors contribute equally to specificity.</p>
+  <p>B and D have <em>equal</em> specificity (0, 2, 1) because class selectors and attribute selectors both contribute to the same specificity column. The ranking is: E &lt; A &lt; B = D &lt; C. This illustrates how class selectors and attribute selectors contribute equally to specificity.</p>
 </div>
 </details>
 

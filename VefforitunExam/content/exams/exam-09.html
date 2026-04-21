@@ -117,11 +117,17 @@
 <p>a) Transitions can only take effect when __________.</p>
 <p>b) Animations can be __________ and therefore changing the state of the property/ies.</p>
 <p>c) Why do we need transitions? What problem do they solve regarding how CSS properties are applied?</p>
+<p>d) <strong>Scenario:</strong> You are building a card component that should: (1) smoothly change background color when the user hovers over it, and (2) continuously pulse with a subtle glow effect even without user interaction. Which CSS technique would you use for each and <strong>why</strong>?</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p>a) Transitions can only take effect when <strong>the property they are applied to change</strong> (e.g., on hover, when an element moves, appears, or disappears).</p>
 <p>b) Animations can be <strong>executed</strong> and therefore changing the state of the property/ies (they run independently without needing a property change trigger).</p>
 <p>c) When CSS properties are applied to an element it usually happens really fast (too fast for the eye to see). Therefore <strong>transitions</strong> can be useful to slow down the effects taking place on the element. We need transitions to move elements from one state to the next in a <strong>smooth manner</strong>.</p>
+<p>d) <strong>Scenario answer:</strong></p>
+<ul>
+<li><strong>Hover background change:</strong> Use a <strong>transition</strong>. Transitions are triggered by a property change (in this case, the <code>:hover</code> state). You set <code>transition: background-color 0.3s ease</code> on the card, and change the background in <code>.card:hover</code>. The transition smoothly interpolates between the two states.</li>
+<li><strong>Continuous pulsing glow:</strong> Use a CSS <strong>animation</strong> with <code>@keyframes</code>. Animations can run independently without needing any trigger. Define keyframes that scale the box-shadow from subtle to strong and back, then apply with <code>animation: pulse 2s ease-in-out infinite</code>. A transition cannot do this because there is no property change to trigger it — the pulse runs continuously on its own.</li>
+</ul>
 </div>
 </details>
 
@@ -191,7 +197,7 @@ transform: rotate(180deg) translateY(20px);
 
 /* Rule B */
 transform: translateY(20px) rotate(180deg);</pre></div>
-<p>Which direction does the element move in Rule A and why?</p>
+<p>Which direction does the element move in Rule A and why? In your answer, explain the concept of how the coordinate system itself is affected by transforms.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p>The order of transform values matter because the first is applied and then the second and etc.</p>
@@ -204,7 +210,7 @@ transform: translateY(20px) rotate(180deg);</pre></div>
 <h3 class="g-h3">Question 13 — Perspective</h3>
 <p>a) What does the <code>perspective</code> CSS property do? What does its value represent?</p>
 <p>b) The <code>perspective</code> CSS property only applies to __________ and not on the element itself.</p>
-<p>c) What is the difference between using <code>perspective</code> as a CSS property on a parent vs. using <code>perspective()</code> as a transform value?</p>
+<p>c) What is the difference between using <code>perspective</code> as a CSS property on a parent vs. using <code>perspective()</code> as a transform value? Give a practical example of when you would choose each.</p>
 <p>d) What is <code>perspective-origin</code> and what is its default value?</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
@@ -216,6 +222,7 @@ transform: translateY(20px) rotate(180deg);</pre></div>
 <li><strong><code>perspective()</code> transform value</strong> (on element): Is applied to <strong>the element itself</strong>, giving each element its own individual perspective.</li>
 </ul>
 <p>When using <code>perspective</code> as a property on a parent, multiple children share the same vanishing point. When using <code>transform: perspective()</code> on each element individually, each element has its own vanishing point.</p>
+<p><strong>Practical example:</strong> Use <code>perspective</code> on a parent when you have a card grid and want all cards to look like they're on the same 3D surface (e.g., a bookshelf where cards at the edges appear rotated differently than center cards — shared vanishing point creates realistic depth). Use <code>transform: perspective()</code> on individual elements when each element should have its own independent 3D effect (e.g., a single card flip animation — each card rotates uniformly regardless of its position).</p>
 <p>d) <strong><code>perspective-origin</code></strong> sets the origin point of the element from where the perspective will be viewed, therefore changing the angle. It takes two values: x-position and y-position. The <strong>default is 50% 50%</strong>.</p>
 </div>
 </details>
@@ -245,6 +252,7 @@ transform: translateY(20px) rotate(180deg);</pre></div>
 <p>a) What does the <code>box-sizing</code> CSS property define?</p>
 <p>b) What are its two possible values and which is the default?</p>
 <p>c) Given the following CSS, what is the total rendered width and height of each element? Show your calculation.</p>
+<p>d) <strong>Why</strong> is it considered best practice to set <code>box-sizing: border-box</code> globally? What problem does <code>content-box</code> create for responsive design?</p>
 <div class="cb"><pre>.content-box {
     box-sizing: content-box;
     padding: 10px;
@@ -281,11 +289,12 @@ transform: translateY(20px) rotate(180deg);</pre></div>
 <li>The content area shrinks to fit: 100px - 10px - 10px (padding) - 10px - 10px (border) = 60px content</li>
 <li>The element will always be exactly the width and height stated.</li>
 </ul>
+<p><strong>d) Why border-box is best practice:</strong> With <code>content-box</code>, if you set <code>width: 50%</code> and then add padding or borders, the total rendered width exceeds 50% of the parent — breaking responsive layouts. You would need to manually calculate <code>width: calc(50% - 20px - 20px)</code> for every padding/border combination. With <code>border-box</code>, <code>width: 50%</code> always means exactly 50% — padding and borders are included inside that width. This is why most CSS resets include <code>*, *::before, *::after { box-sizing: border-box; }</code>.</p>
 </div>
 </details>
 
 <h3 class="g-h3">Question 16 — Background Sizing</h3>
-<p>a) What is the difference between <code>background-size: cover</code> and <code>background-size: contain</code>?</p>
+<p>a) What is the difference between <code>background-size: cover</code> and <code>background-size: contain</code>? For each, describe a practical scenario where you would use it.</p>
 <p>b) When using multiple background images, which image appears on top?</p>
 <p>c) Given the following CSS, explain what each property does and how they work together:</p>
 <div class="cb"><pre>background-image: url(he-man.png), url(clouds.jpg);
@@ -294,7 +303,7 @@ background-position: 50% 50%, 0 0;
 background-repeat: no-repeat;</pre></div>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>a) <strong><code>cover</code></strong>: Scales the image to cover the entire element. The image may be cropped (overflow is hidden) but there will be no empty space. <strong><code>contain</code></strong>: Scales the image to fit entirely within the element. The entire image is visible, but there may be empty space (the image may repeat to fill gaps).</p>
+<p>a) <strong><code>cover</code></strong>: Scales the image to cover the entire element. The image may be cropped (overflow is hidden) but there will be no empty space. <strong>Use case:</strong> A hero banner or full-width background where you want the image to fill the entire section regardless of screen size — some cropping is acceptable. <strong><code>contain</code></strong>: Scales the image to fit entirely within the element. The entire image is visible, but there may be empty space (the image may repeat to fill gaps). <strong>Use case:</strong> A product image display where you must show the entire product photo without cropping, even if it leaves whitespace around the edges.</p>
 <p>b) When using multiple background images, the <strong>first</strong> image listed appears <strong>on top</strong>.</p>
 <p>c) Property breakdown:</p>
 <ul>
@@ -343,6 +352,7 @@ background-repeat: no-repeat;</pre></div>
 <p>a) What is the difference between <code>p:first-child</code> and <code>p:first-of-type</code>? Which one would match in this HTML and which would not? Explain why.</p>
 <p>b) Write CSS to color every odd <code>&lt;p&gt;</code> element red using <code>nth-child</code>.</p>
 <p>c) What is the difference between <code>p:nth-child(2n+1)</code> and <code>p:nth-of-type(2n+1)</code> when the parent contains mixed element types (<code>&lt;div&gt;</code> and <code>&lt;p&gt;</code>)?</p>
+<p>d) <strong>Scenario:</strong> A developer wants to style the first paragraph in a blog post but writes <code>p:first-child</code>. The blog post's HTML starts with an <code>&lt;h1&gt;</code> heading followed by paragraphs. The style doesn't apply. Explain <strong>why</strong> it fails and what selector would work instead.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p>a) <strong><code>p:first-child</code></strong> selects a <code>&lt;p&gt;</code> that is the first child of its parent. In this HTML, the first child is a <code>&lt;div&gt;</code>, not a <code>&lt;p&gt;</code>, so <code>p:first-child</code> <strong>does NOT match</strong> any element. It "drops" because the first-child is a <code>&lt;div&gt;</code>.</p>
@@ -353,6 +363,7 @@ background-repeat: no-repeat;</pre></div>
 }</pre></div>
 <p>c) <code>p:nth-child(2n+1)</code> counts ALL children (regardless of type) and then checks if the matched child is a <code>&lt;p&gt;</code>. It counts <code>&lt;div&gt;</code> and <code>&lt;p&gt;</code> elements together in the numbering.</p>
 <p><code>p:nth-of-type(2n+1)</code> only counts <code>&lt;p&gt;</code> elements when determining position. It filters by type first, then applies the nth formula. So nth-of-type "skips" the <code>&lt;div&gt;</code> elements entirely in its counting.</p>
+<p>d) <strong>Scenario answer:</strong> <code>p:first-child</code> fails because it selects a <code>&lt;p&gt;</code> that IS the first child of its parent. Since the first child is an <code>&lt;h1&gt;</code> (not a <code>&lt;p&gt;</code>), the selector matches nothing — it "drops." The correct selector is <code>p:first-of-type</code>, which finds the first <code>&lt;p&gt;</code> among siblings regardless of what other element types come before it. This is one of the most common CSS selector mistakes and the key distinction between <code>:first-child</code> and <code>:first-of-type</code>.</p>
 </div>
 </details>
 

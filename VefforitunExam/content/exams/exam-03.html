@@ -58,16 +58,26 @@ h3.fly.bind(h2)();                        // 8. What is this?
 </details>
 
 <h3 class="g-h3">Question 2 — Multiple Choice</h3>
-<p>What happens when you call a constructor function WITHOUT the <code>new</code> keyword?</p>
+<p>A developer writes:</p>
+<div class="cb"><pre>function User(name) {
+    this.name = name;
+}
+var admin = User('Alice');
+console.log(admin);         // Line A
+console.log(window.name);   // Line B</pre></div>
+<p>What will Lines A and B output?</p>
 <ul>
-<li>A) JavaScript automatically adds <code>new</code> and creates the object correctly</li>
-<li>B) <code>this</code> refers to the global <code>window</code> object, and properties are set on <code>window</code></li>
-<li>C) An error is thrown because constructor functions require <code>new</code></li>
-<li>D) <code>this</code> is <code>undefined</code> and the function returns <code>null</code></li>
+<li>A) <code>User { name: 'Alice' }</code> and <code>undefined</code></li>
+<li>B) <code>undefined</code> and <code>'Alice'</code></li>
+<li>C) <code>null</code> and <code>null</code></li>
+<li>D) An error is thrown on the first line</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>Answer: B</strong> — <code>this</code> refers to <code>window</code>, properties are set on the global object</p>
+<p><strong>Answer: B</strong></p>
+<p><strong>Line A:</strong> <code>undefined</code> — <code>User('Alice')</code> is called without <code>new</code>, so it's a regular function call. The function has no <code>return</code> statement, so it returns <code>undefined</code>.</p>
+<p><strong>Line B:</strong> <code>'Alice'</code> — without <code>new</code>, <code>this</code> inside the function refers to <code>window</code>. So <code>this.name = name</code> sets <code>window.name = 'Alice'</code>. This is a dangerous bug: you've accidentally polluted the global scope.</p>
+<p><strong>The fix:</strong> Use <code>new User('Alice')</code> — the <code>new</code> keyword creates a fresh object, binds <code>this</code> to it, and returns it automatically.</p>
 </div>
 </details>
 
@@ -195,17 +205,24 @@ const counterSlice = createSlice({
 </div>
 </details>
 
-<h3 class="g-h3">Question 8 — Multiple Choice</h3>
-<p>Which of the following best describes why Redux Toolkit (RTK) was created?</p>
-<ul>
-<li>A) To replace React Context API entirely</li>
-<li>B) To reduce the boilerplate code required by traditional Redux (manual action types, action creators, immutable update logic)</li>
-<li>C) To enable server-side rendering with Redux</li>
-<li>D) To make Redux work with TypeScript</li>
-</ul>
+<h3 class="g-h3">Question 8 — Written Answer (4 pts)</h3>
+<p>A developer writes this Redux Toolkit slice:</p>
+<div class="cb"><pre>const todoSlice = createSlice({
+    name: 'todos',
+    initialState: { items: [] },
+    reducers: {
+        addTodo(state, action) {
+            state.items.push(action.payload);
+        },
+    },
+});</pre></div>
+<p>And a colleague objects: "You're mutating state! Reducers must be pure functions!"</p>
+<p>a) Is the colleague correct? Explain how this code works despite appearing to mutate state. (2 pts)</p>
+<p>b) If this same code were inside a plain Redux reducer (NOT inside <code>createSlice</code>), would it work correctly? Why or why not? (2 pts)</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>Answer: B</strong> — Reduce boilerplate from traditional Redux</p>
+<p><strong>a)</strong> The colleague is <strong>incorrect</strong>. Redux Toolkit's <code>createSlice</code> uses <strong>Immer</strong> under the hood. Immer creates a proxy (draft) of the state object. When you write <code>state.items.push()</code>, you're actually writing to the draft, not the real state. Immer then compares the draft to the original and produces a new immutable state object. The code looks like mutation but is actually safe.</p>
+<p><strong>b)</strong> In a plain Redux reducer, this code would <strong>NOT work correctly</strong>. Without Immer, <code>state.items.push()</code> mutates the existing state in place and returns the same object reference. Redux uses shallow reference comparison to detect changes — since the state reference didn't change, Redux would think nothing happened. Components using <code>useSelector</code> would not re-render, even though the data changed. You would need to write: <code>return { ...state, items: [...state.items, action.payload] }</code>.</p>
 </div>
 </details>
 
@@ -423,33 +440,31 @@ function drop(e) {
 </div>
 </details>
 
-<h3 class="g-h3">Question 19 — Code Analysis (4 pts)</h3>
-<p>What is the output of the following code? Explain the order.</p>
-<div class="cb"><pre>console.log('A');
+<h3 class="g-h3">Question 19 — Written Answer (4 pts)</h3>
+<p>A developer wants to show a loading spinner while fetching data. They write:</p>
+<div class="cb"><pre>function loadProducts() {
+    document.getElementById('spinner').style.display = 'block';
 
-setTimeout(() =&gt; console.log('B'), 0);
+    const response = await fetch('/api/products');
+    const data = await response.json();
 
-Promise.resolve()
-    .then(() =&gt; console.log('C'))
-    .then(() =&gt; console.log('D'));
-
-queueMicrotask(() =&gt; console.log('E'));
-
-console.log('F');
+    document.getElementById('spinner').style.display = 'none';
+    renderProducts(data);
+}
 </pre></div>
+<p>a) This code has a syntax error. What is it, and what is the minimum fix? (1 pt)</p>
+<p>b) Assume the function is properly marked as <code>async</code>. Explain, using your knowledge of the Event Loop, why the spinner WILL appear on screen before the fetch completes (as opposed to the DOM update being "skipped"). (3 pts)</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>Output order:</strong> <code>A</code>, <code>F</code>, <code>C</code>, <code>E</code>, <code>D</code>, <code>B</code></p>
-<p><strong>Explanation:</strong></p>
+<p><strong>a)</strong> <code>await</code> can only be used inside an <code>async</code> function. Fix: add <code>async</code> before <code>function</code>: <code>async function loadProducts()</code>.</p>
+<p><strong>b)</strong> The spinner WILL appear because of how <code>await</code> interacts with the Event Loop:</p>
 <ol>
-<li><code>A</code> — synchronous, runs first</li>
-<li><code>F</code> — synchronous, runs next (call stack clears)</li>
-<li><code>C</code> — microtask (Promise.then), runs before macrotasks</li>
-<li><code>E</code> — microtask (queueMicrotask), runs in same microtask batch</li>
-<li><code>D</code> — microtask (chained .then from C), runs after C resolves</li>
-<li><code>B</code> — macrotask (setTimeout), runs last after all microtasks</li>
+<li><code>document.getElementById('spinner').style.display = 'block'</code> runs synchronously — this updates the DOM in memory.</li>
+<li><code>await fetch(...)</code> pauses the function and returns control to the caller. The function essentially "steps aside."</li>
+<li>With the call stack now empty, the browser gets a chance to render the pending DOM changes — the spinner becomes visible on screen.</li>
+<li>When the fetch response arrives, the code after <code>await</code> resumes as a microtask — it hides the spinner and renders products.</li>
 </ol>
-<p><code>C</code> and <code>E</code> are both microtasks queued during synchronous execution. They run in FIFO order: <code>C</code> first (queued first), then <code>E</code> (queued second). Then <code>D</code> is queued by the resolution of the first <code>.then()</code>.</p>
+<p>This is why <code>async/await</code> works well for showing loading states: the <code>await</code> keyword yields control back to the event loop, giving the browser an opportunity to paint before the async operation completes. Without <code>await</code> (e.g., synchronous blocking), the browser would never get a chance to render the spinner.</p>
 </div>
 </details>
 

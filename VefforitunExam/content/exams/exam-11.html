@@ -147,10 +147,10 @@ console.log(newCar); // { type: 'car', model: 'default', license: '00-000' }</pr
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><code>addCannon</code> dynamically adds a new property <code>hasCannon = true</code> to the <code>Vehicle</code> instance at runtime. The vehicle works perfectly without a cannon — the cannon is not essential to base functionality.</p>
-<p><code>return this</code> enables <strong>method chaining</strong>, meaning you can write:</p>
-<div class="cb"><pre>var v = new Vehicle(&quot;tank&quot;).addCannon().addArmor();</pre></div>
-<p>Each method returns the object itself, so the next method can be called immediately on the result.</p>
+<p><strong>a)</strong> <code>addCannon</code> is added to the <strong>specific instance</strong> (<code>armoredTank</code>) and NOT to <code>Vehicle.prototype</code> because this is the Decorator pattern — behavior is added to one particular object without affecting all other objects of the same class. If it were on the prototype, every <code>Vehicle</code> instance (including regular cars) would have <code>addCannon</code>, which contradicts the principle that "decoration itself isn't essential to base functionality." As the code shows, <code>newCar</code> does NOT have <code>addCannon</code>.</p>
+<p><strong>b)</strong> <code>return this</code> enables <strong>method chaining</strong>, meaning you can write:</p>
+<div class="cb"><pre>armoredTank.addCannon('T101').addCannon('T102');</pre></div>
+<p>Each method returns the object itself, so the next method can be called immediately on the result. Without <code>return this</code>, the first <code>addCannon</code> call would return <code>undefined</code> and the second call would fail.</p>
 </div>
 </details>
 
@@ -343,7 +343,7 @@ each([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], function (index, value) {
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>Event bubbling</strong> means that when an event (like a click) occurs on a child element, it first triggers on that element, then propagates upward through each ancestor element in the DOM tree (child -&gt; parent -&gt; grandparent -&gt; ... -&gt; document).</p>
-<p><strong>Centralized event handling</strong> (also called event delegation) takes advantage of bubbling by attaching a single event listener to a parent element instead of attaching individual listeners to every child. When an event bubbles up, the parent listener checks <code>this.matches('a.toggle')</code> (or similar) to determine if the event originated from a relevant element.</p>
+<p><strong>Centralized event handling</strong> (also called event delegation) takes advantage of bubbling by attaching a single event listener to a parent element instead of attaching individual listeners to every child. When an event bubbles up, the parent listener checks <code>event.target.matches('a.toggle')</code> (or similar) to determine if the event originated from a relevant element.</p>
 <p>This is more efficient because:</p>
 <ol>
 <li><strong>Fewer event listeners</strong> — one listener instead of potentially hundreds, reducing memory usage</li>

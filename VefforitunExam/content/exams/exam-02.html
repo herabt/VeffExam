@@ -2,16 +2,18 @@
 
 <h2 class="g-h2">SECTION A: REACT CORE</h2>
 
-<h3 class="g-h3">Question 1 — Fill in the blanks</h3>
-<p>Complete the following sentences about React:</p>
-<p>A React component is a reusable piece of 1. ________ that can accept inputs called 2. ________ and manage internal data called 3. ________. When state changes, React schedules a 4. ________ of the component. The virtual 5. ________ is React's in-memory representation of the actual browser DOM, used for efficient diffing.</p>
+<h3 class="g-h3">Question 1 — Multiple Choice</h3>
+<p>A developer builds a component where clicking a button should increment a counter displayed on screen. They store the count in a regular variable (<code>let count = 0</code>) instead of using <code>useState</code>. The variable increments correctly in the console, but the number on screen never changes. Why?</p>
+<ul>
+<li>A) Regular variables cannot be changed inside event handlers</li>
+<li>B) React does not know the variable changed — only <code>useState</code> setters schedule a re-render, so the component never updates its output</li>
+<li>C) Regular variables are reset to their initial value on every render</li>
+<li>D) The <code>onClick</code> handler runs on the server, not the client</li>
+</ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>1.</strong> <code>UI</code> (user interface)</p>
-<p><strong>2.</strong> <code>props</code></p>
-<p><strong>3.</strong> <code>state</code></p>
-<p><strong>4.</strong> <code>re-render</code></p>
-<p><strong>5.</strong> <code>DOM</code></p>
+<p><strong>B</strong> — React components are functions that return JSX. The output only updates when React re-renders the component, and React only re-renders when state (via <code>useState</code>) changes. A regular variable changes in memory but React has no way to know it changed, so the screen stays the same.</p>
+<p><strong>Why C is partially true but not the root cause:</strong> It is true that a <code>let</code> variable inside a component resets on each render, but the real problem is that no re-render ever happens in the first place. If you used <code>useState</code>, React would re-render and the new state would persist.</p>
 </div>
 </details>
 
@@ -91,16 +93,16 @@
 
 <h3 class="g-h3">Question 6 — Written Answer (4 pts)</h3>
 <p>A junior developer writes the following component:</p>
-<div class="cb"><pre>&lt;span&gt;function&lt;/span&gt; &lt;span&gt;UserProfile&lt;/span&gt;({ &lt;span&gt;userId&lt;/span&gt; }) {
-    &lt;span&gt;const&lt;/span&gt; [&lt;span&gt;user&lt;/span&gt;, &lt;span&gt;setUser&lt;/span&gt;] = &lt;span&gt;useState&lt;/span&gt;(&lt;span&gt;null&lt;/span&gt;);
+<div class="cb"><pre>function UserProfile({ userId }) {
+    const [user, setUser] = useState(null);
 
-    &lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
-        &lt;span&gt;fetch&lt;/span&gt;(&lt;span&gt;`/api/users/${userId}`&lt;/span&gt;)
-            .then(&lt;span&gt;res&lt;/span&gt; =&gt; &lt;span&gt;res&lt;/span&gt;.&lt;span&gt;json&lt;/span&gt;())
-            .then(&lt;span&gt;data&lt;/span&gt; =&gt; &lt;span&gt;setUser&lt;/span&gt;(&lt;span&gt;data&lt;/span&gt;));
+    useEffect(() =&gt; {
+        fetch(`/api/users/${userId}`)
+            .then(res =&gt; res.json())
+            .then(data =&gt; setUser(data));
     });
 
-    &lt;span&gt;return&lt;/span&gt; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;{&lt;span&gt;user&lt;/span&gt;?.&lt;span&gt;name&lt;/span&gt;}&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;;
+    return &lt;div&gt;{user?.name}&lt;/div&gt;;
 }</pre></div>
 <p>a) Identify the performance problem with this code and explain why it occurs. (2 pts)</p>
 <p>b) How would you fix it? Show the corrected code and explain why your fix works. (2 pts)</p>
@@ -108,11 +110,11 @@
 <div class="ans-body">
 <p><strong>a) Performance problem:</strong> The useEffect has <strong>NO dependency array</strong>, which means it runs after <strong>EVERY render</strong>. Each time it runs, it calls <code>setUser(data)</code>, which triggers a re-render, which runs the effect again → infinite loop of fetching.</p>
 <p><strong>b) Fix:</strong> Add <code>[userId]</code> as the dependency array:</p>
-<div class="cb"><pre>&lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
-    &lt;span&gt;fetch&lt;/span&gt;(&lt;span&gt;`/api/users/${userId}`&lt;/span&gt;)
-        .then(&lt;span&gt;res&lt;/span&gt; =&gt; &lt;span&gt;res&lt;/span&gt;.&lt;span&gt;json&lt;/span&gt;())
-        .then(&lt;span&gt;data&lt;/span&gt; =&gt; &lt;span&gt;setUser&lt;/span&gt;(&lt;span&gt;data&lt;/span&gt;));
-}, [&lt;span&gt;userId&lt;/span&gt;]); // ← Only re-fetch when userId changes</pre></div>
+<div class="cb"><pre>useEffect(() =&gt; {
+    fetch(`/api/users/${userId}`)
+        .then(res =&gt; res.json())
+        .then(data =&gt; setUser(data));
+}, [userId]); // Only re-fetch when userId changes</pre></div>
 <p>This runs once on mount and only re-runs when <code>userId</code> actually changes.</p>
 </div>
 </details>
@@ -121,19 +123,19 @@
 
 <h3 class="g-h3">Question 7 — Code Analysis (4 pts)</h3>
 <p>What is wrong with this component? Explain the issue and provide the correct implementation.</p>
-<div class="cb"><pre>&lt;span&gt;function&lt;/span&gt; &lt;span&gt;Timer&lt;/span&gt;() {
-    &lt;span&gt;const&lt;/span&gt; [&lt;span&gt;seconds&lt;/span&gt;, &lt;span&gt;setSeconds&lt;/span&gt;] = &lt;span&gt;useState&lt;/span&gt;(0);
-    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;intervalId&lt;/span&gt; = &lt;span&gt;useState&lt;/span&gt;(&lt;span&gt;null&lt;/span&gt;);
+<div class="cb"><pre>function Timer() {
+    const [seconds, setSeconds] = useState(0);
+    const intervalId = useState(null);
 
-    &lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
-        &lt;span&gt;intervalId&lt;/span&gt; = &lt;span&gt;setInterval&lt;/span&gt;(() =&gt; {
-            &lt;span&gt;setSeconds&lt;/span&gt;(&lt;span&gt;seconds&lt;/span&gt; + 1);
+    useEffect(() =&gt; {
+        intervalId = setInterval(() =&gt; {
+            setSeconds(seconds + 1);
         }, 1000);
 
-        &lt;span&gt;return&lt;/span&gt; () =&gt; &lt;span&gt;clearInterval&lt;/span&gt;(&lt;span&gt;intervalId&lt;/span&gt;);
+        return () =&gt; clearInterval(intervalId);
     }, []);
 
-    &lt;span&gt;return&lt;/span&gt; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;Time: {&lt;span&gt;seconds&lt;/span&gt;}s&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;;
+    return &lt;div&gt;Time: {seconds}s&lt;/div&gt;;
 }</pre></div>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
@@ -144,19 +146,19 @@
 <li>Direct assignment <code>intervalId = ...</code> won't work with useState's array return.</li>
 </ol>
 <p><strong>Correct implementation:</strong></p>
-<div class="cb"><pre>&lt;span&gt;function&lt;/span&gt; &lt;span&gt;Timer&lt;/span&gt;() {
-    &lt;span&gt;const&lt;/span&gt; [&lt;span&gt;seconds&lt;/span&gt;, &lt;span&gt;setSeconds&lt;/span&gt;] = &lt;span&gt;useState&lt;/span&gt;(0);
-    &lt;span&gt;const&lt;/span&gt; &lt;span&gt;intervalRef&lt;/span&gt; = &lt;span&gt;useRef&lt;/span&gt;(&lt;span&gt;null&lt;/span&gt;);
+<div class="cb"><pre>function Timer() {
+    const [seconds, setSeconds] = useState(0);
+    const intervalRef = useRef(null);
 
-    &lt;span&gt;useEffect&lt;/span&gt;(() =&gt; {
-        &lt;span&gt;intervalRef&lt;/span&gt;.&lt;span&gt;current&lt;/span&gt; = &lt;span&gt;setInterval&lt;/span&gt;(() =&gt; {
-            &lt;span&gt;setSeconds&lt;/span&gt;(&lt;span&gt;prev&lt;/span&gt; =&gt; &lt;span&gt;prev&lt;/span&gt; + 1); // functional update
+    useEffect(() =&gt; {
+        intervalRef.current = setInterval(() =&gt; {
+            setSeconds(prev =&gt; prev + 1); // functional update
         }, 1000);
 
-        &lt;span&gt;return&lt;/span&gt; () =&gt; &lt;span&gt;clearInterval&lt;/span&gt;(&lt;span&gt;intervalRef&lt;/span&gt;.&lt;span&gt;current&lt;/span&gt;);
+        return () =&gt; clearInterval(intervalRef.current);
     }, []);
 
-    &lt;span&gt;return&lt;/span&gt; &lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;Time: {&lt;span&gt;seconds&lt;/span&gt;}s&lt;span style="color: red"&gt;&amp;lt;&lt;/span&gt;/&lt;span&gt;div&lt;/span&gt;&lt;span style="color: red"&gt;&amp;gt;&lt;/span&gt;;
+    return &lt;div&gt;Time: {seconds}s&lt;/div&gt;;
 }</pre></div>
 </div>
 </details>
@@ -166,16 +168,26 @@
 <h2 class="g-h2">SECTION B: STATE MANAGEMENT</h2>
 
 <h3 class="g-h3">Question 8 — Multiple Choice</h3>
-<p>Which pattern does Redux follow for state updates?</p>
+<p>A new developer on the team writes the following Redux reducer:</p>
+<div class="cb"><pre>function cartReducer(state, action) {
+    if (action.type === 'ADD_ITEM') {
+        state.items.push(action.payload);
+        return state;
+    }
+    return state;
+}</pre></div>
+<p>The item appears to be added, but components using <code>useSelector</code> do not re-render. Why?</p>
 <ul>
-<li>A) Two-way data binding between components and store</li>
-<li>B) Unidirectional data flow: Action → Dispatch → Reducer → Store → View</li>
-<li>C) Observer pattern where components subscribe directly to individual state properties</li>
-<li>D) Event sourcing with automatic state snapshots</li>
+<li>A) The reducer should use <code>switch</code> instead of <code>if</code></li>
+<li>B) The reducer mutates the existing state object and returns the same reference — Redux only re-renders when it detects a new state reference</li>
+<li>C) <code>push()</code> does not work on arrays inside Redux state</li>
+<li>D) The action type string must use the <code>slice/action</code> format</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>B</strong> — Unidirectional data flow: Action → Dispatch → Reducer → Store → View</p>
+<p><strong>B</strong> — Redux uses shallow reference comparison to detect state changes. <code>state.items.push()</code> mutates the existing array in place and <code>return state</code> returns the same object reference. Since the reference didn't change, Redux thinks nothing happened and skips re-rendering.</p>
+<p><strong>Fix:</strong> Return a new object with a new array: <code>return { ...state, items: [...state.items, action.payload] }</code>.</p>
+<p><strong>Note:</strong> Redux Toolkit's <code>createSlice</code> uses Immer, which lets you write <code>state.items.push()</code> safely — Immer intercepts the mutation and produces a new immutable state behind the scenes. But in a plain Redux reducer, direct mutation is a bug.</p>
 </div>
 </details>
 
@@ -352,7 +364,7 @@ d) <strong>Dispatch</strong> (1.5 pts)</p>
 <p><strong>1.</strong> <code>"use client"</code></p>
 <p><strong>2.</strong> <code>"use server"</code></p>
 <p><strong>3.</strong> <code>layout.tsx</code> (or <code>layout.js</code>)</p>
-<p><strong>4.</strong> <code>square</code> (i.e., <code>[brackets]</code>)</p>
+<p><strong>4.</strong> <code>square</code> brackets (i.e., <code>[id]</code> — the square brackets tell Next.js this segment is dynamic and will match any value)</p>
 </div>
 </details>
 
@@ -487,16 +499,14 @@ d) <strong>Dispatch</strong> (1.5 pts)</p>
 
 <hr>
 
-<h3 class="g-h3">Question 20 — Multiple Choice</h3>
-<p>What is the primary advantage of react-hook-form over managing form state with useState?</p>
-<ul>
-<li>A) It automatically sends form data to a REST API</li>
-<li>B) It reduces unnecessary re-renders by using uncontrolled inputs</li>
-<li>C) It only works with Server Components for better security</li>
-<li>D) It eliminates the need for any validation logic</li>
-</ul>
+<h3 class="g-h3">Question 20 — Written Answer (4 pts)</h3>
+<p>You are building a search input that filters a product list in real-time as the user types, AND a separate multi-field registration form that submits to a Server Action.</p>
+<p>a) For the search input, would you use a controlled input (useState + onChange) or react-hook-form? Justify your choice. (2 pts)</p>
+<p>b) For the registration form, would you use controlled inputs or react-hook-form? Justify your choice. (2 pts)</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>B</strong> — Reduces unnecessary re-renders by using uncontrolled inputs</p>
+<p><strong>a) Search input: controlled input (useState + onChange)</strong> — because the UI needs to react to every keystroke (filtering the product list in real time). You need the input value in state so that every change triggers a re-render and updates the filtered list. react-hook-form uses uncontrolled inputs that avoid re-renders, which is the opposite of what you want here.</p>
+<p><strong>b) Registration form: react-hook-form</strong> — because a multi-field form does not need to re-render the component on every keystroke. react-hook-form uses uncontrolled inputs, so the component only re-renders during validation events, not on every character typed. This is more performant. It also provides built-in validation rules (<code>required</code>, <code>pattern</code>, <code>minLength</code>), error display via <code>formState.errors</code>, and a <code>resolver</code> option for Zod schema validation.</p>
+<p><strong>Key principle:</strong> Use controlled inputs when the UI must react to input changes in real time. Use react-hook-form (uncontrolled) when you only need the values on submit and want to avoid unnecessary re-renders.</p>
 </div>
 </details>

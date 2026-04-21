@@ -10,6 +10,7 @@
 <div class="ans-body">
 <p>By <strong>passing a Server Component as props</strong> (e.g., <code>children</code>) to the Client Component, which then renders the Server Component. Rendering a Server Component is considered a "one way street" — once the transition to client has been made, you cannot go back.</p>
 <p>What determines if it is a Server Component or not is <strong>where the component was imported</strong>.</p>
+<p><strong>Why this matters:</strong> The Server-to-Client boundary is a "one-way street." Once a component is imported by a Client Component (a file with <code>'use client'</code>), it becomes part of the client bundle. By passing Server Components as <code>children</code> props instead, the Server Component is rendered on the server first, and only the resulting HTML is passed to the Client Component — the Server Component's JavaScript never reaches the browser.</p>
 </div>
 </details>
 
@@ -91,7 +92,8 @@ export default Carousel
 <hr>
 
 <h3 class="g-h3">Question 4 — Fetching data – Server vs. Client</h3>
-<p>List the three ways you can fetch data in <strong>Server Components</strong> and the three ways you can fetch data in <strong>Client Components</strong>, as described in the slides.</p>
+<p><strong>a)</strong> List the three ways you can fetch data in <strong>Server Components</strong> and the three ways you can fetch data in <strong>Client Components</strong>, as described in the slides.</p>
+<p><strong>b) Scenario:</strong> You are building a restaurant search page. The initial list of restaurants should be SEO-friendly and load fast. After the page loads, users can type in a search box that filters restaurants in real-time. Which data fetching approaches would you use for each part, and <strong>why</strong>?</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>Server Components:</strong></p>
@@ -106,6 +108,12 @@ export default Carousel
 <li>A community library such as SWR or React Query</li>
 <li><code>useEffect</code> with <code>fetch</code></li>
 </ol>
+<p><strong>b) Scenario answer:</strong></p>
+<ul>
+<li><strong>Initial restaurant list:</strong> Use <strong>server-side fetch</strong> in a Server Component. This is SEO-critical content (search engines can see the server-rendered HTML), loads faster (no client-side JavaScript needed for the initial data), and the page can be pre-rendered/cached.</li>
+<li><strong>Real-time search filtering:</strong> Use a <strong>Client Component with SWR or React Query</strong> (or useEffect + fetch). This is a user interaction (typing in a search box) that happens after initial load — it needs to run in the browser because it responds to user input events. SWR/React Query are preferred because they handle loading states, caching, and error handling automatically.</li>
+</ul>
+<p>This follows the slides' best practice: "Combine both worlds, try to load as much as possible server side but opt for client side when needed."</p>
 </div>
 </details>
 
@@ -260,6 +268,7 @@ const messageContent = use(messagePromise);
 <li><strong>Inside a Server Component</strong> — mark the function declaration with <code>'use server'</code></li>
 </ol>
 <p>It is <strong>not possible</strong> to declare Server Functions inside a Client Component. However, Server Functions can be invoked inside Client Components by importing them, or they can be passed as props to Client Components from another component.</p>
+<p><strong>Why can't Server Functions be declared inside Client Components?</strong> Client Components run in the browser. A Server Function must execute on the server (it may access databases, file system, etc.). If you could declare one inside a Client Component, the server-side code would be exposed to the browser, creating both a security risk and a runtime impossibility. Instead, Server Functions are declared in their own file (or inside Server Components) and are called from Client Components via HTTP POST — which is why they must be asynchronous.</p>
 </div>
 </details>
 
@@ -296,7 +305,7 @@ export async function createRestaurant(formData: FormData) {
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>a)</strong> Because it is declared in its <strong>own file</strong> (a dedicated actions file). When <code>'use server'</code> is at the top of the file, all exported functions in that file are Server Functions.</p>
-<p><strong>b)</strong> <code>revalidatePath('/restaurants')</code> <strong>revalidates the cache</strong> for the <code>/restaurants</code> path so that the page will show the new data after a restaurant is created.</p>
+<p><strong>b)</strong> <code>revalidatePath('/restaurants')</code> <strong>revalidates the cache</strong> for the <code>/restaurants</code> path so that the page will show the new data after a restaurant is created. <strong>Why this is needed:</strong> Next.js caches rendered pages for performance. After creating a new restaurant in the database, the cached version of <code>/restaurants</code> would still show the old list without the new restaurant. <code>revalidatePath</code> tells Next.js to invalidate that cached page so the next visit fetches fresh data.</p>
 <p><strong>c)</strong> The Client Component pattern from the slides:</p>
 <div class="cb"><pre>// app/components/add-restaurant-form.tsx
 'use client';
@@ -424,7 +433,7 @@ export function CreateRestaurantButton() {
 <li><code>reset</code>: <code>() =&gt; void</code> — a function to attempt re-rendering the component</li>
 </ul>
 <p><strong>c)</strong> <code>global-error.js</code> is a <strong>catch-all error boundary</strong> that catches errors at the global level. Its component must render <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> tags (because it replaces the root layout when active), unlike a regular error boundary.</p>
-<p><strong>d)</strong> Error boundaries <strong>do not catch errors from event handlers</strong> because they are designed to catch errors <strong>during rendering</strong>.</p>
+<p><strong>d)</strong> Error boundaries <strong>do not catch errors from event handlers</strong> because they are designed to catch errors <strong>during rendering</strong>. Event handlers run asynchronously after the render is complete — they are not part of the render lifecycle. If an onClick handler throws, React has already finished rendering successfully, so there is no render to "retry." For event handler errors, you need to use regular <code>try...catch</code> blocks inside the handler function itself.</p>
 </div>
 </details>
 
@@ -509,6 +518,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 <p><strong>b)</strong> List all the HTTP methods Route Handlers support according to the slides.</p>
 <p><strong>c)</strong> According to the slides, there is one important restriction about where <code>route.js</code> can exist relative to <code>page.js</code>. What is it?</p>
 <p><strong>d)</strong> Name two use cases for Route Handlers from the slides.</p>
+<p><strong>e) Scenario:</strong> You are building a Next.js app that needs to handle two things: (1) a form where logged-in users create blog posts, and (2) a Stripe webhook that processes payment notifications. For each, would you use a Server Action or a Route Handler? Explain <strong>why</strong>.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>a)</strong> A <code>route.js</code> (or <code>route.ts</code>) file inside the <code>app</code> directory.</p>
@@ -521,6 +531,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 <li>Third-party access to your data</li>
 <li>OAuth/authentication flows</li>
 </ul>
+<p><strong>e) Scenario answer:</strong></p>
+<ul>
+<li><strong>Blog post form:</strong> Use a <strong>Server Action</strong>. The form is submitted by your own React app (a Client Component). Server Actions are designed for form submissions and data mutations within your Next.js app. You can use <code>revalidatePath</code> to refresh the blog list after creating a post.</li>
+<li><strong>Stripe webhook:</strong> Use a <strong>Route Handler</strong> (<code>route.ts</code>). Stripe is an external service that sends HTTP POST requests to your server — it knows nothing about React or Server Actions. It needs a standard HTTP endpoint URL that it can call. The decision rule from slides: <strong>Who calls it?</strong> Your React app -> Server Action. External service -> Route Handler.</li>
+</ul>
 </div>
 </details>
 
@@ -531,6 +546,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 <p><strong>b)</strong> What library does <code>createSlice</code> use internally that allows you to write immutable code using "mutating" syntax?</p>
 <p><strong>c)</strong> Given the <code>todosSlice</code> code from the slides, how are action creators exported? Write the exact export line.</p>
 <p><strong>d)</strong> Write the <code>configureStore</code> setup from the slides that combines <code>todosReducer</code> and <code>filtersReducer</code>.</p>
+<p><strong>e) Understanding check:</strong> A developer writes <code>state.value += 1</code> inside a <code>createSlice</code> reducer and says "this is a bug because Redux state should be immutable." Are they correct? Explain <strong>why</strong> or <strong>why not</strong>.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>a)</strong> <code>configureStore</code> and <code>createSlice</code>.</p>
@@ -551,5 +567,6 @@ export const store = configureStore({
   },
 })
 </pre></div>
+<p><strong>e)</strong> They are <strong>incorrect</strong>. While Redux state must indeed be immutable, <code>createSlice</code> uses the <strong>Immer</strong> library internally. Immer intercepts what looks like a mutation (<code>state.value += 1</code>) and produces a new immutable state object behind the scenes. The developer writes "mutating" syntax, but Immer ensures that a new state reference is created — the original state is never actually mutated. This is one of RTK's key benefits: it "eliminates immutability bugs" by letting you write simpler code while maintaining immutability guarantees. Without Immer (e.g., in Redux Core), you would need to write <code>return { ...state, value: state.value + 1 }</code>.</p>
 </div>
 </details>

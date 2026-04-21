@@ -3,15 +3,16 @@
 <h3 class="g-h3">Question 1 — Multiple Choice</h3>
 <p>According to the slides, why is JavaScript described as problematic when it comes to catching errors?</p>
 <ul>
-<li>A) JavaScript does not support functions</li>
-<li>B) JavaScript is a compiled, statically typed language that catches all errors at build time</li>
+<li>A) JavaScript catches type errors at build time, but only when using strict mode in the browser's developer console</li>
+<li>B) JavaScript is a compiled, statically typed language, but its compiler does not report errors to the developer</li>
 <li>C) JavaScript is an interpreted, dynamic programming language, meaning you can write code that contains "build" errors and run the code which results in an exception during execution</li>
-<li>D) JavaScript cannot run in the browser</li>
+<li>D) JavaScript relies on runtime type coercion to fix errors automatically, which sometimes produces unexpected results</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>Answer: C</strong></p>
 <p><strong>Explanation:</strong> The slides state: "JavaScript is an interpreted, dynamic programming language. This means that you can write code that contains 'build' errors and run the code which results in an exception during execution."</p>
+<p><strong>Why others are wrong:</strong> A) JavaScript has no build step, so it cannot catch errors "at build time" — strict mode helps catch some runtime issues but is not a build-time check. B) JavaScript is NOT compiled or statically typed; it is interpreted and dynamic. D) While type coercion exists in JS, the slide's point is specifically about the lack of a build step that catches errors before execution, not about coercion.</p>
 </div>
 </details>
 
@@ -35,15 +36,16 @@ message();</pre></div>
 <h3 class="g-h3">Question 3 — Multiple Choice</h3>
 <p>According to the slides, what is one key benefit of TypeScript's explicit declaration of types, arguments, and return values?</p>
 <ul>
-<li>A) It makes the code run faster in the browser</li>
-<li>B) It reduces the file size of the application</li>
+<li>A) It makes the compiled JavaScript run faster in the browser by optimizing typed operations</li>
+<li>B) It reduces the JavaScript bundle size because type annotations are stripped during compilation</li>
 <li>C) Our code editor can provide us with auto-complete features and suggestions to make our developer environment more productive</li>
-<li>D) It eliminates the need for testing</li>
+<li>D) It enforces runtime type checking, throwing errors in the browser when wrong types are passed</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>Answer: C</strong></p>
 <p><strong>Explanation:</strong> The slides state: "Because of explicit declaration of types, arguments and return values, our code editor can provide us with auto-complete features and suggestions to make our developer environment more productive."</p>
+<p><strong>Why others are wrong:</strong> A) TypeScript does NOT make code run faster — types are stripped out during compilation, so the resulting JavaScript is identical in performance. B) While types are stripped out, this doesn't reduce bundle size compared to the equivalent JavaScript — the logic code is the same size. The benefit is developer experience, not file size. D) TypeScript is a compile-time type checker only — all type annotations are removed before the code runs in the browser. There are zero runtime type checks from TypeScript.</p>
 </div>
 </details>
 
@@ -177,10 +179,10 @@ logPoint(animal); // fails</pre></div>
 
 greet('Zorban');</pre></div>
 <ul>
-<li>A) No error is produced and no <code>.js</code> file is generated</li>
+<li>A) No error is produced because TypeScript infers the missing argument as <code>undefined</code> automatically</li>
 <li>B) "Expected 2 arguments, but got 1." -- but a <code>hello.js</code> file is still generated with VanillaJS, because TypeScript is built with migration in mind</li>
-<li>C) "Expected 2 arguments, but got 1." -- and no <code>.js</code> file is generated because of the error</li>
-<li>D) "Unexpected token" -- the entire compilation fails</li>
+<li>C) "Expected 2 arguments, but got 1." -- and no <code>.js</code> file is generated because TypeScript refuses to compile code with errors</li>
+<li>D) The code compiles without errors because function parameters are optional by default in TypeScript</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
@@ -244,14 +246,58 @@ greet("Michelangelo", "03/03/2023");</pre></div>
 <h3 class="g-h3">Question 15 — Multiple Choice</h3>
 <p>According to the slides, how does the <code>tsconfig.json</code> file control strictness in TypeScript?</p>
 <ul>
-<li>A) It has no effect on TypeScript behavior</li>
-<li>B) It only controls which files are compiled</li>
+<li>A) The <code>tsconfig.json</code> only controls the compilation target (ES3, ES5, ES6) and module system, not type-checking behavior</li>
+<li>B) Setting <code>"strict": true</code> enables runtime type checking, adding type guards to the compiled JavaScript output</li>
 <li>C) By setting a flag called "strict" in the <code>tsconfig.json</code> file, you enable all strict mode family options, e.g. <code>noImplicitAny</code>, <code>noImplicitThis</code>, <code>strictFunctionTypes</code>, etc. You can also opt-out to them explicitly by setting the configuration</li>
-<li>D) Strictness can only be set via command-line flags, not in <code>tsconfig.json</code></li>
+<li>D) The <code>"strict"</code> flag in tsconfig.json is all-or-nothing — once enabled, individual strict checks cannot be disabled</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>Answer: C</strong></p>
 <p><strong>Explanation:</strong> The slides state: "By setting a flag called 'strict' in the tsconfig.json file, you enable all strict mode family options, e.g. noImplicitAny, noImplicitThis, strictFunctionTypes, etc. You can also opt-out to them explicitly by setting the configuration."</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 16 — Scenario: Migrating to TypeScript</h3>
+<p>You are joining a team that has a large existing JavaScript codebase (~200 files). The team wants to start using TypeScript. Based on what the slides cover about TypeScript:</p>
+<p><strong>a)</strong> The team lead wants to convert all 200 files to TypeScript at once before deploying. Another developer suggests converting files one at a time. Which approach aligns with how TypeScript is designed to be adopted, and <strong>why</strong>?</p>
+<p><strong>b)</strong> After converting a file to TypeScript, the developer runs <code>tsc</code> and sees 15 type errors. They are concerned that no <code>.js</code> output file was generated. Is this concern valid? Explain what actually happens.</p>
+<p><strong>c)</strong> A junior developer asks: "If TypeScript types are removed during compilation, what's the point? The browser never sees them." Explain the value TypeScript provides despite types being stripped out.</p>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>a)</strong> Converting files one at a time is the correct approach. The slides state: "TypeScript is built to integrate gradually to an existing JavaScript application, by replacing chunks at a time from VanillaJS to TypeScript." A big-bang conversion of 200 files would be risky and unnecessary — TypeScript is explicitly designed for gradual adoption.</p>
+<p><strong>b)</strong> The concern is NOT valid. The slides explain: "Although TypeScript generates errors, we still see an output in our generated .js files." TypeScript still generates the <code>.js</code> output even when there are type errors, precisely because it is "built with migration in mind." The errors are warnings about potential issues, not blockers that prevent compilation. (Note: the <code>--noEmitOnError</code> flag can change this behavior, but the default allows output with errors.)</p>
+<p><strong>c)</strong> The value of TypeScript is in the <strong>development experience, not runtime behavior</strong>. Types provide: (1) <strong>Error detection before execution</strong> — you catch bugs while writing code, not when users encounter crashes. (2) <strong>Auto-complete and editor intelligence</strong> — the slides state that explicit types let "our code editor provide us with auto-complete features and suggestions." (3) <strong>Self-documenting code</strong> — interfaces and type annotations make it clear what a function expects and returns, reducing the need to read implementation details. The types serve their purpose during development and are safely removed for production.</p>
+</div>
+</details>
+
+<hr>
+
+<h3 class="g-h3">Question 17 — Code Analysis: Type Error</h3>
+<p>Study the following TypeScript code. What error(s) will TypeScript report, and <strong>why</strong>? What is the correct fix?</p>
+<div class="cb"><pre>interface Product {
+  name: string;
+  price: number;
+  inStock: boolean;
+}
+
+function displayProduct(product: Product) {
+  console.log(`${product.name}: $${product.price}`);
+}
+
+const shoes = { name: "Running Shoes", price: 89.99 };
+displayProduct(shoes);</pre></div>
+<details class="ans"><summary>▸ Show Answer</summary>
+<div class="ans-body">
+<p><strong>Error:</strong> TypeScript reports that <code>shoes</code> is missing the required property <code>inStock</code> from the <code>Product</code> interface. The <code>shoes</code> object has <code>{ name: string, price: number }</code> but the <code>Product</code> interface requires <code>{ name: string, price: number, inStock: boolean }</code>.</p>
+<p><strong>Why:</strong> TypeScript uses a <strong>structural type system</strong> — it checks that the object has at least all the required properties. Having extra properties is fine (that's why <code>point3d</code> with <code>{x, y, z}</code> works for a <code>Point {x, y}</code> interface), but MISSING required properties is an error. The shape must contain at minimum all fields defined in the interface.</p>
+<p><strong>Fix — choose one:</strong></p>
+<ul>
+<li>Add the missing property: <code>const shoes = { name: "Running Shoes", price: 89.99, inStock: true };</code></li>
+<li>Make the property optional in the interface: <code>inStock?: boolean;</code></li>
+<li>Use <code>Partial&lt;Product&gt;</code> as the parameter type if all fields should be optional</li>
+</ul>
 </div>
 </details>

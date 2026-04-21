@@ -6,23 +6,30 @@
 
 <h2 class="g-h2">SECTION A: BEM (Blocks, Elements, Modifiers)</h2>
 
-<h3 class="g-h3">Question 1 — Fill in the blank</h3>
-<p>According to the slides, BEM stands for ________, ________, and ________.</p>
-<p>In the BEM core concepts:</p>
-<ul>
-<li><strong>Blocks</strong> are defined as: "________________ entities that have meaning on their own"</li>
-<li><strong>Elements</strong> are defined as: "items which are ________________ and therefore semantically tied to the block"</li>
-<li><strong>Modifiers</strong> are defined as: "________ on a block or element. They are used to change ________ or ________"</li>
-</ul>
+<h3 class="g-h3">Question 1 — Code Analysis</h3>
+<p>A developer writes the following CSS for a navigation component:</p>
+<div class="cb"><pre>#main-nav { }
+#main-nav .item { }
+#main-nav .item.active { }
+#main-nav .item .icon { }
+</pre></div>
+<p>a) Identify two problems with this approach from a BEM perspective. (2 pts)</p>
+<p>b) Rewrite these selectors using proper BEM naming conventions. (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>BEM stands for <strong>Blocks</strong>, <strong>Elements</strong>, and <strong>Modifiers</strong> (Slide 253)</p>
+<p><strong>a) Two problems:</strong></p>
 <ul>
-<li><strong>Blocks:</strong> "<strong>standalone</strong> entities that have meaning on their own"</li>
-<li><strong>Elements:</strong> "items which are <strong>relevant in the context of a block</strong> and therefore semantically tied to the block"</li>
-<li><strong>Modifiers:</strong> "<strong>flags</strong> on a block or element. They are used to change <strong>appearance</strong> or <strong>behaviour</strong>"</li>
+<li><strong>Using an ID selector (<code>#main-nav</code>)</strong> — BEM requires class selectors only. IDs create high specificity, making styles hard to override and components impossible to reuse (IDs must be unique per page).</li>
+<li><strong>Nested/dependent selectors (<code>#main-nav .item</code>)</strong> — BEM blocks should have no dependency on other blocks or elements on the page. The styling is tightly coupled to the DOM structure.</li>
 </ul>
+<p><strong>b) Proper BEM:</strong></p>
+<div class="cb"><pre>.nav { }                /* Block */
+.nav__item { }          /* Element */
+.nav__item--active { }  /* Modifier */
+.nav__icon { }          /* Element */
+</pre></div>
+<p>Each selector is a flat class with no nesting. The block (<code>nav</code>) is standalone, elements use <code>__</code>, modifiers use <code>--</code>. This makes the styles independent of DOM structure and easy to reuse.</p>
 </div>
 </details>
 
@@ -106,25 +113,25 @@
 
 <hr>
 
-<h3 class="g-h3">Question 5 — Written explanation</h3>
-<p>Looking at the GitHub visual example from the slides, the teacher annotated the following BEM identifications on the GitHub homepage:</p>
-<ul>
-<li>The navigation bar at the top is identified as a <strong>menu</strong> (________), with items inside it labeled as <strong>menu elements</strong> (________).</li>
-<li>The "Sign in" area is labeled as a <strong>button</strong> (________).</li>
-<li>The form fields are labeled as <strong>input</strong> with modifier <strong>size big</strong> (________).</li>
-<li>The green "Sign up for GitHub" button is labeled as <strong>button</strong> with modifier <strong>theme green</strong> (________).</li>
-</ul>
-<p>For each label above, indicate whether it is a Block, Element, or Modifier.</p>
+<h3 class="g-h3">Question 5 — Written Answer (4 pts)</h3>
+<p>You are building a product card component. The card has a title, an image, a price, and a "Buy" button. The card can be in a "featured" state (larger, highlighted border) and the button can be "disabled" when the product is out of stock.</p>
+<p>a) Write the HTML for this card using proper BEM class names. (2 pts)</p>
+<p>b) Explain how the modifier approach is better than creating a completely separate class like <code>.featured-card</code>. (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>(Slide 254-255)</p>
+<p><strong>a) HTML with BEM:</strong></p>
+<div class="cb"><pre>&lt;div class="card card--featured"&gt;
+  &lt;img class="card__image" src="..." alt="..." /&gt;
+  &lt;h3 class="card__title"&gt;Product Name&lt;/h3&gt;
+  &lt;span class="card__price"&gt;$29.99&lt;/span&gt;
+  &lt;button class="card__button card__button--disabled"&gt;Out of Stock&lt;/button&gt;
+&lt;/div&gt;</pre></div>
+<p><strong>b)</strong> The modifier approach (<code>.card--featured</code>) is better because:</p>
 <ul>
-<li><strong>menu</strong> = Block</li>
-<li><strong>menu elements</strong> = Elements (of the menu block)</li>
-<li><strong>button</strong> (Sign in) = Block</li>
-<li><strong>input</strong> = Block, <strong>size big</strong> = Modifier</li>
-<li><strong>button</strong> = Block, <strong>theme green</strong> = Modifier</li>
+<li>The featured card shares all base styles from <code>.card</code> — the modifier only adds or overrides what is different (e.g., larger size, border color). No code duplication.</li>
+<li>A separate class <code>.featured-card</code> would need to duplicate all the base card styles, creating maintenance problems: every change to the base card must be applied in two places.</li>
+<li>BEM modifiers are always applied alongside the base class (<code>class="card card--featured"</code>), making it clear that a featured card IS a card with a variation, not a different component.</li>
 </ul>
 </div>
 </details>
@@ -133,17 +140,24 @@
 
 <h2 class="g-h2">SECTION B: CSS Variables / Custom Properties</h2>
 
-<h3 class="g-h3">Question 6 — Fill in the blank</h3>
-<p>According to the slides, CSS variables (cascading variables) are "________ defined by CSS authors that represent specific values to be ________ throughout a document."</p>
-<p>CSS variables are defined using the custom property syntax prefixed by a ________ (dash, dash).</p>
+<h3 class="g-h3">Question 6 — Written Answer (4 pts)</h3>
+<p>A website uses the color <code>#63B4D1</code> in 47 different places across 12 CSS files. A designer asks you to change the brand color to <code>#FF6B35</code>.</p>
+<p>a) Without CSS variables, what would you need to do? What could go wrong? (2 pts)</p>
+<p>b) Show how CSS variables solve this problem. Write the CSS to define the variable and use it. (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>(Slide 243)</p>
-<ul>
-<li>"<strong>entities</strong> defined by CSS authors that represent specific values to be <strong>reused</strong> throughout a document."</li>
-<li>Prefixed by a <strong>--</strong> (dash, dash)</li>
-</ul>
+<p><strong>a)</strong> Without CSS variables, you would need to find-and-replace <code>#63B4D1</code> in all 47 locations across 12 files. What could go wrong: you might miss some instances (especially if some use rgb() or uppercase hex), accidentally replace a different color that happens to be similar, or introduce typos. The color value is duplicated everywhere with no single source of truth.</p>
+<p><strong>b)</strong> With CSS variables, define the color once and reference it everywhere:</p>
+<div class="cb"><pre>:root {
+    --brand-color: #FF6B35;   /* change here = changes everywhere */
+}
+
+.nav { background-color: var(--brand-color); }
+.button { border-color: var(--brand-color); }
+.link { color: var(--brand-color); }
+</pre></div>
+<p>Now changing the brand color requires editing one line. CSS variables are defined with <code>--</code> prefix and accessed with <code>var()</code>. They can also be overridden within specific selectors and updated dynamically with JavaScript.</p>
 </div>
 </details>
 
@@ -256,17 +270,15 @@ element.style.setProperty(\"--my-var\", jsVar + 4);</pre></div>
 
 <h2 class="g-h2">SECTION C: Tailwind CSS</h2>
 
-<h3 class="g-h3">Question 11 — Fill in the blank</h3>
-<p>According to the slides, Tailwind CSS is described as: "A ________ CSS framework packed with classes like <code>flex</code>, <code>pt-4</code>, <code>text-center</code> and <code>rotate-90</code> that can be composed to build any design, directly in your ________."</p>
-<p>Tailwind CSS works by "scanning all of your ________ files, JavaScript components, and any other templates for ________, generating the corresponding styles and then writing them to a ________ CSS file."</p>
+<h3 class="g-h3">Question 11 — Written Answer (4 pts)</h3>
+<p>A colleague says: "Tailwind CSS and BEM both solve the same problem, so you only need to know one."</p>
+<p>a) What problem do they share, and in what way do their solutions differ? (2 pts)</p>
+<p>b) Name one concrete benefit of Tailwind's utility-first approach that BEM does not provide. (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>(Slide 260)</p>
-<ul>
-<li>"A <strong>utility-first</strong> CSS framework ... directly in your <strong>markup</strong>."</li>
-<li>"scanning all of your <strong>HTML</strong> files ... for <strong>class names</strong>, generating the corresponding styles and then writing them to a <strong>static</strong> CSS file."</li>
-</ul>
+<p><strong>a) Shared problem:</strong> Both address the challenge of organizing CSS and avoiding style conflicts. BEM solves this through a strict naming convention (<code>.block__element--modifier</code>) that avoids specificity wars by keeping selectors flat. Tailwind solves it by eliminating custom class names entirely — you apply pre-defined utility classes directly in your HTML (<code>flex pt-4 text-center</code>).</p>
+<p><strong>b) Tailwind benefit BEM doesn't provide:</strong> When you delete a component, its styles automatically disappear because they are in the HTML itself. With BEM, you have separate CSS files where unused classes can accumulate as dead code. Tailwind also eliminates "naming fatigue" — you never need to invent class names like <code>.card__header--highlighted</code>.</p>
 </div>
 </details>
 
@@ -313,41 +325,63 @@ element.style.setProperty(\"--my-var\", jsVar + 4);</pre></div>
 
 <h2 class="g-h2">SECTION D: JavaScript Objects</h2>
 
-<h3 class="g-h3">Question 14 — Fill in the blank</h3>
-<p>According to the slides:</p>
-<p>a) Objects are considered as the ________ datatype of JS.</p>
-<p>b) An object is an unordered collection of ________, each of which has a ________ and a ________.</p>
-<p>c) Every object inherits the properties of another object known as its ________.</p>
-<p>d) Objects are ________, meaning that properties can be added and/or deleted in runtime.</p>
-<p>e) Objects are ________ and are manipulated by ________ rather than by value.</p>
+<h3 class="g-h3">Question 14 — Code Analysis (4 pts)</h3>
+<p>Study this code:</p>
+<div class="cb"><pre>var original = { name: 'Alice', scores: [90, 85] };
+var copy = original;
+
+copy.name = 'Bob';
+copy.scores.push(95);
+
+console.log(original.name);    // Line A
+console.log(original.scores);  // Line B
+</pre></div>
+<p>a) What will Lines A and B output? (2 pts)</p>
+<p>b) Explain WHY changing <code>copy</code> also changed <code>original</code>. What does "manipulated by reference" mean in this context? (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>(Slide 341-343)</p>
+<p><strong>a)</strong></p>
 <ul>
-<li><strong>a)</strong> <strong>fundamental</strong></li>
-<li><strong>b)</strong> <strong>properties</strong>, <strong>name</strong>, <strong>value</strong></li>
-<li><strong>c)</strong> <strong>prototype</strong></li>
-<li><strong>d)</strong> <strong>dynamic</strong></li>
-<li><strong>e)</strong> <strong>mutable</strong>, <strong>reference</strong></li>
+<li>Line A: <code>'Bob'</code></li>
+<li>Line B: <code>[90, 85, 95]</code></li>
 </ul>
+<p><strong>b)</strong> Objects in JavaScript are <strong>mutable and manipulated by reference</strong>. When you write <code>var copy = original</code>, you are NOT creating a new object — you are creating a second variable that points to the SAME object in memory. Both <code>original</code> and <code>copy</code> hold a reference (like a pointer) to the same data. Any change through either variable affects the same object.</p>
+<p>To create an independent copy, you would need: <code>var copy = { ...original, scores: [...original.scores] }</code> (shallow copy with spread, plus a copy of the nested array).</p>
 </div>
 </details>
 
 <hr>
 
-<h3 class="g-h3">Question 15 — Multiple choice</h3>
-<p>According to the slides, each property has three associated values called <strong>property attributes</strong>. What are they and what are their default values?</p>
-<ul>
-<li>A) readable (true), writeable (true), deletable (true)</li>
-<li>B) writeable (true), enumerable (true), configurable (true)</li>
-<li>C) visible (true), editable (true), removable (true)</li>
-<li>D) public (true), static (false), final (false)</li>
-</ul>
+<h3 class="g-h3">Question 15 — Code Analysis</h3>
+<p>Study this code:</p>
+<div class="cb"><pre>var obj = {};
+Object.defineProperty(obj, 'id', {
+    value: 42,
+    writable: false,
+    enumerable: false,
+    configurable: false
+});
+
+obj.id = 99;                    // Line A
+console.log(obj.id);            // Line B
+console.log(Object.keys(obj));  // Line C
+</pre></div>
+<p>a) What will Lines B and C output? (2 pts)</p>
+<p>b) Explain why setting <code>writable: false</code> and <code>enumerable: false</code> produces this behavior. When would you want to use these attributes? (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p><strong>B)</strong> writeable (true), enumerable (true), configurable (true) (Slide 344)</p>
+<p><strong>a)</strong></p>
+<ul>
+<li>Line B: <code>42</code> — the assignment on Line A silently fails because <code>writable: false</code> prevents the value from being changed.</li>
+<li>Line C: <code>[]</code> — <code>Object.keys()</code> only returns enumerable properties. Since <code>enumerable: false</code>, the <code>id</code> property is invisible to enumeration.</li>
+</ul>
+<p><strong>b)</strong></p>
+<ul>
+<li><code>writable: false</code> makes the property read-only — any attempt to assign a new value is silently ignored (or throws in strict mode). Use this when you want a constant property that cannot be accidentally overwritten, like an internal ID.</li>
+<li><code>enumerable: false</code> hides the property from <code>for...in</code> loops, <code>Object.keys()</code>, and <code>JSON.stringify()</code>. This is why built-in methods like <code>toString</code> don't show up in <code>for...in</code> loops — they are defined as non-enumerable on <code>Object.prototype</code>.</li>
+</ul>
 </div>
 </details>
 
@@ -485,24 +519,38 @@ fluffy.purr();</pre></div>
 
 <hr>
 
-<h3 class="g-h3">Question 20 — Written explanation</h3>
-<p>According to the slides on Prototype:</p>
-<p>a) "Every object has a prototype except one the ________ which every object inherits from."</p>
-<p>b) When creating an object with object literals, the prototype is automatically set as ________.</p>
-<p>c) When creating an object with the <code>new</code> keyword, the prototype is automatically set as the value of the ________.</p>
-<p>d) When creating an object with <code>Object.create()</code>, you can assign various prototypes through ________.</p>
-<p>e) The slides state that <code>Object.create()</code> provides "the ability to create a new object with an ________ prototype."</p>
+<h3 class="g-h3">Question 20 — Written Answer (4 pts)</h3>
+<p>Study this code:</p>
+<div class="cb"><pre>function Animal(name) {
+    this.name = name;
+    this.speak = function() { return this.name + ' speaks'; };
+}
+
+function AnimalV2(name) {
+    this.name = name;
+}
+AnimalV2.prototype.speak = function() { return this.name + ' speaks'; };
+
+var a1 = new Animal('Cat');
+var a2 = new Animal('Dog');
+
+var b1 = new AnimalV2('Cat');
+var b2 = new AnimalV2('Dog');
+</pre></div>
+<p>Both approaches produce objects that behave the same way. However, one approach is significantly better for memory efficiency.</p>
+<p>a) Which approach is more memory-efficient, and why? (2 pts)</p>
+<p>b) Explain what happens when you call <code>b1.speak()</code> — how does JavaScript find the <code>speak</code> method on <code>b1</code> even though it's not defined directly on the object? (2 pts)</p>
 
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
-<p>(Slide 379, 365-366, 380)</p>
-<ul>
-<li><strong>a)</strong> "Every object has a prototype except one the <strong>Object</strong> which every object inherits from."</li>
-<li><strong>b)</strong> <strong>Object.prototype</strong></li>
-<li><strong>c)</strong> The <strong>constructor function's prototype</strong></li>
-<li><strong>d)</strong> <strong>the method as the first parameter</strong></li>
-<li><strong>e)</strong> "the ability to create a new object with an <strong>arbitrary</strong> prototype."</li>
-</ul>
+<p><strong>a)</strong> <code>AnimalV2</code> (prototype approach) is more memory-efficient. In the first approach, <code>this.speak = function() {...}</code> creates a <strong>new function object for every instance</strong>. If you create 1000 animals, you have 1000 identical copies of the <code>speak</code> function in memory. In the prototype approach, <code>speak</code> is defined once on <code>AnimalV2.prototype</code> and <strong>shared by all instances</strong> — 1000 animals still have only 1 copy of the function.</p>
+<p><strong>b)</strong> When you call <code>b1.speak()</code>, JavaScript uses the <strong>prototype chain</strong>:</p>
+<ol>
+<li>It first looks for <code>speak</code> directly on <code>b1</code> — it's not there (b1 only has <code>name</code>).</li>
+<li>It then looks on <code>b1</code>'s prototype, which is <code>AnimalV2.prototype</code> — it finds <code>speak</code> there and calls it.</li>
+<li>If it wasn't there either, it would continue up the chain to <code>Object.prototype</code>.</li>
+</ol>
+<p>This lookup is called the <strong>prototype chain</strong>. Every object has a link to its prototype, and JavaScript traverses this chain automatically when accessing properties.</p>
 </div>
 </details>
 

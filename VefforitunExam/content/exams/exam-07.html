@@ -23,7 +23,7 @@
 <hr>
 
 <h3 class="g-h3">Question 3 — Code Analysis</h3>
-<p>Given the following HTML and JavaScript, what does each <code>console.log</code> output?</p>
+<p>Given the following HTML and JavaScript, what does each <code>console.log</code> output? For each answer, explain <strong>why</strong> you get that result.</p>
 <div class="cb"><pre>&lt;div class="first"&gt;
     &lt;div class="second"&gt;
         &lt;div class="third"&gt;&lt;/div&gt;
@@ -53,10 +53,10 @@ console.log(thirdOne.parentNode.parentNode); // D: ?</pre></div>
 <h3 class="g-h3">Question 4 — Multiple Choice</h3>
 <p>How can you access and change an element's attributes in the DOM? (Choose the best answer)</p>
 <ul>
-<li>A) Only through dot notation (e.g. <code>elem.id = "newId"</code>)</li>
-<li>B) Only through <code>setAttribute()</code> (e.g. <code>elem.setAttribute("class", "newClass")</code>)</li>
+<li>A) Only through dot notation (e.g. <code>elem.id = "newId"</code>) — <code>setAttribute()</code> only works for custom <code>data-</code> attributes</li>
+<li>B) Only through <code>setAttribute()</code> (e.g. <code>elem.setAttribute("class", "newClass")</code>) — dot notation is read-only</li>
 <li>C) Either through dot notation (e.g. <code>elem.id = "newId"</code>, <code>elem.className = "newClass"</code>) OR through <code>setAttribute("class", "newClass")</code></li>
-<li>D) Attributes cannot be changed after the page loads</li>
+<li>D) Through <code>innerHTML</code> by rewriting the element's HTML string with new attribute values</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
@@ -83,19 +83,21 @@ console.log(thirdOne.parentNode.parentNode); // D: ?</pre></div>
 
 <h3 class="g-h3">Question 6 — Written / Short Answer</h3>
 <p>Explain the difference between <code>innerHTML</code> and <code>textContent</code>/<code>innerText</code>. What happens if you assign the string <code>'&lt;div&gt;text&lt;/div&gt;'</code> using each one?</p>
+<p><strong>Bonus:</strong> A developer uses <code>innerHTML</code> to display user-submitted comments on a page. Explain <strong>why</strong> this is a security risk and what they should use instead.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <ul>
 <li><strong>innerHTML</strong> works by rendering valid HTML markup. If you assign <code>'&lt;h1&gt;I'll replace everything with a header!&lt;/h1&gt;'</code> it will render the h1 tag as an actual HTML heading element.</li>
 <li><strong>textContent/innerText</strong> is used when querying an element as plain text. If you assign <code>'&lt;div&gt;text&lt;/div&gt;'</code> it will NOT be rendered as a div element — it is rendered as a plain string (the slides note: "renderast ekki sem HTML heldur strengur").</li>
 </ul>
+<p><strong>Bonus answer:</strong> Using <code>innerHTML</code> with user-submitted content is an <strong>XSS (Cross-Site Scripting)</strong> vulnerability. A malicious user could submit a comment like <code>&lt;script&gt;document.cookie&lt;/script&gt;</code> or <code>&lt;img onerror="maliciousCode()"&gt;</code>, and the injected HTML/JavaScript would execute in other users' browsers, potentially stealing session cookies or performing actions on their behalf. The developer should use <code>textContent</code> instead, which treats all input as plain text and never executes HTML markup.</p>
 </div>
 </details>
 
 <hr>
 
 <h3 class="g-h3">Question 7 — Code Analysis</h3>
-<p>What does the following code do? Describe each step.</p>
+<p>What does the following code do? Describe each step and explain <strong>why</strong> <code>[0]</code> is needed after <code>getElementsByTagName</code>.</p>
 <div class="cb"><pre>var body = document.getElementsByTagName('body')[0];
 
 var newParagraph = document.createElement('p');
@@ -109,6 +111,7 @@ body.appendChild(newParagraph);</pre></div>
 <li>Sets the text content of that paragraph to <code>'My new paragraph'</code> using <code>textContent</code>.</li>
 <li>Appends the new paragraph as the last child of <code>&lt;body&gt;</code> using <code>appendChild</code>.</li>
 </ol>
+<p><strong>Why <code>[0]</code> is needed:</strong> <code>getElementsByTagName()</code> returns a <strong>live HTMLCollection</strong> of all matching elements, not a single element. Even though there is only one <code>&lt;body&gt;</code> tag, the method still returns a collection. You need <code>[0]</code> to access the first (and only) element in the collection. Without it, <code>body</code> would be an HTMLCollection, and <code>appendChild</code> would fail because HTMLCollection does not have that method — only individual element nodes do.</p>
 </div>
 </details>
 
@@ -117,10 +120,10 @@ body.appendChild(newParagraph);</pre></div>
 <h3 class="g-h3">Question 8 — Multiple Choice</h3>
 <p>The method <code>appendChild(newElement)</code> is used to:</p>
 <ul>
-<li>A) Insert the element as the first child</li>
-<li>B) Insert the element before a specific sibling</li>
-<li>C) Append the element last (as the last child)</li>
-<li>D) Replace an existing child element</li>
+<li>A) Insert the element as the first child of the parent — to insert at the end, use <code>insertAfter()</code></li>
+<li>B) Insert the element before a specific sibling, similar to <code>insertBefore()</code></li>
+<li>C) Append the element as the last child of the parent node</li>
+<li>D) Append the element and return the parent node for method chaining</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
@@ -204,15 +207,16 @@ child.parentNode.replaceChild(document.createElement('h1'), child);</pre></div>
 <h3 class="g-h3">Question 13 — Multiple Choice</h3>
 <p>According to the slides, <code>querySelectorAll()</code> is described as:</p>
 <ul>
-<li>A) A method that only selects elements by id</li>
-<li>B) A method that only works with tag names</li>
+<li>A) A method that returns a live HTMLCollection that updates automatically when the DOM changes</li>
+<li>B) A method equivalent to <code>getElementsByClassName()</code> but with a different return type</li>
 <li>C) Probably the most powerful selector the document has to offer; it accepts any valid CSS selector and matches that to elements in the DOM</li>
-<li>D) A method that returns only a single element</li>
+<li>D) A method that returns a single element matching the CSS selector (use <code>querySelector()</code> for multiple)</li>
 </ul>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>C)</strong> Probably the most powerful selector the document has to offer; it accepts any valid CSS selector and matches that to elements in the DOM.</p>
 <p>This is the exact definition from the slides. First argument: a valid CSS selector. Example: <code>document.querySelectorAll(':nth-child(1)');</code></p>
+<p><strong>Why others are wrong:</strong> A) <code>querySelectorAll()</code> returns a <strong>static</strong> NodeList (a snapshot), not a live HTMLCollection — <code>getElementsByClassName()</code> returns a live collection. B) It is far more powerful than <code>getElementsByClassName</code> because it accepts ANY CSS selector, not just class names. D) <code>querySelectorAll</code> returns multiple matches; <code>querySelector</code> (no "All") returns a single element.</p>
 </div>
 </details>
 
@@ -416,6 +420,7 @@ submitBtn.attachEvent('onclick', function (event) {
 <p>B) What are the PROs of Method #2 (addEventListener)?</p>
 <p>C) What is the CON of Method #4 (inline HTML attribute)?</p>
 <p>D) How do you stop an event from bubbling? Name the three ways shown in the slides.</p>
+<p>E) <strong>Scenario:</strong> You are building a todo list where new items are added dynamically with JavaScript. You need a click handler on each item. Would you use Method #1 (onclick), Method #2 (addEventListener), or attach handlers individually to each new item? Explain your reasoning and mention the relevant DOM concept.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
 <p><strong>A)</strong> Method #1 (onclick property) CON: Only one event handler because it overrides previous registered event handlers.</p>
@@ -427,6 +432,8 @@ submitBtn.attachEvent('onclick', function (event) {
 <li><code>event.cancelBubble = true;</code></li>
 <li><code>event.stopImmediatePropagation();</code></li>
 </ol>
+<p><strong>E)</strong> The best approach is <strong>event delegation</strong> — attach ONE <code>addEventListener</code> (Method #2) to the parent (e.g., the <code>&lt;ul&gt;</code>) rather than individual handlers on each <code>&lt;li&gt;</code>. Use <code>event.target</code> inside the handler to identify which item was clicked.</p>
+<p><strong>Why:</strong> Since items are added dynamically, individually attaching handlers to each new item is error-prone (you might forget), wasteful (each handler consumes memory), and fragile. Event delegation works because of <strong>event bubbling</strong> — clicks on child elements bubble up to the parent, where the single handler catches them. This also handles items added in the future without any additional setup. This is an application of the <strong>Flyweight pattern</strong>.</p>
 </div>
 </details>
 

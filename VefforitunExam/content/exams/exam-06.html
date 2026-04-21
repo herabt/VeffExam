@@ -3,7 +3,10 @@
 <h2 class="g-h2">SECTION A: Next.js Routing (6 questions)</h2>
 
 <h3 class="g-h3">Question 1 — Routing Files</h3>
-<p>According to the slides, Next.js App Router uses special file conventions for routing. List all 9 routing files covered in the slides and explain what each one does.</p>
+<p>According to the slides, Next.js App Router uses special file conventions for routing.</p>
+<p><strong>a)</strong> List all 9 routing files covered in the slides and explain what each one does.</p>
+<p><strong>b)</strong> A developer creates both <code>page.tsx</code> and <code>route.ts</code> inside <code>app/api/users/</code>. What happens and <strong>why</strong>?</p>
+<p><strong>c)</strong> Explain the component hierarchy nesting order. <strong>Why</strong> does the <code>&lt;ErrorBoundary&gt;</code> wrap <code>&lt;Suspense&gt;</code> rather than the other way around?</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
   <ol>
@@ -17,8 +20,10 @@
     <li><strong>template</strong> — Similar to layout but creates a new instance on navigation (does not preserve state).</li>
     <li><strong>default</strong> — "Fallback UI for parallel routes when slot isn't matched" (from slides).</li>
   </ol>
-  <p><strong>Component hierarchy nesting order (from slides):</strong><br>
+  <p><strong>b)</strong> This causes a conflict. <code>route.js</code> and <code>page.js</code> cannot coexist in the same route segment. Next.js will throw an error because it cannot serve both an API endpoint and a page at the same URL path.</p>
+  <p><strong>c) Component hierarchy nesting order (from slides):</strong><br>
   <code>&lt;Layout&gt;</code> &gt; <code>&lt;Template&gt;</code> &gt; <code>&lt;ErrorBoundary&gt;</code> &gt; <code>&lt;Suspense&gt;</code> &gt; <code>&lt;ErrorBoundary (not-found)&gt;</code> &gt; <code>&lt;Page&gt;</code></p>
+  <p><strong>Why ErrorBoundary wraps Suspense:</strong> The ErrorBoundary must be outside the Suspense boundary so it can catch errors that occur during both the loading phase (while Suspense is showing the fallback) and the rendering phase (after data loads). If Suspense wrapped ErrorBoundary instead, errors thrown during the loading/streaming process would have no boundary to catch them.</p>
 </div>
 </details>
 
@@ -106,6 +111,7 @@
 
 <h3 class="g-h3">Question 4 — Creating a Layout</h3>
 <p>According to the slides, what are the key characteristics of a layout in Next.js? Write the code for a root layout as shown in the slides.</p>
+<p><strong>Scenario:</strong> You are building a dashboard app with a sidebar that shows the currently selected project. A user navigates between <code>/dashboard/projects</code> and <code>/dashboard/settings</code>. Should you use a <code>layout.tsx</code> or a <code>template.tsx</code> for the sidebar, and <strong>why</strong>?</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
   <p>From the slides:</p>
@@ -131,6 +137,7 @@
     &lt;/html&gt;
   );
 }</pre></div>
+  <p><strong>Scenario answer:</strong> Use <code>layout.tsx</code> because layouts <strong>preserve state, remain interactive, and do not rerender</strong> on navigation. The sidebar's "currently selected project" state would persist as the user switches between pages. A <code>template.tsx</code> would create a new instance on every navigation, resetting the sidebar state — useful for animations or forms that need resetting, but not for a persistent sidebar.</p>
 </div>
 </details>
 
@@ -280,7 +287,8 @@ export default counterSlice.reducer;</pre></div>
 
 <h3 class="g-h3">Question 10 — RTK Query</h3>
 <p><strong>a)</strong> What is RTK Query according to the slides?<br>
-<strong>b)</strong> Write the Pokemon service from the RTK demonstration code and explain what <code>createApi</code> does.</p>
+<strong>b)</strong> Write the Pokemon service from the RTK demonstration code and explain what <code>createApi</code> does.<br>
+<strong>c)</strong> <strong>Why</strong> does the service's reducer AND middleware both need to be added to the store? What happens if you forget the middleware?</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
   <p><strong>a)</strong> From slides: RTK Query is a <strong>"powerful data fetching and caching tool"</strong> built into Redux Toolkit.</p>
@@ -315,6 +323,7 @@ export const { useGetPokemonByNameQuery, useGetPokemonsQuery } = pokemonApi;</pr
     <li>The hooks provide <code>data</code>, <code>isLoading</code>, <code>isError</code>, and <code>error</code> properties</li>
     <li>The service's reducer and middleware must be added to the store</li>
   </ul>
+  <p><strong>c)</strong> The <strong>reducer</strong> manages the cached data state (stores fetched results, loading states, error states in the Redux store). The <strong>middleware</strong> handles the side effects — it manages cache lifetimes, triggers refetches, and handles polling. Without the middleware, the API calls would not execute properly: cache invalidation would not work, and features like automatic refetching and polling would be broken. The reducer alone stores data; the middleware is what makes the data fetching actually happen.</p>
 </div>
 </details>
 
@@ -423,7 +432,14 @@ export function Counter() {
 <h2 class="g-h2">SECTION D: Zustand (5 questions)</h2>
 
 <h3 class="g-h3">Question 14 — Zustand Re-render Prevention</h3>
-<p>According to the slides, how does Zustand prevent unnecessary re-renders?</p>
+<p><strong>a)</strong> According to the slides, how does Zustand prevent unnecessary re-renders?</p>
+<p><strong>b)</strong> A developer writes the following code and complains that their <code>CartTotal</code> component re-renders every time ANY part of the store changes, even when the total hasn't changed. Explain <strong>why</strong> this happens and how to fix it:</p>
+<div class="cb"><pre>const CartTotal = () => {
+  const total = useCartStore(
+    (state) => state.cart.reduce((sum, item) => sum + item.price, 0)
+  );
+  return &lt;p&gt;Total: {total}&lt;/p&gt;;
+};</pre></div>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
   <p>From the slides:</p>
@@ -433,6 +449,9 @@ export function Counter() {
     <li>"If the object has not really changed although the reference has changed, you can choose to use <code>useShallow()</code> instead which shallow compares the two objects."</li>
     <li><strong>"If it walks like a duck it is a duck"</strong> (the teacher's analogy for shallow comparison)</li>
   </ul>
+  <p><strong>b)</strong> Actually, in this specific case the component would NOT re-render unnecessarily because <code>.reduce()</code> returns a <strong>primitive number</strong>, and Zustand uses <code>Object.is()</code> which correctly compares primitives by value. If the total is 100 and remains 100 after another store update, <code>Object.is(100, 100)</code> returns true and the re-render is skipped.</p>
+  <p>The problem would occur if the selector returned an <strong>array or object</strong> (e.g., <code>.map()</code> or <code>.filter()</code>), because those always create a new reference. In that case, <code>Object.is()</code> sees a different reference and triggers a re-render even if the contents are identical. The fix is to wrap the selector in <code>useShallow()</code>, which performs a shallow comparison of the contents instead of comparing references.</p>
+  <p>This is a tricky question designed to test whether you truly understand the difference between reference comparison and value comparison. Many students assume ALL selectors cause re-render problems — they don't, only ones returning new references (arrays/objects).</p>
 </div>
 </details>
 
@@ -532,7 +551,8 @@ export const useCartStore = create&lt;CartStore&gt;()(
 <p>According to the slides:<br>
 <strong>a)</strong> What are Server Components and what are their key characteristics?<br>
 <strong>b)</strong> What are Client Components and what are their key characteristics?<br>
-<strong>c)</strong> How do you mark a component as a Client Component?</p>
+<strong>c)</strong> How do you mark a component as a Client Component?<br>
+<strong>d)</strong> <strong>Scenario:</strong> You are building a product page that displays product details fetched from a database AND has an "Add to Cart" button with an onClick handler. Which parts should be Server Components and which should be Client Components? Explain <strong>why</strong> you would split it this way rather than making the entire page a Client Component.</p>
 <details class="ans"><summary>▸ Show Answer</summary>
 <div class="ans-body">
   <p><strong>a)</strong> From slides: "Server Components are React components that run only on the server and never send JavaScript to the browser." Key characteristics:</p>
@@ -552,6 +572,8 @@ export const useCartStore = create&lt;CartStore&gt;()(
   </ul>
   <p><strong>c)</strong> Add <code>'use client';</code> directive at the top of the file. From slides: "The solution here is to wrap the component using the <code>'use client'</code> directive."</p>
   <p>Note from slides: "By default, layouts and pages are Server Components." And: "A Server Component can render Client Components and other Server Components, but Client Components cannot render Server Components."</p>
+  <p><strong>d) Scenario answer:</strong> The product page itself (<code>page.tsx</code>) should be a <strong>Server Component</strong> because it needs to fetch product data from a database — Server Components can access backend resources directly and don't send JavaScript to the browser. The "Add to Cart" button should be a separate <strong>Client Component</strong> (e.g., <code>AddToCartButton</code>) because it needs an <code>onClick</code> event handler, which requires client-side interactivity.</p>
+  <p><strong>Why not make the entire page a Client Component?</strong> Making everything a Client Component means: (1) the product data fetch would need to happen client-side with useEffect, adding loading states and JavaScript to the bundle, (2) all the page's JavaScript would be sent to the browser unnecessarily, (3) SEO suffers because server-rendered content is better for search engines. By keeping the page as a Server Component and only extracting the interactive button as a Client Component, you minimize the JavaScript bundle while keeping the interactivity where it's needed.</p>
 </div>
 </details>
 
