@@ -38,6 +38,20 @@ export function Sidebar({ open, onClose }: Props) {
         const t = e.target as HTMLElement;
         if (t.closest("a")) onClose();
       }}>
+        <div className="sidebar-section">
+          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            <li>
+              <Link
+                href="/practice"
+                className={`sidebar-link${pathname === "/practice" ? " active" : ""}`}
+                aria-current={pathname === "/practice" ? "page" : undefined}
+              >
+                <span className="title">🎲 Random practice</span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+
         {KIND_ORDER.map((kind) => {
           const items = topicsByKind(kind);
           if (!items.length) return null;

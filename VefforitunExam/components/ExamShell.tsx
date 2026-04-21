@@ -51,15 +51,9 @@ export function ExamShell({ topicKey, topicKind, topicSlug, title, children }: P
         q.optionsList.dataset.qHidden = "1";
         q.optionsList.style.display = "none";
       }
-      // For fillBlank: hide any prompt <p> that contains the blank pattern
-      if (q.type === "fillBlank") {
-        q.promptEls.forEach((el) => {
-          if (el.tagName === "P" && /_{3,}/.test(el.textContent ?? "")) {
-            el.dataset.qHidden = "1";
-            el.style.display = "none";
-          }
-        });
-      }
+      // For fillBlank: keep the prompt <p> visible so the student can see
+      // the sentence context; the widget below shows numbered <input>s that
+      // map to the 1. ________, 2. ________ markers in the sentence.
 
       // Mount point inserted before <details>
       const mount = document.createElement("div");

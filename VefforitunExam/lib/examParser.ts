@@ -10,9 +10,16 @@ export interface ParsedOption {
   li: HTMLLIElement;
 }
 
+export interface QuestionSource {
+  kind: string;    // "exam" | "bonus"
+  slug: string;    // "3"
+  title: string;   // "Practice Exam 3"
+  href: string;    // "/exam/3"
+}
+
 export interface ParsedQuestion {
   id: string;                    // slug of the heading (already injected by anchors)
-  index: number;                 // zero-based
+  index: number;                 // zero-based within source
   heading: HTMLHeadingElement;
   headingText: string;
   type: QuestionType;
@@ -27,6 +34,8 @@ export interface ParsedQuestion {
     radio?: string;              // option id
     checkbox?: string[];         // option ids
   };
+  /** Source exam/bonus, derived from closest ancestor with `data-exam-kind` */
+  source?: QuestionSource;
 }
 
 const BLANK_RE = /_{3,}/g;
@@ -43,6 +52,7 @@ export function parseQuestions(root: HTMLElement): ParsedQuestion[] {
       : undefined;
     const blanks = type === "fillBlank" ? countBlanks(promptEls) : 0;
     const correct = parseCorrect({ detailsEl, type, options, blanks });
+    const source = parseSource(h3);
 
     out.push({
       id: h3.id || `q${idx + 1}`,
@@ -56,9 +66,36 @@ export function parseQuestions(root: HTMLElement): ParsedQuestion[] {
       detailsEl,
       blanks,
       correct,
+      source,
     });
   });
   return out;
+}
+
+function parseSource(h3: HTMLElement): QuestionSource | undefined {
+  const src = h3.closest<HTMLElement>("[data-exam-kind][data-exam-slug]");
+  if (!src) return undefined;
+  return {
+    kind: src.dataset.examKind ?? "",
+    slug: src.dataset.examSlug ?? "",
+    title: src.dataset.examTitle ?? "",
+    href: src.dataset.examHref ?? "",
+  };
+}
+
+/** Convert a parsed question into HTML strings suitable for direct rendering
+ *  via dangerouslySetInnerHTML — used by PracticeShell where we render
+ *  questions outside their original fragment.
+ */
+export function serializeQuestion(q: ParsedQuestion): {
+  promptHtml: string;
+  detailsBodyHtml: string;
+} {
+  const promptHtml = q.promptEls
+    .map((el) => el.outerHTML)
+    .join("");
+  const body = q.detailsEl?.querySelector(".ans-body");
+  return { promptHtml, detailsBodyHtml: body?.innerHTML ?? "" };
 }
 
 function detectType(heading: string): QuestionType {

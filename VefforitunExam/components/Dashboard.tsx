@@ -89,6 +89,9 @@ export function Dashboard() {
               Resume →
             </Link>
           )}
+          <Link href="/practice" className="btn primary" style={{ fontSize: 13, padding: "8px 14px" }}>
+            🎲 Random drill
+          </Link>
           <Link href="/exam/1" className="btn" style={{ fontSize: 13, padding: "8px 14px" }}>
             Exam 1
           </Link>

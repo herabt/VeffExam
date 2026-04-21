@@ -723,6 +723,136 @@ details.ans .ans-body {
 .btn.danger:hover { background: color-mix(in oklch, var(--danger) 10%, var(--surface)); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ─────────── Random-practice page ─────────── */
+.practice-intro { margin-bottom: var(--s-5); }
+.practice-intro h1 {
+  font-size: var(--fs-2xl);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--s-2);
+}
+.practice-intro p {
+  color: var(--fg-muted);
+  font-family: var(--f-mono);
+  font-size: var(--fs-sm);
+}
+
+.practice-source { display: none !important; }
+
+.practice-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+}
+.practice-stats {
+  display: flex;
+  gap: var(--s-5);
+  flex: 1;
+  min-width: 0;
+}
+.p-stat .k {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  font-weight: 700;
+}
+.p-stat .v {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.p-stat .v .pct { color: var(--fg-subtle); font-weight: 400; font-size: 14px; }
+.p-stat .sub {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--fg-subtle);
+}
+
+.practice-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.p-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+.p-filter select {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.practice-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  padding: var(--s-5) var(--s-6);
+}
+.practice-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-3);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px dashed var(--border);
+}
+.practice-head h3 {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.p-source {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--fg-muted);
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.p-source:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+.practice-prompt { margin-bottom: var(--s-4); }
+.practice-prompt p { font-size: 14.5px; line-height: var(--lh-read); }
+
+.practice-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px dashed var(--border);
+}
+
+.p-empty {
+  padding: var(--s-7);
+  text-align: center;
+  color: var(--fg-muted);
+  font-family: var(--f-mono);
+}
+
 /* ─────────── DigiExam-style interactive questions ─────────── */
 .q-box {
   margin: var(--s-2) 0 var(--s-4);

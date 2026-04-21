@@ -52,15 +52,25 @@ export function CommandPalette({ onClose }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
 
   const allRows: Row[] = useMemo(() => {
-    const rows: Row[] = TOPICS.map((t): Row => ({
-      id: topicHref(t),
-      kind: "topic",
-      topicKind: t.kind,
-      title: t.title,
-      subtitle: t.subtitle ?? KIND_LABELS[t.kind],
-      href: topicHref(t),
-      keywords: `${t.kind} ${t.slug} ${t.title} ${t.subtitle ?? ""}`,
-    }));
+    const rows: Row[] = [
+      {
+        id: "/practice",
+        kind: "action",
+        title: "🎲 Random practice drill",
+        subtitle: "One random question at a time",
+        href: "/practice",
+        keywords: "random practice drill question quiz shuffle",
+      },
+      ...TOPICS.map((t): Row => ({
+        id: topicHref(t),
+        kind: "topic",
+        topicKind: t.kind,
+        title: t.title,
+        subtitle: t.subtitle ?? KIND_LABELS[t.kind],
+        href: topicHref(t),
+        keywords: `${t.kind} ${t.slug} ${t.title} ${t.subtitle ?? ""}`,
+      })),
+    ];
     return rows;
   }, []);
 
