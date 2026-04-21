@@ -1,351 +1,404 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
-  buildMarkdownDownload,
-  clearAnswers,
-  loadAnswers,
-  saveAnswer,
-  triggerDownload,
-} from "@/lib/storage";
-import { register, keys } from "@/lib/shortcuts";
+  emptyAnswer,
+  isAnswered,
+  isCorrect,
+  parseQuestions,
+  type Answer,
+  type AnswerMap,
+  type ParsedQuestion,
+} from "@/lib/examParser";
+import { QuestionWidget, VerdictPill } from "./QuestionWidgets";
 import { markVisit } from "@/lib/session";
 import { topicKey as pKey, updateTopic } from "@/lib/progress";
+import { triggerDownload } from "@/lib/storage";
+import { register, keys } from "@/lib/shortcuts";
 import type { TopicKind } from "@/lib/registry";
 
 interface Props {
-  topicKey: string;
+  topicKey: string;           // e.g., "exam-3"
   topicKind: TopicKind;
   topicSlug: string;
   title: string;
-  children: React.ReactNode;
+  children: React.ReactNode;  // <FragmentView>
 }
 
-interface QState {
-  id: string;
-  answered: boolean;
-  revealed: boolean;
-}
+const STORAGE_PREFIX = "qaAnswers_";
 
 export function ExamShell({ topicKey, topicKind, topicSlug, title, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [questions, setQuestions] = useState<QState[]>([]);
-  const [current, setCurrent] = useState<number>(0);
-  const [status, setStatus] = useState("");
-  const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [questions, setQuestions] = useState<ParsedQuestion[]>([]);
+  const [answers, setAnswers] = useState<AnswerMap>({});
+  const [submitted, setSubmitted] = useState<Record<string, boolean>>({});
+  const [mountPoints, setMountPoints] = useState<Record<string, HTMLElement>>({});
   const progressKey = pKey({ kind: topicKind, slug: topicSlug });
 
-  const showStatus = useCallback((msg: string) => {
-    setStatus(msg);
-    if (statusTimer.current) clearTimeout(statusTimer.current);
-    statusTimer.current = setTimeout(() => setStatus(""), 1200);
-  }, []);
-
-  const refreshStatus = useCallback(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const headings = root.querySelectorAll("h3.g-h3");
-    const list: QState[] = [];
-    headings.forEach((h, idx) => {
-      const id = `${topicKey}-q${idx + 1}`;
-      const ta = root.querySelector<HTMLTextAreaElement>(`textarea[data-qa-id="${id}"]`);
-      const det = nextDetails(h);
-      list.push({
-        id,
-        answered: !!ta?.value.trim(),
-        revealed: !!det?.open,
-      });
-    });
-    setQuestions(list);
-
-    // persist topic-level progress
-    const answered = list.filter((q) => q.answered).length;
-    const revealed = list.filter((q) => q.revealed).length;
-    updateTopic(progressKey, { answered, total: list.length, revealed });
-  }, [topicKey, progressKey]);
-
-  // Post-mount: inject textareas + restore saved answers + wire listeners.
+  // Parse DOM + hide original option lists / blank <p>s + create mount points
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
 
     markVisit(progressKey);
+    const parsed = parseQuestions(root);
 
-    const stored = loadAnswers(topicKey);
-    const headings = root.querySelectorAll("h3.g-h3");
-    headings.forEach((h, idx) => {
-      const det = nextDetails(h);
-      if (!det) return;
-      // Don't double-inject on React re-runs.
-      if (det.previousElementSibling?.classList.contains("qa-answer-box")) return;
+    const mounts: Record<string, HTMLElement> = {};
+    parsed.forEach((q) => {
+      // Hide original <ul> of options for radio / checkbox
+      if ((q.type === "radio" || q.type === "checkbox") && q.optionsList) {
+        q.optionsList.dataset.qHidden = "1";
+        q.optionsList.style.display = "none";
+      }
+      // For fillBlank: hide any prompt <p> that contains the blank pattern
+      if (q.type === "fillBlank") {
+        q.promptEls.forEach((el) => {
+          if (el.tagName === "P" && /_{3,}/.test(el.textContent ?? "")) {
+            el.dataset.qHidden = "1";
+            el.style.display = "none";
+          }
+        });
+      }
 
-      const qid = `${topicKey}-q${idx + 1}`;
-      const wrap = document.createElement("div");
-      wrap.className = "qa-answer-box";
-      const label = document.createElement("label");
-      label.textContent = `Your answer · Q${idx + 1}`;
-      const ta = document.createElement("textarea");
-      ta.dataset.qaId = qid;
-      ta.placeholder = "Type your answer. Auto-saves. Press Tab to move on.";
-      ta.value = stored[qid] ?? "";
-      ta.addEventListener("input", () => {
-        saveAnswer(topicKey, qid, ta.value);
-        refreshStatus();
-        showStatus("saved");
-      });
-      ta.addEventListener("focus", () => setCurrent(idx));
-      wrap.appendChild(label);
-      wrap.appendChild(ta);
-      det.parentNode?.insertBefore(wrap, det);
-
-      // Also wire <details> toggle so we can track revealed state
-      det.addEventListener("toggle", refreshStatus);
+      // Mount point inserted before <details>
+      const mount = document.createElement("div");
+      mount.className = "q-mount";
+      mount.dataset.qid = q.id;
+      const target = q.detailsEl ?? q.heading.parentElement?.appendChild?.bind(q.heading.parentElement);
+      if (q.detailsEl?.parentNode) {
+        q.detailsEl.parentNode.insertBefore(mount, q.detailsEl);
+      } else {
+        // no details? append after the prompt
+        (q.promptEls.at(-1) ?? q.heading).insertAdjacentElement("afterend", mount);
+      }
+      mounts[q.id] = mount;
+      void target;
     });
 
-    refreshStatus();
+    setQuestions(parsed);
+    setMountPoints(mounts);
 
-    // IntersectionObserver to track current question as user scrolls
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible.length) {
-          const h = visible[0]!.target as HTMLElement;
-          const idx = Array.from(headings).indexOf(h);
-          if (idx >= 0) setCurrent(idx);
-        }
-      },
-      { rootMargin: "-90px 0px -70% 0px", threshold: [0, 1] },
-    );
-    headings.forEach((h) => obs.observe(h));
-    return () => obs.disconnect();
+    // Restore saved answers + submitted flags
+    try {
+      const raw = window.localStorage.getItem(STORAGE_PREFIX + topicKey);
+      if (raw) {
+        const saved = JSON.parse(raw) as { answers?: AnswerMap; submitted?: Record<string, boolean> };
+        if (saved.answers) setAnswers(saved.answers);
+        if (saved.submitted) setSubmitted(saved.submitted);
+      }
+    } catch {
+      // ignore
+    }
+
+    return () => {
+      // Clean up mount points; restore hidden elements
+      Object.values(mounts).forEach((m) => m.remove());
+      parsed.forEach((q) => {
+        q.optionsList?.removeAttribute("data-q-hidden");
+        if (q.optionsList) q.optionsList.style.display = "";
+        q.promptEls.forEach((el) => {
+          el.removeAttribute("data-q-hidden");
+          el.style.display = "";
+        });
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topicKey, progressKey]);
 
-  // Keyboard shortcuts (scoped to exam pages)
+  // Persist answers whenever they change
+  useEffect(() => {
+    if (!questions.length) return;
+    try {
+      window.localStorage.setItem(
+        STORAGE_PREFIX + topicKey,
+        JSON.stringify({ answers, submitted }),
+      );
+    } catch {}
+  }, [answers, submitted, questions.length, topicKey]);
+
+  // Keep global progress (sidebar/dashboard) in sync
+  useEffect(() => {
+    if (!questions.length) return;
+    const answered = questions.filter((q) => isAnswered(answers[q.id])).length;
+    const revealed = Object.values(submitted).filter(Boolean).length;
+    updateTopic(progressKey, {
+      answered,
+      total: questions.length,
+      revealed,
+    });
+  }, [answers, submitted, questions, progressKey]);
+
+  // Score derivation
+  const score = useMemo(() => {
+    let correct = 0;
+    let gradable = 0;
+    let submittedCount = 0;
+    questions.forEach((q) => {
+      if (submitted[q.id]) {
+        submittedCount++;
+        const res = isCorrect(q, answers[q.id]);
+        if (res === true) correct++;
+        if (res !== null) gradable++;
+      }
+    });
+    const answered = questions.filter((q) => isAnswered(answers[q.id])).length;
+    return { correct, gradable, submitted: submittedCount, answered, total: questions.length };
+  }, [questions, answers, submitted]);
+
+  // ── Handlers ────────────────────────────────────────────────────────
+  const onAnswerChange = useCallback((qid: string, a: Answer) => {
+    setAnswers((prev) => ({ ...prev, [qid]: a }));
+  }, []);
+
+  const submitQuestion = useCallback((qid: string) => {
+    setSubmitted((prev) => ({ ...prev, [qid]: true }));
+    const q = questions.find((x) => x.id === qid);
+    if (q?.detailsEl) q.detailsEl.open = true;
+    // Scroll heading into view
+    q?.heading.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [questions]);
+
+  const unsubmitQuestion = useCallback((qid: string) => {
+    setSubmitted((prev) => {
+      const next = { ...prev };
+      delete next[qid];
+      return next;
+    });
+    const q = questions.find((x) => x.id === qid);
+    if (q?.detailsEl) q.detailsEl.open = false;
+  }, [questions]);
+
+  const submitAll = useCallback(() => {
+    const next: Record<string, boolean> = {};
+    questions.forEach((q) => { if (isAnswered(answers[q.id])) next[q.id] = true; });
+    setSubmitted(next);
+    questions.forEach((q) => { if (q.detailsEl && next[q.id]) q.detailsEl.open = true; });
+  }, [questions, answers]);
+
+  const resetAll = useCallback(() => {
+    if (!window.confirm("Clear all your answers for this exam?")) return;
+    const blank: AnswerMap = {};
+    questions.forEach((q) => { blank[q.id] = emptyAnswer(q.type, q.blanks ?? 0); });
+    setAnswers(blank);
+    setSubmitted({});
+    questions.forEach((q) => { if (q.detailsEl) q.detailsEl.open = false; });
+  }, [questions]);
+
+  const download = useCallback(() => {
+    const blob = buildMarkdown({ title, questions, answers, submitted });
+    triggerDownload(
+      `${title.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "")}-${new Date().toISOString().slice(0, 10)}.md`,
+      blob,
+    );
+  }, [title, questions, answers, submitted]);
+
+  // ── Keyboard shortcuts ──────────────────────────────────────────────
   useEffect(() => {
     const offs = [
       register({
-        id: "q-next",
-        label: "Next question",
-        keys: ["n"],
+        id: "exam-submit-all",
+        label: "Submit all answered questions",
+        keys: ["Shift", "Enter"],
         group: "Exam",
-        match: keys.plain("n"),
-        handler: () => jumpToQuestion(current + 1),
+        match: (e) => !e.metaKey && !e.ctrlKey && !e.altKey && e.shiftKey && e.key === "Enter",
+        handler: (e) => { e.preventDefault(); submitAll(); },
+        allowInInput: true,
       }),
       register({
-        id: "q-prev",
-        label: "Previous question",
-        keys: ["p"],
-        group: "Exam",
-        match: keys.plain("p"),
-        handler: () => jumpToQuestion(current - 1),
-      }),
-      register({
-        id: "q-reveal",
-        label: "Toggle current answer",
-        keys: ["a"],
-        group: "Exam",
-        match: keys.plain("a"),
-        handler: () => toggleCurrent(),
-      }),
-      register({
-        id: "q-reveal-all",
-        label: "Show / hide all answers",
-        keys: ["Shift", "a"],
-        group: "Exam",
-        match: keys.shift("a"),
-        handler: () => toggleAll(),
-      }),
-      register({
-        id: "q-download",
+        id: "exam-download",
         label: "Download my answers",
         keys: ["d"],
         group: "Exam",
         match: keys.plain("d"),
-        handler: () => handleDownload(),
+        handler: download,
       }),
     ];
     return () => offs.forEach((o) => o());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, questions.length]);
+  }, [submitAll, download]);
 
-  const jumpToQuestion = (idx: number) => {
-    const root = rootRef.current;
-    if (!root) return;
-    const headings = root.querySelectorAll<HTMLHeadingElement>("h3.g-h3");
-    const target = headings[Math.max(0, Math.min(idx, headings.length - 1))];
-    if (!target) return;
-    const y = target.getBoundingClientRect().top + window.pageYOffset - 90;
-    window.scrollTo({ top: y, behavior: "smooth" });
-    // Also focus the associated textarea after the scroll settles
-    setTimeout(() => {
-      const qid = `${topicKey}-q${idx + 1}`;
-      const ta = root.querySelector<HTMLTextAreaElement>(`textarea[data-qa-id="${qid}"]`);
-      ta?.focus({ preventScroll: true });
-    }, 350);
-  };
-
-  const toggleCurrent = () => {
-    const root = rootRef.current;
-    if (!root) return;
-    const h = root.querySelectorAll<HTMLHeadingElement>("h3.g-h3")[current];
-    const det = h ? nextDetails(h) : null;
-    if (det) {
-      det.open = !det.open;
-      refreshStatus();
-    }
-  };
-
-  const toggleAll = () => {
-    const root = rootRef.current;
-    if (!root) return;
-    const ds = root.querySelectorAll<HTMLDetailsElement>("details.ans");
-    const anyClosed = Array.from(ds).some((d) => !d.open);
-    ds.forEach((d) => (d.open = anyClosed));
-    refreshStatus();
-  };
-
-  const handleClear = () => {
-    if (!window.confirm("Clear all your answers in this exam?")) return;
-    clearAnswers(topicKey);
-    rootRef.current
-      ?.querySelectorAll<HTMLTextAreaElement>("textarea[data-qa-id]")
-      .forEach((t) => { t.value = ""; });
-    refreshStatus();
-    showStatus("cleared");
-  };
-
-  const handleDownload = () => {
-    const root = rootRef.current;
-    if (!root) return;
-    const current = loadAnswers(topicKey);
-    root.querySelectorAll<HTMLTextAreaElement>("textarea[data-qa-id]").forEach((t) => {
-      if (t.dataset.qaId) current[t.dataset.qaId] = t.value;
-    });
-    const { filename, blob } = buildMarkdownDownload(
-      root,
-      title,
-      (qid) => current[qid] ?? "",
-      topicKey,
-    );
-    triggerDownload(filename, blob);
-    showStatus("downloaded");
-  };
-
-  const answered = questions.filter((q) => q.answered).length;
-  const total = questions.length;
-  const pct = total ? Math.round((answered / total) * 100) : 0;
-  const hasAnswers = answered > 0;
+  // ── Render ──────────────────────────────────────────────────────────
+  const progress = questions.length
+    ? Math.round((score.answered / questions.length) * 100)
+    : 0;
 
   return (
     <>
       <div className="exam-bar" role="toolbar" aria-label="Exam controls">
         <div className="exam-progress">
-          <span className="pct">{pct}%</span>
-          <div className="track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-            <div className="fill" style={{ width: `${pct}%` }} />
+          <span className="pct">{progress}%</span>
+          <div className="track" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+            <div className="fill" style={{ width: `${progress}%` }} />
           </div>
-          <span className="count">{answered}/{total}</span>
+          <span className="count">
+            {score.answered}/{score.total}
+          </span>
+          {score.submitted > 0 && score.gradable > 0 && (
+            <span className="score-chip" title="Auto-gradable questions only; written answers aren't scored">
+              score&nbsp;<b>{score.correct}/{score.gradable}</b>
+            </span>
+          )}
         </div>
         <div className="exam-actions">
-          <button type="button" className="btn" onClick={() => jumpToQuestion(current - 1)} aria-label="Previous question (p)">
-            <kbd className="kbd">p</kbd> Prev
+          <button type="button" className="btn primary" onClick={submitAll} disabled={score.answered === 0}>
+            Submit all
           </button>
-          <button type="button" className="btn" onClick={() => jumpToQuestion(current + 1)} aria-label="Next question (n)">
-            Next <kbd className="kbd">n</kbd>
+          <button type="button" className="btn" onClick={download} disabled={score.answered === 0} title="Export a .md with your answers and the correct answers">
+            Download
           </button>
-          <button type="button" className="btn" onClick={toggleCurrent} aria-label="Toggle current answer (a)">
-            <kbd className="kbd">a</kbd> Reveal
+          <button type="button" className="btn danger" onClick={resetAll}>
+            Reset
           </button>
-          <button type="button" className="btn" onClick={toggleAll} aria-label="Show or hide all answers (Shift+A)">
-            Reveal all
-          </button>
-          <button
-            type="button"
-            className="btn primary"
-            onClick={handleDownload}
-            disabled={!hasAnswers}
-            title={hasAnswers ? "Download a .md of your answers and the correct answers" : "Answer at least one question to enable download"}
-          >
-            <Down /> Download
-          </button>
-          <button type="button" className="btn danger" onClick={handleClear}>
-            Clear
-          </button>
-          {status && <span style={{ fontFamily: "var(--f-mono)", fontSize: 11, color: "var(--fg-muted)", marginLeft: 4 }}>{status}</span>}
         </div>
       </div>
 
       <div ref={rootRef}>{children}</div>
 
-      {/* Floating question map in the right rail */}
-      <aside className="rail" aria-label="Question map">
-        <section className="rail-section">
-          <div className="rail-title">Questions</div>
-          <div className="q-nav">
-            {questions.map((q, i) => (
-              <button
-                key={q.id}
-                type="button"
-                className={
-                  "q-dot" +
-                  (q.revealed ? " revealed" : q.answered ? " answered" : "") +
-                  (i === current ? " current" : "")
-                }
-                onClick={() => jumpToQuestion(i)}
-                aria-label={`Question ${i + 1}${q.answered ? " (answered)" : ""}${q.revealed ? " (revealed)" : ""}`}
-                title={`Q${i + 1}${q.answered ? " · answered" : ""}${q.revealed ? " · revealed" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-          <div style={{ marginTop: "var(--s-3)", fontFamily: "var(--f-mono)", fontSize: 10.5, color: "var(--fg-subtle)", lineHeight: 1.5 }}>
-            <Legend color="var(--surface-alt)" label="not answered" />
-            <Legend color="color-mix(in oklch, var(--accent) 20%, var(--surface))" label="answered" />
-            <Legend color="color-mix(in oklch, var(--success) 20%, var(--surface))" label="revealed" />
-          </div>
-        </section>
-        <section className="rail-section">
-          <div className="rail-title">Shortcuts</div>
-          <div style={{ fontFamily: "var(--f-mono)", fontSize: 11, color: "var(--fg-muted)", lineHeight: 1.8 }}>
-            <div><kbd className="kbd">n</kbd> / <kbd className="kbd">p</kbd> next / prev</div>
-            <div><kbd className="kbd">a</kbd> toggle answer</div>
-            <div><kbd className="kbd">Shift</kbd>+<kbd className="kbd">A</kbd> all</div>
-            <div><kbd className="kbd">d</kbd> download</div>
-            <div><kbd className="kbd">?</kbd> all shortcuts</div>
-          </div>
-        </section>
-      </aside>
+      {/* Render widgets into per-question mount points via portals */}
+      {questions.map((q) => {
+        const mount = mountPoints[q.id];
+        if (!mount) return null;
+        const answer = answers[q.id] ?? emptyAnswer(q.type, q.blanks ?? 0);
+        const sub = !!submitted[q.id];
+        const answered = isAnswered(answer);
+        return createPortal(
+          <div className={`q-box q-type-${q.type}${sub ? " submitted" : ""}`}>
+            <QuestionWidget
+              question={q}
+              answer={answer}
+              onChange={(a) => onAnswerChange(q.id, a)}
+              submitted={sub}
+            />
+            <div className="q-footer">
+              {!sub ? (
+                <button
+                  type="button"
+                  className="btn primary sm"
+                  onClick={() => submitQuestion(q.id)}
+                  disabled={!answered}
+                >
+                  Check answer
+                </button>
+              ) : (
+                <>
+                  <VerdictPill question={q} answer={answer} />
+                  <button type="button" className="btn sm" onClick={() => unsubmitQuestion(q.id)}>
+                    Edit
+                  </button>
+                </>
+              )}
+              <span className="q-spacer" />
+              <span className="q-idx">
+                Q{q.index + 1}/{questions.length}
+              </span>
+            </div>
+          </div>,
+          mount,
+          q.id,
+        );
+      })}
     </>
   );
 }
 
-function nextDetails(h: Element): HTMLDetailsElement | null {
-  let cursor: Element | null = h.nextElementSibling;
-  while (cursor) {
-    if (cursor.tagName === "H3") return null;
-    if (cursor.tagName === "DETAILS" && cursor.classList.contains("ans")) return cursor as HTMLDetailsElement;
-    cursor = cursor.nextElementSibling;
+// ─── Markdown download ────────────────────────────────────────────────
+function buildMarkdown(args: {
+  title: string;
+  questions: ParsedQuestion[];
+  answers: AnswerMap;
+  submitted: Record<string, boolean>;
+}): Blob {
+  const { title, questions, answers, submitted } = args;
+  const lines: string[] = [
+    `# ${title}`,
+    "",
+    `**Date:** ${new Date().toLocaleString()}`,
+    "",
+    "",
+  ];
+  let correct = 0;
+  let gradable = 0;
+  questions.forEach((q, i) => {
+    const a = answers[q.id];
+    const was = !!submitted[q.id];
+    const verdict = was ? isCorrect(q, a) : null;
+    if (verdict === true) correct++;
+    if (verdict !== null && was) gradable++;
+
+    lines.push(`## Q${i + 1}. ${q.headingText}`);
+
+    const prompt = q.promptEls
+      .filter((el) => !el.dataset.qHidden)
+      .map((el) => (el.textContent ?? "").trim())
+      .filter(Boolean)
+      .join("\n\n");
+    if (prompt) lines.push("", prompt);
+
+    if ((q.type === "radio" || q.type === "checkbox") && q.options) {
+      lines.push("", ...q.options.map((o) => `- ${o.id}) ${o.label}`));
+    }
+
+    lines.push("", "**My answer:**");
+    lines.push(formatAnswer(q, a));
+
+    lines.push("", "**Correct answer:**");
+    lines.push(formatCorrect(q));
+
+    if (was) {
+      if (verdict === true) lines.push("", "✅ correct");
+      else if (verdict === false) lines.push("", "❌ not quite");
+    }
+
+    lines.push("", "---", "");
+  });
+
+  lines.unshift(
+    "",
+    `**Score:** ${correct}/${gradable} auto-graded correct` +
+      (questions.length > gradable ? ` · ${questions.length - gradable} written answers not auto-graded` : ""),
+    "",
+  );
+
+  return new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
+}
+
+function formatAnswer(q: ParsedQuestion, a: Answer | undefined): string {
+  if (!a) return "_(blank)_";
+  switch (a.type) {
+    case "fillBlank":
+      if (!a.values.some((v) => v.trim())) return "_(blank)_";
+      return a.values.map((v, i) => `${i + 1}. ${v.trim() || "_(blank)_"}`).join("\n");
+    case "radio": {
+      if (!a.option) return "_(blank)_";
+      const o = q.options?.find((x) => x.id === a.option);
+      return `${a.option}) ${o?.label ?? ""}`;
+    }
+    case "checkbox":
+      if (!a.options.length) return "_(blank)_";
+      return a.options.map((id) => {
+        const o = q.options?.find((x) => x.id === id);
+        return `- ${id}) ${o?.label ?? ""}`;
+      }).join("\n");
+    case "text":
+      return a.text.trim() ? a.text : "_(blank)_";
   }
-  return null;
 }
 
-function Legend({ color, label }: { color: string; label: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "2px 0" }}>
-      <span style={{ display: "inline-block", width: 10, height: 10, background: color, borderRadius: 2, border: "1px solid var(--border)" }} />
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function Down() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-      <path d="M6 1v8m0 0L3 6.5M6 9l3-2.5M2 11h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+function formatCorrect(q: ParsedQuestion): string {
+  if (q.correct.fillBlank?.length) {
+    return q.correct.fillBlank.map((v, i) => `${i + 1}. ${v}`).join("\n");
+  }
+  if (q.correct.radio) {
+    const o = q.options?.find((x) => x.id === q.correct.radio);
+    return `${q.correct.radio}) ${o?.label ?? ""}`;
+  }
+  if (q.correct.checkbox?.length) {
+    return q.correct.checkbox.map((id) => {
+      const o = q.options?.find((x) => x.id === id);
+      return `- ${id}) ${o?.label ?? ""}`;
+    }).join("\n");
+  }
+  // text: pull from details body
+  const body = q.detailsEl?.querySelector(".ans-body");
+  return (body?.textContent ?? "").trim() || "_(not provided)_";
 }

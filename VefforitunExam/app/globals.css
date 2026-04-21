@@ -723,6 +723,181 @@ details.ans .ans-body {
 .btn.danger:hover { background: color-mix(in oklch, var(--danger) 10%, var(--surface)); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ─────────── DigiExam-style interactive questions ─────────── */
+.q-box {
+  margin: var(--s-2) 0 var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+}
+.q-box.submitted { background: var(--surface); }
+
+.q-choices { display: flex; flex-direction: column; gap: var(--s-1); }
+.q-opt {
+  display: grid;
+  grid-template-columns: 20px 24px 1fr auto;
+  align-items: start;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-out-q),
+              border-color var(--dur-micro) var(--ease-out-q);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.q-opt:hover { border-color: var(--border-strong); background: var(--bg-raised); }
+.q-opt.selected { border-color: var(--accent); background: var(--accent-wash); }
+.q-opt.correct { border-color: var(--success); background: color-mix(in oklch, var(--success) 12%, var(--surface)); }
+.q-opt.wrong { border-color: var(--danger); background: color-mix(in oklch, var(--danger) 10%, var(--surface)); }
+.q-opt input { accent-color: var(--accent); margin-top: 3px; }
+.q-opt-id {
+  font-family: var(--f-mono);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--fg-muted);
+  width: 22px;
+  padding-top: 1px;
+}
+.q-opt.selected .q-opt-id { color: var(--accent); }
+.q-opt.correct .q-opt-id { color: var(--success); }
+.q-opt.wrong .q-opt-id { color: var(--danger); }
+.q-opt-label { color: var(--fg); }
+.q-opt-label code { font-size: 12.5px; }
+.q-mark { font-family: var(--f-mono); font-weight: 700; font-size: 14px; }
+.q-mark.ok { color: var(--success); }
+.q-mark.bad { color: var(--danger); }
+
+/* Fill-in-the-blank */
+.q-blanks { display: flex; flex-direction: column; gap: var(--s-2); }
+.q-blanks-label {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-subtle);
+  font-weight: 700;
+}
+.q-blank {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+.q-blank-n {
+  font-family: var(--f-mono);
+  font-weight: 700;
+  color: var(--fg-muted);
+  width: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.q-blank input {
+  flex: 1;
+  min-width: 180px;
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  background: var(--surface);
+  color: var(--fg);
+  transition: border-color var(--dur-micro) var(--ease-out-q);
+}
+.q-blank input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+.q-blank.correct input { border-color: var(--success); background: color-mix(in oklch, var(--success) 8%, var(--surface)); }
+.q-blank.wrong input { border-color: var(--danger); background: color-mix(in oklch, var(--danger) 6%, var(--surface)); }
+.q-blank-correct {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--fg-muted);
+}
+.q-blank-correct code { color: var(--success); font-weight: 600; }
+
+/* Written / code */
+.q-text label {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-subtle);
+  font-weight: 700;
+  margin-bottom: var(--s-1);
+}
+.q-text textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: var(--s-3);
+  font-family: var(--f-body);
+  font-size: 13.5px;
+  line-height: 1.55;
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  background: var(--surface);
+  color: var(--fg);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.q-text.is-code textarea {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  min-height: 140px;
+}
+.q-text textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+.q-text-note {
+  margin-top: var(--s-2);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--fg-subtle);
+}
+
+/* Footer: check button + verdict + question index */
+.q-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding-top: var(--s-2);
+  border-top: 1px dashed var(--border);
+}
+.q-footer .btn.sm { font-size: 11px; padding: 4px 10px; }
+.q-spacer { flex: 1; }
+.q-idx {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--fg-subtle);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.q-verdict {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.02em;
+}
+.q-v-correct { background: color-mix(in oklch, var(--success) 20%, transparent); color: var(--success); }
+.q-v-wrong { background: color-mix(in oklch, var(--danger) 20%, transparent); color: var(--danger); }
+.q-v-reveal { background: var(--surface-alt); color: var(--fg-muted); }
+
+/* Score pill in the top exam bar */
+.exam-progress .score-chip {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  margin-left: var(--s-2);
+}
+.exam-progress .score-chip b { color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* Legacy .qa-answer-box retained for backward compatibility (unused by new shell) */
 .qa-answer-box {
   background: var(--bg-raised);
   border: 1px solid var(--border);
