@@ -475,31 +475,65 @@ code {
 .cb .run-btn:focus-visible { opacity: 1; }
 .cb .run-btn:disabled { opacity: 0.6; cursor: wait; }
 
-.cb textarea.code-edit {
-  display: block;
-  width: 100%;
-  background: var(--code-bg);
-  color: var(--code-fg);
+/* Dual-element live code editor: highlighted <pre> under a transparent
+   <textarea> overlay. Both elements MUST share identical font metrics,
+   padding and line-height so characters align. */
+.cb .code-editor {
+  position: relative;
+  display: grid;
   border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
   border-radius: var(--r-card);
-  padding: var(--s-4);
+  overflow: hidden;
+  background: var(--code-bg);
+  min-height: 80px;
+  max-height: 560px;
+}
+.cb .code-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+.cb-label + .code-editor { border-top-left-radius: 0; border-top-right-radius: 0; }
+
+.cb .code-editor > * {
+  grid-area: 1 / 1;
   font-family: var(--f-mono);
   font-size: 12.5px;
   line-height: 1.55;
   tab-size: 2;
-  white-space: pre;
-  overflow-x: auto;
-  resize: vertical;
-  min-height: 80px;
-  max-height: 560px;
+  padding: var(--s-4);
+  margin: 0;
+  border: 0;
   box-sizing: border-box;
+  white-space: pre;
+  overflow: auto;
+  scrollbar-width: thin;
 }
-.cb textarea.code-edit:focus {
+.cb .code-editor pre.code-hl {
+  color: var(--code-fg);
+  background: transparent;
+  pointer-events: none;
+  word-break: normal;
+  letter-spacing: 0;
+}
+.cb .code-editor textarea.code-edit {
+  color: transparent;
+  background: transparent;
+  caret-color: var(--code-fg);
+  -webkit-text-fill-color: transparent;
+  resize: none;
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-wash);
+  /* Identical letter metrics to the <pre> so highlighted spans align */
+  letter-spacing: 0;
+  word-break: normal;
 }
-.cb-label + textarea.code-edit { border-top-left-radius: 0; border-top-right-radius: 0; margin-top: 0; }
+.cb .code-editor textarea.code-edit::selection {
+  background: color-mix(in oklch, var(--accent) 45%, transparent);
+  -webkit-text-fill-color: transparent;
+}
+.cb .code-editor textarea.code-edit::-moz-selection {
+  background: color-mix(in oklch, var(--accent) 45%, transparent);
+  -webkit-text-fill-color: transparent;
+}
 
 .cb .code-output {
   margin-top: 6px;

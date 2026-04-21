@@ -290,36 +290,53 @@ function wireRunnableBlocks(root: HTMLElement) {
   });
 }
 
-/** Swap the highlighted <pre> for an editable <textarea> (once per block). */
+/** Build a dual-element editor: a live-highlighted <pre> layered under a
+ *  transparent <textarea> so the user sees syntax colouring while typing. */
 function ensureEditor(block: HTMLDivElement): HTMLTextAreaElement {
   const existing = block.querySelector<HTMLTextAreaElement>("textarea.code-edit");
   if (existing) return existing;
   const pre = block.querySelector<HTMLPreElement>("pre");
   const src = block.dataset.src ?? pre?.textContent ?? "";
+
+  const wrap = document.createElement("div");
+  wrap.className = "code-editor";
+
+  const hl = document.createElement("pre");
+  hl.className = "code-hl";
+  hl.setAttribute("aria-hidden", "true");
+  hl.innerHTML = highlight(src) + "\n"; // trailing newline so last row is sized
+
   const ta = document.createElement("textarea");
   ta.className = "code-edit";
   ta.value = src;
   ta.spellcheck = false;
   ta.setAttribute("aria-label", "Editable code");
-  // auto-size to content
-  const resize = () => {
-    ta.style.height = "auto";
-    ta.style.height = Math.min(560, ta.scrollHeight + 8) + "px";
+
+  const sync = () => {
+    hl.innerHTML = highlight(ta.value) + "\n";
   };
-  ta.addEventListener("input", resize);
+  const syncScroll = () => {
+    hl.scrollTop = ta.scrollTop;
+    hl.scrollLeft = ta.scrollLeft;
+  };
+
+  ta.addEventListener("input", () => { sync(); syncScroll(); });
+  ta.addEventListener("scroll", syncScroll);
   ta.addEventListener("keydown", (ev) => {
-    // Tab inserts two spaces (expected in code editors)
     if (ev.key === "Tab" && !ev.shiftKey) {
       ev.preventDefault();
       const s = ta.selectionStart;
       const e = ta.selectionEnd;
       ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(e);
       ta.selectionStart = ta.selectionEnd = s + 2;
+      sync();
     }
   });
-  // Replace <pre> so editable mode is visually obvious.
-  if (pre) pre.replaceWith(ta);
-  requestAnimationFrame(resize);
+
+  wrap.appendChild(hl);
+  wrap.appendChild(ta);
+  if (pre) pre.replaceWith(wrap);
+  else block.appendChild(wrap);
   return ta;
 }
 
