@@ -708,19 +708,74 @@ parent.insertBefore(newNode, refNode);                // insert before</pre></di
 
 <h2 class="g-h2">22. CSS3</h2>
 
-<p><strong>Gradients:</strong> <code>linear-gradient()</code> defaults to top→bottom. <code>radial-gradient()</code> radiates from center outward. Can stack multiple gradients (first = on top).</p>
+<p><strong>Media Queries</strong> (from slides):</p>
+<ul>
+<li>Syntax: <code>@media screen and (max-width: 768px) { ... }</code></li>
+<li>Media types: <code>screen</code>, <code>print</code>, <code>speech</code>, <code>all</code></li>
+<li>Media features: <code>max-width</code>, <code>min-width</code>, <code>orientation</code> (landscape/portrait)</li>
+<li>Combine with <code>and</code>: <code>@media screen and (max-width: 400px) and (orientation: portrait)</code></li>
+<li>Negate: <code>@media not print { ... }</code></li>
+<li>Two ways: <code>@media</code> rules in CSS, or <code>&lt;link media="screen and (...)" href="mobile.css"&gt;</code></li>
+</ul>
 
-<p><strong>box-shadow:</strong> <code>offset-x offset-y blur-radius spread-radius color</code>. <code>inset</code> keyword puts the shadow inside. Multiple shadows (comma-separated) can replicate elements.</p>
+<p><strong>Gradients</strong> (from slides):</p>
+<ul>
+<li><code>linear-gradient()</code> applied to <code>background-image</code>. Defaults top to bottom.</li>
+<li>Direction: <code>to right</code>, <code>to right bottom</code>. Angles: 0deg=up, 90deg=right, 180deg=down, -90deg=left</li>
+<li><code>radial-gradient(circle, ...)</code> or <code>ellipse</code>. Position: <code>circle at 75% 75%</code></li>
+<li>Repeating: <code>repeating-linear-gradient(-45deg, black 5px, yellow 15px)</code></li>
+<li>Stack multiple: comma-separated, first = on top. Use rgba for transparency.</li>
+</ul>
 
-<p><strong>Transitions</strong> only activate when a property changes (e.g., on :hover). Shorthand: <code>transition: property duration timing-function delay</code>. <strong>Animations</strong> run independently via <code>@keyframes</code> — they don't need a trigger.</p>
+<p><strong>box-shadow:</strong> <code>offset-x offset-y blur spread color</code>. <code>inset</code> = inside. Multiple (comma) can replicate elements.</p>
 
-<p><strong>Transforms:</strong> rotate(), scale(), skew(), translate(). <code>transform-origin</code> defaults to 50% 50% (center). Multiple transforms are <strong>space-separated and ORDER MATTERS</strong> — rotate then translate is different from translate then rotate.</p>
+<p><strong>Transitions vs Animations</strong> (key difference from slides):</p>
+<ul>
+<li><strong>Transitions:</strong> only activate when property CHANGES (need trigger like :hover). Shorthand: <code>transition: property duration timing-function delay</code>. Multiple: <code>transition: background-color 1s, width 2s</code></li>
+<li><strong>Animations:</strong> run INDEPENDENTLY via @keyframes. No trigger needed.</li>
+</ul>
 
-<p><strong>Perspective:</strong> CSS property on parent = shared vanishing point for all children. Transform value on element = each element gets its own vanishing point.</p>
+<div class="cb"><pre>@keyframes text-color-changer {
+  from { color: blue; }  to { color: red; }
+}
+/* Or with percentages: */
+@keyframes multi { 0% { color: blue; } 50% { color: red; } 100% { color: yellow; } }
 
-<p><strong>border-radius:</strong> 4 values = TL TR BR BL (clockwise). <code>50%</code> on a square = circle. Slash syntax: <code>20px / 100%</code> — horizontal radius / vertical radius (elliptical corners).</p>
+/* Apply: */
+p { animation: text-color-changer 5s ease-in infinite; }</pre></div>
 
-<p><strong>background-size:</strong> <code>cover</code> fills the container (may crop). <code>contain</code> fits inside (may leave gaps). Multiple backgrounds: first listed = on top.</p>
+<p><strong>animation shorthand:</strong> name duration timing-function delay iteration-count direction fill-mode play-state</p>
+<ul>
+<li>iteration-count: number or <code>infinite</code></li>
+<li>direction: normal / reverse / alternate</li>
+<li>fill-mode: forwards (keeps end state) / backwards / both</li>
+<li>play-state: running / paused</li>
+</ul>
+
+<p><strong>Timing functions:</strong> <code>ease</code> (default), <code>linear</code>, <code>ease-in</code>, <code>ease-out</code>, <code>ease-in-out</code>, <code>cubic-bezier()</code></p>
+
+<p><strong>Transforms</strong> (from slides):</p>
+<ul>
+<li><code>rotate(45deg)</code> = rotateZ. Also: rotateX (tilt), rotateY (turn), rotate3d(x,y,z,angle)</li>
+<li><code>scale(2)</code>. Also: scaleX, scaleY, scaleZ, scale3d</li>
+<li><code>skew(30deg)</code>. Also: skewX, skewY</li>
+<li><code>translate(10px)</code> = translateX. Also: translateY, translateZ (needs perspective), translate3d</li>
+<li>transform-origin default: 50% 50%. Coordinate: X=right, Y=down.</li>
+<li><strong>ORDER MATTERS:</strong> <code>rotate(180deg) translateY(20px)</code> moves UP (Y flipped after rotation)</li>
+</ul>
+
+<p><strong>Perspective:</strong> Property on parent = shared vanishing point (realistic). <code>transform: perspective(500px)</code> on element = each gets own vanishing point (uniform). perspective-origin default: 50% 50%. Lower value = more dramatic.</p>
+
+<p><strong>border-radius:</strong> TL TR BR BL (clockwise). <code>50%</code> = circle. Slash: <code>20px / 100%</code> = horizontal / vertical. Accepts px, em, %.</p>
+
+<p><strong>Background</strong> (from slides — 4 properties work together):</p>
+<ul>
+<li><code>background-image: url(...)</code> or gradient</li>
+<li><code>background-size: cover</code> (fills, may crop) / <code>contain</code> (fits, may leave gaps) / <code>200px 200px</code></li>
+<li><code>background-position: 50% 50%</code> / <code>200px bottom</code></li>
+<li><code>background-repeat: no-repeat</code> / repeat / repeat-x / repeat-y</li>
+<li>Multiple backgrounds: comma-separated. First = on top.</li>
+</ul>
 
 <hr>
 
