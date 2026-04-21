@@ -22,6 +22,7 @@ export const TOPICS: Topic[] = [
   { kind: "glossary", slug: "weak-areas", title: "Your Weak Areas", file: "glossary/06-weak-areas.html", interactive: false },
 
   // ── Deep study guides
+  { kind: "study", slug: "key-things", title: "Key Things to Remember", file: "study/00-key-things.html", interactive: false, subtitle: "Essential understanding for a 10/10" },
   { kind: "study", slug: "css", title: "CSS & Layout", file: "study/01-css-layout.html", interactive: false, subtitle: "Flexbox, Grid, BEM, selectors, animations" },
   { kind: "study", slug: "javascript", title: "JavaScript & TypeScript", file: "study/02-javascript-typescript.html", interactive: false, subtitle: "this, promises, event loop, TS" },
   { kind: "study", slug: "react", title: "React", file: "study/03-react.html", interactive: false, subtitle: "Hooks, patterns, lifecycle" },

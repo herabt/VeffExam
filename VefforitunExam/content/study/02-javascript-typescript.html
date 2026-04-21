@@ -580,6 +580,151 @@ console.log('other.category (still inherited):', other.category); // "transport"
   </tbody>
 </table></div>
 
+<h4 class="g-h4">Teacher's example -- Classes, constructors, prototype, method chaining, arrow this, async fetch</h4>
+<div class="cb"><pre>// Source: WebProgrammingIIRU/workshops/w1/warrior.js
+
+// --- Constructor class with prototype chain ---
+class Monster {
+  constructor(selector) {
+    this.element = document.querySelector(selector);
+    this.hp = 50;
+    this.x = 6;
+    this.y = 6;
+  }
+
+  takeDamage(amount) {
+    this.hp -= amount;
+
+    this.element.classList.add("shake");
+    this.element.innerText = "&#x1f616;";
+
+    // Arrow function preserves `this` from the class method (lexical scope)
+    setTimeout(() =&gt; {
+      this.element.classList.remove("shake");
+      if (this.hp &lt;= 0) {
+        this.element.innerText = "&#x1f480;";
+        this.element.style.opacity = "0.5";
+      } else {
+        this.element.innerText = "&#x1f479;";
+      }
+    }, 500);
+
+    console.log(`Monster took ${amount} damage! HP: ${this.hp}`);
+  }
+
+  attack(target) {
+    if (this.hp &lt;= 0) return;
+
+    this.element.style.transform = "scale(1.2)";
+    setTimeout(() =&gt; {
+      target.takeDamage(10);
+      this.element.style.transform = "scale(1)";
+    }, 1500);
+  }
+}
+
+class Warrior {
+  constructor(selector) {
+    this.element = document.querySelector(selector);
+    this.x = 1;
+    this.y = 1;
+    this.hp = 100;
+    this.queue = Promise.resolve(); // Promise queue for sequential actions
+    this.updatePosition();
+  }
+
+  // Private helper: adds action to a Promise queue for sequential execution
+  _addToQueue(action, duration = 1500) {
+    this.queue = this.queue.then(() =&gt; {
+      return new Promise((resolve) =&gt; {
+        action();
+        setTimeout(resolve, duration);
+      });
+    });
+  }
+
+  updatePosition() {
+    this.element.style.gridColumn = this.x;
+    this.element.style.gridRow = this.y;
+  }
+
+  // --- METHOD CHAINING: each method returns `this` ---
+  moveRight() {
+    this._addToQueue(() =&gt; {
+      if (this.x &lt; 10) this.x++;
+      this.updatePosition();
+    });
+    return this; // Allows method chaining: warrior.moveRight().moveDown().attack(monster)
+  }
+
+  moveDown() {
+    this._addToQueue(() =&gt; {
+      if (this.y &lt; 10) this.y++;
+      this.updatePosition();
+    });
+    return this;
+  }
+
+  attack(target) {
+    this._addToQueue(() =&gt; {
+      const distanceX = Math.abs(this.x - target.x);
+      const distanceY = Math.abs(this.y - target.y);
+      const isAdjacent = distanceX + distanceY &lt;= 1;
+
+      if (isAdjacent) {
+        target.takeDamage(20);
+        if (target.hp &gt; 0) {
+          setTimeout(() =&gt; target.attack(this), 1500);
+        }
+      }
+    });
+    return this;
+  }
+
+  // --- ASYNC METHOD: uses fetch inside a Promise queue ---
+  drinkPotion() {
+    this._addToQueue(async () =&gt; {
+      this.element.innerText = "&#x1f9ea;";
+      try {
+        const res = await fetch(
+          "https://the-chained-warrior-beers-464b79ebd5f9.herokuapp.com/beers"
+        );
+        const data = await res.json();
+        const alcohol = parseFloat(data.alcohol);
+        if (alcohol &gt; 5) {
+          this.hp -= 10;
+        } else {
+          this.hp += 20;
+        }
+      } catch (err) {
+        console.log("The potion was empty...");
+      }
+    }, 1500);
+    return this;
+  }
+}
+
+// --- PROTOTYPE EXTENSION (Part of Workshop) ---
+// Adding a method via prototype AFTER the class is defined
+Warrior.prototype.spin = function () {
+  this._addToQueue(() =&gt; {
+    this.element.style.transition = "transform 0.5s";
+    this.element.style.transform = "rotate(360deg)";
+    setTimeout(() =&gt; {
+      this.element.style.transform = "rotate(0deg)";
+    }, 500);
+  });
+  return this;
+};
+
+// KEY CONCEPTS DEMONSTRATED:
+// 1. class + constructor for instance properties
+// 2. Arrow functions inside setTimeout preserve `this`
+// 3. Method chaining via `return this`
+// 4. Prototype extension: Warrior.prototype.spin added after class definition
+// 5. Promise queue pattern for sequential async actions
+// 6. async/await with fetch inside class methods</pre></div>
+
 <h2 class="g-h2">4. Promises</h2>
 
 <h3 class="g-h3">Promise States</h3>
@@ -785,121 +930,125 @@ console.log('W');                // 3rd (sync)
   <figcaption>The four Promise combinators at a glance: <code>all</code> fast-fails, <code>allSettled</code> always waits, <code>race</code> mirrors the first settler, <code>any</code> ignores rejections until all fail.</figcaption>
 </figure>
 
-<h3 class="g-h3">Promise.all — Code Example</h3>
-<div class="cb"><pre>const p1 = new Promise(resolve =&gt; setTimeout(resolve, 1000, '1 second'));
-const p2 = new Promise(resolve =&gt; setTimeout(resolve, 2000, '2 seconds'));
-const p3 = new Promise((_, reject) =&gt; setTimeout(reject, 5000, '5 seconds'));
-const p4 = new Promise(resolve =&gt; setTimeout(resolve, 10000, '10 seconds'));
-
-// Rejects after 5 seconds with reason "5 seconds"
-Promise.all([p1, p2, p3, p4])
-    .then(values =&gt; console.log(values))      // skipped
-    .catch(reason =&gt; console.log(reason));    // "5 seconds" (at 5s)
-
-// If all resolved: ["1 second", "2 seconds", "5 seconds", "10 seconds"] after 10s</pre></div>
-
-<h4 class="g-h4">Example — Promise.all with all success vs one failure</h4>
-<div class="cb"><pre>// ALL succeed scenario:
-const fetchUser    = Promise.resolve({ id: 1, name: 'Alice' });
-const fetchPosts   = Promise.resolve([{ title: 'Hello' }, { title: 'World' }]);
-const fetchProfile = Promise.resolve({ bio: 'Developer' });
-
-Promise.all([fetchUser, fetchPosts, fetchProfile])
-    .then(([user, posts, profile]) =&gt; {
-        console.log('user.name:', user.name);       // "Alice"
-        console.log('posts.length:', posts.length); // 2
-        console.log('profile.bio:', profile.bio);   // "Developer"
-    });
-
-// ONE fails scenario:
-const badRequest = Promise.reject(new Error('404 Not Found'));
-
-Promise.all([fetchUser, badRequest, fetchProfile])
-    .then(results =&gt; console.log('never runs'))
-    .catch(err =&gt; console.log(err.message));
-// Output: "404 Not Found"   (immediately — the other two are ignored)</pre></div>
-
-<h3 class="g-h3">Promise.allSettled — Code Example</h3>
-<div class="cb"><pre>Promise.allSettled([p1, p2, p3, p4])
-    .then(results =&gt; {
-        results.forEach(result =&gt; {
-            if (result.status === 'fulfilled') {
-                console.log('Value:', result.value);
-            }
-            if (result.status === 'rejected') {
-                console.log('Reason:', result.reason);
-            }
-        });
-    });
-// Each result: { status: "fulfilled", value: "..." }
-//           or { status: "rejected", reason: "..." }
-// Runs after 10 seconds (waits for ALL)</pre></div>
-
-<h4 class="g-h4">Example — Promise.allSettled — collect all outcomes</h4>
-<div class="cb"><pre>const requests = [
-    Promise.resolve('user data'),
-    Promise.reject('auth error'),
-    Promise.resolve('product list'),
-    Promise.reject('timeout'),
+<h3 class="g-h3">Teacher's Promise Setup (from Visual Promises code session)</h3>
+<p>The teacher uses these 4 promises to demonstrate all methods. Note: the first 3 <strong>resolve</strong>, the 4th <strong>rejects</strong>.</p>
+<div class="cb"><pre>// From: Code sessions/Visual Promises/scripts/promise.js
+const getPromises = () =&gt; [
+  new Promise((resolve, reject) =&gt; { setTimeout(resolve, 1000, "1 second"); }),   // resolves at 1s
+  new Promise((resolve, reject) =&gt; { setTimeout(resolve, 2000, "2 seconds"); }),  // resolves at 2s
+  new Promise((resolve, reject) =&gt; { setTimeout(resolve, 5000, "5 seconds"); }),  // resolves at 5s
+  new Promise((resolve, reject) =&gt; { setTimeout(reject, 10000, "10 seconds"); }), // REJECTS at 10s
 ];
 
-Promise.allSettled(requests).then(results =&gt; {
-    results.forEach((result, index) =&gt; {
-        if (result.status === 'fulfilled') {
-            console.log(`[${index}] OK:`, result.value);
+// Timeline:
+// 0s ---- 1s ---- 2s ---- 5s ---- 10s
+//          |       |       |        |
+//     p1 resolves  p2     p3   p4 REJECTS</pre></div>
+
+<h3 class="g-h3">Promise.all (from teacher's code, line 90)</h3>
+<p>Resolves when ALL resolve. Rejects if ANY one rejects.</p>
+<div class="cb"><pre>// From: Code sessions/Visual Promises/scripts/promise.js
+Promise.all(getPromises()).then(values =&gt; {
+    // ALL resolved
+    values.forEach((value, idx) =&gt; {
+        const bunnyCard = getBunnyCard(PromiseDemonstrations.All, idx + 1);
+        showMessageAndAnimate(bunnyCard, value, elapsedTimeInSeconds);
+    });
+}).catch(reason =&gt; {
+    // ANY one rejected -- all bunnies hurt
+    manipulateBunnyCards(bunnyCards, (bunny, bunnyMessage) =&gt; {
+        bunny.classList.add("hurt");
+        bunnyMessage.textContent = 'Promise rejected: ' + reason;
+    });
+});
+// Result: REJECTS at 10s because the 4th promise rejects</pre></div>
+
+<h3 class="g-h3">Promise.allSettled (from teacher's code, line 112)</h3>
+<p>Waits for ALL to settle. Never rejects. Each result has <code>status</code> ('fulfilled' or 'rejected').</p>
+<div class="cb"><pre>// From: Code sessions/Visual Promises/scripts/promise.js
+Promise.allSettled(getPromises()).then(promises =&gt; {
+    promises.forEach((promise, idx) =&gt; {
+        const bunnyCard = getBunnyCard(PromiseDemonstrations.AllSettled, idx + 1);
+
+        if (promise.status === 'fulfilled') {
+            showMessageAndAnimate(bunnyCard, promise.value, elapsedTimeInSeconds);
         } else {
-            console.log(`[${index}] FAIL:`, result.reason);
+            manipulateBunnyCard(bunnyCard, (bunny, bunnyMessage) =&gt; {
+                bunny.classList.add('hurt');
+                bunnyMessage.textContent = 'Promise was rejected: ' + promise.reason;
+            });
         }
     });
 });
-// Output:
-// [0] OK: "user data"
-// [1] FAIL: "auth error"
-// [2] OK: "product list"
-// [3] FAIL: "timeout"
-// (never throws — always gives you the full picture)</pre></div>
+// Result: waits for ALL (10s). Shows 3 happy bunnies + 1 hurt bunny.
+// Each result: { status: "fulfilled", value: "..." }
+//           or { status: "rejected", reason: "..." }</pre></div>
 
-<h3 class="g-h3">Promise.race vs Promise.any</h3>
-<div class="cb"><pre>// race: first to SETTLE wins (even if rejected)
-Promise.race([p1, p2, p3, p4])
-    .then(val =&gt; console.log('race resolved:', val))    // "1 second" at 1s
-    .catch(err =&gt; console.log('race rejected:', err));
+<h3 class="g-h3">Promise.race (from teacher's code, line 134)</h3>
+<p>First to SETTLE (resolve OR reject) wins. All others are "out of race".</p>
+<div class="cb"><pre>// From: Code sessions/Visual Promises/scripts/promise.js
+// Note: teacher uses .then(onSuccess, onError) two-argument style here
+Promise.race(getPromises()).then(value =&gt; {
+    // FIRST to settle wins
+    const bunnyCard = getBunnyCard(PromiseDemonstrations.Race, 1);
+    showMessageAndAnimate(bunnyCard, value, elapsedTimeInSeconds);
 
-// any: first to FULFILL wins
-Promise.any([p1, p2, p3, p4])
-    .then(val =&gt; console.log('any resolved:', val))     // "1 second" at 1s
-    .catch(err =&gt; console.log('all failed:', err));     // AggregateError if ALL reject
+    // Mark all others as out of race
+    manipulateBunnyCards(otherBunnyCards, (bunny, bunnyMessage) =&gt; {
+        bunny.classList.add('out-of-race');
+        bunnyMessage.textContent = 'Out of race!';
+    });
+}, (error) =&gt; {
+    // If the first to settle was a rejection
+    manipulateBunnyCard(bunnyCard, (bunny, bunnyMessage) =&gt; {
+        bunny.classList.add('hurt');
+        bunnyMessage.textContent = 'Promise was rejected: ' + error;
+    });
+});
+// Result: resolves at 1s -- first promise wins the race
+// Note: .then(onSuccess, onError) -- two callbacks, NOT .catch()</pre></div>
 
-// If the FASTEST promise REJECTED (e.g., p1 rejects at 1s):
-// race → rejects with p1's reason after 1s
-// any → continues waiting for p2, p3, p4 — picks first fulfillment</pre></div>
+<h3 class="g-h3">Promise.any (from teacher's code, line 164)</h3>
+<p>First to RESOLVE (fulfill) wins. Rejections are ignored unless ALL reject.</p>
+<div class="cb"><pre>// From: Code sessions/Visual Promises/scripts/promise.js
+Promise.any(getPromises()).then(value =&gt; {
+    // FIRST to RESOLVE wins
+    const bunnyCard = getBunnyCard(PromiseDemonstrations.Any, 1);
+    showMessageAndAnimate(bunnyCard, value, elapsedTimeInSeconds);
 
-<h4 class="g-h4">Example — Promise.race (timeout pattern) vs Promise.any (first success)</h4>
-<div class="cb"><pre>// --- Promise.race: implement a timeout ---
-function withTimeout(promise, ms) {
-    const timeout = new Promise((_, reject) =&gt;
-        setTimeout(() =&gt; reject(new Error('Timed out after ' + ms + 'ms')), ms)
-    );
-    return Promise.race([promise, timeout]);
+    // Others marked out of race
+    manipulateBunnyCards(otherBunnyCards, (bunny, bunnyMessage) =&gt; {
+        bunny.classList.add('out-of-race');
+    });
+}).catch(error =&gt; {
+    // Only runs if ALL promises rejected (AggregateError)
+    manipulateBunnyCards(bunnyCards, (bunny, bunnyMessage) =&gt; {
+        bunny.classList.add('hurt');
+        bunnyMessage.textContent = 'Promises were rejected: ' + error;
+    });
+});
+// Result: resolves at 1s -- first successful promise
+// Difference from race: if p1 rejected, any would SKIP it and wait for p2</pre></div>
+
+<h3 class="g-h3">for await...of (from teacher's code, line 190)</h3>
+<p>Processes promises ONE AT A TIME, in order. Waits for each before moving to next.</p>
+<div class="cb"><pre>// From: Code sessions/Visual Promises/scripts/promise.js
+let number = 1;
+try {
+    for await (const promise of getPromises()) {
+        const elapsedTimeInSeconds = getElapsedTimeInSeconds(startDate);
+        const bunnyCard = getBunnyCard(PromiseDemonstrations.ForAwait, number++);
+        showMessageAndAnimate(bunnyCard, promise, elapsedTimeInSeconds);
+    }
+} catch (err) {
+    const bunnyCards = document.querySelectorAll('.bunny-card:nth-child(n+' + number + ')');
+    manipulateBunnyCards(bunnyCards, (bunny, bunnyMessage) =&gt; {
+        bunny.classList.add('hurt');
+        bunnyMessage.textContent = 'Promise was rejected: ' + err;
+    });
 }
-
-const slowFetch = new Promise(resolve =&gt; setTimeout(resolve, 5000, 'slow data'));
-
-withTimeout(slowFetch, 2000)
-    .then(val =&gt; console.log(val))
-    .catch(err =&gt; console.log(err.message));
-// Output (after 2s): "Timed out after 2000ms"
-
-// --- Promise.any: try multiple CDNs, use whichever responds first ---
-const cdn1 = new Promise((_, reject) =&gt; setTimeout(reject, 200, 'cdn1 down'));
-const cdn2 = new Promise(resolve     =&gt; setTimeout(resolve, 400, 'file from cdn2'));
-const cdn3 = new Promise(resolve     =&gt; setTimeout(resolve, 300, 'file from cdn3'));
-
-Promise.any([cdn1, cdn2, cdn3])
-    .then(file  =&gt; console.log('Got:', file))
-    .catch(err  =&gt; console.log('All CDNs failed:', err)); // AggregateError
-// Output (after 300ms): "Got: file from cdn3"
-// cdn1 rejected — ignored by .any. cdn3 fulfilled first among remaining.</pre></div>
+// Result: shows bunnies one by one at 1s, 2s, 5s -- then REJECTS at 10s
+// Unlike Promise.all which runs all at once, this is sequential</pre></div>
 
 <h2 class="g-h2">5. async/await</h2>
 <p><code>async/await</code> is syntactic sugar over Promises. Every <code>async</code> function returns a Promise.</p>

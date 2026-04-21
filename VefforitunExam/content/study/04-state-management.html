@@ -84,63 +84,53 @@
   </tbody>
 </table></div>
 
-<h3 class="g-h3">Full Code Example — Theme Context</h3>
-<div class="cb"><pre>// 1. Create the context
-import { createContext, useContext, useState } from 'react';
+<h3 class="g-h3">Full Code Example — Cart Context (teacher's actual code)</h3>
+<div class="cb"><pre>// Source: workshops/w5/context/cart-context.tsx
+"use client";
 
-type Theme = 'light' | 'dark';
+import { createContext, useContext, useState } from "react";
+import { Product } from "@/data/products";
 
-type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () =&gt; void;
+// 1. Define the context type
+type CartContextType = {
+  cart: Product[];
+  addItem: (item: Product) =&gt; void;
+  removeItem: (id: number) =&gt; void;
 };
 
-// Pass null as default — means "no Provider above this component"
-const ThemeContext = createContext&lt;ThemeContextType | null&gt;(null);
+// 2. Create context with null default — means "no Provider above"
+const CartContext = createContext&lt;CartContextType | null&gt;(null);
 
-// 2. Create a Provider component (best practice: wrap in its own component)
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState&lt;Theme&gt;('light');
+// 3. Provider component — wraps children, manages state
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [cart, setCart] = useState&lt;Product[]&gt;([]);
 
-  function toggleTheme() {
-    setTheme((prev) =&gt; (prev === 'light' ? 'dark' : 'light'));
+  function addItem(item: Product) {
+    setCart((prev) =&gt; [...prev, item]);
+  }
+
+  function removeItem(id: number) {
+    setCart((prev) =&gt; prev.filter((p) =&gt; p.id !== id));
   }
 
   return (
-    &lt;ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
+    &lt;CartContext.Provider value={{ cart, addItem, removeItem }}&gt;
       {children}
-    &lt;/ThemeContext.Provider&gt;
+    &lt;/CartContext.Provider&gt;
   );
 }
 
-// 3. Custom hook — encapsulates the null check (teacher's pattern)
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+// 4. Custom hook — encapsulates the null check (teacher's pattern)
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
-}
-
-// 4. Consume via the custom hook
-export function ThemeButton() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    &lt;button onClick={toggleTheme}&gt;
-      Current theme: {theme}
-    &lt;/button&gt;
-  );
-}
-
-// 5. Wrap your app (e.g. in layout.tsx or providers.tsx)
-export default function App() {
-  return (
-    &lt;ThemeProvider&gt;
-      &lt;ThemeButton /&gt;
-    &lt;/ThemeProvider&gt;
-  );
 }</pre></div>
 
-<h3 class="g-h3">Auth Context Example (common exam pattern)</h3>
-<div class="cb"><pre>interface User { id: string; name: string; email: string; }
+<h3 class="g-h3">Auth Context Example (common exam pattern — follows teacher's cart-context structure)</h3>
+<div class="cb"><pre>// Follows exact same pattern as workshops/w5/context/cart-context.tsx
+// but adapted for authentication (common exam scenario)
+interface User { id: string; name: string; email: string; }
 
 interface AuthContextType {
   user: User | null;
@@ -166,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Custom hook (best practice — avoids checking for null everywhere)
+// Custom hook (same guard pattern as useCart in cart-context.tsx)
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
@@ -421,9 +411,9 @@ return {
   <li>Adds Redux Thunk middleware by default</li>
   <li>Enables Redux DevTools Extension</li>
 </ol>
-<div class="cb"><pre>// store/store.ts  (teacher's workshop w5 pattern)
-import { configureStore } from '@reduxjs/toolkit';
-import cartReducer from './cart-slice';
+<div class="cb"><pre>// Source: workshops/w5/store/store.ts (teacher's w5 workshop — simple version)
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cart-slice";
 
 export const store = configureStore({
   reducer: {
@@ -431,15 +421,23 @@ export const store = configureStore({
   },
 });
 
-// Export types for use throughout the app
 export type RootState = ReturnType&lt;typeof store.getState&gt;;
 export type AppDispatch = typeof store.dispatch;
 
-// --- RTK Query variant (teacher's rtk-demonstration) ---
-// When using RTK Query, add the API reducer and middleware:
-// import { pokemonApi } from '../services/pokemon-service';
-// reducer: { [pokemonApi.reducerPath]: pokemonApi.reducer }
-// middleware: (getDefaultMiddleware) =&gt; getDefaultMiddleware().concat(pokemonApi.middleware)</pre></div>
+// --- Source: Redux/rtk-demonstration/src/redux/store.ts (with RTK Query) ---
+// import counterReducer from "./features/counter/counter-slice";
+// import userReducer from "./features/user/user-slice";
+// import { pokemonApi } from "../services/pokemon-service";
+//
+// export const store = configureStore({
+//   reducer: {
+//     counter: counterReducer,
+//     user: userReducer,
+//     [pokemonApi.reducerPath]: pokemonApi.reducer,
+//   },
+//   middleware: (getDefaultMiddleware) =&gt;
+//     getDefaultMiddleware().concat(pokemonApi.middleware),
+// });</pre></div>
 
 <p><strong>What configureStore replaces (Redux Core boilerplate):</strong></p>
 <div class="tw"><table>
@@ -519,10 +517,10 @@ export type AppDispatch = typeof store.dispatch;
   </svg>
   <figcaption>createSlice composes initialState, reducers, and optional extraReducers into a single slice object that exports both ready-to-use action creators and a reducer function.</figcaption>
 </figure>
-<div class="cb"><pre>// store/features/counter/counter-slice.ts  (teacher's naming convention)
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+<div class="cb"><pre>// Source: workshops/w5/store/cart-slice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Product } from "@/data/products";
 
-// Teacher uses a typed interface for slice state
 type CartState = {
   cart: Product[];
 };
@@ -531,12 +529,10 @@ const initialState: CartState = {
   cart: [],
 };
 
-// Teacher's createSlice — name matches the reducer key in configureStore
 const cartSlice = createSlice({
-  name: 'cart',                  // action type prefix: 'cart/addItem', 'cart/removeItem'
+  name: "cart",                  // action type prefix: 'cart/addItem', 'cart/removeItem'
   initialState,
   reducers: {
-    // Method shorthand (no arrow) — teacher's preferred style in w5 workshop
     addItem(state, action: PayloadAction&lt;Product&gt;) {
       state.cart.push(action.payload); // Looks like mutation — Immer makes it safe!
     },
@@ -546,22 +542,54 @@ const cartSlice = createSlice({
   },
 });
 
-// Auto-generated action creators — destructured from slice.actions
 export const { addItem, removeItem } = cartSlice.actions;
+export default cartSlice.reducer;</pre></div>
 
-// Default export is the reducer — added to configureStore
-export default cartSlice.reducer;
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/redux/features/counter/counter-slice.ts
+import { createSlice } from "@reduxjs/toolkit";
 
-// --- Counter variant (teacher's rtk-demonstration counter-slice.ts) ---
-// const counterSlice = createSlice({
-//   name: 'counter',
-//   initialState: { value: 0 },
-//   reducers: {
-//     increment: (state) =&gt; { state.value += 1; },
-//   },
-// });
-// export const { increment } = counterSlice.actions;
-// export default counterSlice.reducer;</pre></div>
+const initialState = {
+  value: 0,
+};
+
+export const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) =&gt; {
+      state.value += 1;
+    },
+  },
+});
+
+// Action creators are generated for each case reducer function
+export const { increment } = counterSlice.actions;
+export default counterSlice.reducer;</pre></div>
+
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/redux/features/user/user-slice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "../../../types/user";
+
+interface UserSliceState {
+  user: Partial&lt;User&gt;;
+}
+
+const initialState: UserSliceState = {
+  user: {},
+};
+
+export const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    changeUser: (state, action: PayloadAction&lt;User&gt;) =&gt; {
+      state.user = action.payload;
+    },
+  },
+});
+
+export const { changeUser } = userSlice.actions;
+export default userSlice.reducer;</pre></div>
 
 <p><strong>Key fact about createSlice from the slides:</strong><br>
 "createSlice allows you to create reducers that use the Immer library, which allows you to write immutable code using 'mutating' syntax. It also generates action creators for all reducer functions."</p>
@@ -839,42 +867,38 @@ const fetchUsers = createAsyncThunk('users/fetchAll', async () =&gt; {
 </ul>
 
 <p><strong>Setup — createApi:</strong></p>
-<div class="cb"><pre>// services/pokemon-service.ts  (teacher's rtk-demonstration — no tagTypes/mutations shown)
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { PokemonListItem } from '../types/pokemon-list-item';
-import { Pokemon } from '../types/pokemon';
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/services/pokemon-service.ts
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { PokemonListItem } from "../types/pokemon-list-item";
+import { Pokemon } from "../types/pokemon";
 
 export const pokemonApi = createApi({
-  reducerPath: 'pokemonApi',                            // key in the Redux store
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
+  reducerPath: "pokemonApi",                             // key in the Redux store
+  baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2/" }),
   endpoints: (builder) =&gt; ({
-    // QUERY — for fetching data (GET)
     getPokemonByName: builder.query&lt;Pokemon, string&gt;({
       query: (name: string) =&gt; `pokemon/${name}`,
       transformResponse: (response: any) =&gt; ({
         ...response,
-        image: response.sprites['front_default'],       // teacher transforms here
+        image: response.sprites["front_default"],
       }),
     }),
     getPokemons: builder.query&lt;PokemonListItem[], void&gt;({
-      query: () =&gt; 'pokemon',
+      query: () =&gt; "pokemon",
       transformResponse: (response: any) =&gt; response.results,
     }),
   }),
 });
 
 // Auto-generated hooks — named use[EndpointName]Query
-export const { useGetPokemonByNameQuery, useGetPokemonsQuery } = pokemonApi;
-
-// Note: RTK Query is NOT mandatory — the teacher's w5 workshop uses plain thunk + fetch.
-// Use RTK Query when you want automatic caching, polling, and refetching built in.</pre></div>
+export const { useGetPokemonByNameQuery, useGetPokemonsQuery } = pokemonApi;</pre></div>
 
 <p><strong>Add to store:</strong></p>
-<div class="cb"><pre>// Teacher's exact store.ts from rtk-demonstration — adds pokemonApi alongside regular slices
-import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from './features/counter/counter-slice';
-import userReducer from './features/user/user-slice';
-import { pokemonApi } from '../services/pokemon-service';
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/redux/store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./features/counter/counter-slice";
+import userReducer from "./features/user/user-slice";
+import { pokemonApi } from "../services/pokemon-service";
 
 export const store = configureStore({
   reducer: {
@@ -891,63 +915,164 @@ export type AppDispatch = typeof store.dispatch;</pre></div>
 
 <p>The middleware <strong>must</strong> be added to enable caching, invalidation, polling, and other RTK Query features. Without it, RTK Query does not work properly.</p>
 
-<p><strong>Using generated hooks in components:</strong></p>
-<div class="cb"><pre>// components using the auto-generated hooks
-function PokemonList() {
-  // The hook automatically fetches on mount and manages loading/error state
-  const { data: pokemons, isLoading, isError } = useGetPokemonsQuery();
+<p><strong>Using generated hooks in components (teacher's actual code):</strong></p>
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/views/pokemons-view/pokemons-view.tsx
+import { useNavigate } from "react-router-dom";
+import { useGetPokemonsQuery } from "../../services/pokemon-service";
 
-  if (isLoading) return &lt;p&gt;Loading...&lt;/p&gt;;
-  if (isError) return &lt;p&gt;Error loading pokemon&lt;/p&gt;;
+export function PokemonsView() {
+  const navigate = useNavigate();
+  const { data: pokemons, isLoading, isError, error } = useGetPokemonsQuery();
 
   return (
-    &lt;ul&gt;
-      {pokemons?.map((p) =&gt; (
-        &lt;li key={p.name}&gt;{p.name}&lt;/li&gt;
-      ))}
-    &lt;/ul&gt;
+    &lt;Box&gt;
+      {isLoading ? (
+        &lt;Stack&gt;
+          &lt;Skeleton height="20px" /&gt;
+          &lt;Skeleton height="20px" /&gt;
+        &lt;/Stack&gt;
+      ) : isError ? (
+        &lt;Alert status="error"&gt;
+          &lt;AlertTitle&gt;Failed to load Pokemons&lt;/AlertTitle&gt;
+          &lt;AlertDescription&gt;
+            {"error" in error ? error.error : ""}
+          &lt;/AlertDescription&gt;
+        &lt;/Alert&gt;
+      ) : (
+        &lt;List spacing={3}&gt;
+          {pokemons?.map((p) =&gt; (
+            &lt;ListItem key={p.name} onClick={() =&gt; navigate(`/pokemons/${p.name}`)}&gt;
+              {_.capitalize(p.name)}
+            &lt;/ListItem&gt;
+          ))}
+        &lt;/List&gt;
+      )}
+    &lt;/Box&gt;
   );
-}
+}</pre></div>
 
-function PokemonDetail({ name }: { name: string }) {
-  const { data: pokemon } = useGetPokemonByNameQuery(name);
-  return &lt;div&gt;{pokemon?.name}&lt;/div&gt;;
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/views/pokemon-details-view/pokemon-details-view.tsx
+import { useParams } from "react-router-dom";
+import { useGetPokemonByNameQuery } from "../../services/pokemon-service";
+
+export function PokemonDetailsView() {
+  const { pokemonName } = useParams();
+  const { data: selectedPokemon, isLoading, isError, error } =
+    useGetPokemonByNameQuery(pokemonName as string);
+
+  return isLoading ? (
+    &lt;Box padding="6"&gt;
+      &lt;SkeletonCircle size="10" /&gt;
+      &lt;SkeletonText mt="4" noOfLines={4} spacing="4" /&gt;
+    &lt;/Box&gt;
+  ) : isError ? (
+    &lt;Alert status="error"&gt;
+      &lt;AlertTitle&gt;Failed to load Pokemon&lt;/AlertTitle&gt;
+      &lt;AlertDescription&gt;{"error" in error ? error.error : ""}&lt;/AlertDescription&gt;
+    &lt;/Alert&gt;
+  ) : (
+    &lt;Card&gt;
+      &lt;CardHeader&gt;
+        &lt;Heading size="md"&gt;{_.capitalize(selectedPokemon?.name)}&lt;/Heading&gt;
+      &lt;/CardHeader&gt;
+      &lt;CardBody&gt;
+        &lt;Image src={selectedPokemon?.image} alt={`Image of ${selectedPokemon?.name}`} /&gt;
+        &lt;Text&gt;Height: {selectedPokemon?.height}&lt;/Text&gt;
+        &lt;Text&gt;Weight: {selectedPokemon?.weight}&lt;/Text&gt;
+      &lt;/CardBody&gt;
+    &lt;/Card&gt;
+  );
 }</pre></div>
 
 <h3 class="g-h3">3.6 useSelector and useDispatch</h3>
-<div class="cb"><pre>'use client';
-
-import { useSelector, useDispatch } from 'react-redux';
-// Import RootState and AppDispatch from the store (teacher's pattern — no separate hooks file)
-import { RootState, AppDispatch } from '@/store/store';
-import { increment } from '@/store/features/counter/counter-slice'; // kebab-case filenames
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/components/counter/counter.tsx
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { increment } from "../../redux/features/counter/counter-slice";
 
 export function Counter() {
   // useSelector: reads a slice of state. Re-renders only when that value changes.
   const counter = useSelector((state: RootState) =&gt; state.counter.value);
 
-  // useDispatch typed with AppDispatch — teacher imports it directly from the store
+  // useDispatch typed with AppDispatch
   const dispatch = useDispatch&lt;AppDispatch&gt;();
 
   return (
-    &lt;div&gt;
-      &lt;p&gt;Current counter: {counter}&lt;/p&gt;
-      &lt;button onClick={() =&gt; dispatch(increment())}&gt;Increase&lt;/button&gt;
+    &lt;Box&gt;
+      &lt;Heading&gt;Current counter: {counter}&lt;/Heading&gt;
+      &lt;Button onClick={() =&gt; dispatch(increment())}&gt;Increase&lt;/Button&gt;
+    &lt;/Box&gt;
+  );
+}</pre></div>
+
+<div class="cb"><pre>// Source: workshops/w5/components/cart.tsx  (useSelector + useDispatch with cart)
+"use client";
+
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { removeItem } from "@/store/cart-slice";
+
+export default function Cart() {
+  const dispatch = useDispatch&lt;AppDispatch&gt;();
+  const cart = useSelector((state: RootState) =&gt; state.cart.cart);
+  const total = cart.reduce((sum, p) =&gt; sum + p.price, 0);
+
+  return (
+    &lt;div className="border p-4 flex flex-col gap-2"&gt;
+      &lt;h2 className="font-semibold"&gt;Cart&lt;/h2&gt;
+      {cart.length === 0 &amp;&amp; &lt;p className="text-sm text-gray-500"&gt;Empty&lt;/p&gt;}
+      {cart.map((p) =&gt; (
+        &lt;div key={p.id} className="flex justify-between items-center"&gt;
+          &lt;span&gt;{p.name}&lt;/span&gt;
+          &lt;button onClick={() =&gt; dispatch(removeItem(p.id))}&gt;Remove&lt;/button&gt;
+        &lt;/div&gt;
+      ))}
+      &lt;div className="border-t pt-2 text-sm"&gt;Total: ${total.toFixed(2)}&lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</pre></div>
+
+<div class="cb"><pre>// Source: workshops/w5/components/product-card.tsx  (useSelector for derived check)
+"use client";
+
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { addItem } from "@/store/cart-slice";
+import { Product } from "@/data/products";
+
+export default function ProductCard({ product }: { product: Product }) {
+  const dispatch = useDispatch&lt;AppDispatch&gt;();
+  const inCart = useSelector((state: RootState) =&gt;
+    state.cart.cart.some((p) =&gt; p.id === product.id)
+  );
+
+  return (
+    &lt;div className="border p-4 flex flex-col gap-2"&gt;
+      &lt;span&gt;{product.name}&lt;/span&gt;
+      &lt;span&gt;${product.price.toFixed(2)}&lt;/span&gt;
+      &lt;button
+        onClick={() =&gt; dispatch(addItem(product))}
+        disabled={inCart}
+        className="border px-3 py-1 disabled:opacity-40"
+      &gt;
+        Add to Cart
+      &lt;/button&gt;
     &lt;/div&gt;
   );
 }</pre></div>
 
 <p><strong>Setting up the Redux Provider</strong> (required — wraps the app):</p>
-<div class="cb"><pre>// app/providers.tsx  (teacher's pattern — keeps 'use client' out of layout.tsx)
-'use client';
+<div class="cb"><pre>// Source: workshops/w5/app/providers.tsx
+"use client";
 
-import { Provider } from 'react-redux';
-import { store } from '@/store/store';
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+import { CartProvider } from "@/context/cart-context";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     &lt;Provider store={store}&gt;
-      {children}
+      &lt;CartProvider&gt;{children}&lt;/CartProvider&gt;
     &lt;/Provider&gt;
   );
 }
@@ -955,6 +1080,20 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 // Then in app/layout.tsx (server component):
 // import Providers from './providers';
 // &lt;Providers&gt;{children}&lt;/Providers&gt;</pre></div>
+
+<div class="cb"><pre>// Source: Redux/rtk-demonstration/src/index.tsx  (CRA version)
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+
+root.render(
+  &lt;React.StrictMode&gt;
+    &lt;Provider store={store}&gt;
+      &lt;ChakraProvider&gt;
+        &lt;RouterProvider router={router} /&gt;
+      &lt;/ChakraProvider&gt;
+    &lt;/Provider&gt;
+  &lt;/React.StrictMode&gt;
+);</pre></div>
 
 <h3 class="g-h3">3.7 Debugging — Redux DevTools</h3>
 <p>Redux provides the best-in-class debugging experience:</p>
@@ -1103,12 +1242,11 @@ const names = useCartStore(
 
 <h3 class="g-h3">4.4 Persist Middleware</h3>
 <p>Automatically saves store state to a storage backend (localStorage by default) and rehydrates on page load.</p>
-<div class="cb"><pre>// store/cart-store.ts  (teacher's w5 workshop pattern)
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { Product } from '@/data/products';
+<div class="cb"><pre>// Source: workshops/w5/store/cart-store.ts
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { Product } from "@/data/products";
 
-// Separate State and Action types — teacher's preferred style
 type State = {
   cart: Product[];
 };
@@ -1127,8 +1265,8 @@ export const useCartStore = create&lt;State &amp; Action&gt;()(
         set((state) =&gt; ({ cart: state.cart.filter((p) =&gt; p.id !== id) })),
     }),
     {
-      name: 'cart-storage',                              // key in localStorage (must be unique)
-      storage: createJSONStorage(() =&gt; localStorage),   // explicit localStorage — teacher's choice
+      name: "cart-storage",                              // key in localStorage (must be unique)
+      storage: createJSONStorage(() =&gt; localStorage),   // explicit localStorage
     }
   )
 );</pre></div>
@@ -1486,10 +1624,10 @@ D) Event sourcing with automatic state snapshots</p>
 </table></div>
 
 <p><strong>b) Implementation — Zustand (best choice for this case):</strong></p>
-<div class="cb"><pre>// store/cart-store.ts
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { Product } from '@/data/products';
+<div class="cb"><pre>// Source: workshops/w5/store/cart-store.ts
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { Product } from "@/data/products";
 
 type State = {
   cart: Product[];
@@ -1582,29 +1720,34 @@ function CartPage() {
 <h2 class="g-h2">8. Quick-Reference Cheat Sheet</h2>
 
 <h3 class="g-h3">Context API</h3>
-<div class="cb"><pre>// Teacher's pattern: null default + custom hook with guard
-const MyCtx = createContext&lt;MyContextType | null&gt;(null); // 1. Create (null = no Provider above)
+<div class="cb"><pre>// Source: workshops/w5/context/cart-context.tsx — teacher's pattern:
+// null default + custom hook with guard
+const CartContext = createContext&lt;CartContextType | null&gt;(null);
 
-export function MyProvider({ children }: { children: React.ReactNode }) {
-  return &lt;MyCtx.Provider value={{ ...state }}&gt;{children}&lt;/MyCtx.Provider&gt;; // 2. Provide
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [cart, setCart] = useState&lt;Product[]&gt;([]);
+  function addItem(item: Product) { setCart((prev) =&gt; [...prev, item]); }
+  function removeItem(id: number) { setCart((prev) =&gt; prev.filter((p) =&gt; p.id !== id)); }
+  return &lt;CartContext.Provider value={{ cart, addItem, removeItem }}&gt;{children}&lt;/CartContext.Provider&gt;;
 }
 
-export function useMyCtx() {
-  const ctx = useContext(MyCtx);
-  if (!ctx) throw new Error('useMyCtx must be used within MyProvider');
-  return ctx;                                          // 3. Consume via custom hook
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
 }</pre></div>
 <p><strong>Remember:</strong> All consumers re-render when value changes. Use for: theme, auth, locale.</p>
 
 <h3 class="g-h3">Redux Toolkit — Full Setup</h3>
-<div class="cb"><pre>// 1. Create slice — store/cart-slice.ts (teacher's kebab-case naming)
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+<div class="cb"><pre>// 1. Source: workshops/w5/store/cart-slice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Product } from "@/data/products";
 
 type CartState = { cart: Product[] };
 const initialState: CartState = { cart: [] };
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
     addItem(state, action: PayloadAction&lt;Product&gt;) {
@@ -1618,24 +1761,25 @@ const cartSlice = createSlice({
 export const { addItem, removeItem } = cartSlice.actions;
 export default cartSlice.reducer;
 
-// 2. Create store — store/store.ts
-import { configureStore } from '@reduxjs/toolkit';
-import cartReducer from './cart-slice';
+// 2. Source: workshops/w5/store/store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cart-slice";
 
 export const store = configureStore({ reducer: { cart: cartReducer } });
 export type RootState = ReturnType&lt;typeof store.getState&gt;;
 export type AppDispatch = typeof store.dispatch;
 
-// 3. Wrap app — app/providers.tsx
-'use client';
-import { Provider } from 'react-redux';
-import { store } from '@/store/store';
+// 3. Source: workshops/w5/app/providers.tsx
+"use client";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+import { CartProvider } from "@/context/cart-context";
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return &lt;Provider store={store}&gt;{children}&lt;/Provider&gt;;
+  return &lt;Provider store={store}&gt;&lt;CartProvider&gt;{children}&lt;/CartProvider&gt;&lt;/Provider&gt;;
 }
 
-// 4. Use in components — typed useSelector / useDispatch inline
-const cart = useSelector((s: RootState) =&gt; s.cart.cart);
+// 4. Source: workshops/w5/components/cart.tsx — typed useSelector / useDispatch
+const cart = useSelector((state: RootState) =&gt; state.cart.cart);
 const dispatch = useDispatch&lt;AppDispatch&gt;();
 dispatch(addItem(product));</pre></div>
 
@@ -1663,31 +1807,41 @@ extraReducers: (builder) =&gt; {
 dispatch(fetchData('user-123'));</pre></div>
 
 <h3 class="g-h3">RTK Query Setup</h3>
-<div class="cb"><pre>// 1. Define API
-const api = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+<div class="cb"><pre>// 1. Source: Redux/rtk-demonstration/src/services/pokemon-service.ts
+export const pokemonApi = createApi({
+  reducerPath: "pokemonApi",
+  baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2/" }),
   endpoints: (builder) =&gt; ({
-    getItems: builder.query&lt;Item[], void&gt;({ query: () =&gt; '/items' }),
-    addItem: builder.mutation&lt;Item, Partial&lt;Item&gt;&gt;({
-      query: (body) =&gt; ({ url: '/items', method: 'POST', body }),
+    getPokemonByName: builder.query&lt;Pokemon, string&gt;({
+      query: (name: string) =&gt; `pokemon/${name}`,
+      transformResponse: (response: any) =&gt; ({
+        ...response, image: response.sprites["front_default"],
+      }),
+    }),
+    getPokemons: builder.query&lt;PokemonListItem[], void&gt;({
+      query: () =&gt; "pokemon",
+      transformResponse: (response: any) =&gt; response.results,
     }),
   }),
 });
-export const { useGetItemsQuery, useAddItemMutation } = api;
+export const { useGetPokemonByNameQuery, useGetPokemonsQuery } = pokemonApi;
 
-// 2. Add to store (BOTH reducer AND middleware required)
+// 2. Source: Redux/rtk-demonstration/src/redux/store.ts  (BOTH reducer AND middleware)
 configureStore({
-  reducer: { [api.reducerPath]: api.reducer },
-  middleware: (get) =&gt; get().concat(api.middleware),
+  reducer: {
+    counter: counterReducer,
+    user: userReducer,
+    [pokemonApi.reducerPath]: pokemonApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =&gt;
+    getDefaultMiddleware().concat(pokemonApi.middleware),
 });
 
-// 3. Use in component
-const { data, isLoading, isError } = useGetItemsQuery();
-const [addItem, { isLoading: isAdding }] = useAddItemMutation();</pre></div>
+// 3. Source: Redux/rtk-demonstration/src/views/pokemons-view/pokemons-view.tsx
+const { data: pokemons, isLoading, isError, error } = useGetPokemonsQuery();</pre></div>
 
 <h3 class="g-h3">Zustand Store</h3>
-<div class="cb"><pre>// Teacher's pattern: State + Action intersection, (set) only, createJSONStorage
+<div class="cb"><pre>// Source: workshops/w5/store/cart-store.ts
 type State = { cart: Product[] };
 type Action = {
   addItem: (item: Product) =&gt; void;

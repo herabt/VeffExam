@@ -420,6 +420,71 @@ function UserCard({ userId }: { userId: number }) {
   return &lt;p&gt;User: {name}&lt;/p&gt;;
 }</pre></div>
 
+<h4 class="g-h4">Teacher's example -- useState + useEffect with async fetch (Variant 2 in practice)</h4>
+<div class="cb"><pre>// Source: WebProgrammingIIRU/React/using-fetch/src/components/App/App.js
+import { useEffect } from "react";
+import {
+  getAllPetrolStations,
+  removePetrolStation,
+} from "../../services/petrolStationService";
+import { useState } from "react";
+import { PetrolStationContext } from "../../context/PetrolStationContext";
+import { NavigationBar } from "../NavigationBar";
+import { ListView } from "../ListView";
+
+export const App = () =&gt; {
+  const [petrolStations, setPetrolStations] = useState([]);
+
+  useEffect(() =&gt; {
+    async function getPetrolStations() {
+      const data = await getAllPetrolStations();
+      setPetrolStations(data);
+    }
+
+    getPetrolStations();
+  }, []); // empty array -- fetches ONCE on mount
+
+  return (
+    &lt;PetrolStationContext.Provider
+      value={{
+        petrolStations,
+        removePetrolStation: async (id) =&gt; {
+          await removePetrolStation(id);
+          setPetrolStations((petrolStations) =&gt;
+            petrolStations.filter((p) =&gt; p.id !== id)
+          );
+        },
+      }}
+    &gt;
+      &lt;NavigationBar /&gt;
+      &lt;div className="container"&gt;
+        &lt;h1&gt;Petrol stations&lt;/h1&gt;
+        &lt;div className="row"&gt;
+          &lt;div className="col"&gt;
+            &lt;ListView /&gt;
+          &lt;/div&gt;
+          &lt;div className="col"&gt;
+            &lt;ListView /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/PetrolStationContext.Provider&gt;
+  );
+};
+
+// Source: WebProgrammingIIRU/React/using-fetch/src/services/petrolStationService.js
+export const getAllPetrolStations = async () =&gt; {
+  const response = await fetch("https://apis.is/petrol");
+  const json = await response.json();
+
+  return json?.results.map((d) =&gt; ({
+    id: d.key,
+    name: `${d.company} - ${d.name}`,
+    fuelPrice: d.bensin95,
+    dieselPrice: d.diesel,
+  }));
+};</pre></div>
+
 <h3 class="g-h3">The three dependency array variants — KNOW ALL THREE</h3>
 <div class="tw"><table>
   <thead><tr><th>Variant</th><th>Behavior</th><th>When to use</th></tr></thead>
@@ -920,53 +985,108 @@ const ThemeContext = createContext&lt;ThemeContextType | null&gt;(null);</pre></
   );
 }</pre></div>
 
-<h4 class="g-h4">Example — complete self-contained runnable app with context</h4>
-<div class="cb"><pre>import { createContext, useContext, useState } from 'react';
+<h4 class="g-h4">Teacher's example 1 -- PetrolStation context (plain JS, React.createContext)</h4>
+<div class="cb"><pre>// Source: WebProgrammingIIRU/React/using-fetch/src/context/PetrolStationContext.js
+// 1. Create the context with default shape
+import React from "react";
 
-// 1. Create context with a meaningful default
-const ThemeContext = createContext&lt;{
-  theme: 'light' | 'dark';
-  toggle: () =&gt; void;
-} | null&gt;(null);
+export const PetrolStationContext = React.createContext({
+  petrolStations: [],
+  removePetrolStation: () =&gt; {},
+});
 
-// 2. Custom hook so consumers don't have to check for null
-function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be used inside ThemeProvider');
-  return ctx;
-}
+// Source: WebProgrammingIIRU/React/using-fetch/src/components/App/App.js
+// 2. Provide value in the root App component (see useEffect section above for full code)
+&lt;PetrolStationContext.Provider
+  value={{
+    petrolStations,
+    removePetrolStation: async (id) =&gt; {
+      await removePetrolStation(id);
+      setPetrolStations((prev) =&gt; prev.filter((p) =&gt; p.id !== id));
+    },
+  }}
+&gt;
+  {/* children */}
+&lt;/PetrolStationContext.Provider&gt;
 
-// 3. Provider component that owns the state
-function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState&lt;'light' | 'dark'&gt;('light');
-  console.log('ThemeProvider rendered, theme=', theme);
-  const toggle = () =&gt; setTheme(t =&gt; (t === 'light' ? 'dark' : 'light'));
+// Source: WebProgrammingIIRU/React/using-fetch/src/components/ListView/index.js
+// 3. Consume context with useContext
+import React, { useContext } from "react";
+import ListViewItem from "../ListViewItem";
+import { PetrolStationContext } from "../../context/PetrolStationContext";
+
+export const ListView = () =&gt; {
+  const context = useContext(PetrolStationContext);
+  return context.petrolStations.map((item) =&gt; (
+    &lt;ListViewItem key={item.id} {...item} /&gt;
+  ));
+};
+
+// Source: WebProgrammingIIRU/React/using-fetch/src/components/ListViewItem/index.js
+// 4. Nested consumer uses both props and context
+import React, { useContext } from "react";
+import { PetrolStationContext } from "../../context/PetrolStationContext";
+
+export const ListViewItem = (props) =&gt; {
+  const { id, name, fuelPrice, dieselPrice } = props;
+  const { removePetrolStation } = useContext(PetrolStationContext);
   return (
-    &lt;ThemeContext.Provider value={{ theme, toggle }}&gt;
+    &lt;div className="card text-white bg-secondary mb-3"&gt;
+      &lt;div className="card-header"&gt;
+        {name}
+        &lt;i className="fa fa-2x fa-times"
+           onClick={() =&gt; removePetrolStation(id)}
+           style={{ float: "right" }} /&gt;
+      &lt;/div&gt;
+      &lt;div className="card-body"&gt;
+        &lt;h4 className="card-title"&gt;Prices of petrol&lt;/h4&gt;
+        &lt;div className="card-text"&gt;
+          &lt;div&gt;&lt;strong&gt;Fuel price:&lt;/strong&gt; &lt;span&gt;{fuelPrice} ISK&lt;/span&gt;&lt;/div&gt;
+          &lt;div&gt;&lt;strong&gt;Diesel price:&lt;/strong&gt; &lt;span&gt;{dieselPrice} ISK&lt;/span&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};</pre></div>
+
+<h4 class="g-h4">Teacher's example 2 -- Cart context with custom hook (TypeScript, Next.js)</h4>
+<div class="cb"><pre>// Source: WebProgrammingIIRU/workshops/w5/context/cart-context.tsx
+"use client";
+
+import { createContext, useContext, useState } from "react";
+import { Product } from "@/data/products";
+
+type CartContextType = {
+  cart: Product[];
+  addItem: (item: Product) =&gt; void;
+  removeItem: (id: number) =&gt; void;
+};
+
+const CartContext = createContext&lt;CartContextType | null&gt;(null);
+
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [cart, setCart] = useState&lt;Product[]&gt;([]);
+
+  function addItem(item: Product) {
+    setCart((prev) =&gt; [...prev, item]);
+  }
+
+  function removeItem(id: number) {
+    setCart((prev) =&gt; prev.filter((p) =&gt; p.id !== id));
+  }
+
+  return (
+    &lt;CartContext.Provider value={{ cart, addItem, removeItem }}&gt;
       {children}
-    &lt;/ThemeContext.Provider&gt;
+    &lt;/CartContext.Provider&gt;
   );
 }
 
-// 4. Any nested consumer — no prop drilling needed
-function Header() {
-  const { theme, toggle } = useTheme();
-  console.log('Header rendered, theme=', theme);
-  return (
-    &lt;header style={{ background: theme === 'dark' ? '#333' : '#fff' }}&gt;
-      &lt;button onClick={toggle}&gt;Switch to {theme === 'dark' ? 'light' : 'dark'}&lt;/button&gt;
-    &lt;/header&gt;
-  );
-}
-
-// 5. Root app wraps everything in the provider
-export default function App() {
-  return (
-    &lt;ThemeProvider&gt;
-      &lt;Header /&gt;
-      &lt;main&gt;Content here&lt;/main&gt;
-    &lt;/ThemeProvider&gt;
-  );
+// Custom hook -- consumers don't have to check for null
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
 }</pre></div>
 
 <h3 class="g-h3">Context API Limitations — EXAM IMPORTANT</h3>
@@ -1054,6 +1174,124 @@ function Counter() {
   <li>Components re-render with new state</li>
 </ul>
 <p>Redux is essentially a global <code>useReducer</code> with middleware and devtools.</p>
+
+<h4 class="g-h4">Teacher's example -- Redux Toolkit slice + store (from w5 workshop)</h4>
+<div class="cb"><pre>// Source: WebProgrammingIIRU/workshops/w5/store/cart-slice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Product } from "@/data/products";
+
+type CartState = {
+  cart: Product[];
+};
+
+const initialState: CartState = {
+  cart: [],
+};
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState,
+  reducers: {
+    addItem(state, action: PayloadAction&lt;Product&gt;) {
+      state.cart.push(action.payload); // Immer allows direct mutation
+    },
+    removeItem(state, action: PayloadAction&lt;number&gt;) {
+      state.cart = state.cart.filter((p) =&gt; p.id !== action.payload);
+    },
+  },
+});
+
+export const { addItem, removeItem } = cartSlice.actions;
+export default cartSlice.reducer;
+
+// Source: WebProgrammingIIRU/workshops/w5/store/store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cart-slice";
+
+export const store = configureStore({
+  reducer: {
+    cart: cartReducer,
+  },
+});
+
+export type RootState = ReturnType&lt;typeof store.getState&gt;;
+export type AppDispatch = typeof store.dispatch;
+
+// Source: WebProgrammingIIRU/workshops/w5/components/product-card.tsx
+// Consuming Redux state with useSelector + useDispatch
+"use client";
+
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { addItem } from "@/store/cart-slice";
+import { Product } from "@/data/products";
+
+export default function ProductCard({ product }: { product: Product }) {
+  const dispatch = useDispatch&lt;AppDispatch&gt;();
+  const inCart = useSelector((state: RootState) =&gt;
+    state.cart.cart.some((p) =&gt; p.id === product.id)
+  );
+
+  return (
+    &lt;div className="border p-4 flex flex-col gap-2"&gt;
+      &lt;span&gt;{product.name}&lt;/span&gt;
+      &lt;span&gt;${product.price.toFixed(2)}&lt;/span&gt;
+      &lt;button
+        onClick={() =&gt; dispatch(addItem(product))}
+        disabled={inCart}
+        className="border px-3 py-1 disabled:opacity-40"
+      &gt;
+        Add to Cart
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Source: WebProgrammingIIRU/workshops/w5/app/providers.tsx
+// Wrapping with Redux Provider (and CartProvider for context comparison)
+"use client";
+
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+import { CartProvider } from "@/context/cart-context";
+
+export default function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;Provider store={store}&gt;
+      &lt;CartProvider&gt;{children}&lt;/CartProvider&gt;
+    &lt;/Provider&gt;
+  );
+}</pre></div>
+
+<h4 class="g-h4">Teacher's example -- Zustand store (alternative to Redux, from w5 workshop)</h4>
+<div class="cb"><pre>// Source: WebProgrammingIIRU/workshops/w5/store/cart-store.ts
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { Product } from "@/data/products";
+
+type State = {
+  cart: Product[];
+};
+
+type Action = {
+  addItem: (item: Product) =&gt; void;
+  removeItem: (id: number) =&gt; void;
+};
+
+export const useCartStore = create&lt;State &amp; Action&gt;()(
+  persist(
+    (set) =&gt; ({
+      cart: [],
+      addItem: (item) =&gt; set((state) =&gt; ({ cart: [...state.cart, item] })),
+      removeItem: (id) =&gt;
+        set((state) =&gt; ({ cart: state.cart.filter((p) =&gt; p.id !== id) })),
+    }),
+    {
+      name: "cart-storage",
+      storage: createJSONStorage(() =&gt; localStorage),
+    }
+  )
+);</pre></div>
 
 <h2 class="g-h2" id="r12-usecallback">12. useCallback</h2>
 

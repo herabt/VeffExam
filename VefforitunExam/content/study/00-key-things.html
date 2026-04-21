@@ -1,0 +1,554 @@
+<h1 class="g-h2">Everything You Need to Know</h1>
+<p>Every topic explained — what it is, why it matters, how it works, and what to watch out for.</p>
+
+<hr>
+
+<h2 class="g-h2">1. Flexbox</h2>
+
+<p>Flexbox lays items out along <strong>one axis</strong> — either a row or a column. You set <code>display: flex</code> on a container and its <strong>direct children</strong> become flex items. Not grandchildren — only one level down.</p>
+
+<p>There are two axes. When <code>flex-direction: row</code> (the default), the main-axis runs horizontally and the cross-axis runs vertically. When <code>flex-direction: column</code>, they swap.</p>
+
+<p><code>justify-content</code> controls how items are spaced along the <strong>main-axis</strong>. Values: flex-start (default), center, flex-end, space-between, space-around.</p>
+
+<p><code>align-items</code> controls how items are positioned along the <strong>cross-axis</strong>. Default is <code>stretch</code> — items fill the full height. Other values: flex-start, center, flex-end, baseline.</p>
+
+<p><code>align-content</code> controls how <strong>flex lines</strong> (not items) are distributed. It only has any effect when <code>flex-wrap: wrap</code> is set and there are multiple lines. Without wrap, it does nothing.</p>
+
+<p><code>flex-grow</code> controls how items grow to fill remaining space. Default is 0 (don't grow). The remaining space is divided proportionally:</p>
+
+<div class="cb"><pre>Container: 750px. Three items: 100px each.
+flex-grow: 1, 1, 3 → total = 5
+
+Remaining: 750 - 300 = 450px
+1 unit = 450 / 5 = 90px
+
+Item 1: 100 + 90×1 = 190px
+Item 2: 100 + 90×1 = 190px
+Item 3: 100 + 90×3 = 370px</pre></div>
+
+<p><code>flex-shrink</code> is the opposite — when items overflow, they shrink proportionally. Default is 1. Set to 0 to prevent shrinking.</p>
+
+<p><code>flex-basis</code> sets the initial size before growing/shrinking. When both flex-basis and width are set, flex-basis wins.</p>
+
+<p><code>float</code>, <code>clear</code>, and <code>vertical-align</code> have NO effect on flex items.</p>
+
+<p><code>flex-flow</code> is shorthand for flex-direction + flex-wrap: <code>flex-flow: row wrap</code></p>
+
+<p><code>align-self</code> overrides align-items for a single item.</p>
+
+<p><code>order</code> changes the visual order of an item. Default: 0.</p>
+
+<p><code>flex</code> shorthand: <code>flex: 0 1 auto</code> is the default (grow shrink basis). <code>flex: 1</code> = <code>flex: 1 1 0%</code> — the item grows and shrinks equally.</p>
+
+<hr>
+
+<h2 class="g-h2">2. CSS Grid</h2>
+
+<p>Grid is a <strong>two-dimensional</strong> layout system — it handles rows AND columns at the same time. Flexbox is one-dimensional (row OR column). Use Grid for page-level layouts (header, sidebar, main, footer). Use Flexbox for component internals (cards, navbars).</p>
+
+<p><code>grid-template-areas</code> defines named regions:</p>
+<div class="cb"><pre>.page {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: 250px 1fr;
+}</pre></div>
+
+<p>The <code>fr</code> unit represents a fraction of the available space. <code>1fr 2fr</code> = first column gets 1/3, second gets 2/3.</p>
+
+<p><code>repeat(auto-fit, minmax(250px, 1fr))</code> creates a responsive grid without media queries — fits as many columns as possible.</p>
+
+<p>Grid terminology: a <strong>grid line</strong> is a dividing line (numbered from 1). A <strong>grid track</strong> is a full row or column. A <strong>grid cell</strong> is a single box. A <strong>grid area</strong> is a rectangular group of cells. All areas must be rectangular or the layout breaks.</p>
+
+<p><code>grid-column: 1 / 3</code> means "start at line 1, end at line 3" (spans 2 columns). <code>span 2</code> is shorthand for "span 2 tracks".</p>
+
+<p><code>grid-gap</code> (or <code>gap</code>) sets spacing between grid items.</p>
+
+<p>Grid items ignore <code>float</code>, <code>clear</code>, and <code>vertical-align</code> — same as flexbox.</p>
+
+<hr>
+
+<h2 class="g-h2">3. BEM</h2>
+
+<p>BEM is a CSS naming convention: <strong>Block__Element--Modifier</strong>.</p>
+
+<p>A <strong>Block</strong> is a standalone entity (e.g., <code>.card</code>). An <strong>Element</strong> is a part of a block, separated by double underscore (e.g., <code>.card__title</code>). A <strong>Modifier</strong> is a variation, separated by double dash (e.g., <code>.card__title--active</code>).</p>
+
+<p>Rules: lowercase letters, digits, and dashes only. No camelCase. No PascalCase. Blocks use class selectors only — no tag names, no IDs.</p>
+
+<hr>
+
+<h2 class="g-h2">4. CSS Variables</h2>
+
+<p>CSS Variables (custom properties) let you store reusable values. Define with <code>--</code> prefix, use with <code>var()</code>:</p>
+
+<div class="cb"><pre>/* From teacher's code: summer-vacation-css3/styles/base.css */
+:root {
+  --main-blue-color: #63B4D1;
+}
+.nav {
+  background-color: var(--main-blue-color);
+}</pre></div>
+
+<p>They are scoped — define on <code>:root</code> for global, or on a specific selector for local. They can be updated dynamically with JavaScript using <code>element.style.setProperty('--color', 'red')</code>. They cascade down to descendants.</p>
+
+<p>They do NOT replace CSS preprocessors like SASS entirely — preprocessors have mixins, nesting, and functions that CSS variables alone cannot do.</p>
+
+<hr>
+
+<h2 class="g-h2">5. Tailwind CSS</h2>
+
+<p>A utility-first CSS framework — instead of writing CSS classes in a separate file, you apply utility classes directly in your HTML: <code>bg-blue-500 text-white px-4 py-2 rounded</code>.</p>
+
+<p>How it works: scans your HTML/JS files for class names and generates only the styles you actually use. Benefits: no context-switching between files, no naming fatigue, delete a component and its styles disappear automatically.</p>
+
+<p>Modifiers use prefix + colon: <code>hover:bg-red-500</code>, <code>md:flex</code>, <code>dark:text-white</code>.</p>
+
+<hr>
+
+<h2 class="g-h2">6. Box Sizing</h2>
+
+<p><code>content-box</code> (default): width/height apply to content only. Padding and border are added on <strong>both sides</strong> on top of that. So width: 100px + padding: 10px×2 + border: 10px×2 = <strong>140px total</strong>.</p>
+
+<p><code>border-box</code>: padding and border are included inside the width. Total is always exactly what you set. Content area shrinks to make room. Width: 100px = <strong>100px total</strong>. Content becomes 60px.</p>
+
+<hr>
+
+<h2 class="g-h2">7. JavaScript <code>this</code></h2>
+
+<p><code>this</code> is determined by <strong>how the function is called</strong>, not where it's defined. There's one question to ask: "How was this function called?"</p>
+
+<table class="tw"><tbody>
+<tr><th>How called</th><th>this =</th><th>Why</th></tr>
+<tr><td><code>func()</code></td><td>window</td><td>No context — defaults to global</td></tr>
+<tr><td><code>new Func()</code></td><td>new object</td><td>new creates an object and binds this to it</td></tr>
+<tr><td><code>obj.func()</code></td><td>obj</td><td>Object before the dot</td></tr>
+<tr><td><code>.call(x)</code> / <code>.apply(x)</code></td><td>x</td><td>Explicitly set this. call = args individually, apply = args as array</td></tr>
+<tr><td><code>.bind(x)</code></td><td>x (permanent)</td><td>Returns new function. .call() CANNOT override bind()</td></tr>
+<tr><td><code>setTimeout(fn)</code></td><td>window</td><td>Callback is detached — loses context</td></tr>
+<tr><td>Arrow function</td><td>inherits from parent</td><td>No own this. Good inside setTimeout. Bad as object method.</td></tr>
+</tbody></table>
+
+<hr>
+
+<h2 class="g-h2">8. Prototypes &amp; Inheritance</h2>
+
+<p>JavaScript objects can inherit from other objects through the <strong>prototype chain</strong>. When you access a property, JS looks on the object first, then its prototype, then that prototype's prototype, up to <code>Object.prototype</code>.</p>
+
+<p>The teacher shows two ways to define methods:</p>
+
+<div class="cb"><pre>// Basic Constructor — each instance gets its OWN copy (wastes memory)
+function Car(model) {
+  this.model = model;
+  this.toString = function() { return this.model; };  // new function per instance
+}
+
+// Constructor With Prototypes — ONE shared function (memory efficient)
+function Car(model) {
+  this.model = model;
+}
+Car.prototype.toString = function() { return this.model; };  // shared by all</pre></div>
+
+<p>Inheritance pattern (from teacher's shapes.js):</p>
+
+<div class="cb"><pre>function Shape(position) { this.position = position; }
+Shape.prototype.render = function() {};
+
+function Rectangle(position, width, height) {
+    Shape.call(this, position);    // 1. Run parent's setup on this child
+    this.width = width;
+    this.height = height;
+}
+Rectangle.prototype = Object.create(Shape.prototype);  // 2. Link prototype chain
+Rectangle.prototype.constructor = Rectangle;            // 3. Fix constructor reference</pre></div>
+
+<p>Step 1 copies properties. Step 2 links methods. Step 3 is cleanup — without it, <code>Rectangle.prototype.constructor</code> would point to Shape instead of Rectangle.</p>
+
+<p><strong>Objects are mutable and passed by reference</strong> (from slides). <code>var a = obj</code> — both point to the SAME object. Changing <code>a.x</code> changes <code>obj.x</code>.</p>
+
+<p><strong>Property attributes</strong> (from slides): every property has <code>writable</code>, <code>enumerable</code>, <code>configurable</code>. All default to <code>true</code> for regular assignment, but <code>false</code> when using <code>Object.defineProperty()</code>. This is why built-in methods like toString don't show in for/in loops — they're non-enumerable.</p>
+
+<p><strong>Testing properties:</strong> <code>hasOwnProperty()</code> = own only (not inherited). <code>"prop" in obj</code> = own AND inherited. <code>o.hasOwnProperty("toString")</code> → false (inherited), but <code>"toString" in o</code> → true.</p>
+
+<p><strong>ES6 class</strong> is syntactic sugar over prototypes — same thing underneath. <code>extends</code> replaces <code>Object.create(Parent.prototype)</code>. <code>super()</code> replaces <code>Parent.call(this)</code>.</p>
+
+<hr>
+
+<h2 class="g-h2">9. Promises</h2>
+
+<p>A Promise represents a value that doesn't exist yet — it will either <strong>resolve</strong> (success) or <strong>reject</strong> (failure) in the future.</p>
+
+<p><code>.then()</code> runs on success. <code>.catch()</code> runs on failure. <code>.finally()</code> runs either way.</p>
+
+<p>The Promise constructor runs <strong>synchronously</strong>. Only the <code>.then()</code> callback is async (microtask).</p>
+
+<p><code>resolve()</code> does NOT stop the executor — code after it keeps running:</p>
+<div class="cb"><pre>new Promise((resolve) => {
+    console.log('A');     // runs immediately
+    resolve('B');         // marks as resolved, doesn't stop
+    console.log('C');     // still runs
+});
+// A, C print now. B goes to microtask queue.</pre></div>
+
+<table class="tw"><tbody>
+<tr><th>Method</th><th>Resolves when</th><th>Rejects when</th></tr>
+<tr><td>Promise.all()</td><td>ALL resolve</td><td>ANY one rejects (immediately)</td></tr>
+<tr><td>Promise.race()</td><td>First to SETTLE (resolve or reject)</td><td>First to SETTLE</td></tr>
+<tr><td>Promise.any()</td><td>First to RESOLVE</td><td>ALL reject (AggregateError)</td></tr>
+<tr><td>Promise.allSettled()</td><td>ALL settle (always)</td><td>Never rejects</td></tr>
+</tbody></table>
+
+<p><code>Promise.allSettled</code> returns: <code>{ status: 'fulfilled', value: ... }</code> or <code>{ status: 'rejected', reason: ... }</code>. Check <code>promise.status === 'fulfilled'</code> to tell them apart.</p>
+
+<p><strong>for await...of</strong> (from teacher's Visual Promises): processes promises ONE AT A TIME, in order. Each resolves before the next starts. If one rejects, the loop stops.</p>
+
+<hr>
+
+<h2 class="g-h2">10. Event Loop</h2>
+
+<p>JavaScript is single-threaded. The Event Loop is how it handles async operations without blocking.</p>
+
+<p>When an async operation (setTimeout, fetch) is called, the browser handles it via <strong>Web APIs</strong>. When it's done, the callback goes into a queue. The Event Loop checks: if the call stack is empty, process the queue.</p>
+
+<p><strong>Two queues, strict priority:</strong></p>
+<ol>
+<li>ALL <strong>microtasks</strong> first (Promise .then, queueMicrotask)</li>
+<li>Then ONE <strong>macrotask</strong> (setTimeout, setInterval)</li>
+<li>Back to step 1</li>
+</ol>
+
+<div class="cb"><pre>console.log('1');                          // sync → 1
+setTimeout(() => console.log('2'), 0);     // macrotask
+Promise.resolve().then(() => console.log('3')); // microtask
+console.log('4');                          // sync → 4
+// Output: 1, 4, 3, 2</pre></div>
+
+<p><strong>async/await:</strong> Syntactic sugar over Promises. Code before <code>await</code> runs synchronously. <code>await</code> pauses the function and returns control to the caller. Code after <code>await</code> runs as a microtask.</p>
+
+<p><strong>fetch API:</strong> <code>fetch()</code> returns a Promise. It resolves even on 404/500 — only rejects on network errors. You MUST check <code>response.ok</code>. And <code>response.json()</code> returns a Promise — you must <code>await</code> it.</p>
+
+<hr>
+
+<h2 class="g-h2">11. TypeScript</h2>
+
+<p>TypeScript adds types to JavaScript. It catches errors before you run the code. Types are stripped out during compilation — the output is plain JavaScript.</p>
+
+<p><strong>Type inference:</strong> TypeScript can guess types without you writing them: <code>let x = 3</code> → TypeScript knows x is a number.</p>
+
+<p><strong>Interfaces:</strong> Define a shape that objects must follow. <code>interface User { name: string; age: number; }</code></p>
+
+<p><strong>Union types:</strong> A value can be multiple types: <code>string | number</code> (pipe = "or")</p>
+
+<p><strong>Partial&lt;T&gt;</strong> makes all properties optional. <strong>Type assertion</strong> = <code>value as Type</code>. <strong>Nullable</strong> = <code>string | null</code>.</p>
+
+<p><strong>Structural typing:</strong> "Type checking focuses on the shape the values have" (from slides). If an object has the required properties, it satisfies the type — extra properties are OK.</p>
+
+<p><strong>Compilation — two things happen</strong> (from slides): (1) type annotations are stripped out, (2) modern syntax is "downleveled" to older JS (e.g., template literals become .concat()). Default target is ES3.</p>
+
+<p><strong>Errors don't stop output</strong> (from slides): "Although TypeScript generates errors, we still see an output in our generated .js files." TypeScript is built for gradual migration — you can adopt it one file at a time.</p>
+
+<p><strong>Generics</strong> (from slides): "provide variables to types." Example: <code>Array&lt;number&gt;</code> constrains an array to only contain numbers. Without generics, arrays could contain anything.</p>
+
+<p><strong>Duck typing</strong> (from slides): structural typing is "commonly referred to as duck typing" — if it has the right shape, it satisfies the type.</p>
+
+<p><strong>Strictness:</strong> <code>"strict": true</code> in tsconfig.json enables noImplicitAny, noImplicitThis, strictFunctionTypes, etc. You can opt out of individual checks.</p>
+
+<hr>
+
+<h2 class="g-h2">12. React</h2>
+
+<p>A <strong>component</strong> is a function that accepts props and returns JSX describing UI. Components should be: Single Responsibility, Pure/Predictable, Reusable &amp; Composable, Encapsulated.</p>
+
+<p><strong>useState</strong> — holds state. The setter triggers a re-render. Use functional updater <code>setCount(prev =&gt; prev + 1)</code> when new state depends on previous — this avoids stale closures.</p>
+
+<p><strong>useEffect</strong> — runs side effects after render.</p>
+<ul>
+<li><code>useEffect(fn, [])</code> — once on mount</li>
+<li><code>useEffect(fn, [x])</code> — mount + when x changes</li>
+<li><code>useEffect(fn)</code> — every render (usually a bug!)</li>
+<li>Return a cleanup function: <code>return () =&gt; clearInterval(id)</code> — runs before unmount and before re-run</li>
+</ul>
+
+<p><strong>Stale closure:</strong> Inside useEffect with <code>[]</code>, variables are captured at mount time. <code>setCount(count + 1)</code> always reads the initial value (0). Fix: <code>setCount(prev =&gt; prev + 1)</code>.</p>
+
+<p><strong>useRef</strong> — a mutable value that persists across renders but does NOT trigger re-renders. Good for: DOM refs, timer IDs, previous values. NOT for: triggering renders, sharing state between components.</p>
+
+<p><strong>useCallback</strong> — caches a function reference between re-renders. Prevents child components (wrapped in React.memo) from re-rendering unnecessarily.</p>
+
+<p><strong>useMemo</strong> — caches a computed value. Avoids expensive recalculations on every render. "By default React will re-run the entire body of your component every time it re-renders" (from slides).</p>
+
+<p><strong>Rules of Hooks:</strong> (1) Only call at the top level — never inside if/loops/nested functions. (2) Only from React function components or custom hooks.</p>
+
+<hr>
+
+<h2 class="g-h2">13. Context API</h2>
+
+<p>React's built-in way to share state without passing props through every level (solves <strong>prop drilling</strong>).</p>
+
+<p>Three steps: <code>createContext()</code> creates it, <code>Provider</code> wraps the tree and holds the value, <code>useContext()</code> reads it in any child.</p>
+
+<div class="cb"><pre>// Source: workshops/w5/context/cart-context.tsx
+const CartContext = createContext(null);
+
+export function CartProvider({ children }) {
+  const [cart, setCart] = useState([]);
+  function addItem(item) { setCart((prev) =&gt; [...prev, item]); }
+  function removeItem(id) { setCart((prev) =&gt; prev.filter((p) =&gt; p.id !== id)); }
+  return (
+    &lt;CartContext.Provider value={{ cart, addItem, removeItem }}&gt;
+      {children}
+    &lt;/CartContext.Provider&gt;
+  );
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+}</pre></div>
+
+<p><strong>Downside:</strong> When the context value changes, ALL consumers re-render — even if they only use part of the value. Bad for frequently changing state.</p>
+
+<p><strong>Next.js gotcha:</strong> Context providers use useState, so they MUST have <code>"use client"</code> at the top. A Context provider is always a Client Component.</p>
+
+<hr>
+
+<h2 class="g-h2">14. Zustand</h2>
+
+<p>A tiny state management library. No Provider needed. No boilerplate. The store IS a hook.</p>
+
+<div class="cb"><pre>// Source: workshops/w5/store/cart-store.ts
+export const useCartStore = create()(
+  persist(
+    (set) =&gt; ({
+      cart: [],
+      addItem: (item) =&gt; set((state) =&gt; ({ cart: [...state.cart, item] })),
+      removeItem: (id) =&gt; set((state) =&gt; ({
+        cart: state.cart.filter((p) =&gt; p.id !== id)
+      })),
+    }),
+    { name: "cart-storage", storage: createJSONStorage(() =&gt; localStorage) }
+  )
+);
+
+// Usage — anywhere, no Provider needed:
+const { cart, addItem } = useCartStore();</pre></div>
+
+<p><code>persist</code> middleware saves state to localStorage automatically. Three main middlewares: <code>persist</code>, <code>devtools</code>, <code>immer</code>.</p>
+
+<p><strong>Selectors prevent re-renders:</strong> Use <code>useCartStore((state) =&gt; state.cart)</code> to select specific values — NOT <code>const { cart, addItem } = useCartStore()</code> which re-renders on ANY change. For computed selectors that return new arrays, use <code>useShallow</code> for shallow comparison.</p>
+
+<p><strong>Zustand requires immutable updates</strong> (unlike Redux which has Immer). You must spread or create new references manually: <code>set((state) =&gt; ({ cart: [...state.cart, item] }))</code>.</p>
+
+<hr>
+
+<h2 class="g-h2">15. Redux Toolkit</h2>
+
+<p>State management with structure. The data flows in one direction: <strong>View → Action → dispatch() → Reducer → Store → View</strong>.</p>
+
+<p><strong>createSlice</strong> bundles a reducer + action creators. It uses <strong>Immer</strong> — you write code that looks like mutation (<code>state.cart.push(item)</code>) but Immer produces a new immutable state behind the scenes.</p>
+
+<div class="cb"><pre>// Source: workshops/w5/store/cart-slice.ts
+const cartSlice = createSlice({
+  name: "cart",
+  initialState: { cart: [] },
+  reducers: {
+    addItem(state, action) {
+      state.cart.push(action.payload);  // looks like mutation — Immer makes it safe
+    },
+    removeItem(state, action) {
+      state.cart = state.cart.filter((p) =&gt; p.id !== action.payload);
+    },
+  },
+});
+export const { addItem, removeItem } = cartSlice.actions;</pre></div>
+
+<p><strong>configureStore</strong> sets up the store — automatically combines reducers, adds Redux Thunk middleware, and enables DevTools.</p>
+
+<p><strong>4 concepts to know:</strong> Connected Components (linked via useSelector/useDispatch), Actions (plain objects: {type, payload}), Reducers (pure functions: (state, action) → newState), Dispatch (sends actions to the store).</p>
+
+<p><strong>TypeScript:</strong> Use <code>PayloadAction&lt;Product&gt;</code> to type action payloads. Export <code>RootState</code> and <code>AppDispatch</code> types from the store for typed hooks.</p>
+
+<p><strong>Provider pattern in Next.js:</strong> Redux needs <code>&lt;Provider store={store}&gt;</code> wrapping the app — this must be in a <code>"use client"</code> component. The teacher creates a separate <code>providers.tsx</code> file (from w5/app/providers.tsx).</p>
+
+<hr>
+
+<h2 class="g-h2">16. Choosing: Context vs Zustand vs Redux</h2>
+
+<table class="tw"><tbody>
+<tr><th></th><th>Context</th><th>Zustand</th><th>Redux</th></tr>
+<tr><td>Boilerplate</td><td>Low</td><td>Very low</td><td>Medium</td></tr>
+<tr><td>Provider?</td><td>Yes</td><td><strong>No</strong></td><td>Yes</td></tr>
+<tr><td>Re-render issue?</td><td><strong>Yes</strong></td><td>No</td><td>No</td></tr>
+<tr><td>Persistence?</td><td>Manual</td><td><strong>Built-in</strong></td><td>Manual</td></tr>
+<tr><td>DevTools?</td><td>None</td><td>Basic</td><td><strong>Excellent</strong></td></tr>
+</tbody></table>
+
+<p>Small app with rarely-changing state (theme, locale) → Context. Most apps → Zustand. Large team, complex state, need debugging → Redux.</p>
+
+<hr>
+
+<h2 class="g-h2">17. Next.js Routing</h2>
+
+<p>Next.js uses <strong>file-system routing</strong>: folders = URL segments. A <code>page.tsx</code> file makes a route publicly accessible.</p>
+
+<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, persists across navigation), <code>loading.tsx</code> (loading UI, wraps page in Suspense), <code>error.tsx</code> (error boundary, must be "use client"), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint — cannot coexist with page.tsx).</p>
+
+<p><strong>Component hierarchy:</strong> Layout → Template → Error → Loading → Page.</p>
+
+<p><strong>Dynamic routes:</strong> <code>[slug]</code> = one segment. <code>[...slug]</code> = catch-all (1+ segments). <code>[[...slug]]</code> = optional catch-all (0+). Route groups <code>(name)</code> organize without adding URL segments.</p>
+
+<p><strong>Prefetching:</strong> <code>&lt;Link&gt;</code> auto-prefetches routes when they enter the viewport. <code>&lt;a&gt;</code> does not.</p>
+
+<hr>
+
+<h2 class="g-h2">18. Server vs Client Components</h2>
+
+<p><strong>Server Component</strong> (default in App Router): runs on the server. No JavaScript sent to the browser. CAN: fetch data, access databases, read env vars. CANNOT: use hooks (useState, useEffect), handle events (onClick), use browser APIs.</p>
+
+<p><strong>Client Component</strong>: add <code>"use client"</code> at the top of the file. Runs in the browser. CAN: use hooks, handle events, access browser APIs. CANNOT: access databases or server resources directly.</p>
+
+<p>Server Components reduce the JavaScript bundle size. They can render Client Components as children. The boundary is the <code>"use client"</code> directive.</p>
+
+<hr>
+
+<h2 class="g-h2">19. Server Action vs API Route</h2>
+
+<p><strong>Server Action</strong> = an async function marked with <code>"use server"</code>. It runs on the server and can be called directly from a Client Component or form. Use for: form submissions, data mutations, revalidating data.</p>
+
+<p><strong>API Route</strong> = an HTTP endpoint defined in <code>route.ts</code>. Use when an external service needs to call your backend: Stripe webhooks, mobile apps, public REST APIs.</p>
+
+<p>The decision rule: <strong>Who calls it?</strong> Your React app → Server Action. External service → API Route.</p>
+
+<div class="cb"><pre>// Source: concert-arena/actions/booking.ts
+"use server";
+
+export async function submitBooking(data) {
+  const bookingRef = crypto.randomUUID();
+  return { success: true, bookingRef };
+}</pre></div>
+
+<hr>
+
+<h2 class="g-h2">20. react-hook-form</h2>
+
+<p>A form library that uses <strong>uncontrolled inputs</strong> — the form doesn't re-render the component on every keystroke. It only re-renders on validation events. This is its primary advantage over managing forms with useState.</p>
+
+<p>Key methods: <code>useForm()</code> initializes, <code>register("field")</code> connects an input, <code>handleSubmit(fn)</code> wraps the submit handler, <code>formState.errors</code> has the validation errors.</p>
+
+<p>Set <code>mode: "onChange"</code> to validate as the user types. Use <code>resolver: zodResolver(schema)</code> to integrate Zod for schema validation.</p>
+
+<p>Valid built-in rules: required, minLength, maxLength, pattern, validate. NOT valid: type, sanitize.</p>
+
+<p><strong>Why server-side validation is still needed:</strong> client validation can be bypassed entirely via curl, DevTools, or disabling JavaScript. The server must always re-validate.</p>
+
+<p><strong>Multi-step forms</strong> (from teacher's concert-arena): <code>FormProvider</code> goes in the layout.tsx (<code>"use client"</code>). Each step is a separate route page using <code>useFormContext()</code>. Use <code>trigger(["field1", "field2"])</code> to validate per-step before advancing. Use <code>getValues()</code> on the review page. Zod schemas are composed with <code>.merge()</code>.</p>
+
+<p><strong>Controller</strong> — for non-native inputs (MUI, custom components). <code>register()</code> only works with native HTML inputs. For custom UI: <code>&lt;Controller control={control} name="field" render={({ field }) =&gt; ...} /&gt;</code></p>
+
+<p><strong>Controlled vs Uncontrolled:</strong> Controlled = useState + onChange (re-renders every keystroke). Uncontrolled = refs (no re-render). react-hook-form uses uncontrolled — that's why it's fast.</p>
+
+<p><strong>Server Actions with forms</strong> (alternative to react-hook-form): Function signature is <code>(prevState, formData: FormData) =&gt; Promise</code>. Extract data with <code>formData.get("fieldName")</code>. Use with <code>useActionState</code> hook for pending state.</p>
+
+<hr>
+
+<h2 class="g-h2">21. DOM</h2>
+
+<p>The DOM is a tree. The highest node is the <strong>document</strong>. From any node you can access <code>parentNode</code>, <code>childNodes</code>, <code>nextSibling</code>, <code>previousSibling</code>.</p>
+
+<p><strong>children vs childNodes:</strong> <code>children</code> returns only elements. <code>childNodes</code> returns everything including text nodes (whitespace between tags). This is why <code>nextSibling</code> often returns a text node — use <code>nextElementSibling</code> to get the next element.</p>
+
+<p><strong>querySelectorAll()</strong> is the most powerful selector — accepts any CSS selector. Returns a static NodeList (snapshot). <code>getElementsByClassName()</code> returns a live HTMLCollection that updates when the DOM changes.</p>
+
+<p><strong>innerHTML</strong> renders HTML markup. <strong>textContent</strong> renders as plain text. From the slides: textContent "renderast ekki sem HTML heldur strengur".</p>
+
+<p><strong>Creating elements:</strong> <code>createElement()</code> creates, <code>appendChild()</code> adds to end, <code>insertBefore(new, ref)</code> adds before a reference node, <code>removeChild()</code> removes (called on parent), <code>replaceChild(new, old)</code> replaces.</p>
+
+<p><strong>Events:</strong> <code>addEventListener(event, handler)</code> attaches a handler. Events <strong>bubble</strong> up from the target to the root. <code>stopPropagation()</code> stops bubbling. <code>preventDefault()</code> prevents default behavior (form submit, link navigation).</p>
+
+<hr>
+
+<h2 class="g-h2">22. CSS3</h2>
+
+<p><strong>Gradients:</strong> <code>linear-gradient()</code> defaults to top→bottom. <code>radial-gradient()</code> radiates from center outward. Can stack multiple gradients (first = on top).</p>
+
+<p><strong>box-shadow:</strong> <code>offset-x offset-y blur-radius spread-radius color</code>. <code>inset</code> keyword puts the shadow inside. Multiple shadows (comma-separated) can replicate elements.</p>
+
+<p><strong>Transitions</strong> only activate when a property changes (e.g., on :hover). Shorthand: <code>transition: property duration timing-function delay</code>. <strong>Animations</strong> run independently via <code>@keyframes</code> — they don't need a trigger.</p>
+
+<p><strong>Transforms:</strong> rotate(), scale(), skew(), translate(). <code>transform-origin</code> defaults to 50% 50% (center). Multiple transforms are <strong>space-separated and ORDER MATTERS</strong> — rotate then translate is different from translate then rotate.</p>
+
+<p><strong>Perspective:</strong> CSS property on parent = shared vanishing point for all children. Transform value on element = each element gets its own vanishing point.</p>
+
+<p><strong>border-radius:</strong> 4 values = TL TR BR BL (clockwise). <code>50%</code> on a square = circle. Slash syntax: <code>20px / 100%</code> — horizontal radius / vertical radius (elliptical corners).</p>
+
+<p><strong>background-size:</strong> <code>cover</code> fills the container (may crop). <code>contain</code> fits inside (may leave gaps). Multiple backgrounds: first listed = on top.</p>
+
+<hr>
+
+<h2 class="g-h2">23. Selectors</h2>
+
+<p><strong>Attribute selectors:</strong> <code>[attr]</code> has it, <code>[attr="val"]</code> equals, <code>[attr^="val"]</code> begins with, <code>[attr$="val"]</code> ends with, <code>[attr*="val"]</code> contains, <code>[attr~="val"]</code> contains word.</p>
+
+<p><strong>:first-child</strong> = first child of parent. The element must BE the first child. <strong>:first-of-type</strong> = first of its type among siblings — finds the first &lt;p&gt; even if a &lt;div&gt; comes before it.</p>
+
+<p><strong>:nth-child(an+b)</strong> — <code>2n+1</code> = odd, <code>2n</code> = even, <code>3</code> = exactly the 3rd. Counts ALL children. <strong>:nth-of-type()</strong> counts only the same type. <strong>:not(selector)</strong> = negation — everything that does NOT match.</p>
+
+<p><strong>::before / ::after</strong> insert generated content. The <code>content</code> property is MANDATORY — without it, nothing renders. <strong>::first-line</strong> styles the first line. <strong>::first-letter</strong> styles the first letter (drop caps). <code>attr()</code> inserts an attribute value: <code>content: " (" attr(href) ") "</code>.</p>
+
+<p><strong>Combinators:</strong> <code>A B</code> = anywhere inside (descendant). <code>A &gt; B</code> = direct child only. <code>A + B</code> = immediately after (adjacent sibling). <code>A ~ B</code> = any sibling after (general sibling).</p>
+
+<hr>
+
+<h2 class="g-h2">24. Socket.io</h2>
+
+<p>Enables real-time, bidirectional communication between client and server. Unlike HTTP (request-response), Socket.io keeps a persistent connection open.</p>
+
+<table class="tw"><tbody>
+<tr><th>Method</th><th>Who receives</th></tr>
+<tr><td><code>io.emit()</code></td><td>ALL clients</td></tr>
+<tr><td><code>socket.emit()</code></td><td>Server: back to sender. Client: to server.</td></tr>
+<tr><td><code>socket.broadcast.emit()</code></td><td>ALL EXCEPT sender</td></tr>
+<tr><td><code>io.to(room).emit()</code></td><td>All in that room</td></tr>
+</tbody></table>
+
+<p><strong>Rooms:</strong> <code>socket.join(roomId)</code> adds a socket to a room. Used for chat channels/groups. <code>io.to(room).emit()</code> sends to everyone in the room.</p>
+
+<p><strong>Middleware:</strong> <code>io.use((socket, next) =&gt; { ... })</code> runs before every connection. Used for authentication. Call <code>next()</code> to allow, <code>next(new Error())</code> to reject.</p>
+
+<p><strong>Listening:</strong> <code>socket.on(event, callback)</code> listens for events on both client and server.</p>
+
+<hr>
+
+<h2 class="g-h2">25. Design Patterns</h2>
+
+<p>Three categories: <strong>Creational</strong> (how objects are created), <strong>Structural</strong> (how objects are composed), <strong>Behavioral</strong> (how objects communicate).</p>
+
+<table class="tw"><tbody>
+<tr><th>Pattern</th><th>Category</th><th>What it does</th><th>Example</th></tr>
+<tr><td>Factory</td><td>Creational</td><td>Creates objects without specifying exact class</td><td>VehicleFactory creates Car or Truck based on input</td></tr>
+<tr><td>Singleton</td><td>Creational</td><td>Only one instance ever exists</td><td>getInstance() checks if already created, returns same instance</td></tr>
+<tr><td>Decorator</td><td>Structural</td><td>Adds behavior to a specific object (not prototype)</td><td>MacBook(997) + Memory(+75) + Insurance(+250) = 1322. Uses closures to wrap cost function.</td></tr>
+<tr><td>Facade</td><td>Structural</td><td>Simple interface hiding complex code</td><td>One function handles addEventListener/attachEvent/on-event</td></tr>
+<tr><td>Flyweight</td><td>Structural</td><td>Shares data to save memory</td><td>30 copies of same book — BookFlyweight (intrinsic, shared) + BookRecordManager (extrinsic, per-copy). Factory caches by ISBN.</td></tr>
+<tr><td>Observer</td><td>Behavioral</td><td>Subscribers watch a publisher (Pub/Sub)</td><td>Redux depends on this. Pros: loose coupling. Cons: hard to debug, publishers don't know if subscribers fail.</td></tr>
+<tr><td>Mediator</td><td>Behavioral</td><td>Central hub for module communication</td><td>A shared subject in the observer pattern. Promotes loose coupling through central point.</td></tr>
+<tr><td>Iterator</td><td>Behavioral</td><td>Sequential access without exposing structure</td><td>jQuery's <code>$.each()</code>. Similar to facade but deals with iteration.</td></tr>
+</tbody></table>
+
+<hr>
+
+<h2 class="g-h2">26. Web APIs</h2>
+
+<p><strong>Web Components:</strong> <code>customElements.define('tag-name', Class)</code> registers a custom HTML element. Must extend <code>HTMLElement</code>. Tag names must contain a hyphen. Shadow DOM (<code>attachShadow({mode: "open"})</code>) encapsulates CSS — styles don't leak in or out. <code>connectedCallback()</code> fires when added to DOM. Use <code>&lt;template&gt;</code> elements for the HTML structure, clone with <code>templateContent.cloneNode(true)</code>. Read attributes with getters: <code>get imageUrl() { return this.getAttribute("image-url"); }</code></p>
+
+<p><strong>Web Workers:</strong> Run JavaScript in a background thread. Cannot access the DOM. Communicate with the main thread via <code>postMessage()</code>. Good for CPU-intensive calculations.</p>
+
+<p><strong>Drag and Drop:</strong> Set <code>draggable="true"</code> on the element. Handle <code>dragstart</code> (set data), <code>dragover</code> (must <code>preventDefault()</code> or drop won't work), and <code>drop</code> (get data). Use <code>dataTransfer.setData()</code> / <code>getData()</code>.</p>
+
+<p><strong>localStorage:</strong> Persistent key-value storage. Survives browser close. ~5MB limit. Same-origin only. API: <code>setItem(key, value)</code>, <code>getItem(key)</code>. Must <code>JSON.stringify()</code> objects.</p>
+
+<p><strong>sessionStorage:</strong> Same API as localStorage but cleared when the tab closes.</p>
