@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { highlight, looksLikeCode } from "@/lib/highlight";
+import { looksRunnable, runSnippet } from "@/lib/playground";
 import { register, keys } from "@/lib/shortcuts";
 
 interface Props {
@@ -47,6 +48,7 @@ export function StudyEnhancer(_: Props) {
 
     syntaxHighlightAll(article);
     annotateCodeBlocks(article);
+    wireRunnableBlocks(article);
     convertCallouts(article);
     injectMetaBar(article);
   }, []);
@@ -237,4 +239,116 @@ function escapeText(s: string): string {
   const d = document.createElement("div");
   d.textContent = s.trim();
   return d.innerHTML;
+}
+
+// ─── Runnable code blocks ──────────────────────────────────────────────
+
+function wireRunnableBlocks(root: HTMLElement) {
+  root.querySelectorAll<HTMLDivElement>(".cb").forEach((block) => {
+    if (block.querySelector(".run-btn")) return;
+    const pre = block.querySelector<HTMLPreElement>("pre");
+    if (!pre) return;
+    const text = pre.textContent ?? "";
+    if (!looksRunnable(text)) return;
+
+    // Store original source on the block so editable textarea can fall back to it
+    block.dataset.src = text;
+
+    const runBtn = document.createElement("button");
+    runBtn.type = "button";
+    runBtn.className = "run-btn";
+    runBtn.textContent = "run ▶";
+    runBtn.setAttribute("aria-label", "Run this snippet");
+    block.appendChild(runBtn);
+  });
+
+  // Delegate "run" clicks — survives StrictMode / re-mounts.
+  if ((window as unknown as { __runDelegated?: boolean }).__runDelegated) return;
+  (window as unknown as { __runDelegated?: boolean }).__runDelegated = true;
+
+  document.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement | null;
+    const btn = target?.closest<HTMLButtonElement>(".fragment .cb .run-btn");
+    if (!btn) return;
+    e.preventDefault();
+    const block = btn.closest<HTMLDivElement>(".cb");
+    if (!block) return;
+
+    const editor = ensureEditor(block);
+    const source = editor.value;
+
+    btn.disabled = true;
+    btn.textContent = "running…";
+    const out = ensureOutput(block);
+    out.dataset.state = "running";
+    out.innerHTML = '<div class="code-output-title">running…</div>';
+
+    const result = await runSnippet(source);
+    renderOutput(out, result);
+    btn.disabled = false;
+    btn.textContent = "run ▶";
+  });
+}
+
+/** Swap the highlighted <pre> for an editable <textarea> (once per block). */
+function ensureEditor(block: HTMLDivElement): HTMLTextAreaElement {
+  const existing = block.querySelector<HTMLTextAreaElement>("textarea.code-edit");
+  if (existing) return existing;
+  const pre = block.querySelector<HTMLPreElement>("pre");
+  const src = block.dataset.src ?? pre?.textContent ?? "";
+  const ta = document.createElement("textarea");
+  ta.className = "code-edit";
+  ta.value = src;
+  ta.spellcheck = false;
+  ta.setAttribute("aria-label", "Editable code");
+  // auto-size to content
+  const resize = () => {
+    ta.style.height = "auto";
+    ta.style.height = Math.min(560, ta.scrollHeight + 8) + "px";
+  };
+  ta.addEventListener("input", resize);
+  ta.addEventListener("keydown", (ev) => {
+    // Tab inserts two spaces (expected in code editors)
+    if (ev.key === "Tab" && !ev.shiftKey) {
+      ev.preventDefault();
+      const s = ta.selectionStart;
+      const e = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(e);
+      ta.selectionStart = ta.selectionEnd = s + 2;
+    }
+  });
+  // Replace <pre> so editable mode is visually obvious.
+  if (pre) pre.replaceWith(ta);
+  requestAnimationFrame(resize);
+  return ta;
+}
+
+/** Ensure an output panel exists after the <cb> block. */
+function ensureOutput(block: HTMLDivElement): HTMLDivElement {
+  let out = block.querySelector<HTMLDivElement>(":scope > .code-output");
+  if (out) return out;
+  out = document.createElement("div");
+  out.className = "code-output";
+  block.appendChild(out);
+  return out;
+}
+
+function renderOutput(out: HTMLDivElement, r: { logs: Array<{ level: string; text: string }>; error: string | null; durationMs: number }) {
+  const title = `<div class="code-output-title"><span>output</span><span class="meta">${r.durationMs.toFixed(0)}ms</span></div>`;
+  let body = "";
+  if (r.logs.length === 0 && !r.error) {
+    body = '<div class="empty">(no console output)</div>';
+  } else {
+    body = r.logs
+      .map(
+        (l) =>
+          `<div class="line lvl-${l.level}">${escapeText(l.text)}</div>`,
+      )
+      .join("");
+    if (r.error) {
+      body += `<div class="line lvl-error">⚠ ${escapeText(r.error)}</div>`;
+    }
+  }
+  out.innerHTML = title + body;
+  out.dataset.state = r.error ? "err" : "ok";
 }

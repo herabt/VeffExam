@@ -46,33 +46,55 @@ export function ReaderShell({ kind, slug }: Props) {
   }, [key]);
 
   // Inject copy buttons on every code block.
+  // Uses event delegation so the handler survives React StrictMode double-effects
+  // and repeated injection across client-side navigation.
   useEffect(() => {
-    const blocks = document.querySelectorAll<HTMLDivElement>(".fragment .cb");
-    const cleanups: Array<() => void> = [];
-    blocks.forEach((block) => {
+    // 1. Ensure every .cb has a visible button element.
+    document.querySelectorAll<HTMLDivElement>(".fragment .cb").forEach((block) => {
       if (block.querySelector(".copy-btn")) return;
-      const pre = block.querySelector("pre");
-      if (!pre) return;
+      if (!block.querySelector("pre")) return;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "copy-btn";
       btn.setAttribute("aria-label", "Copy code");
       btn.textContent = "copy";
-      const handler = async () => {
-        try {
-          await navigator.clipboard.writeText(pre.textContent ?? "");
-          btn.textContent = "copied";
-          setTimeout(() => (btn.textContent = "copy"), 900);
-        } catch {
-          btn.textContent = "error";
-          setTimeout(() => (btn.textContent = "copy"), 1200);
-        }
-      };
-      btn.addEventListener("click", handler);
       block.appendChild(btn);
-      cleanups.push(() => btn.removeEventListener("click", handler));
     });
-    return () => cleanups.forEach((c) => c());
+
+    // 2. Delegated click handler — one per document, idempotent.
+    const onClick = async (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const btn = target?.closest<HTMLButtonElement>(".fragment .cb .copy-btn");
+      if (!btn) return;
+      e.preventDefault();
+      const pre = btn.parentElement?.querySelector("pre");
+      if (!pre) return;
+      const text = pre.textContent ?? "";
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // http:// fallback (covers local dev on some setups)
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        btn.textContent = "copied";
+        btn.dataset.state = "ok";
+        setTimeout(() => { btn.textContent = "copy"; delete btn.dataset.state; }, 900);
+      } catch {
+        btn.textContent = "error";
+        btn.dataset.state = "err";
+        setTimeout(() => { btn.textContent = "copy"; delete btn.dataset.state; }, 1200);
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
   }, []);
 
   return (

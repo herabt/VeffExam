@@ -28,6 +28,70 @@
   </tbody>
 </table></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 670 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TypeScript type hierarchy showing any and unknown at the top, concrete types in the middle, and never at the bottom">
+    <defs>
+      <marker id="th-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- top types label -->
+    <text x="16" y="60" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" font-style="italic">top types</text>
+    <!-- any box -->
+    <rect x="120" y="24" width="140" height="40" rx="6" fill="var(--warning)" fill-opacity="0.18" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="190" y="49" text-anchor="middle" font-family="var(--f-mono)" font-size="13" font-weight="700" fill="var(--warning)">any</text>
+    <!-- unknown box -->
+    <rect x="396" y="24" width="140" height="40" rx="6" fill="var(--accent)" fill-opacity="0.18" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="466" y="49" text-anchor="middle" font-family="var(--f-mono)" font-size="13" font-weight="700" fill="var(--accent)">unknown</text>
+    <!-- middle row label -->
+    <text x="16" y="150" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" font-style="italic">concrete types</text>
+    <!-- concrete type boxes -->
+    <rect x="40"  y="120" width="82" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="81"  y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">string</text>
+    <rect x="136" y="120" width="82" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="177" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">number</text>
+    <rect x="232" y="120" width="82" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="273" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">boolean</text>
+    <rect x="328" y="120" width="82" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="369" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">object</text>
+    <rect x="424" y="120" width="82" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="465" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">null</text>
+    <rect x="520" y="120" width="100" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="570" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">undefined</text>
+    <!-- void row -->
+    <rect x="264" y="210" width="82" height="36" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="305" y="233" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">void</text>
+    <!-- bottom type label -->
+    <text x="16" y="328" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" font-style="italic">bottom type</text>
+    <!-- never box -->
+    <rect x="240" y="302" width="140" height="40" rx="6" fill="var(--danger)" fill-opacity="0.15" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="310" y="327" text-anchor="middle" font-family="var(--f-mono)" font-size="13" font-weight="700" fill="var(--danger)">never</text>
+    <!-- arrows: any -> each concrete (assignable from any) -->
+    <line x1="190" y1="64" x2="81"  y2="120" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <line x1="190" y1="64" x2="177" y2="120" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <line x1="190" y1="64" x2="273" y2="120" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <line x1="190" y1="64" x2="369" y2="120" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <line x1="190" y1="64" x2="465" y2="120" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <line x1="190" y1="64" x2="540" y2="120" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <!-- arrows: unknown -> each concrete -->
+    <line x1="466" y1="64" x2="81"  y2="120" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#th-arr)"/>
+    <line x1="466" y1="64" x2="177" y2="120" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#th-arr)"/>
+    <line x1="466" y1="64" x2="273" y2="120" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#th-arr)"/>
+    <line x1="466" y1="64" x2="369" y2="120" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#th-arr)"/>
+    <line x1="466" y1="64" x2="465" y2="120" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#th-arr)"/>
+    <line x1="466" y1="64" x2="570" y2="120" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#th-arr)"/>
+    <!-- concrete -> void -->
+    <line x1="273" y1="156" x2="295" y2="210" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <!-- concrete -> never -->
+    <line x1="81"  y1="156" x2="265" y2="302" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <line x1="305" y1="246" x2="305" y2="302" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <!-- legend -->
+    <line x1="40" y1="362" x2="80" y2="362" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#th-arr)"/>
+    <text x="88" y="366" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">assignable to (solid = any; dashed = unknown needs narrowing)</text>
+  </svg>
+  <figcaption><code>any</code> and <code>unknown</code> are the top types (everything is assignable to them); <code>never</code> is the bottom type (assignable to everything but nothing is assignable to it).</figcaption>
+</figure>
+
 <h4 class="g-h4">Example</h4>
 <div class="cb"><pre>let name: string = "Arnar";
 let age: number = 30;
@@ -92,6 +156,39 @@ function add(a: number, b: number) {
   </tbody>
 </table></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side-by-side comparison of interface and type alias in TypeScript, showing shared and unique capabilities">
+    <!-- shared zone background -->
+    <rect x="240" y="24" width="220" height="252" rx="0" fill="var(--surface-alt)" stroke="none"/>
+    <!-- interface panel -->
+    <rect x="16" y="24" width="280" height="252" rx="6" fill="var(--accent)" fill-opacity="0.10" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="156" y="50" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--accent)">interface</text>
+    <!-- type panel -->
+    <rect x="404" y="24" width="280" height="252" rx="6" fill="var(--warning)" fill-opacity="0.10" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="544" y="50" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--warning)">type</text>
+    <!-- shared label -->
+    <text x="350" y="50" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-subtle)" font-style="italic">shared</text>
+    <!-- shared items (centered) -->
+    <text x="350" y="82"  text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">object shapes</text>
+    <text x="350" y="106" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">extension/inheritance</text>
+    <text x="350" y="130" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">implements in class</text>
+    <text x="350" y="154" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">generic params</text>
+    <!-- interface-only items (left side) -->
+    <text x="140" y="188" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--accent)">declaration merging</text>
+    <text x="140" y="210" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">(reopen &amp; extend later)</text>
+    <text x="140" y="236" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--accent)">extends keyword</text>
+    <!-- type-only items (right side) -->
+    <text x="560" y="188" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--warning)">union types (A | B)</text>
+    <text x="560" y="210" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--warning)">intersections (A &amp; B)</text>
+    <text x="560" y="236" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--warning)">primitive aliases</text>
+    <text x="560" y="258" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--warning)">computed / mapped</text>
+    <!-- dividers to demarcate overlap zone -->
+    <line x1="240" y1="56" x2="240" y2="276" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="460" y1="56" x2="460" y2="276" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+  </svg>
+  <figcaption><code>interface</code> and <code>type</code> overlap for object shapes and class contracts; only <code>interface</code> supports declaration merging, only <code>type</code> supports unions, primitives, and mapped types.</figcaption>
+</figure>
+
 <h4 class="g-h4">Example</h4>
 <div class="cb"><pre>// interface
 interface User {
@@ -123,6 +220,43 @@ class RegularUser implements User {
 <p><strong>Union</strong> (<code>A | B</code>) — the value can be <em>one of</em> the listed types. Use <code>|</code>.</p>
 <p><strong>Intersection</strong> (<code>A &amp; B</code>) — the value must satisfy <em>all</em> of the listed types simultaneously. Use <code>&amp;</code>.</p>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Venn diagram comparing union and intersection types in TypeScript">
+    <!-- UNION side -->
+    <text x="175" y="22" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Union  A | B</text>
+    <text x="175" y="38" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">"A or B" — either type is valid</text>
+    <!-- circles, union filled -->
+    <circle cx="145" cy="130" r="72" fill="var(--accent)" fill-opacity="0.25" stroke="var(--accent)" stroke-width="1.5"/>
+    <circle cx="205" cy="130" r="72" fill="var(--accent)" fill-opacity="0.25" stroke="var(--accent)" stroke-width="1.5"/>
+    <!-- union labels -->
+    <text x="110" y="128" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">A only</text>
+    <text x="175" y="128" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">both</text>
+    <text x="240" y="128" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">B only</text>
+    <!-- union coverage bracket -->
+    <rect x="72" y="198" width="258" height="20" rx="3" fill="var(--accent)" fill-opacity="0.35" stroke="none"/>
+    <text x="201" y="213" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">covered by A | B</text>
+
+    <!-- INTERSECTION side -->
+    <text x="525" y="22" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Intersection  A &amp; B</text>
+    <text x="525" y="38" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">"A and B" — must satisfy both</text>
+    <!-- circles, intersection — overlap only filled -->
+    <circle cx="495" cy="130" r="72" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <circle cx="555" cy="130" r="72" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <!-- overlap highlight (approximate) -->
+    <ellipse cx="525" cy="130" rx="22" ry="52" fill="var(--warning)" fill-opacity="0.45" stroke="none"/>
+    <text x="460" y="128" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg-muted)">A</text>
+    <text x="525" y="125" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--fg)">A &amp; B</text>
+    <text x="590" y="128" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg-muted)">B</text>
+    <!-- intersection coverage bracket -->
+    <rect x="503" y="198" width="44" height="20" rx="3" fill="var(--warning)" fill-opacity="0.45" stroke="none"/>
+    <text x="525" y="213" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">A &amp; B</text>
+
+    <!-- vertical divider -->
+    <line x1="350" y1="16" x2="350" y2="228" stroke="var(--border)" stroke-width="1" stroke-dasharray="5 4"/>
+  </svg>
+  <figcaption>Union (<code>A | B</code>) covers either type; intersection (<code>A &amp; B</code>) only covers the overlap — a value that satisfies both simultaneously.</figcaption>
+</figure>
+
 <h4 class="g-h4">Example</h4>
 <div class="cb"><pre>// Union — ID can be string OR number
 type ID = string | number;
@@ -152,6 +286,61 @@ type Record = Timestamped &amp; WithId; // { createdAt: Date; id: number }</pre>
 
 <p><strong>Literal type</strong> — the type is an exact value, not just a category (e.g., <code>"left"</code> not just <code>string</code>).</p>
 <p><strong>Narrowing</strong> — TypeScript refines the type inside a conditional block based on a type guard.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 670 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Type narrowing flowchart: an unknown value enters a function and is narrowed by typeof, instanceof, and user-defined type guard checks">
+    <defs>
+      <marker id="nar-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="nar-arr-g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- entry box -->
+    <rect x="240" y="16" width="180" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="330" y="41" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--fg)">val: unknown</text>
+    <!-- arrow down to first guard -->
+    <line x1="330" y1="56" x2="330" y2="88" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#nar-arr)"/>
+    <!-- guard 1 diamond -->
+    <polygon points="330,88 430,118 330,148 230,118" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="330" y="114" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">typeof val</text>
+    <text x="330" y="130" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">=== 'string'?</text>
+    <!-- yes branch left -->
+    <line x1="230" y1="118" x2="130" y2="118" stroke="var(--success)" stroke-width="1.5" marker-end="url(#nar-arr-g)"/>
+    <text x="178" y="112" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">yes</text>
+    <rect x="24" y="98" width="104" height="40" rx="6" fill="var(--success)" fill-opacity="0.15" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="76" y="118" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--success)">string</text>
+    <text x="76" y="133" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">.toUpperCase()</text>
+    <!-- no arrow down -->
+    <line x1="330" y1="148" x2="330" y2="180" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#nar-arr)"/>
+    <text x="340" y="168" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">no</text>
+    <!-- guard 2 diamond -->
+    <polygon points="330,180 430,210 330,240 230,210" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="330" y="206" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">val instanceof</text>
+    <text x="330" y="222" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Date?</text>
+    <!-- yes branch left -->
+    <line x1="230" y1="210" x2="130" y2="210" stroke="var(--success)" stroke-width="1.5" marker-end="url(#nar-arr-g)"/>
+    <text x="178" y="204" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">yes</text>
+    <rect x="24" y="190" width="104" height="40" rx="6" fill="var(--success)" fill-opacity="0.15" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="76" y="210" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--success)">Date</text>
+    <text x="76" y="225" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">.toISOString()</text>
+    <!-- no arrow down -->
+    <line x1="330" y1="240" x2="330" y2="272" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#nar-arr)"/>
+    <text x="340" y="260" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">no</text>
+    <!-- guard 3 diamond -->
+    <polygon points="330,272 430,296 330,320 230,296" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="330" y="290" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">isUser(val)?</text>
+    <text x="330" y="306" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">val is User</text>
+    <!-- yes branch right -->
+    <line x1="430" y1="296" x2="534" y2="296" stroke="var(--success)" stroke-width="1.5" marker-end="url(#nar-arr-g)"/>
+    <text x="479" y="290" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">yes</text>
+    <rect x="536" y="276" width="104" height="40" rx="6" fill="var(--success)" fill-opacity="0.15" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="588" y="296" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--success)">User</text>
+    <text x="588" y="311" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">.name .email</text>
+  </svg>
+  <figcaption>Type narrowing refines <code>unknown</code> step-by-step: <code>typeof</code> catches primitives, <code>instanceof</code> catches class instances, and user-defined type guards (<code>val is User</code>) handle custom shapes.</figcaption>
+</figure>
 
 <h4 class="g-h4">Example</h4>
 <div class="cb"><pre>// Literal type
@@ -256,6 +445,57 @@ format(3.14);    // "3.14"</pre></div>
 
 <p>Generics make components reusable across many types while preserving type safety. The type parameter <code>T</code> is supplied by the caller.</p>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparison showing three separate typed functions without generics versus one generic function that handles all types">
+    <defs>
+      <marker id="gen-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- LEFT: without generics -->
+    <text x="160" y="22" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--danger)">Without generics</text>
+    <text x="160" y="38" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">three separate functions</text>
+    <!-- fn 1 -->
+    <rect x="32" y="52" width="256" height="50" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="160" y="73" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">function wrapString(v: string)</text>
+    <text x="160" y="91" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">{ return v; }   // string</text>
+    <!-- fn 2 -->
+    <rect x="32" y="114" width="256" height="50" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="160" y="135" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">function wrapNumber(v: number)</text>
+    <text x="160" y="153" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">{ return v; }   // number</text>
+    <!-- fn 3 -->
+    <rect x="32" y="176" width="256" height="50" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="160" y="197" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">function wrapBool(v: boolean)</text>
+    <text x="160" y="215" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">{ return v; }   // boolean</text>
+
+    <!-- divider -->
+    <line x1="350" y1="16" x2="350" y2="244" stroke="var(--border)" stroke-width="1" stroke-dasharray="5 4"/>
+
+    <!-- RIGHT: with generics -->
+    <text x="525" y="22" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--success)">With generics</text>
+    <text x="525" y="38" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">one function for all types</text>
+    <!-- generic fn box -->
+    <rect x="376" y="80" width="296" height="64" rx="6" fill="var(--success)" fill-opacity="0.12" stroke="var(--success)" stroke-width="2"/>
+    <text x="524" y="107" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">function wrap&lt;T&gt;(v: T): T</text>
+    <text x="524" y="129" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">{ return v; }</text>
+    <!-- call sites -->
+    <rect x="400" y="168" width="88" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="444" y="184" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">wrap("hi")</text>
+    <text x="444" y="196" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">T=string</text>
+    <rect x="504" y="168" width="88" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="548" y="184" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">wrap(42)</text>
+    <text x="548" y="196" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">T=number</text>
+    <rect x="608" y="168" width="56" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="636" y="184" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">wrap(true)</text>
+    <text x="636" y="196" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">T=bool</text>
+    <!-- arrows up to generic fn -->
+    <line x1="444" y1="168" x2="490" y2="144" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#gen-arr)"/>
+    <line x1="548" y1="168" x2="524" y2="144" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#gen-arr)"/>
+    <line x1="636" y1="168" x2="560" y2="144" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#gen-arr)"/>
+  </svg>
+  <figcaption>Without generics you duplicate identical logic per type; one generic function <code>wrap&lt;T&gt;</code> handles all types with full type safety — the compiler resolves <code>T</code> at each call site.</figcaption>
+</figure>
+
 <h3 class="g-h3">Generic function</h3>
 <div class="cb"><pre>function identity&lt;T&gt;(value: T): T {
   return value;
@@ -345,6 +585,63 @@ type B = UnpackPromise&lt;number&gt;;          // number (not a Promise, returns
   </tbody>
 </table></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Utility type transformations starting from a User type with id, name, email, and password fields, showing Partial, Required, Pick, Omit, and Readonly outputs">
+    <!-- source box -->
+    <rect x="240" y="12" width="220" height="92" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="350" y="34" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">type User</text>
+    <text x="270" y="54"  font-family="var(--f-mono)" font-size="10" fill="var(--fg)">id: number</text>
+    <text x="270" y="68"  font-family="var(--f-mono)" font-size="10" fill="var(--fg)">name: string</text>
+    <text x="270" y="82"  font-family="var(--f-mono)" font-size="10" fill="var(--fg)">email: string</text>
+    <text x="270" y="96"  font-family="var(--f-mono)" font-size="10" fill="var(--warning)">password: string</text>
+
+    <!-- Partial box -->
+    <rect x="16" y="168" width="180" height="100" rx="6" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="106" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--accent)">Partial&lt;User&gt;</text>
+    <text x="36"  y="204" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">id?: number</text>
+    <text x="36"  y="218" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">name?: string</text>
+    <text x="36"  y="232" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">email?: string</text>
+    <text x="36"  y="246" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">password?: string</text>
+    <text x="106" y="262" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">all optional</text>
+
+    <!-- Required box -->
+    <rect x="212" y="168" width="180" height="100" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="302" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Required&lt;User&gt;</text>
+    <text x="232" y="204" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">id: number</text>
+    <text x="232" y="218" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">name: string</text>
+    <text x="232" y="232" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">email: string</text>
+    <text x="232" y="246" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">password: string</text>
+    <text x="302" y="262" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">all required</text>
+
+    <!-- Pick box -->
+    <rect x="408" y="168" width="140" height="100" rx="6" fill="var(--success)" fill-opacity="0.12" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="478" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--success)">Pick&lt;User,'id'|'email'&gt;</text>
+    <text x="424" y="210" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">id: number</text>
+    <text x="424" y="228" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">email: string</text>
+    <text x="478" y="262" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">keep listed keys</text>
+
+    <!-- Omit box -->
+    <rect x="16" y="290" width="200" height="60" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="116" y="308" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--danger)">Omit&lt;User,'password'&gt;</text>
+    <text x="36"  y="326" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">id, name, email</text>
+    <text x="116" y="344" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">password removed</text>
+
+    <!-- Readonly box -->
+    <rect x="236" y="290" width="214" height="60" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="343" y="308" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--fg)">Readonly&lt;User&gt;</text>
+    <text x="256" y="326" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">readonly id, name, email, password</text>
+    <text x="343" y="344" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">all fields immutable</text>
+
+    <!-- arrows from source -->
+    <line x1="300" y1="104" x2="106" y2="168" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="330" y1="104" x2="302" y2="168" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="380" y1="104" x2="478" y2="168" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="280" y1="104" x2="116" y2="290" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="350" y1="104" x2="343" y2="290" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+  </svg>
+  <figcaption>Utility types transform a source type without modifying it: <code>Partial</code> makes all props optional, <code>Omit</code> removes sensitive fields, <code>Pick</code> exposes a subset, and <code>Readonly</code> locks all fields.</figcaption>
+</figure>
+
 <h4 class="g-h4">Example</h4>
 <div class="cb"><pre>// Partial — useful for update/patch functions
 function updateUser(id: number, updates: Partial&lt;User&gt;): void {
@@ -433,6 +730,54 @@ function area(shape: Shape): number {
     case "circle": return Math.PI * shape.radius ** 2; // Circle here
   }
 }</pre></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Discriminated union narrowing diagram: a Shape union with kind discriminator is narrowed in each switch case to Circle, Square, or Triangle">
+    <defs>
+      <marker id="du-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="du-arr-g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- union definition at top -->
+    <rect x="160" y="12" width="380" height="56" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="350" y="36" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">type Shape = Circle | Square | Triangle</text>
+    <text x="350" y="56" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">each member has kind: "circle" | "square" | "triangle"</text>
+    <!-- arrow down to switch -->
+    <line x1="350" y1="68" x2="350" y2="108" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#du-arr)"/>
+    <!-- switch box -->
+    <rect x="200" y="108" width="300" height="44" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="350" y="126" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">switch (shape.kind)</text>
+    <text x="350" y="144" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">TypeScript narrows inside each case</text>
+    <!-- arrows to branches -->
+    <line x1="270" y1="152" x2="130"  y2="196" stroke="var(--success)" stroke-width="1.5" marker-end="url(#du-arr-g)"/>
+    <line x1="350" y1="152" x2="350"  y2="196" stroke="var(--success)" stroke-width="1.5" marker-end="url(#du-arr-g)"/>
+    <line x1="430" y1="152" x2="570"  y2="196" stroke="var(--success)" stroke-width="1.5" marker-end="url(#du-arr-g)"/>
+    <!-- case labels on arrows -->
+    <text x="186" y="178" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">"circle"</text>
+    <text x="352" y="178" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">"square"</text>
+    <text x="514" y="178" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">"triangle"</text>
+    <!-- Circle branch -->
+    <rect x="32" y="196" width="196" height="80" rx="6" fill="var(--success)" fill-opacity="0.12" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="130" y="216" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--success)">Circle</text>
+    <text x="130" y="234" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">shape.radius  // number</text>
+    <text x="130" y="250" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">Math.PI * radius ** 2</text>
+    <text x="130" y="268" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">// shape.side = ERROR</text>
+    <!-- Square branch -->
+    <rect x="252" y="196" width="196" height="80" rx="6" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="350" y="216" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--accent)">Square</text>
+    <text x="350" y="234" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">shape.side  // number</text>
+    <text x="350" y="250" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">side ** 2</text>
+    <!-- Triangle branch -->
+    <rect x="472" y="196" width="196" height="80" rx="6" fill="var(--warning)" fill-opacity="0.12" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="570" y="216" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--warning)">Triangle</text>
+    <text x="570" y="234" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">shape.base  // number</text>
+    <text x="570" y="250" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">shape.height  // number</text>
+  </svg>
+  <figcaption>The <code>kind</code> discriminant narrows the union: inside <code>case "circle"</code> TypeScript knows <code>shape</code> is <code>Circle</code> and only exposes <code>radius</code> — accessing <code>side</code> would be a compile error.</figcaption>
+</figure>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">11. <code>as</code> Type Assertion, <code>as const</code>, Non-null Assertion <code>!</code></h2>
@@ -667,6 +1012,55 @@ declare module "my-js-lib" {
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 class="g-h2">17. Common Gotchas</h2>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three-box comparison of any, unknown, and never types showing what each accepts and emits">
+    <!-- any box -->
+    <rect x="16" y="16" width="204" height="228" rx="6" fill="var(--warning)" fill-opacity="0.12" stroke="var(--warning)" stroke-width="2"/>
+    <text x="118" y="44" text-anchor="middle" font-family="var(--f-mono)" font-size="16" font-weight="700" fill="var(--warning)">any</text>
+    <text x="118" y="66" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">no type safety</text>
+    <line x1="32" y1="76" x2="204" y2="76" stroke="var(--border)" stroke-width="1"/>
+    <text x="32" y="96" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Accepts:</text>
+    <text x="32" y="112" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">every type</text>
+    <text x="32" y="128" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">(string, number, ...)</text>
+    <text x="32" y="152" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Emits / assignable to:</text>
+    <text x="32" y="168" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">every type</text>
+    <text x="32" y="184" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Narrowing needed?</text>
+    <text x="32" y="200" font-family="var(--f-mono)" font-size="10" fill="var(--danger)">No (unsafe)</text>
+    <text x="32" y="220" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Common use:</text>
+    <text x="32" y="236" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">escape hatch (avoid)</text>
+
+    <!-- unknown box -->
+    <rect x="248" y="16" width="204" height="228" rx="6" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="2"/>
+    <text x="350" y="44" text-anchor="middle" font-family="var(--f-mono)" font-size="16" font-weight="700" fill="var(--accent)">unknown</text>
+    <text x="350" y="66" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">safe top type</text>
+    <line x1="264" y1="76" x2="436" y2="76" stroke="var(--border)" stroke-width="1"/>
+    <text x="264" y="96" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Accepts:</text>
+    <text x="264" y="112" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">every type</text>
+    <text x="264" y="152" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Emits / assignable to:</text>
+    <text x="264" y="168" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">only unknown or any</text>
+    <text x="264" y="184" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Narrowing needed?</text>
+    <text x="264" y="200" font-family="var(--f-mono)" font-size="10" fill="var(--success)">Yes (safe)</text>
+    <text x="264" y="220" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Common use:</text>
+    <text x="264" y="236" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">external data, APIs</text>
+
+    <!-- never box -->
+    <rect x="480" y="16" width="204" height="228" rx="6" fill="var(--danger)" fill-opacity="0.10" stroke="var(--danger)" stroke-width="2"/>
+    <text x="582" y="44" text-anchor="middle" font-family="var(--f-mono)" font-size="16" font-weight="700" fill="var(--danger)">never</text>
+    <text x="582" y="66" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">bottom type</text>
+    <line x1="496" y1="76" x2="668" y2="76" stroke="var(--border)" stroke-width="1"/>
+    <text x="496" y="96" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Accepts:</text>
+    <text x="496" y="112" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">nothing</text>
+    <text x="496" y="128" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">(no value is never)</text>
+    <text x="496" y="152" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Emits / assignable to:</text>
+    <text x="496" y="168" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">every type</text>
+    <text x="496" y="184" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Narrowing needed?</text>
+    <text x="496" y="200" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">N/A</text>
+    <text x="496" y="220" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg)">Common use:</text>
+    <text x="496" y="236" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">exhaustive checks, throws</text>
+  </svg>
+  <figcaption><code>any</code> skips all safety; <code>unknown</code> accepts everything but forces narrowing before use; <code>never</code> represents an impossible state and is the bottom of the type hierarchy.</figcaption>
+</figure>
 
 <h3 class="g-h3"><code>any</code> vs <code>unknown</code></h3>
 <div class="cb"><pre>// any — disables type checking entirely (avoid!)

@@ -112,6 +112,71 @@
   <p><strong>react-hook-form uses uncontrolled inputs by default.</strong> The <code>register()</code> function attaches a <code>ref</code> to the input — React does NOT manage the value via state. This means there are <strong>no re-renders on each keystroke</strong>, only on validation events. This is the primary performance advantage.</p>
 </blockquote>
 
+<!-- Diagram 1: Controlled vs Uncontrolled -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Controlled vs uncontrolled input data flow">
+    <defs>
+      <marker id="arr1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Left panel: Controlled -->
+    <rect x="8" y="8" width="390" height="284" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="8" y="8" width="390" height="36" rx="6" fill="var(--accent)" opacity="0.18"/>
+    <text x="203" y="31" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--accent)">CONTROLLED  (useState)</text>
+
+    <!-- Controlled boxes -->
+    <rect x="130" y="60" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="195" y="83" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">User Keystroke</text>
+
+    <line x1="195" y1="94" x2="195" y2="116" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <text x="210" y="110" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">onChange</text>
+
+    <rect x="130" y="117" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="195" y="140" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">setState(value)</text>
+
+    <line x1="195" y1="151" x2="195" y2="173" stroke="var(--fg)" stroke-width="1.5" marker-end="url(--arr1)" marker-end="url(#arr1)"/>
+    <text x="210" y="168" font-family="var(--f-body)" font-size="10" fill="var(--danger)">re-render!</text>
+
+    <rect x="130" y="174" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="195" y="197" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">React State</text>
+
+    <line x1="195" y1="208" x2="195" y2="230" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr1)"/>
+
+    <rect x="130" y="231" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="195" y="254" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">DOM value=</text>
+
+    <text x="203" y="283" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">Re-renders on every keystroke</text>
+
+    <!-- Right panel: Uncontrolled -->
+    <rect x="422" y="8" width="390" height="284" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="422" y="8" width="390" height="36" rx="6" fill="var(--success)" opacity="0.18"/>
+    <text x="617" y="31" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--success)">UNCONTROLLED  (useRef / RHF)</text>
+
+    <!-- Uncontrolled boxes -->
+    <rect x="552" y="60" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="617" y="83" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">User Keystroke</text>
+
+    <line x1="617" y1="94" x2="617" y2="116" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <text x="632" y="110" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">browser handles</text>
+
+    <rect x="552" y="117" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="617" y="140" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">DOM (native)</text>
+
+    <!-- dashed line showing React is NOT involved -->
+    <line x1="617" y1="151" x2="617" y2="230" stroke="var(--fg-muted)" stroke-width="1.5" stroke-dasharray="5,4"/>
+    <text x="632" y="197" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">React not</text>
+    <text x="632" y="210" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">involved</text>
+
+    <rect x="552" y="231" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="617" y="249" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">On Submit:</text>
+    <text x="617" y="262" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)">ref.current.value</text>
+
+    <text x="617" y="283" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">No re-renders while typing</text>
+  </svg>
+  <figcaption>Controlled inputs route every keystroke through React state (triggering a re-render each time); uncontrolled inputs let the browser own the value and React only reads it on demand.</figcaption>
+</figure>
+
 <h2 class="g-h2">2. Why react-hook-form Exists</h2>
 
 <h3 class="g-h3">The problem with useState for forms</h3>
@@ -135,6 +200,68 @@ const [bio, setBio] = useState('');</pre></div>
 <blockquote>
   <p><strong>"It reduces unnecessary re-renders by using uncontrolled inputs and only re-renders on validation events."</strong></p>
 </blockquote>
+
+<!-- Diagram 4: Re-render count comparison bar chart -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Re-render count: controlled form vs react-hook-form on a 10-field form">
+    <defs>
+      <marker id="arr4" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Title -->
+    <text x="350" y="26" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Re-renders while typing in a 10-field form</text>
+
+    <!-- Y axis -->
+    <line x1="80" y1="40" x2="80" y2="220" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr4)"/>
+    <!-- X axis -->
+    <line x1="80" y1="220" x2="650" y2="220" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+    <!-- Y axis label -->
+    <text x="22" y="135" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)" transform="rotate(-90 22 135)">Re-renders</text>
+
+    <!-- Y ticks -->
+    <line x1="75" y1="220" x2="80" y2="220" stroke="var(--fg)" stroke-width="1"/>
+    <text x="70" y="224" text-anchor="end" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">0</text>
+    <line x1="75" y1="175" x2="80" y2="175" stroke="var(--fg)" stroke-width="1"/>
+    <text x="70" y="179" text-anchor="end" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">10</text>
+    <line x1="75" y1="130" x2="80" y2="130" stroke="var(--fg)" stroke-width="1"/>
+    <text x="70" y="134" text-anchor="end" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">20</text>
+    <line x1="75" y1="85" x2="80" y2="85" stroke="var(--fg)" stroke-width="1"/>
+    <text x="70" y="89" text-anchor="end" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">30</text>
+    <line x1="75" y1="50" x2="80" y2="50" stroke="var(--fg)" stroke-width="1"/>
+    <text x="70" y="54" text-anchor="end" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">38</text>
+
+    <!-- Grid lines (subtle) -->
+    <line x1="80" y1="175" x2="645" y2="175" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="80" y1="130" x2="645" y2="130" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="80" y1="85" x2="645" y2="85" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="80" y1="50" x2="645" y2="50" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+
+    <!-- Bars for "controlled" — 38 re-renders (tall, dangerous red) -->
+    <!-- Keystroke scenario labels on X axis -->
+    <text x="190" y="240" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">Controlled (useState)</text>
+    <text x="190" y="253" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">10 fields, 38 keystrokes</text>
+
+    <!-- One big bar representing total re-renders for controlled -->
+    <rect x="130" y="50" width="120" height="170" rx="3" fill="var(--danger)" opacity="0.75"/>
+    <text x="190" y="44" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--danger)">38</text>
+
+    <!-- Bars for RHF — only 2 re-renders (short, green) -->
+    <text x="480" y="240" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg)">RHF (uncontrolled)</text>
+    <text x="480" y="253" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">10 fields, 38 keystrokes</text>
+
+    <rect x="420" y="211" width="120" height="9" rx="3" fill="var(--success)" opacity="0.85"/>
+    <text x="480" y="207" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--success)">2</text>
+
+    <!-- Annotation for the 2 RHF re-renders -->
+    <text x="555" y="217" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">(submit + error)</text>
+
+    <!-- X axis label -->
+    <text x="365" y="268" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">Both forms receive the same 38 keystrokes</text>
+  </svg>
+  <figcaption>A 10-field controlled form re-renders the entire component on every keystroke; RHF only re-renders when validation state actually changes (typically just on submit).</figcaption>
+</figure>
 
 <h2 class="g-h2">3. Core API: useForm</h2>
 
@@ -197,6 +324,74 @@ const {
 <blockquote>
   <p><strong>Exam note:</strong> The default mode for react-hook-form is <code>"onSubmit"</code>. This means validation only runs when the user tries to submit. To validate as the user types, use <code>mode: "onChange"</code>.</p>
 </blockquote>
+
+<!-- Diagram 2: react-hook-form architecture -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="react-hook-form architecture: useForm store, register, formState, handleSubmit">
+    <defs>
+      <marker id="arr2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr2a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- useForm store — top centre -->
+    <rect x="270" y="16" width="220" height="52" rx="6" fill="var(--accent)" opacity="0.2" stroke="var(--accent)" stroke-width="2"/>
+    <text x="380" y="39" text-anchor="middle" font-family="var(--f-mono)" font-size="13" font-weight="700" fill="var(--accent)">useForm()</text>
+    <text x="380" y="57" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">internal store  (not React state)</text>
+
+    <!-- register() box — left -->
+    <rect x="48" y="140" width="170" height="52" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="133" y="163" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--fg)">register()</text>
+    <text x="133" y="180" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">attaches ref to input</text>
+
+    <!-- formState box — right -->
+    <rect x="542" y="140" width="170" height="52" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="627" y="163" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--fg)">formState</text>
+    <text x="627" y="180" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">errors, isDirty, isValid</text>
+
+    <!-- handleSubmit box — bottom centre -->
+    <rect x="270" y="260" width="220" height="52" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="380" y="283" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--fg)">handleSubmit()</text>
+    <text x="380" y="299" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">validate → onSubmit</text>
+
+    <!-- Input DOM boxes under register -->
+    <rect x="48" y="232" width="75" height="32" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="85" y="253" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">&lt;input&gt;</text>
+    <rect x="143" y="232" width="75" height="32" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="180" y="253" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">&lt;input&gt;</text>
+
+    <!-- Arrows: useForm → register -->
+    <line x1="270" y1="52" x2="133" y2="140" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+    <!-- Arrows: useForm → formState -->
+    <line x1="490" y1="52" x2="627" y2="140" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+    <!-- Arrows: useForm → handleSubmit -->
+    <line x1="380" y1="68" x2="380" y2="260" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arr2)"/>
+
+    <!-- register → inputs -->
+    <line x1="100" y1="192" x2="85" y2="232" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr2a)"/>
+    <line x1="160" y1="192" x2="180" y2="232" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr2a)"/>
+
+    <!-- formState read arrow label -->
+    <text x="510" y="110" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">exposes</text>
+
+    <!-- register label -->
+    <text x="170" y="108" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">returns ref+handlers</text>
+
+    <!-- handleSubmit label -->
+    <text x="420" y="175" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">wires</text>
+    <text x="420" y="187" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">validator</text>
+
+    <!-- "No state!" badge -->
+    <rect x="300" y="108" width="160" height="22" rx="11" fill="var(--warning)" opacity="0.2" stroke="var(--warning)" stroke-width="1"/>
+    <text x="380" y="123" text-anchor="middle" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--warning)">Values stay in DOM refs — not state</text>
+  </svg>
+  <figcaption>useForm() owns the internal store; register() wires each native input via a ref (bypassing React state); formState surfaces derived values; handleSubmit orchestrates validation then calls your callback.</figcaption>
+</figure>
 
 <h3 class="g-h3">mode options explained:</h3>
 <ul>
@@ -414,6 +609,95 @@ errors.email?.message  // the error message string
   </tbody>
 </table></div>
 
+<!-- Diagram 3: Validation pipeline -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Validation pipeline showing onBlur inline path and full-form submit path">
+    <defs>
+      <marker id="arr3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr3r" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+      <marker id="arr3g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+
+    <!-- Section label: onBlur path (top lane) -->
+    <rect x="8" y="8" width="804" height="120" rx="6" fill="oklch(0.96 0.02 200)" stroke="var(--border)" stroke-width="1"/>
+    <text x="20" y="28" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg-muted)">MODE: onBlur (inline, per-field)</text>
+
+    <!-- Nodes in top lane -->
+    <rect x="32" y="40" width="110" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="87" y="63" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Input blur</text>
+
+    <line x1="142" y1="58" x2="190" y2="58" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+    <rect x="190" y="40" width="130" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="255" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Validation rules</text>
+    <text x="255" y="71" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">(required, pattern…)</text>
+
+    <line x1="320" y1="58" x2="370" y2="58" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+    <rect x="370" y="40" width="120" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="430" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">errors map</text>
+    <text x="430" y="71" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">formState.errors</text>
+
+    <line x1="490" y1="58" x2="540" y2="58" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+    <rect x="540" y="40" width="130" height="36" rx="6" fill="var(--danger)" opacity="0.2" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="605" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">Show field error</text>
+    <text x="605" y="71" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">under input</text>
+
+    <!-- "pass" branch -->
+    <line x1="430" y1="76" x2="430" y2="105" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3g)"/>
+    <text x="445" y="96" font-family="var(--f-body)" font-size="10" fill="var(--success)">no error → valid</text>
+
+    <!-- Section label: submit path (bottom lane) -->
+    <rect x="8" y="140" width="804" height="158" rx="6" fill="oklch(0.96 0.02 80)" stroke="var(--border)" stroke-width="1"/>
+    <text x="20" y="160" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg-muted)">MODE: onSubmit (full-form validation)</text>
+
+    <rect x="32" y="168" width="110" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="87" y="191" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Submit click</text>
+
+    <line x1="142" y1="186" x2="190" y2="186" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+    <rect x="190" y="168" width="130" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="255" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">handleSubmit</text>
+    <text x="255" y="199" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">validates all fields</text>
+
+    <!-- Fail branch (down) -->
+    <line x1="255" y1="204" x2="255" y2="238" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr3r)"/>
+    <text x="270" y="228" font-family="var(--f-body)" font-size="10" fill="var(--danger)">FAIL</text>
+
+    <rect x="190" y="238" width="130" height="36" rx="6" fill="var(--danger)" opacity="0.2" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="255" y="256" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">setErrors</text>
+    <text x="255" y="269" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">highlight all fields</text>
+
+    <!-- Pass branch (right) -->
+    <line x1="320" y1="186" x2="370" y2="186" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3g)"/>
+    <text x="334" y="180" font-family="var(--f-body)" font-size="10" fill="var(--success)">PASS</text>
+
+    <rect x="370" y="168" width="120" height="36" rx="6" fill="var(--success)" opacity="0.2" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="430" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--success)">onSubmit(data)</text>
+    <text x="430" y="199" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">fully typed + clean</text>
+
+    <line x1="490" y1="186" x2="540" y2="186" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3g)"/>
+
+    <rect x="540" y="168" width="130" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="605" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">API call / action</text>
+    <text x="605" y="199" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">isSubmitting = true</text>
+
+    <line x1="670" y1="186" x2="720" y2="186" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+    <rect x="720" y="168" width="76" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="758" y="186" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">reset /</text>
+    <text x="758" y="199" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">redirect</text>
+  </svg>
+  <figcaption>Two validation paths: onBlur validates a single field as it loses focus; onSubmit (the default) validates all fields together only when the form is submitted.</figcaption>
+</figure>
+
 <h3 class="g-h3">NOT valid rules (exam trap):</h3>
 <ul>
   <li><code>type</code> — NOT a validation rule</li>
@@ -522,6 +806,77 @@ register("password", {
     </tr>
   </tbody>
 </table></div>
+
+<!-- Diagram 6: Controller vs register side-by-side -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="register() for native inputs vs Controller for third-party components">
+    <defs>
+      <marker id="arr6" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr6a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- Divider line -->
+    <line x1="410" y1="8" x2="410" y2="272" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+    <!-- LEFT SIDE: register() -->
+    <text x="205" y="28" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">register()</text>
+    <text x="205" y="44" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">Native HTML inputs — uncontrolled</text>
+
+    <!-- useForm store -->
+    <rect x="145" y="58" width="120" height="34" rx="6" fill="var(--accent)" opacity="0.2" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="205" y="80" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--accent)">useForm store</text>
+
+    <line x1="205" y1="92" x2="205" y2="114" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr6)"/>
+
+    <!-- register box -->
+    <rect x="145" y="115" width="120" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="205" y="137" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">register("name")</text>
+
+    <line x1="205" y1="149" x2="205" y2="171" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr6a)"/>
+    <text x="220" y="164" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">ref={...}</text>
+
+    <!-- native input -->
+    <rect x="130" y="172" width="150" height="34" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="205" y="190" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">&lt;input type="text"&gt;</text>
+    <text x="205" y="203" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">DOM owns the value</text>
+
+    <!-- badge -->
+    <rect x="100" y="228" width="210" height="22" rx="11" fill="var(--success)" opacity="0.18" stroke="var(--success)" stroke-width="1"/>
+    <text x="205" y="243" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">input, textarea, select — no control prop</text>
+
+    <!-- RIGHT SIDE: Controller -->
+    <text x="615" y="28" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">Controller</text>
+    <text x="615" y="44" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">Third-party components — controlled</text>
+
+    <!-- useForm store -->
+    <rect x="555" y="58" width="120" height="34" rx="6" fill="var(--accent)" opacity="0.2" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="615" y="80" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--accent)">useForm store</text>
+
+    <line x1="615" y1="92" x2="615" y2="114" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr6)"/>
+
+    <!-- Controller box -->
+    <rect x="548" y="115" width="134" height="34" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="615" y="133" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Controller</text>
+    <text x="615" y="146" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">control={control}</text>
+
+    <line x1="615" y1="149" x2="615" y2="171" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr6)"/>
+    <text x="630" y="164" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">value+onChange</text>
+
+    <!-- 3rd party component -->
+    <rect x="537" y="172" width="156" height="34" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="615" y="190" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">&lt;ReactSelect /&gt;</text>
+    <text x="615" y="203" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">no forwardRef needed</text>
+
+    <!-- badge -->
+    <rect x="497" y="228" width="236" height="22" rx="11" fill="var(--warning)" opacity="0.18" stroke="var(--warning)" stroke-width="1"/>
+    <text x="615" y="243" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--warning)">MUI / Radix / React-Select / custom UI libs</text>
+  </svg>
+  <figcaption>register() connects native inputs via a DOM ref (uncontrolled); Controller bridges third-party components that don't expose a ref by passing value and onChange props instead.</figcaption>
+</figure>
 
 <h2 class="g-h2">9. watch, setValue, reset</h2>
 
@@ -688,6 +1043,55 @@ const { register } = useForm&lt;FormData&gt;({
   <p>To integrate a schema validation library like Zod, you pass it via the <strong><code>resolver</code></strong> option. Usage: <code>resolver: zodResolver(schema)</code>.</p>
 </blockquote>
 
+<!-- Diagram 5: Resolver integration (Zod → zodResolver → useForm) -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Resolver integration: Zod schema feeds into zodResolver which is passed to useForm">
+    <defs>
+      <marker id="arr5" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+
+    <!-- Step 1: Zod schema -->
+    <rect x="32" y="56" width="160" height="88" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="112" y="78" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--fg)">z.object({…})</text>
+    <text x="112" y="96" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">Zod schema</text>
+    <text x="112" y="111" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">defines rules +</text>
+    <text x="112" y="124" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">TypeScript types</text>
+
+    <!-- Arrow 1 -->
+    <line x1="192" y1="100" x2="258" y2="100" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="225" y="92" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">passed to</text>
+
+    <!-- Step 2: zodResolver adapter -->
+    <rect x="258" y="56" width="200" height="88" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="358" y="78" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--fg)">zodResolver(schema)</text>
+    <text x="358" y="96" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">@hookform/resolvers</text>
+    <text x="358" y="111" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">adapts Zod API</text>
+    <text x="358" y="124" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">to RHF resolver API</text>
+
+    <!-- Arrow 2 -->
+    <line x1="458" y1="100" x2="524" y2="100" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <text x="491" y="92" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">resolver:</text>
+
+    <!-- Step 3: useForm -->
+    <rect x="524" y="56" width="210" height="88" rx="6" fill="var(--accent)" opacity="0.15" stroke="var(--accent)" stroke-width="2"/>
+    <text x="629" y="78" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--accent)">useForm()</text>
+    <text x="629" y="96" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">validates on trigger</text>
+    <text x="629" y="111" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">using resolver instead</text>
+    <text x="629" y="124" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">of per-field rules</text>
+
+    <!-- Benefit note -->
+    <text x="380" y="168" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-muted)">Swap resolver to switch library: zodResolver → yupResolver — no other changes needed</text>
+
+    <!-- Step labels -->
+    <text x="112" y="30" text-anchor="middle" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg-subtle)">1. Define schema</text>
+    <text x="358" y="30" text-anchor="middle" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg-subtle)">2. Adapt with resolver</text>
+    <text x="629" y="30" text-anchor="middle" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--fg-subtle)">3. Pass to useForm</text>
+  </svg>
+  <figcaption>Swapping validation libraries only requires changing the resolver function — the rest of the form code stays identical.</figcaption>
+</figure>
+
 <h3 class="g-h3">Cross-field validation with Zod:</h3>
 <div class="cb"><pre>const schema = z.object({
   password: z.string().min(8),
@@ -798,6 +1202,85 @@ const { formState: { isSubmitting } } = useForm();
 &lt;button type="submit" disabled={isSubmitting}&gt;
   {isSubmitting ? 'Saving...' : 'Save'}
 &lt;/button&gt;</pre></div>
+
+<!-- Diagram 7: Submit lifecycle -->
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Full submit lifecycle: click, handleSubmit, validate, fail or pass paths, isSubmitting, reset/redirect">
+    <defs>
+      <marker id="arr7" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr7r" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+      <marker id="arr7g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+
+    <!-- Node 1: Click -->
+    <rect x="340" y="8" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="410" y="34" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--fg)">Submit click</text>
+
+    <line x1="410" y1="48" x2="410" y2="78" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr7)"/>
+
+    <!-- Node 2: handleSubmit -->
+    <rect x="310" y="78" width="200" height="40" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="410" y="98" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--fg)">handleSubmit()</text>
+    <text x="410" y="112" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">isSubmitting = true</text>
+
+    <line x1="410" y1="118" x2="410" y2="148" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr7)"/>
+
+    <!-- Node 3: validate all -->
+    <rect x="310" y="148" width="200" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="410" y="168" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--fg)">Validate all fields</text>
+    <text x="410" y="182" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">rules / resolver</text>
+
+    <!-- FAIL branch — left -->
+    <line x1="310" y1="168" x2="178" y2="168" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr7r)"/>
+    <text x="244" y="161" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">FAIL</text>
+
+    <rect x="80" y="148" width="200" height="40" rx="6" fill="var(--danger)" opacity="0.2" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="180" y="168" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--danger)">setError(fieldName)</text>
+    <text x="180" y="182" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">highlight invalid fields</text>
+
+    <!-- FAIL → isSubmitting = false -->
+    <line x1="180" y1="188" x2="180" y2="248" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr7r)"/>
+
+    <rect x="80" y="248" width="200" height="40" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="180" y="268" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">isSubmitting = false</text>
+    <text x="180" y="282" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">user sees errors, retries</text>
+
+    <!-- PASS branch — right -->
+    <line x1="510" y1="168" x2="642" y2="168" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr7g)"/>
+    <text x="576" y="161" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">PASS</text>
+
+    <rect x="540" y="148" width="200" height="40" rx="6" fill="var(--success)" opacity="0.2" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="740" y="168" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--success)">onSubmit(data)</text>
+    <text x="740" y="182" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">async handler runs</text>
+
+    <line x1="640" y1="188" x2="640" y2="248" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr7g)"/>
+
+    <!-- Async call node -->
+    <rect x="540" y="248" width="200" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="640" y="268" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">await API call</text>
+    <text x="640" y="282" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">isSubmitting remains true</text>
+
+    <line x1="640" y1="288" x2="640" y2="318" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr7)"/>
+
+    <!-- reset / redirect -->
+    <rect x="540" y="318" width="200" height="34" rx="6" fill="var(--accent)" opacity="0.2" stroke="var(--accent)" stroke-width="2"/>
+    <text x="640" y="340" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--accent)">reset() / redirect()</text>
+
+    <!-- isSubmitting = false at end -->
+    <text x="640" y="358" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">isSubmitting = false</text>
+
+    <!-- Server error back-edge -->
+    <line x1="540" y1="268" x2="310" y2="268" stroke="var(--danger)" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr7r)"/>
+    <text x="425" y="260" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">server error → setError("email", …)</text>
+  </svg>
+  <figcaption>The full submit lifecycle: handleSubmit gates the async call behind validation; on failure it sets per-field errors; on success the async handler runs with isSubmitting=true until complete.</figcaption>
+</figure>
 
 <h2 class="g-h2">14. Full Code Example: Signup Form</h2>
 

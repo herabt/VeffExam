@@ -450,6 +450,91 @@ code {
 .cb:hover .copy-btn { opacity: 1; }
 .cb .copy-btn:hover { background: color-mix(in oklch, var(--code-fg) 25%, transparent); }
 .cb .copy-btn:focus-visible { opacity: 1; }
+.cb .copy-btn[data-state="ok"] { opacity: 1; background: color-mix(in oklch, var(--success) 35%, transparent); color: #fff; }
+.cb .copy-btn[data-state="err"] { opacity: 1; background: color-mix(in oklch, var(--danger) 35%, transparent); color: #fff; }
+
+/* Runnable code playground */
+.cb .run-btn {
+  position: absolute;
+  top: 8px;
+  right: 60px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  padding: 3px 8px;
+  color: #fff;
+  background: color-mix(in oklch, var(--success) 55%, transparent);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity var(--dur-micro) var(--ease-out-q),
+              background var(--dur-micro) var(--ease-out-q);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.cb:hover .run-btn { opacity: 1; }
+.cb .run-btn:hover { background: var(--success); }
+.cb .run-btn:focus-visible { opacity: 1; }
+.cb .run-btn:disabled { opacity: 0.6; cursor: wait; }
+
+.cb textarea.code-edit {
+  display: block;
+  width: 100%;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
+  border-radius: var(--r-card);
+  padding: var(--s-4);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  tab-size: 2;
+  white-space: pre;
+  overflow-x: auto;
+  resize: vertical;
+  min-height: 80px;
+  max-height: 560px;
+  box-sizing: border-box;
+}
+.cb textarea.code-edit:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+.cb-label + textarea.code-edit { border-top-left-radius: 0; border-top-right-radius: 0; margin-top: 0; }
+
+.cb .code-output {
+  margin-top: 6px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--success);
+  border-radius: var(--r-input);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.cb .code-output[data-state="err"] { border-left-color: var(--danger); }
+.cb .code-output-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  margin-bottom: 4px;
+}
+.cb .code-output-title .meta { color: var(--fg-subtle); font-weight: 500; }
+.cb .code-output .line {
+  color: var(--fg);
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 1px 0;
+}
+.cb .code-output .line.lvl-error { color: var(--danger); }
+.cb .code-output .line.lvl-warn  { color: var(--warning); }
+.cb .code-output .line.lvl-info  { color: var(--accent); }
+.cb .code-output .empty { color: var(--fg-subtle); font-style: italic; }
 
 /* ─────────── Tables ─────────── */
 .tw { overflow-x: auto; margin: var(--s-3) 0; border-radius: var(--r-card); border: 1px solid var(--border); }
@@ -1219,6 +1304,52 @@ details.ans .ans-body {
 
 /* Light mode: re-balance tokens for adequate contrast against dark code bg */
 /* (same palette works because code-bg stays dark in both themes, intentional) */
+
+/* ─────────── Inline SVG diagrams (injected into study guides) ───────────
+   Diagrams break out of the reading column on wide viewports so they can
+   breathe. Text stays at comfortable 72ch reading width; figures extend
+   into the whitespace on either side when room is available. */
+.fig-dia {
+  margin: var(--s-5) 0 var(--s-6);
+  padding: var(--s-5) var(--s-5) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  /* Extend ±100px beyond the reading column when space allows, otherwise 0. */
+  margin-inline: clamp(calc(var(--s-4) * -1), calc((100% - var(--content-max)) * 1), 0px);
+}
+@media (min-width: 1200px) {
+  .fig-dia {
+    /* Break out ±90px to reach ~840px wide from the ~660px reading column. */
+    margin-left: -90px;
+    margin-right: -90px;
+  }
+}
+@media (min-width: 1500px) {
+  .fig-dia {
+    margin-left: -140px;
+    margin-right: -140px;
+  }
+}
+.fig-dia svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 560px;
+}
+.fig-dia figcaption {
+  margin-top: var(--s-3);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.55;
+  padding-left: var(--s-3);
+  border-left: 2px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  .fig-dia { margin-left: calc(var(--s-2) * -1); margin-right: calc(var(--s-2) * -1); padding: var(--s-3); }
+}
 
 /* Responsive meta bar on mobile */
 @media (max-width: 700px) {

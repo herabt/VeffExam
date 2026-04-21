@@ -40,6 +40,58 @@
 
 <h3 class="g-h3">1.1 The Two Axes</h3>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flexbox main axis and cross axis for flex-direction row and column">
+    <defs>
+      <marker id="arr-main" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr-cross" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--warning)"/>
+      </marker>
+    </defs>
+
+    <!-- Left panel: flex-direction row -->
+    <text x="168" y="20" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="700">flex-direction: row</text>
+    <rect x="24" y="32" width="288" height="120" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5" rx="6"/>
+    <!-- Items -->
+    <rect x="36" y="48" width="56" height="88" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="64" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">A</text>
+    <rect x="100" y="48" width="56" height="88" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="128" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">B</text>
+    <rect x="164" y="48" width="56" height="88" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="192" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">C</text>
+    <rect x="228" y="48" width="56" height="88" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="256" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">D</text>
+    <!-- main axis arrow row -->
+    <line x1="36" y1="172" x2="300" y2="172" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr-main)"/>
+    <text x="168" y="190" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">main-axis →</text>
+    <!-- cross axis arrow row -->
+    <line x1="16" y1="48" x2="16" y2="148" stroke="var(--warning)" stroke-width="2" marker-end="url(#arr-cross)"/>
+    <text x="14" y="210" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="10" font-weight="700" transform="rotate(-90,14,210)">cross ↓</text>
+
+    <!-- Right panel: flex-direction column -->
+    <text x="532" y="20" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="700">flex-direction: column</text>
+    <rect x="392" y="32" width="280" height="198" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5" rx="6"/>
+    <!-- Items stacked -->
+    <rect x="408" y="44" width="200" height="34" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="508" y="66" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">A</text>
+    <rect x="408" y="84" width="200" height="34" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="508" y="106" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">B</text>
+    <rect x="408" y="124" width="200" height="34" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="508" y="146" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">C</text>
+    <rect x="408" y="164" width="200" height="34" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+    <text x="508" y="186" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">D</text>
+    <!-- main axis arrow column (downward) -->
+    <line x1="624" y1="44" x2="624" y2="226" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr-main)"/>
+    <text x="648" y="140" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="10" font-weight="700" transform="rotate(90,648,140)">main-axis ↓</text>
+    <!-- cross axis arrow column (rightward) -->
+    <line x1="392" y1="240" x2="616" y2="240" stroke="var(--warning)" stroke-width="2" marker-end="url(#arr-cross)"/>
+    <text x="504" y="256" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="10" font-weight="700">cross-axis →</text>
+  </svg>
+  <figcaption>flex-direction rotates the axes: items flow along the main axis and align across the cross axis.</figcaption>
+</figure>
+
 <div class="tw"><table>
   <thead><tr><th>Axis</th><th>Direction</th><th>Set by</th></tr></thead>
   <tbody>
@@ -117,6 +169,57 @@
 </ul>
 <div class="cb"><pre>.container { align-items: center; }</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 721.9 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="align-items vs align-content side-by-side comparison">
+    <defs>
+      <marker id="arr-ai" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+
+    <!-- LEFT: align-items -->
+    <text x="168" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="700">align-items: flex-start</text>
+    <text x="168" y="34" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">(single line — items within line)</text>
+    <rect x="16" y="44" width="304" height="160" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <!-- single row, items aligned to top (flex-start) -->
+    <rect x="28" y="56" width="52" height="60" fill="var(--accent)" stroke="none" rx="4" opacity="0.85"/>
+    <text x="54" y="90" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">A</text>
+    <rect x="88" y="56" width="52" height="36" fill="var(--accent)" stroke="none" rx="4" opacity="0.65"/>
+    <text x="114" y="78" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">B</text>
+    <rect x="148" y="56" width="52" height="80" fill="var(--accent)" stroke="none" rx="4" opacity="0.5"/>
+    <text x="174" y="100" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">C</text>
+    <rect x="208" y="56" width="52" height="48" fill="var(--accent)" stroke="none" rx="4" opacity="0.75"/>
+    <text x="234" y="83" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">D</text>
+    <!-- dashed line at flex-start -->
+    <line x1="24" y1="56" x2="272" y2="56" stroke="var(--success)" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="168" y="168" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10">all items pinned to top of line</text>
+    <text x="168" y="200" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">requires flex-wrap: wrap — but only one line here</text>
+
+    <!-- RIGHT: align-content -->
+    <text x="532" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="700">align-content: space-between</text>
+    <text x="532" y="34" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">(multiple lines — lines distributed)</text>
+    <rect x="380" y="44" width="304" height="160" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <!-- row 1 -->
+    <rect x="392" y="52" width="52" height="40" fill="var(--warning)" stroke="none" rx="4" opacity="0.85"/>
+    <text x="418" y="75" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">A</text>
+    <rect x="452" y="52" width="52" height="40" fill="var(--warning)" stroke="none" rx="4" opacity="0.65"/>
+    <text x="478" y="75" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">B</text>
+    <rect x="512" y="52" width="52" height="40" fill="var(--warning)" stroke="none" rx="4" opacity="0.5"/>
+    <text x="538" y="75" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">C</text>
+    <!-- row 2 -->
+    <rect x="392" y="154" width="52" height="40" fill="var(--warning)" stroke="none" rx="4" opacity="0.85"/>
+    <text x="418" y="177" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">D</text>
+    <rect x="452" y="154" width="52" height="40" fill="var(--warning)" stroke="none" rx="4" opacity="0.65"/>
+    <text x="478" y="177" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">E</text>
+    <rect x="512" y="154" width="52" height="40" fill="var(--warning)" stroke="none" rx="4" opacity="0.5"/>
+    <text x="538" y="177" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">F</text>
+    <!-- space-between arrows -->
+    <line x1="668" y1="92" x2="668" y2="154" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-ai)" marker-start="url(#arr-ai)"/>
+    <text x="684" y="126" text-anchor="start" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">space</text>
+  </svg>
+  <figcaption>align-items aligns items within their line; align-content distributes multiple wrapped lines in the cross-axis.</figcaption>
+</figure>
+
 <h4 class="g-h4"><code>align-content</code></h4>
 <ul>
   <li><strong>Definition:</strong> Aligns the <strong>flex lines themselves</strong> (not items) when there is extra cross-axis space.</li>
@@ -191,6 +294,50 @@ item final width = base width + (unit × item's flex-grow)</pre></div>
    A = 100px  B = 250px  C = 250px */</pre></div>
 <p>YOU SEE: The dominant item (flex-grow:3) gets three times as much of the leftover space. Setting flex-grow:0 on one item keeps it frozen at its basis size while siblings share the rest.</p>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flex-grow math: 450px extra space distributed as 90/90/270 among items with grow factors 1/1/3">
+    <!-- Title -->
+    <text x="350" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">flex-grow worked example — container 750px, 3 items × 100px base = 450px spare</text>
+
+    <!-- Row labels -->
+    <text x="8" y="62" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10" dominant-baseline="middle">grow=1</text>
+    <text x="8" y="102" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10" dominant-baseline="middle">grow=1</text>
+    <text x="8" y="142" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10" dominant-baseline="middle">grow=3</text>
+
+    <!-- Scale: 700px SVG width = 750px real. offset=70 for labels. scale= (700-70)/750 ≈ 0.84 -->
+    <!-- base 100px = 84px SVG, extra 90px = 75.6px SVG, extra 270px = 226.8px SVG -->
+    <!-- Item 1 (grow=1): base=84, extra=75.6, total=159.6 -->
+    <rect x="70" y="44" width="84" height="36" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <text x="112" y="66" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">100px base</text>
+    <rect x="154" y="44" width="76" height="36" fill="var(--accent)" stroke="none" rx="0" opacity="0.6"/>
+    <text x="192" y="66" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="10">+90px</text>
+    <text x="230" y="36" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">= 190px</text>
+
+    <!-- Item 2 (grow=1): same as item 1 -->
+    <rect x="70" y="84" width="84" height="36" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <text x="112" y="106" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">100px base</text>
+    <rect x="154" y="84" width="76" height="36" fill="var(--accent)" stroke="none" rx="0" opacity="0.6"/>
+    <text x="192" y="106" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="10">+90px</text>
+    <text x="230" y="76" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">= 190px</text>
+
+    <!-- Item 3 (grow=3): base=84, extra=226.8 -->
+    <rect x="70" y="124" width="84" height="36" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <text x="112" y="146" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">100px base</text>
+    <rect x="154" y="124" width="228" height="36" fill="var(--accent)" stroke="none" rx="0" opacity="0.85"/>
+    <text x="268" y="146" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">+270px  (3 shares)</text>
+    <text x="390" y="116" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">= 370px</text>
+
+    <!-- Arithmetic annotation -->
+    <text x="350" y="178" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">450px ÷ 5 factors = 90px/unit   ·   Item3 gets 3 × 90 = 270px extra</text>
+
+    <!-- Container bracket -->
+    <line x1="70" y1="170" x2="382" y2="170" stroke="var(--border-strong)" stroke-width="1"/>
+    <line x1="70" y1="165" x2="70" y2="175" stroke="var(--border-strong)" stroke-width="1"/>
+    <line x1="382" y1="165" x2="382" y2="175" stroke="var(--border-strong)" stroke-width="1"/>
+  </svg>
+  <figcaption>flex-grow distributes leftover space proportionally: items with grow=1 each gain 90px while grow=3 gains 270px.</figcaption>
+</figure>
+
 <h4 class="g-h4"><code>flex-shrink</code></h4>
 <ul>
   <li><strong>Definition:</strong> How much a flex item shrinks relative to siblings when there is not enough space.</li>
@@ -221,6 +368,47 @@ item final width = base width - (unit × item's flex-shrink)</pre></div>
    main = 300 - 50 = 250px
    aside= 180 - 50 = 130px */
 /* YOU SEE: Logo keeps its exact 120px; the other two squeeze inward */</pre></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 783.85 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flex-shrink before and after: items squeezed proportionally when container is too small">
+    <text x="350" y="16" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">flex-shrink — container 750px, 3 items × 300px = 900px (overflow 150px)</text>
+
+    <!-- BEFORE label -->
+    <text x="8" y="50" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11" font-weight="700">BEFORE</text>
+    <text x="8" y="63" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">(shrink=1 each)</text>
+
+    <!-- BEFORE bars: 3×300 = 900, scale SVG via container=750 → display limit at 700px (90px offset left) -->
+    <!-- each 300px → 233px SVG at 700/900 scale -->
+    <rect x="90" y="38" width="583" height="36" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3" rx="0"/>
+    <rect x="90" y="38" width="233" height="36" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <text x="206" y="60" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">300px (shrink:1)</text>
+    <rect x="323" y="38" width="233" height="36" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <text x="440" y="60" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">300px (shrink:1)</text>
+    <rect x="556" y="38" width="233" height="36" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="0"/>
+    <text x="673" y="60" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">300px (shrink:1)</text>
+    <!-- overflow indicator -->
+    <rect x="673" y="38" width="117" height="36" fill="var(--danger)" stroke="none" rx="0" opacity="0.35"/>
+    <text x="732" y="60" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="9" font-weight="700">+150px overflow</text>
+
+    <!-- AFTER label -->
+    <text x="8" y="114" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11" font-weight="700">AFTER</text>
+    <text x="8" y="127" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">(−30px each)</text>
+
+    <!-- AFTER bars: each 270px. 270/750 × 610 = 219.6 ≈ 220. 3×220=660, start at 90 → ends at 750 -->
+    <rect x="90" y="102" width="204" height="36" fill="var(--success)" stroke="var(--border-strong)" stroke-width="1.5" rx="0" opacity="0.55"/>
+    <text x="192" y="124" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">270px</text>
+    <rect x="294" y="102" width="204" height="36" fill="var(--success)" stroke="var(--border-strong)" stroke-width="1.5" rx="0" opacity="0.55"/>
+    <text x="396" y="124" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">270px</text>
+    <rect x="498" y="102" width="204" height="36" fill="var(--success)" stroke="var(--border-strong)" stroke-width="1.5" rx="0" opacity="0.55"/>
+    <text x="600" y="124" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="10">270px</text>
+    <!-- container bracket -->
+    <line x1="90" y1="148" x2="702" y2="148" stroke="var(--border-strong)" stroke-width="1"/>
+    <line x1="90" y1="143" x2="90" y2="153" stroke="var(--border-strong)" stroke-width="1"/>
+    <line x1="702" y1="143" x2="702" y2="153" stroke="var(--border-strong)" stroke-width="1"/>
+    <text x="396" y="166" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">750px container  ·  150px ÷ 3 = 30px removed from each</text>
+  </svg>
+  <figcaption>flex-shrink removes overflow proportionally — each item with shrink=1 loses the same 30px, fitting the container exactly.</figcaption>
+</figure>
 
 <h4 class="g-h4"><code>flex-basis</code></h4>
 <ul>
@@ -396,6 +584,46 @@ grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));</pre></div>
 <hr>
 
 <h3 class="g-h3">2.3 Named Areas</h3>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 682.8 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CSS grid-template-areas layout: header spanning two columns, sidebar and main side by side, footer spanning two columns">
+
+    <!-- Grid outline -->
+    <rect x="16" y="16" width="628" height="268" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" rx="0"/>
+
+    <!-- header (row 1, col 1-2) -->
+    <rect x="20" y="20" width="620" height="60" fill="oklch(0.55 0.12 260)" stroke="none" rx="0"/>
+    <text x="330" y="55" text-anchor="middle" fill="white" font-family="var(--f-mono)" font-size="14" font-weight="700">header</text>
+    <text x="330" y="70" text-anchor="middle" fill="oklch(0.80 0.06 260)" font-family="var(--f-mono)" font-size="10">"header header"</text>
+
+    <!-- sidebar (row 2, col 1) — 250px wide -->
+    <!-- 250/750 * 620 = 206.7 -->
+    <rect x="20" y="84" width="207" height="120" fill="oklch(0.65 0.10 140)" stroke="none" rx="0"/>
+    <text x="123" y="148" text-anchor="middle" fill="white" font-family="var(--f-mono)" font-size="13" font-weight="700">sidebar</text>
+    <text x="123" y="164" text-anchor="middle" fill="oklch(0.88 0.04 140)" font-family="var(--f-mono)" font-size="9">250px fixed</text>
+
+    <!-- main (row 2, col 2) -->
+    <rect x="231" y="84" width="409" height="120" fill="oklch(0.72 0.08 200)" stroke="none" rx="0"/>
+    <text x="436" y="148" text-anchor="middle" fill="white" font-family="var(--f-mono)" font-size="13" font-weight="700">main</text>
+    <text x="436" y="164" text-anchor="middle" fill="oklch(0.92 0.04 200)" font-family="var(--f-mono)" font-size="9">1fr flexible</text>
+
+    <!-- gap visual -->
+    <rect x="227" y="84" width="4" height="120" fill="var(--bg)" stroke="none"/>
+    <rect x="20" y="80" width="620" height="4" fill="var(--bg)" stroke="none"/>
+    <rect x="20" y="204" width="620" height="4" fill="var(--bg)" stroke="none"/>
+
+    <!-- footer (row 3, col 1-2) -->
+    <rect x="20" y="208" width="620" height="72" fill="oklch(0.55 0.12 260)" stroke="none" rx="0"/>
+    <text x="330" y="248" text-anchor="middle" fill="white" font-family="var(--f-mono)" font-size="14" font-weight="700">footer</text>
+    <text x="330" y="268" text-anchor="middle" fill="oklch(0.80 0.06 260)" font-family="var(--f-mono)" font-size="10">"footer footer"</text>
+
+    <!-- CSS annotation on side -->
+    <text x="648" y="50" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="8" text-anchor="start">row 1</text>
+    <text x="648" y="145" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="8" text-anchor="start">row 2</text>
+    <text x="648" y="245" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="8" text-anchor="start">row 3</text>
+  </svg>
+  <figcaption>grid-template-areas maps named strings to visual regions — the same area name spanning two cells creates a spanning track.</figcaption>
+</figure>
 
 <h4 class="g-h4"><code>grid-template-areas</code></h4>
 <ul>
@@ -1072,7 +1300,115 @@ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);</pre></div>
 
 <hr>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 670 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="z-index stacking context: offset rectangles showing higher z-index renders on top">
+    <!-- Title -->
+    <text x="330" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="13" font-weight="700">z-index stacking order — higher value = closer to viewer</text>
+
+    <!-- Z-axis label -->
+    <text x="620" y="220" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10" text-anchor="middle">viewer</text>
+    <line x1="580" y1="230" x2="580" y2="40" stroke="var(--fg-muted)" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <polygon points="580,32 575,44 585,44" fill="var(--fg-muted)"/>
+    <text x="596" y="136" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9" text-anchor="start" dominant-baseline="middle" transform="rotate(90,596,136)">z-axis</text>
+
+    <!-- Layer z=-1 (bottom / furthest back) -->
+    <rect x="30" y="180" width="260" height="64" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5" rx="6"/>
+    <text x="160" y="208" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="12">z-index: -1</text>
+    <text x="160" y="226" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">behind normal flow</text>
+
+    <!-- Layer z=0 / auto (static, normal flow) -->
+    <rect x="80" y="130" width="260" height="64" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" rx="6"/>
+    <text x="210" y="158" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12">z-index: 0 (auto)</text>
+    <text x="210" y="176" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">normal stacking order</text>
+
+    <!-- Layer z=1 -->
+    <rect x="130" y="80" width="260" height="64" fill="oklch(0.80 0.08 200)" stroke="var(--border-strong)" stroke-width="1.5" rx="6"/>
+    <text x="260" y="108" text-anchor="middle" fill="oklch(0.20 0.08 200)" font-family="var(--f-mono)" font-size="12">z-index: 1</text>
+    <text x="260" y="124" text-anchor="middle" fill="oklch(0.30 0.08 200)" font-family="var(--f-body)" font-size="10">above normal flow</text>
+
+    <!-- Layer z=100 (topmost) -->
+    <rect x="180" y="30" width="260" height="64" fill="var(--accent)" stroke="var(--border-strong)" stroke-width="2" rx="6" opacity="0.9"/>
+    <text x="310" y="58" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="12" font-weight="700">z-index: 100</text>
+    <text x="310" y="76" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="10">modal / overlay (on top of all)</text>
+
+    <!-- Gotcha note -->
+    <text x="330" y="252" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">z-index only works on positioned elements (position: relative / absolute / fixed / sticky)</text>
+  </svg>
+  <figcaption>z-index stacks positioned elements like layers of glass — higher values render in front; z-index has no effect on static elements.</figcaption>
+</figure>
+
 <h2 class="g-h2">9. Transitions vs Animations</h2>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Transitions vs animations: transition goes between two states on trigger; animation follows keyframes independently">
+    <defs>
+      <marker id="arr-t" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--warning)"/>
+      </marker>
+    </defs>
+
+    <!-- LEFT: Transition -->
+    <text x="168" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="13" font-weight="700">transition</text>
+    <text x="168" y="34" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">requires a trigger (:hover, class change)</text>
+
+    <!-- State A -->
+    <rect x="16" y="50" width="100" height="60" fill="var(--surface)" stroke="var(--accent)" stroke-width="2" rx="6"/>
+    <text x="66" y="84" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11" font-weight="700">State A</text>
+    <text x="66" y="100" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">bg: blue</text>
+
+    <!-- Arrow: trigger -->
+    <line x1="116" y1="80" x2="226" y2="80" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr-t)"/>
+    <text x="168" y="72" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="10">:hover trigger</text>
+    <text x="168" y="98" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">─── smooth ───</text>
+
+    <!-- State B -->
+    <rect x="228" y="50" width="100" height="60" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" rx="6" opacity="0.85"/>
+    <text x="278" y="84" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="11" font-weight="700">State B</text>
+    <text x="278" y="100" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="9">bg: teal</text>
+
+    <!-- Two states only callout -->
+    <text x="168" y="132" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">Only 2 states. Goes back on un-trigger.</text>
+    <text x="168" y="148" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">Declared on the base element, not :hover.</text>
+
+    <!-- Divider -->
+    <line x1="350" y1="20" x2="350" y2="210" stroke="var(--border)" stroke-width="1" stroke-dasharray="5,4"/>
+
+    <!-- RIGHT: Animation -->
+    <text x="532" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="13" font-weight="700">animation + @keyframes</text>
+    <text x="532" y="34" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">runs independently — no trigger needed</text>
+
+    <!-- Keyframe timeline -->
+    <line x1="368" y1="100" x2="688" y2="100" stroke="var(--warning)" stroke-width="2" marker-end="url(#arr-a)"/>
+
+    <!-- 0% -->
+    <circle cx="380" cy="100" r="8" fill="var(--warning)" opacity="0.7"/>
+    <text x="380" y="120" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="9">0%</text>
+    <rect x="368" y="55" width="24" height="36" fill="var(--warning)" stroke="none" rx="4" opacity="0.3"/>
+    <text x="380" y="76" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="8">scale(1)</text>
+
+    <!-- 50% -->
+    <circle cx="532" cy="100" r="8" fill="var(--warning)" opacity="0.9"/>
+    <text x="532" y="120" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="9">50%</text>
+    <rect x="516" y="40" width="32" height="52" fill="var(--warning)" stroke="none" rx="4" opacity="0.55"/>
+    <text x="532" y="68" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="8">scale</text>
+    <text x="532" y="80" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="8">(1.2)</text>
+
+    <!-- 100% -->
+    <circle cx="676" cy="100" r="8" fill="var(--warning)" opacity="0.7"/>
+    <text x="676" y="120" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="9">100%</text>
+    <rect x="664" y="55" width="24" height="36" fill="var(--warning)" stroke="none" rx="4" opacity="0.3"/>
+    <text x="676" y="76" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="8">scale(1)</text>
+
+    <!-- Loop arrows -->
+    <path d="M676,108 Q676,160 532,160 Q380,160 380,108" fill="none" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-a)"/>
+    <text x="532" y="178" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">iteration-count: infinite (loops forever)</text>
+    <text x="532" y="196" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">Multiple keyframe stops — not just two states</text>
+  </svg>
+  <figcaption>Transitions react to triggers and interpolate between two states; animations run independently through any number of @keyframes steps.</figcaption>
+</figure>
 
 <h3 class="g-h3">Key Difference (from slides)</h3>
 <ul>
@@ -1537,6 +1873,59 @@ border-radius: 50%;  /* same as 50% / 50% */</pre></div>
 
 <h2 class="g-h2">13. Box Sizing</h2>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 768.44 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CSS Box Model: content, padding, border and margin as nested rectangles">
+    <defs>
+      <marker id="arr-bm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+
+    <!-- margin (outermost) -->
+    <rect x="16" y="16" width="628" height="308" fill="oklch(0.88 0.06 80)" stroke="var(--border)" stroke-width="1.5" rx="0"/>
+    <text x="220" y="30" fill="oklch(0.40 0.08 80)" font-family="var(--f-body)" font-size="11" font-weight="700">margin</text>
+
+    <!-- border -->
+    <rect x="60" y="52" width="540" height="236" fill="oklch(0.75 0.10 200)" stroke="var(--border-strong)" stroke-width="2" rx="0"/>
+    <text x="230" y="68" fill="oklch(0.25 0.08 200)" font-family="var(--f-body)" font-size="11" font-weight="700">border</text>
+
+    <!-- padding -->
+    <rect x="96" y="84" width="468" height="172" fill="oklch(0.85 0.08 140)" stroke="var(--border)" stroke-width="1.5" rx="0"/>
+    <text x="240" y="100" fill="oklch(0.30 0.10 140)" font-family="var(--f-body)" font-size="11" font-weight="700">padding</text>
+
+    <!-- content -->
+    <rect x="140" y="116" width="380" height="108" fill="var(--accent)" stroke="none" rx="0" opacity="0.75"/>
+    <text x="330" y="174" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="14" font-weight="700">content</text>
+    <text x="330" y="194" text-anchor="middle" fill="var(--bg)" font-family="var(--f-body)" font-size="11">width × height</text>
+
+    <!-- Dimension callouts on the right side -->
+    <!-- margin right: x=644 to x=628 = 16px -->
+    <line x1="648" y1="16" x2="648" y2="324" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="658" y="172" fill="oklch(0.40 0.08 80)" font-family="var(--f-mono)" font-size="9" text-anchor="start" dominant-baseline="middle" transform="rotate(90,658,172)">margin (all sides)</text>
+
+    <!-- Labels on left side -->
+    <text x="8" y="172" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,8,172)">top / bottom mirrors</text>
+
+    <!-- Measurement ticks -->
+    <!-- Content width annotation -->
+    <line x1="140" y1="232" x2="520" y2="232" stroke="var(--fg-muted)" stroke-width="1" marker-start="url(#arr-bm)" marker-end="url(#arr-bm)"/>
+    <text x="330" y="246" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">content-width (set by width property)</text>
+
+    <!-- Padding annotation -->
+    <line x1="96" y1="268" x2="140" y2="268" stroke="oklch(0.30 0.10 140)" stroke-width="1" marker-start="url(#arr-bm)" marker-end="url(#arr-bm)"/>
+    <text x="118" y="282" text-anchor="middle" fill="oklch(0.30 0.10 140)" font-family="var(--f-mono)" font-size="9">pad</text>
+
+    <!-- Border annotation -->
+    <line x1="60" y1="296" x2="96" y2="296" stroke="oklch(0.25 0.08 200)" stroke-width="1" marker-start="url(#arr-bm)" marker-end="url(#arr-bm)"/>
+    <text x="78" y="310" text-anchor="middle" fill="oklch(0.25 0.08 200)" font-family="var(--f-mono)" font-size="9">border</text>
+
+    <!-- Margin annotation -->
+    <line x1="16" y1="316" x2="60" y2="316" stroke="oklch(0.40 0.08 80)" stroke-width="1" marker-start="url(#arr-bm)" marker-end="url(#arr-bm)"/>
+    <text x="38" y="330" text-anchor="middle" fill="oklch(0.40 0.08 80)" font-family="var(--f-mono)" font-size="9">margin</text>
+  </svg>
+  <figcaption>The CSS box model: every element is a set of nested layers — content inside padding inside border inside margin.</figcaption>
+</figure>
+
 <h3 class="g-h3">Definition</h3>
 <p><code>box-sizing</code> defines how the browser calculates the total width and height of an element.</p>
 
@@ -1600,6 +1989,43 @@ border-radius: 50%;  /* same as 50% / 50% */</pre></div>
 <hr>
 
 <h2 class="g-h2">14. Attribute Selectors</h2>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 670 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CSS specificity pyramid: inline styles highest, then ID, then class/attribute/pseudo-class, then element/pseudo-element lowest">
+    <!-- Title -->
+    <text x="330" y="18" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="13" font-weight="700">CSS Specificity — higher wins, same specificity = last rule wins</text>
+
+    <!-- Tier 4 (bottom, widest): element / pseudo-element — weight (0,0,1) -->
+    <polygon points="90,252 570,252 530,200 130,200" fill="oklch(0.82 0.06 260)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="330" y="232" text-anchor="middle" fill="oklch(0.25 0.08 260)" font-family="var(--f-mono)" font-size="12" font-weight="700">element / pseudo-element</text>
+    <text x="330" y="248" text-anchor="middle" fill="oklch(0.35 0.08 260)" font-family="var(--f-mono)" font-size="10">p  h1  ::before  ::first-line   →   (0,0,1)</text>
+
+    <!-- Tier 3: class / attribute / pseudo-class — weight (0,1,0) -->
+    <polygon points="130,196 530,196 490,144 170,144" fill="oklch(0.78 0.08 200)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="330" y="174" text-anchor="middle" fill="oklch(0.20 0.08 200)" font-family="var(--f-mono)" font-size="12" font-weight="700">class / attribute / pseudo-class</text>
+    <text x="330" y="190" text-anchor="middle" fill="oklch(0.30 0.08 200)" font-family="var(--f-mono)" font-size="10">.btn  [href]  :hover  :first-child   →   (0,1,0)</text>
+
+    <!-- Tier 2: ID — weight (1,0,0) -->
+    <polygon points="170,140 490,140 450,88 210,88" fill="oklch(0.72 0.10 140)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="330" y="118" text-anchor="middle" fill="oklch(0.20 0.10 140)" font-family="var(--f-mono)" font-size="12" font-weight="700">ID selector</text>
+    <text x="330" y="134" text-anchor="middle" fill="oklch(0.28 0.10 140)" font-family="var(--f-mono)" font-size="10">#header  #nav   →   (1,0,0)</text>
+
+    <!-- Tier 1 (top, narrowest): inline style — weight (1,0,0,0) -->
+    <polygon points="210,84 450,84 410,36 250,36" fill="oklch(0.62 0.14 30)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="330" y="60" text-anchor="middle" fill="white" font-family="var(--f-mono)" font-size="12" font-weight="700">inline style</text>
+    <text x="330" y="76" text-anchor="middle" fill="oklch(0.92 0.04 30)" font-family="var(--f-mono)" font-size="10">style="…"   →   (1,0,0,0)</text>
+
+    <!-- !important callout -->
+    <rect x="540" y="100" width="108" height="48" fill="var(--danger)" stroke="none" rx="6" opacity="0.85"/>
+    <text x="594" y="122" text-anchor="middle" fill="white" font-family="var(--f-mono)" font-size="11" font-weight="700">!important</text>
+    <text x="594" y="138" text-anchor="middle" fill="white" font-family="var(--f-body)" font-size="9">overrides all</text>
+    <line x1="540" y1="124" x2="450" y2="110" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- specificity weight reminder -->
+    <text x="330" y="270" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="10">Weight tuple: (inline, IDs, classes, elements) — compare left-to-right; first tie-break wins</text>
+  </svg>
+  <figcaption>CSS specificity determines which rule wins conflicts — inline beats ID beats class beats element, with !important as nuclear override.</figcaption>
+</figure>
 
 <h3 class="g-h3">Definition</h3>
 <p>CSS3 allows selecting elements based on their attributes and attribute values.</p>

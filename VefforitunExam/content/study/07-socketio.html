@@ -45,6 +45,86 @@ Client → GET /updates  (opens new request immediately)</pre></div>
 
 <h3 class="g-h3">WebSocket — The Real Solution</h3>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 830 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HTTP half-duplex request/response cycle compared to WebSocket full-duplex persistent connection">
+    <defs>
+      <marker id="arr1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr1-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr1-muted" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- Panel divider -->
+    <line x1="410" y1="8" x2="410" y2="302" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3"/>
+    <!-- LEFT PANEL: HTTP -->
+    <text x="205" y="26" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--fg)">HTTP — Half-Duplex</text>
+    <!-- Client box -->
+    <rect x="24" y="40" width="80" height="32" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="64" y="61" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Client</text>
+    <!-- Server box -->
+    <rect x="296" y="40" width="80" height="32" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="336" y="61" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Server</text>
+    <!-- Round 1: request -->
+    <line x1="104" y1="96" x2="295" y2="96" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <text x="200" y="91" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">GET /data</text>
+    <!-- Round 1: response -->
+    <line x1="295" y1="116" x2="104" y2="116" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr1-muted)"/>
+    <text x="200" y="111" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">200 OK + data</text>
+    <!-- connection closes label -->
+    <text x="200" y="140" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">connection closes</text>
+    <!-- Round 2: request -->
+    <line x1="104" y1="162" x2="295" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <text x="200" y="157" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">GET /data</text>
+    <!-- Round 2: response -->
+    <line x1="295" y1="182" x2="104" y2="182" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr1-muted)"/>
+    <text x="200" y="177" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-muted)">200 OK + data</text>
+    <!-- connection closes label -->
+    <text x="200" y="206" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">connection closes</text>
+    <!-- Round 3 dots -->
+    <text x="200" y="234" text-anchor="middle" font-family="var(--f-body)" font-size="16" fill="var(--fg-subtle)">...</text>
+    <!-- Key: one-way per turn -->
+    <rect x="24" y="252" width="362" height="40" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="205" y="268" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">New connection each round-trip. Server cannot</text>
+    <text x="205" y="283" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">push data without client asking first.</text>
+
+    <!-- RIGHT PANEL: WebSocket -->
+    <text x="615" y="26" text-anchor="middle" font-family="var(--f-body)" font-size="13" font-weight="700" fill="var(--accent)">WebSocket — Full-Duplex</text>
+    <!-- Client box -->
+    <rect x="434" y="40" width="80" height="32" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="474" y="61" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Client</text>
+    <!-- Server box -->
+    <rect x="706" y="40" width="80" height="32" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="746" y="61" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Server</text>
+    <!-- Upgrade handshake -->
+    <line x1="514" y1="90" x2="705" y2="90" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr1-muted)"/>
+    <text x="610" y="85" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">HTTP Upgrade: websocket</text>
+    <line x1="705" y1="105" x2="514" y2="105" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr1-muted)"/>
+    <text x="610" y="100" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">101 Switching Protocols</text>
+    <!-- persistent channel bracket -->
+    <rect x="434" y="116" width="352" height="118" rx="4" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="610" y="130" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--accent)">persistent channel open</text>
+    <!-- frame: client → server -->
+    <line x1="514" y1="148" x2="705" y2="148" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1-accent)"/>
+    <text x="610" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">frame (client data)</text>
+    <!-- frame: server → client -->
+    <line x1="705" y1="168" x2="514" y2="168" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1-accent)"/>
+    <text x="610" y="163" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">frame (server push)</text>
+    <!-- frame: simultaneous -->
+    <line x1="514" y1="188" x2="705" y2="188" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1-accent)"/>
+    <line x1="705" y1="200" x2="514" y2="200" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1-accent)"/>
+    <text x="610" y="221" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">both directions simultaneously</text>
+    <!-- Key -->
+    <rect x="434" y="252" width="352" height="40" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="610" y="268" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">Single persistent connection. Either side sends</text>
+    <text x="610" y="283" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">at any time. No repeated handshakes.</text>
+  </svg>
+  <figcaption>HTTP forces a new connection per round-trip and cannot push data; WebSocket upgrades once and keeps a bidirectional channel open indefinitely.</figcaption>
+</figure>
+
 <p>WebSocket is a standardized protocol (RFC 6455) that <strong>upgrades</strong> an HTTP/1.1 connection to a persistent, full-duplex channel:</p>
 
 <div class="cb"><pre>Client → HTTP GET /ws  Upgrade: websocket
@@ -141,6 +221,76 @@ Client → push data at any time</pre></div>
     </tr>
   </tbody>
 </table></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 870 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Transport evolution from polling to long polling to SSE to WebSocket, showing increasing capability">
+    <defs>
+      <marker id="arr2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Evolution arrow -->
+    <line x1="30" y1="152" x2="830" y2="152" stroke="var(--fg-subtle)" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text x="440" y="295" text-anchor="middle" font-family="var(--f-body)" font-size="11" fill="var(--fg-subtle)">evolution / increasing capability</text>
+
+    <!-- Stage 1: Polling -->
+    <rect x="20" y="44" width="160" height="92" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="100" y="64" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">Polling</text>
+    <!-- mini diagram: repeated short arrows -->
+    <line x1="44" y1="82" x2="90" y2="82" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <line x1="90" y1="92" x2="44" y2="92" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr2)"/>
+    <line x1="44" y1="102" x2="90" y2="102" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <line x1="90" y1="112" x2="44" y2="112" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr2)"/>
+    <text x="115" y="98" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">C→S ask</text>
+    <text x="115" y="112" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">S→C reply</text>
+    <!-- pro/con -->
+    <text x="100" y="150" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">High overhead</text>
+    <text x="100" y="163" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">No server push</text>
+
+    <!-- Stage 2: Long Polling -->
+    <rect x="220" y="44" width="160" height="92" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="300" y="64" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">Long Polling</text>
+    <!-- mini diagram: one held arrow then reply -->
+    <line x1="236" y1="84" x2="362" y2="84" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text x="299" y="79" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">held open...</text>
+    <line x1="362" y1="110" x2="236" y2="110" stroke="oklch(0.70 0.10 80)" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text x="299" y="107" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="oklch(0.70 0.10 80)">event fires!</text>
+    <!-- pro/con -->
+    <text x="300" y="150" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--warning)">Simulated push</text>
+    <text x="300" y="163" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">High memory use</text>
+
+    <!-- Stage 3: SSE -->
+    <rect x="420" y="44" width="160" height="92" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="500" y="64" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--fg)">SSE</text>
+    <!-- mini diagram: one-way stream -->
+    <line x1="500" y1="82" x2="500" y2="82"/>
+    <line x1="572" y1="84" x2="436" y2="84" stroke="oklch(0.70 0.10 200)" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="572" y1="98" x2="436" y2="98" stroke="oklch(0.70 0.10 200)" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="572" y1="112" x2="436" y2="112" stroke="oklch(0.70 0.10 200)" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="500" y="127" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="oklch(0.70 0.10 200)">Server → Client stream</text>
+    <!-- pro/con -->
+    <text x="500" y="150" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">True server push</text>
+    <text x="500" y="163" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--danger)">One direction only</text>
+
+    <!-- Stage 4: WebSocket -->
+    <rect x="620" y="44" width="200" height="92" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="720" y="64" text-anchor="middle" font-family="var(--f-body)" font-size="12" font-weight="700" fill="var(--accent)">WebSocket</text>
+    <!-- mini diagram: bidirectional arrows -->
+    <line x1="636" y1="86" x2="804" y2="86" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="804" y1="100" x2="636" y2="100" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="636" y1="114" x2="804" y2="114" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="720" y="130" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--accent)">bidirectional frames</text>
+    <!-- pro/con -->
+    <text x="720" y="150" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">Full-duplex push/send</text>
+    <text x="720" y="163" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">Persistent, low overhead</text>
+
+    <!-- progression dots between stages -->
+    <text x="195" y="96" text-anchor="middle" font-family="var(--f-body)" font-size="16" fill="var(--fg-subtle)">→</text>
+    <text x="395" y="96" text-anchor="middle" font-family="var(--f-body)" font-size="16" fill="var(--fg-subtle)">→</text>
+    <text x="595" y="96" text-anchor="middle" font-family="var(--f-body)" font-size="16" fill="var(--fg-subtle)">→</text>
+  </svg>
+  <figcaption>Transport evolution: polling wastes resources, long polling simulates push, SSE adds real push but only one-way, WebSocket delivers true bidirectional real-time communication.</figcaption>
+</figure>
 
 <p><strong>SSE (Server-Sent Events)</strong>: The server streams events to the client over a persistent HTTP connection. Client cannot send events back through the same channel. Good for one-way feeds (stock tickers, live logs).</p>
 
@@ -344,9 +494,166 @@ useEffect(() =&gt; {
   </tbody>
 </table></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 870 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three emit method fan diagrams showing io.emit to all, socket.broadcast.emit to all except sender, and socket.emit only to sender">
+    <defs>
+      <marker id="arr3-all" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+      <marker id="arr3-bcast" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--warning)"/>
+      </marker>
+      <marker id="arr3-self" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- ===== PANEL 1: io.emit — to everyone ===== -->
+    <text x="143" y="20" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--success)">io.emit()</text>
+    <text x="143" y="34" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">to EVERYONE</text>
+    <!-- Server -->
+    <rect x="108" y="44" width="70" height="28" rx="6" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="143" y="63" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Server</text>
+    <!-- Clients: A(sender), B, C, D -->
+    <!-- A - top left (sender) -->
+    <rect x="20" y="120" width="52" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="46" y="136" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">A (src)</text>
+    <line x1="108" y1="68" x2="68" y2="120" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3-all)"/>
+    <!-- B - top right -->
+    <rect x="214" y="120" width="48" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="238" y="136" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">B</text>
+    <line x1="178" y1="68" x2="220" y2="120" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3-all)"/>
+    <!-- C - bottom left -->
+    <rect x="20" y="186" width="48" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="44" y="202" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">C</text>
+    <line x1="108" y1="72" x2="56" y2="186" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3-all)"/>
+    <!-- D - bottom right -->
+    <rect x="214" y="186" width="48" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="238" y="202" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">D</text>
+    <line x1="178" y1="72" x2="230" y2="186" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3-all)"/>
+    <text x="143" y="238" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--success)">All 4 clients receive it</text>
+
+    <!-- divider -->
+    <line x1="295" y1="10" x2="295" y2="250" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- ===== PANEL 2: socket.broadcast.emit — everyone except sender ===== -->
+    <text x="443" y="20" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--warning)">socket.broadcast.emit()</text>
+    <text x="443" y="34" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">everyone EXCEPT sender</text>
+    <!-- Server -->
+    <rect x="408" y="44" width="70" height="28" rx="6" fill="var(--surface)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="443" y="63" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Server</text>
+    <!-- A (sender - greyed out, no arrow from server) -->
+    <rect x="320" y="120" width="52" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="346" y="136" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">A (src)</text>
+    <!-- arrow FROM A to server (A is the source) -->
+    <line x1="372" y1="120" x2="408" y2="72" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr3-bcast)" stroke-dasharray="3,2"/>
+    <!-- B -->
+    <rect x="514" y="120" width="48" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="538" y="136" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">B</text>
+    <line x1="478" y1="68" x2="520" y2="120" stroke="var(--warning)" stroke-width="1.5" marker-end="url(#arr3-bcast)"/>
+    <!-- C -->
+    <rect x="320" y="186" width="48" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="344" y="202" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">C</text>
+    <line x1="408" y1="72" x2="356" y2="186" stroke="var(--warning)" stroke-width="1.5" marker-end="url(#arr3-bcast)"/>
+    <!-- D -->
+    <rect x="514" y="186" width="48" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="538" y="202" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">D</text>
+    <line x1="478" y1="72" x2="530" y2="186" stroke="var(--warning)" stroke-width="1.5" marker-end="url(#arr3-bcast)"/>
+    <text x="443" y="238" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--warning)">B, C, D receive — A does not</text>
+
+    <!-- divider -->
+    <line x1="595" y1="10" x2="595" y2="250" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- ===== PANEL 3: socket.emit — only sender ===== -->
+    <text x="727" y="20" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--accent)">socket.emit()</text>
+    <text x="727" y="34" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">ONLY the sender</text>
+    <!-- Server -->
+    <rect x="692" y="44" width="70" height="28" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="727" y="63" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Server</text>
+    <!-- A (only receiver) -->
+    <rect x="604" y="120" width="52" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="630" y="136" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">A (src)</text>
+    <line x1="692" y1="68" x2="652" y2="120" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr3-self)"/>
+    <!-- B greyed -->
+    <rect x="798" y="120" width="48" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="822" y="136" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">B</text>
+    <!-- C greyed -->
+    <rect x="604" y="186" width="48" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="628" y="202" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">C</text>
+    <!-- D greyed -->
+    <rect x="798" y="186" width="48" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="822" y="202" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">D</text>
+    <text x="727" y="238" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--accent)">Only A receives (e.g. session data)</text>
+  </svg>
+  <figcaption>The three emit methods with a 4-client setup: io.emit reaches all, socket.broadcast.emit skips the sender, socket.emit (server-side) targets only the sender's socket.</figcaption>
+</figure>
+
 <h2 class="g-h2">5. Rooms</h2>
 
 <p>Rooms are virtual groups of sockets. They allow you to send events to a specific subset of connected clients.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Server with three rooms showing io.to room-42 emit reaching only clients in room-42">
+    <defs>
+      <marker id="arr4-lit" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr4-dim" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--border)"/>
+      </marker>
+    </defs>
+
+    <!-- Server box -->
+    <rect x="310" y="20" width="140" height="48" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="380" y="42" text-anchor="middle" font-family="var(--f-mono)" font-size="12" font-weight="700" fill="var(--fg)">Server</text>
+    <text x="380" y="58" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--accent)">io.to('room-42').emit(...)</text>
+
+    <!-- Room-7 (left, dimmed) -->
+    <rect x="24" y="110" width="160" height="140" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="104" y="130" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg-muted)">room-7</text>
+    <!-- Clients in room-7 -->
+    <rect x="40" y="142" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="68" y="159" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Client E</text>
+    <rect x="112" y="142" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="140" y="159" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Client F</text>
+    <rect x="40" y="198" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="68" y="215" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Client G</text>
+    <!-- dim line from server to room-7 -->
+    <line x1="320" y1="60" x2="180" y2="114" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr4-dim)"/>
+    <text x="230" y="82" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">no emit</text>
+
+    <!-- Room-42 (center, lit) -->
+    <rect x="300" y="110" width="160" height="140" rx="6" fill="oklch(0.18 0.04 200)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="380" y="130" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--accent)">room-42</text>
+    <!-- Clients in room-42 -->
+    <rect x="316" y="142" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="344" y="159" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client A</text>
+    <rect x="388" y="142" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="416" y="159" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client B</text>
+    <rect x="316" y="198" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="344" y="215" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client C</text>
+    <rect x="388" y="198" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="416" y="215" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client D</text>
+    <!-- lit line from server to room-42 -->
+    <line x1="380" y1="68" x2="380" y2="110" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr4-lit)"/>
+
+    <!-- Room-99 (right, dimmed) -->
+    <rect x="576" y="110" width="160" height="140" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="656" y="130" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg-muted)">room-99</text>
+    <!-- Clients in room-99 -->
+    <rect x="592" y="142" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="620" y="159" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Client H</text>
+    <rect x="664" y="142" width="56" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="692" y="159" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Client I</text>
+    <!-- dim line from server to room-99 -->
+    <line x1="440" y1="60" x2="580" y2="114" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr4-dim)"/>
+    <text x="530" y="82" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-subtle)">no emit</text>
+
+    <!-- legend labels -->
+    <text x="380" y="265" text-anchor="middle" font-family="var(--f-body)" font-size="10" fill="var(--fg-muted)">Only room-42 members (A, B, C, D) receive the event — other rooms are silent.</text>
+  </svg>
+  <figcaption>io.to('room-42').emit(...) delivers the event exclusively to the sockets inside room-42; clients in other rooms are unaffected.</figcaption>
+</figure>
 
 <h3 class="g-h3">Joining and Leaving</h3>
 
@@ -411,6 +718,66 @@ useEffect(() =&gt; {
   });
 });</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flow diagram showing socket.on message handler calling socket.to room emit to broadcast to room members excluding sender">
+    <defs>
+      <marker id="arr7" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr7-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr7-warn" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--warning)"/>
+      </marker>
+    </defs>
+
+    <!-- Client (sender) -->
+    <rect x="16" y="96" width="88" height="36" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="60" y="112" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--fg)">Client A</text>
+    <text x="60" y="126" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">(sender)</text>
+
+    <!-- arrow: emit message to server -->
+    <line x1="104" y1="114" x2="178" y2="114" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr7)"/>
+    <text x="141" y="109" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">emit('message')</text>
+
+    <!-- Server handler box -->
+    <rect x="178" y="64" width="200" height="108" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="278" y="84" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--fg)">Server Handler</text>
+    <text x="278" y="100" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">socket.on('message', () =&gt; {'{' }</text>
+    <text x="278" y="116" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)" font-weight="700">  socket.to(</text>
+    <text x="278" y="130" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)" font-weight="700">    socket.room</text>
+    <text x="278" y="144" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--accent)" font-weight="700">  ).emit(...)</text>
+    <text x="278" y="160" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">{'}'}</text>
+
+    <!-- arrow: broadcast to room -->
+    <line x1="378" y1="114" x2="452" y2="114" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr7-accent)"/>
+    <text x="415" y="107" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--accent)">broadcast</text>
+    <text x="415" y="120" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--accent)">to room</text>
+
+    <!-- Room box with clients -->
+    <rect x="452" y="44" width="230" height="172" rx="6" fill="oklch(0.18 0.04 200)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="567" y="65" text-anchor="middle" font-family="var(--f-body)" font-size="11" font-weight="700" fill="var(--accent)">channel:general</text>
+    <!-- Client B -->
+    <rect x="468" y="78" width="88" height="28" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="512" y="97" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client B</text>
+    <!-- Client C -->
+    <rect x="572" y="78" width="88" height="28" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="616" y="97" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client C</text>
+    <!-- Client D -->
+    <rect x="468" y="124" width="88" height="28" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="512" y="143" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">Client D</text>
+    <!-- Client A in room (sender, dimmed) -->
+    <rect x="572" y="124" width="88" height="28" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="616" y="139" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg-subtle)">Client A</text>
+    <text x="616" y="151" text-anchor="middle" font-family="var(--f-body)" font-size="8" fill="var(--fg-subtle)">(skipped)</text>
+    <!-- note -->
+    <text x="567" y="196" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">B, C, D receive — A is excluded</text>
+    <text x="567" y="208" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">via socket.to() (excludes sender)</text>
+  </svg>
+  <figcaption>Inside a message handler, socket.to(socket.room).emit(...) re-broadcasts to every room member except the originating sender.</figcaption>
+</figure>
+
 <h2 class="g-h2">6. Namespaces</h2>
 
 <p>Namespaces are separate communication channels on the <strong>same underlying connection</strong>. Think of them as separate "apps" on the same Socket.io server.</p>
@@ -441,6 +808,67 @@ const adminSocket = io('http://localhost:4567/admin');</pre></div>
   <li>Namespace: defined on the server, clients choose which namespace to connect to. Separate event stream.</li>
   <li>Room: server-side grouping of sockets within a namespace. Clients don't "connect" to rooms — they are joined by the server.</li>
 </ul>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 790 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hierarchy diagram showing Socket.io server with two namespaces slash-chat and slash-admin each containing rooms with clients">
+    <defs>
+      <marker id="arr5" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+
+    <!-- Root server -->
+    <rect x="310" y="10" width="160" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="390" y="25" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Socket.io Server</text>
+    <text x="390" y="40" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">io = new Server(...)</text>
+
+    <!-- Branch lines to namespaces -->
+    <line x1="340" y1="46" x2="200" y2="90" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr5)"/>
+    <line x1="440" y1="46" x2="580" y2="90" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr5)"/>
+
+    <!-- Namespace /chat -->
+    <rect x="80" y="90" width="240" height="200" rx="6" fill="var(--surface-alt)" stroke="oklch(0.70 0.10 200)" stroke-width="2"/>
+    <text x="200" y="112" text-anchor="middle" font-family="var(--f-mono)" font-size="13" font-weight="700" fill="oklch(0.70 0.10 200)">/chat</text>
+    <text x="200" y="128" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">namespace — separate channel</text>
+    <!-- rooms inside /chat -->
+    <rect x="96" y="136" width="96" height="64" rx="4" fill="var(--surface)" stroke="oklch(0.70 0.10 200)" stroke-width="1"/>
+    <text x="144" y="153" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">room:general</text>
+    <rect x="96" y="160" width="38" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="115" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">C1</text>
+    <rect x="140" y="160" width="38" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="159" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">C2</text>
+
+    <rect x="202" y="136" width="96" height="64" rx="4" fill="var(--surface)" stroke="oklch(0.70 0.10 200)" stroke-width="1"/>
+    <text x="250" y="153" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">room:sports</text>
+    <rect x="212" y="160" width="38" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="231" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">C3</text>
+    <rect x="256" y="160" width="38" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="275" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">C4</text>
+
+    <text x="200" y="224" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">rooms are subdivisions within</text>
+    <text x="200" y="236" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">the /chat namespace</text>
+    <text x="200" y="278" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="oklch(0.70 0.10 200)">io('/chat').emit() → only /chat</text>
+
+    <!-- Namespace /admin -->
+    <rect x="460" y="90" width="240" height="200" rx="6" fill="var(--surface-alt)" stroke="oklch(0.70 0.10 320)" stroke-width="2"/>
+    <text x="580" y="112" text-anchor="middle" font-family="var(--f-mono)" font-size="13" font-weight="700" fill="oklch(0.70 0.10 320)">/admin</text>
+    <text x="580" y="128" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">namespace — separate channel</text>
+    <!-- room inside /admin -->
+    <rect x="476" y="136" width="208" height="64" rx="4" fill="var(--surface)" stroke="oklch(0.70 0.10 320)" stroke-width="1"/>
+    <text x="580" y="153" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--fg)">room:moderators</text>
+    <rect x="490" y="160" width="48" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="514" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">Admin1</text>
+    <rect x="546" y="160" width="48" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="570" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">Admin2</text>
+    <rect x="602" y="160" width="66" height="20" rx="3" fill="var(--bg-raised)" stroke="var(--border)" stroke-width="1"/>
+    <text x="635" y="174" text-anchor="middle" font-family="var(--f-mono)" font-size="8" fill="var(--fg-muted)">SuperAdmin</text>
+
+    <text x="580" y="224" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">completely isolated from /chat</text>
+    <text x="580" y="236" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg-muted)">events don't leak across namespaces</text>
+    <text x="580" y="278" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="oklch(0.70 0.10 320)">io('/admin').emit() → only /admin</text>
+  </svg>
+  <figcaption>Namespaces (/chat, /admin) are top-level isolated channels; rooms are server-side groupings within a namespace — the hierarchy is Server → Namespace → Room → Socket.</figcaption>
+</figure>
 
 <h2 class="g-h2">7. Middleware (Auth)</h2>
 
@@ -509,6 +937,85 @@ socket.on('connect_error', (err) =&gt; {
   console.error('Connection refused:', err.message);
 });</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Connection lifecycle sequence diagram showing client connect attempt, middleware auth check, happy path connect and messages and disconnect, and auth failure path leading to connect_error">
+    <defs>
+      <marker id="arr6" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr6-success" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+      <marker id="arr6-danger" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+      <marker id="arr6-muted" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+
+    <!-- Lane headers -->
+    <rect x="16" y="10" width="110" height="32" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="71" y="31" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Client</text>
+    <rect x="316" y="10" width="130" height="32" rx="4" fill="var(--surface)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="381" y="31" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--warning)">Middleware</text>
+    <rect x="626" y="10" width="110" height="32" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="681" y="31" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Server</text>
+
+    <!-- Lane lines -->
+    <line x1="71" y1="42" x2="71" y2="330" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="381" y1="42" x2="381" y2="330" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="681" y1="42" x2="681" y2="330" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <!-- Step 1: Client connect attempt -->
+    <line x1="71" y1="64" x2="316" y2="64" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr6)"/>
+    <text x="193" y="59" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">TCP + HTTP Upgrade (+ auth token)</text>
+
+    <!-- Middleware check label -->
+    <rect x="330" y="74" width="102" height="22" rx="4" fill="var(--warning)" fill-opacity="0.15" stroke="var(--warning)" stroke-width="1"/>
+    <text x="381" y="89" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--warning)">io.use() fires — check token</text>
+
+    <!-- ── HAPPY PATH ── -->
+    <text x="200" y="120" text-anchor="middle" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--success)">HAPPY PATH</text>
+    <!-- next() to server -->
+    <line x1="446" y1="128" x2="626" y2="128" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr6-success)"/>
+    <text x="536" y="123" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--success)">next() — allow</text>
+
+    <!-- io.on('connection') fires -->
+    <rect x="630" y="136" width="102" height="22" rx="4" fill="var(--success)" fill-opacity="0.15" stroke="var(--success)" stroke-width="1"/>
+    <text x="681" y="151" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--success)">connection event fires</text>
+
+    <!-- session back to client -->
+    <line x1="626" y1="170" x2="71" y2="170" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr6-muted)"/>
+    <text x="348" y="165" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">socket.emit('session', ...)</text>
+
+    <!-- messages -->
+    <line x1="71" y1="192" x2="681" y2="192" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr6-muted)"/>
+    <text x="376" y="187" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">socket.emit('message', ...) ...</text>
+    <line x1="681" y1="208" x2="71" y2="208" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr6-muted)"/>
+    <text x="376" y="204" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">io.emit('message', ...) ...</text>
+
+    <!-- disconnect -->
+    <rect x="24" y="222" width="95" height="20" rx="3" fill="var(--danger)" fill-opacity="0.12" stroke="var(--danger)" stroke-width="1"/>
+    <text x="71" y="235" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">tab closed / network drop</text>
+    <line x1="71" y1="242" x2="626" y2="242" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr6-danger)" stroke-dasharray="4,2"/>
+    <text x="348" y="237" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--danger)">disconnect</text>
+    <rect x="630" y="248" width="102" height="20" rx="3" fill="var(--danger)" fill-opacity="0.12" stroke="var(--danger)" stroke-width="1"/>
+    <text x="681" y="262" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">socket.on('disconnect')</text>
+
+    <!-- separator -->
+    <line x1="16" y1="285" x2="744" y2="285" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,2"/>
+    <text x="200" y="300" text-anchor="middle" font-family="var(--f-body)" font-size="10" font-weight="700" fill="var(--danger)">AUTH FAILURE PATH</text>
+
+    <!-- next(new Error()) -->
+    <line x1="446" y1="308" x2="71" y2="308" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#arr6-danger)"/>
+    <text x="258" y="302" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--danger)">next(new Error()) → connect_error</text>
+    <rect x="630" y="296" width="110" height="22" rx="3" fill="var(--danger)" fill-opacity="0.12" stroke="var(--danger)" stroke-width="1"/>
+    <text x="685" y="311" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--danger)">connection never fires</text>
+  </svg>
+  <figcaption>Full connection lifecycle: middleware intercepts every attempt — valid auth proceeds to messages then disconnect; invalid auth short-circuits with connect_error and the connection event never fires.</figcaption>
+</figure>
+
 <h2 class="g-h2">8. Disconnect Handling</h2>
 
 <div class="cb"><pre>io.on('connection', (socket) =&gt; {
@@ -557,6 +1064,64 @@ socket.emit('sendMessage', { text: 'Hello' }, (response) =&gt; {
   console.log('Server acknowledged:', response.status); // 'ok'
   console.log('Message ID:', response.messageId);       // 123
 });</pre></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 720.8 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Acknowledgement sequence diagram showing client emitting with callback, server receiving and calling callback, and callback firing on client with response data">
+    <defs>
+      <marker id="arr8" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr8-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr8-success" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+
+    <!-- Lane headers -->
+    <rect x="16" y="10" width="120" height="32" rx="4" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="76" y="31" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Client</text>
+    <rect x="564" y="10" width="120" height="32" rx="4" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="624" y="31" text-anchor="middle" font-family="var(--f-mono)" font-size="11" font-weight="700" fill="var(--fg)">Server</text>
+
+    <!-- Lane lines -->
+    <line x1="76" y1="42" x2="76" y2="268" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="624" y1="42" x2="624" y2="268" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <!-- Step 1: client emits with callback -->
+    <rect x="16" y="58" width="120" height="40" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="76" y="74" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">socket.emit(</text>
+    <text x="76" y="87" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">'sendMessage', data,</text>
+    <text x="76" y="98" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--accent)">  callback</text>
+    <text x="76" y="109" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">)</text>
+
+    <!-- arrow: emit to server -->
+    <line x1="136" y1="88" x2="564" y2="88" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr8)"/>
+    <text x="350" y="83" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg-muted)">'sendMessage' event + payload</text>
+
+    <!-- Step 2: server receives event + callback ref -->
+    <rect x="564" y="104" width="120" height="56" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="624" y="120" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg)">socket.on('sendMessage',</text>
+    <text x="624" y="134" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">(data, callback)</text>
+    <text x="624" y="148" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--fg)">=> saveMessage(data)</text>
+
+    <!-- Step 3: server calls callback -->
+    <rect x="564" y="172" width="120" height="30" rx="4" fill="var(--success)" fill-opacity="0.15" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="624" y="188" text-anchor="middle" font-family="var(--f-mono)" font-size="10" font-weight="700" fill="var(--success)">callback({'{ status: ok }'})</text>
+
+    <!-- arrow: ack back to client -->
+    <line x1="564" y1="188" x2="136" y2="188" stroke="var(--success)" stroke-width="2" marker-end="url(#arr8-success)"/>
+    <text x="350" y="181" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--success)">acknowledgement fires client callback</text>
+
+    <!-- Step 4: client callback fires -->
+    <rect x="16" y="202" width="120" height="52" rx="4" fill="var(--success)" fill-opacity="0.12" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="76" y="218" text-anchor="middle" font-family="var(--f-body)" font-size="9" fill="var(--success)">callback called with:</text>
+    <text x="76" y="232" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">response.status === 'ok'</text>
+    <text x="76" y="246" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--fg)">response.messageId</text>
+  </svg>
+  <figcaption>Acknowledgements: the client passes a callback as the last argument to emit; the server receives it and calls it with a response; the callback then executes on the client — like an RPC round-trip.</figcaption>
+</figure>
 
 <p><strong>Why use acknowledgements?</strong></p>
 <ul>

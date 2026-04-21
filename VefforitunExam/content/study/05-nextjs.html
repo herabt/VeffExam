@@ -59,6 +59,65 @@
     settings/
       page.tsx          → /dashboard/settings</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="File-system routing: folder structure on the left mapped to URLs on the right">
+    <defs>
+      <marker id="arr1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+    <!-- Left panel: file tree -->
+    <rect x="8" y="8" width="340" height="244" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="20" y="30" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)" font-weight="700">app/</text>
+    <!-- rows -->
+    <text x="36" y="52" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)">page.tsx</text>
+    <text x="36" y="74" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)">about/</text>
+    <text x="56" y="94" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg-muted)">page.tsx</text>
+    <text x="36" y="116" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)">blog/</text>
+    <text x="56" y="136" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg-muted)">page.tsx</text>
+    <text x="56" y="158" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)">[slug]/</text>
+    <text x="76" y="178" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg-muted)">page.tsx</text>
+    <text x="36" y="200" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)">dashboard/</text>
+    <text x="56" y="220" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg-muted)">page.tsx</text>
+    <text x="56" y="242" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg-muted)">layout.tsx</text>
+    <!-- tree lines -->
+    <line x1="30" y1="36" x2="30" y2="242" stroke="var(--border)" stroke-width="1"/>
+    <line x1="30" y1="52" x2="36" y2="52" stroke="var(--border)" stroke-width="1"/>
+    <line x1="30" y1="74" x2="36" y2="74" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="80" x2="50" y2="94" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="94" x2="56" y2="94" stroke="var(--border)" stroke-width="1"/>
+    <line x1="30" y1="116" x2="36" y2="116" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="122" x2="50" y2="178" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="136" x2="56" y2="136" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="158" x2="56" y2="158" stroke="var(--border)" stroke-width="1"/>
+    <line x1="70" y1="164" x2="70" y2="178" stroke="var(--border)" stroke-width="1"/>
+    <line x1="70" y1="178" x2="76" y2="178" stroke="var(--border)" stroke-width="1"/>
+    <line x1="30" y1="200" x2="36" y2="200" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="206" x2="50" y2="242" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="220" x2="56" y2="220" stroke="var(--border)" stroke-width="1"/>
+    <line x1="50" y1="242" x2="56" y2="242" stroke="var(--border)" stroke-width="1"/>
+    <!-- Right panel: URLs -->
+    <rect x="420" y="8" width="332" height="244" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="432" y="30" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg-muted)" font-weight="700">URL</text>
+    <text x="432" y="52" font-family="var(--f-mono),monospace" font-size="12" fill="var(--accent)">/</text>
+    <text x="432" y="94" font-family="var(--f-mono),monospace" font-size="12" fill="var(--accent)">/about</text>
+    <text x="432" y="136" font-family="var(--f-mono),monospace" font-size="12" fill="var(--accent)">/blog</text>
+    <text x="432" y="178" font-family="var(--f-mono),monospace" font-size="12" fill="var(--accent)">/blog/hello-world</text>
+    <text x="432" y="220" font-family="var(--f-mono),monospace" font-size="12" fill="var(--accent)">/dashboard</text>
+    <text x="432" y="242" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg-subtle)">(layout wraps all /dashboard/*)</text>
+    <!-- arrows -->
+    <line x1="350" y1="52" x2="418" y2="52" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <line x1="350" y1="94" x2="418" y2="94" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <line x1="350" y1="136" x2="418" y2="136" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <line x1="350" y1="178" x2="418" y2="178" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <line x1="350" y1="220" x2="418" y2="220" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr1)"/>
+    <!-- dynamic segment label -->
+    <rect x="432" y="186" width="144" height="18" rx="3" fill="var(--warning)" opacity="0.18"/>
+    <text x="436" y="199" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--warning)">[slug] = any string segment</text>
+  </svg>
+  <figcaption>Each <code>page.tsx</code> maps directly to a URL; folder names become path segments, and <code>[slug]</code> folders become dynamic parameters.</figcaption>
+</figure>
+
 <h3 class="g-h3">Component Hierarchy (MEMORIZE THIS ORDER)</h3>
 <p>When Next.js renders a route, files are nested in this EXACT order:</p>
 <div class="cb"><pre>layout.tsx
@@ -67,6 +126,41 @@
       loading.tsx       (React Suspense Boundary)
         not-found.tsx   (React Error Boundary)
           page.tsx</pre></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Special files composition hierarchy showing layout wrapping template, error, loading, and page">
+    <defs>
+      <marker id="arr2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- layout.tsx — outermost -->
+    <rect x="16" y="16" width="668" height="278" rx="6" fill="var(--surface-alt)" stroke="oklch(0.60 0.10 200)" stroke-width="2"/>
+    <rect x="16" y="16" width="200" height="24" rx="4" fill="oklch(0.60 0.10 200)" opacity="0.25"/>
+    <text x="24" y="33" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.55 0.12 200)" font-weight="700">layout.tsx</text>
+    <text x="628" y="284" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">persists</text>
+    <!-- template.tsx -->
+    <rect x="36" y="52" width="628" height="230" rx="6" fill="var(--bg-raised)" stroke="oklch(0.60 0.10 80)" stroke-width="1.5"/>
+    <rect x="36" y="52" width="200" height="22" rx="4" fill="oklch(0.60 0.10 80)" opacity="0.22"/>
+    <text x="44" y="68" font-family="var(--f-mono),monospace" font-size="11" fill="oklch(0.52 0.12 80)" font-weight="700">template.tsx</text>
+    <text x="538" y="272" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">re-mounts on nav</text>
+    <!-- error.tsx -->
+    <rect x="56" y="86" width="588" height="182" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="1.5"/>
+    <rect x="56" y="86" width="200" height="22" rx="4" fill="var(--danger)" opacity="0.16"/>
+    <text x="64" y="102" font-family="var(--f-mono),monospace" font-size="11" fill="var(--danger)" font-weight="700">error.tsx  ('use client')</text>
+    <text x="404" y="258" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">catches render errors</text>
+    <!-- loading.tsx -->
+    <rect x="76" y="120" width="548" height="136" rx="6" fill="var(--bg)" stroke="var(--warning)" stroke-width="1.5"/>
+    <rect x="76" y="120" width="200" height="22" rx="4" fill="var(--warning)" opacity="0.18"/>
+    <text x="84" y="136" font-family="var(--f-mono),monospace" font-size="11" fill="var(--warning)" font-weight="700">loading.tsx  (Suspense)</text>
+    <text x="416" y="246" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">shown while streaming</text>
+    <!-- page.tsx — innermost -->
+    <rect x="96" y="154" width="508" height="86" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="280" y="201" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="13" fill="var(--accent)" font-weight="700">page.tsx</text>
+    <text x="280" y="220" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">unique UI — makes route publicly accessible</text>
+  </svg>
+  <figcaption>Next.js wraps <code>page.tsx</code> in nested special files from the outside in: layout → template → error boundary → Suspense (loading) → page.</figcaption>
+</figure>
 
 <h3 class="g-h3">All 9 Special Files</h3>
 <div class="tw"><table>
@@ -249,6 +343,52 @@ export default function ShopTemplate({ children }: { children: React.ReactNode }
 // }</pre></div>
 
 <h2 class="g-h2">3. Server Components vs Client Components</h2>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Server vs Client component boundary with composition pattern">
+    <defs>
+      <marker id="arr3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr3g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+    <!-- Server region -->
+    <rect x="8" y="8" width="684" height="148" rx="6" fill="oklch(0.96 0.04 200)" stroke="oklch(0.55 0.12 200)" stroke-width="2"/>
+    <text x="20" y="30" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="12" fill="oklch(0.45 0.12 200)" font-weight="700">SERVER</text>
+    <text x="20" y="46" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">async/await  •  DB access  •  env secrets  •  zero client JS</text>
+    <!-- Server component boxes -->
+    <rect x="20" y="56" width="180" height="88" rx="6" fill="var(--surface)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="110" y="88" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="11" fill="oklch(0.45 0.12 200)" font-weight="700">Layout</text>
+    <text x="110" y="106" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">Server Component</text>
+    <rect x="220" y="56" width="180" height="88" rx="6" fill="var(--surface)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="310" y="88" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="11" fill="oklch(0.45 0.12 200)" font-weight="700">ServerData</text>
+    <text x="310" y="106" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">Server Component</text>
+    <text x="310" y="122" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">passed as children prop</text>
+    <!-- boundary line -->
+    <line x1="8" y1="162" x2="692" y2="162" stroke="var(--danger)" stroke-width="2" stroke-dasharray="6 4"/>
+    <rect x="270" y="153" width="160" height="18" rx="3" fill="var(--danger)" opacity="0.15"/>
+    <text x="350" y="166" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--danger)" font-weight="700">"use client"  boundary</text>
+    <!-- Client region -->
+    <rect x="8" y="170" width="684" height="140" rx="6" fill="oklch(0.96 0.05 320)" stroke="oklch(0.55 0.12 320)" stroke-width="2"/>
+    <text x="20" y="192" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="12" fill="oklch(0.45 0.12 320)" font-weight="700">CLIENT</text>
+    <text x="20" y="208" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">useState  •  useEffect  •  onClick  •  browser APIs</text>
+    <!-- Client component box -->
+    <rect x="20" y="218" width="240" height="80" rx="6" fill="var(--surface)" stroke="oklch(0.55 0.12 320)" stroke-width="1.5"/>
+    <text x="140" y="248" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="11" fill="oklch(0.45 0.12 320)" font-weight="700">InteractiveWrapper</text>
+    <text x="140" y="266" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">Client Component</text>
+    <text x="140" y="282" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">renders {children} slot</text>
+    <!-- composition arrow -->
+    <line x1="310" y1="146" x2="140" y2="218" stroke="var(--success)" stroke-width="1.5" marker-end="url(#arr3g)"/>
+    <text x="260" y="196" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--success)">passed as prop (OK)</text>
+    <!-- cannot import arrow -->
+    <line x1="430" y1="250" x2="500" y2="250" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="437" y="240" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--danger)">cannot import SC from CC</text>
+    <text x="437" y="265" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--success)">CAN pass SC as children prop</text>
+  </svg>
+  <figcaption>The <code>"use client"</code> line is a boundary: everything above runs only on the server; below it becomes client JS. Server components can be composed into client components via props, not imports.</figcaption>
+</figure>
 
 <h3 class="g-h3">The Decision Table (from slides — know this cold)</h3>
 <div class="tw"><table>
@@ -505,6 +645,59 @@ export async function generateStaticParams() {
 }</pre></div>
 
 <h2 class="g-h2">5. Route Groups</h2>
+<figure class="fig-dia">
+  <svg viewBox="0 0 730 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Route group pattern: (marketing) and (dashboard) folders with their own layouts, no URL segment">
+    <defs>
+      <marker id="arr9" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr9x" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+    </defs>
+    <!-- app/ root -->
+    <text x="340" y="22" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="13" fill="var(--fg)" font-weight="700">app/</text>
+    <!-- (marketing) group -->
+    <rect x="24" y="36" width="300" height="218" rx="6" fill="oklch(0.93 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="174" y="60" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="13" fill="oklch(0.40 0.12 200)" font-weight="700">(marketing)/</text>
+    <text x="174" y="78" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.50 0.12 200)">No URL segment</text>
+    <rect x="40" y="90" width="130" height="24" rx="4" fill="oklch(0.55 0.12 200)" opacity="0.4"/>
+    <text x="105" y="107" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg)">layout.tsx</text>
+    <text x="105" y="122" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">(no sidebar)</text>
+    <rect x="40" y="140" width="130" height="44" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="105" y="159" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg)">about/page.tsx</text>
+    <rect x="40" y="196" width="130" height="44" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="105" y="215" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg)">landing/page.tsx</text>
+    <!-- (dashboard) group -->
+    <rect x="396" y="36" width="300" height="218" rx="6" fill="oklch(0.93 0.06 80)" stroke="oklch(0.55 0.12 80)" stroke-width="1.5"/>
+    <text x="546" y="60" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="13" fill="oklch(0.40 0.12 80)" font-weight="700">(dashboard)/</text>
+    <text x="546" y="78" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.50 0.12 80)">No URL segment</text>
+    <rect x="412" y="90" width="130" height="24" rx="4" fill="oklch(0.55 0.12 80)" opacity="0.4"/>
+    <text x="477" y="107" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg)">layout.tsx</text>
+    <text x="477" y="122" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">(with sidebar + auth)</text>
+    <rect x="412" y="140" width="130" height="44" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="477" y="159" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg)">settings/page.tsx</text>
+    <rect x="412" y="196" width="130" height="44" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="477" y="215" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg)">profile/page.tsx</text>
+    <!-- URL arrows -->
+    <line x1="172" y1="162" x2="172" y2="184" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr9)"/>
+    <!-- URL bubbles at bottom of each page.tsx -->
+    <rect x="186" y="155" width="88" height="20" rx="10" fill="var(--accent)" opacity="0.25"/>
+    <text x="230" y="169" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--accent)" font-weight="700">/about</text>
+    <rect x="186" y="211" width="96" height="20" rx="10" fill="var(--accent)" opacity="0.25"/>
+    <text x="234" y="225" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--accent)" font-weight="700">/landing</text>
+    <rect x="560" y="155" width="104" height="20" rx="10" fill="var(--accent)" opacity="0.25"/>
+    <text x="612" y="169" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--accent)" font-weight="700">/settings</text>
+    <rect x="560" y="211" width="92" height="20" rx="10" fill="var(--accent)" opacity="0.25"/>
+    <text x="606" y="225" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--accent)" font-weight="700">/profile</text>
+    <!-- cross-out label -->
+    <text x="340" y="140" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--danger)">(marketing)</text>
+    <text x="340" y="156" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--danger)">not in URL</text>
+    <line x1="310" y1="148" x2="370" y2="148" stroke="var(--danger)" stroke-width="1.5"/>
+  </svg>
+  <figcaption>Route groups use <code>(parens)</code> in the folder name — they organise files and apply separate layouts without adding any segment to the URL.</figcaption>
+</figure>
+
 <p>Wrap a folder name in parentheses <code>(folderName)</code> to create a route group. The group name does NOT appear in the URL.</p>
 <p><strong>Use cases:</strong></p>
 <ul>
@@ -597,6 +790,80 @@ export default function ProfilePage() {
 <h2 class="g-h2">6. Parallel &amp; Intercepting Routes</h2>
 
 <h3 class="g-h3">Parallel Routes</h3>
+<figure class="fig-dia">
+  <svg viewBox="0 0 750 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Parallel routes with @modal slot and intercepting routes showing modal vs full-page navigation">
+    <defs>
+      <marker id="arr10" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr10a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arr10w" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--warning)"/>
+      </marker>
+    </defs>
+    <!-- File structure label -->
+    <text x="8" y="18" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg)" font-weight="700">File Structure</text>
+    <!-- layout receives slots -->
+    <rect x="8" y="26" width="200" height="64" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="108" y="48" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)" font-weight="700">layout.tsx</text>
+    <text x="108" y="64" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">receives {children}</text>
+    <text x="108" y="80" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">{modal} as props</text>
+    <!-- @modal slot -->
+    <rect x="8" y="108" width="120" height="52" rx="6" fill="oklch(0.93 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="68" y="130" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="11" fill="oklch(0.45 0.12 200)" font-weight="700">@modal/</text>
+    <text x="68" y="148" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.45 0.12 200)">named slot</text>
+    <!-- page children -->
+    <rect x="148" y="108" width="120" height="52" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="208" y="130" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="11" fill="var(--fg)" font-weight="700">page.tsx</text>
+    <text x="208" y="148" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">children slot</text>
+    <!-- connect lines -->
+    <line x1="108" y1="90" x2="68" y2="108" stroke="var(--border)" stroke-width="1" marker-end="url(#arr10)"/>
+    <line x1="108" y1="90" x2="208" y2="108" stroke="var(--border)" stroke-width="1" marker-end="url(#arr10)"/>
+    <!-- @modal sub: default + intercept -->
+    <rect x="8" y="180" width="110" height="36" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="63" y="198" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="var(--fg-muted)">default.tsx</text>
+    <text x="63" y="210" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="8" fill="var(--fg-subtle)">returns null</text>
+    <rect x="130" y="180" width="140" height="36" rx="4" fill="oklch(0.93 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1"/>
+    <text x="200" y="198" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="oklch(0.45 0.12 200)">(.)photo/[id]/page.tsx</text>
+    <text x="200" y="211" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="8" fill="var(--fg-subtle)">intercepting route</text>
+    <line x1="68" y1="160" x2="63" y2="180" stroke="var(--border)" stroke-width="1" marker-end="url(#arr10)"/>
+    <line x1="68" y1="160" x2="200" y2="180" stroke="var(--border)" stroke-width="1" marker-end="url(#arr10)"/>
+
+    <!-- Behaviour side -->
+    <line x1="290" y1="26" x2="290" y2="292" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>
+    <text x="440" y="18" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg)" font-weight="700">Behaviour</text>
+    <!-- Soft nav: show modal -->
+    <rect x="300" y="32" width="200" height="76" rx="6" fill="oklch(0.93 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="400" y="52" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="oklch(0.40 0.12 200)" font-weight="700">Soft navigation</text>
+    <text x="400" y="68" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="oklch(0.40 0.12 200)">&lt;Link href="/photo/1"&gt;</text>
+    <text x="400" y="84" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.45 0.12 200)">intercept fires → modal shown</text>
+    <text x="400" y="100" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.45 0.12 200)">feed stays in background</text>
+    <!-- Hard nav: full page -->
+    <rect x="300" y="124" width="200" height="76" rx="6" fill="oklch(0.93 0.06 80)" stroke="oklch(0.55 0.12 80)" stroke-width="1.5"/>
+    <text x="400" y="144" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="oklch(0.40 0.12 80)" font-weight="700">Hard navigation / reload</text>
+    <text x="400" y="160" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="oklch(0.40 0.12 80)">direct URL /photo/1</text>
+    <text x="400" y="176" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.45 0.12 80)">no intercept → full photo page</text>
+    <text x="400" y="192" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="oklch(0.45 0.12 80)">@modal/default.tsx (null)</text>
+    <!-- Visual result boxes -->
+    <rect x="516" y="32" width="212" height="76" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="622" y="54" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">Photo Feed</text>
+    <rect x="556" y="62" width="130" height="36" rx="4" fill="var(--accent)" opacity="0.3"/>
+    <text x="621" y="80" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Modal overlay</text>
+    <rect x="516" y="124" width="212" height="76" rx="6" fill="var(--surface-alt)" stroke="var(--warning)" stroke-width="2"/>
+    <text x="622" y="166" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Full photo page</text>
+    <!-- connect arrows -->
+    <line x1="500" y1="70" x2="514" y2="70" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr10a)"/>
+    <line x1="500" y1="162" x2="514" y2="162" stroke="var(--warning)" stroke-width="1.5" marker-end="url(#arr10w)"/>
+    <!-- convention note -->
+    <rect x="300" y="220" width="428" height="56" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="514" y="241" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Intercepting route conventions</text>
+    <text x="514" y="258" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">(.)same   (..)one-up   (..)(..)two-up   (...)root</text>
+  </svg>
+  <figcaption>Parallel routes (<code>@slot</code>) render multiple pages simultaneously in one layout; intercepting routes (<code>(.)path</code>) show a modal on soft nav while the full page loads on hard nav.</figcaption>
+</figure>
+
 <p>Use <code>@folderName</code> to define named slots that can be rendered simultaneously in the same layout.</p>
 <div class="cb"><pre>app/
   layout.tsx
@@ -763,6 +1030,57 @@ export default async function Page() {
   </tbody>
 </table></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="fetch() cache options decision tree: force-cache, no-store, revalidate">
+    <defs>
+      <marker id="arr6" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Root question -->
+    <rect x="220" y="16" width="260" height="44" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="350" y="38" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="12" fill="var(--fg)" font-weight="700">fetch() cache option?</text>
+    <text x="350" y="54" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">(or default = force-cache)</text>
+    <!-- branch lines from root -->
+    <line x1="280" y1="60" x2="100" y2="120" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr6)"/>
+    <line x1="350" y1="60" x2="350" y2="120" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr6)"/>
+    <line x1="420" y1="60" x2="600" y2="120" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr6)"/>
+    <!-- branch labels -->
+    <text x="148" y="98" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">'force-cache'</text>
+    <text x="350" y="110" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">next:{revalidate:N}</text>
+    <text x="550" y="98" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">'no-store'</text>
+    <!-- Option A: SSG -->
+    <rect x="16" y="120" width="196" height="80" rx="6" fill="oklch(0.93 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="114" y="144" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 200)" font-weight="700">SSG</text>
+    <text x="114" y="162" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 200)">Cached forever</text>
+    <text x="114" y="178" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 200)">HTML at build time</text>
+    <text x="114" y="192" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-subtle)">fastest, best for static pages</text>
+    <!-- Option B: ISR -->
+    <rect x="252" y="120" width="196" height="80" rx="6" fill="oklch(0.93 0.06 80)" stroke="oklch(0.55 0.12 80)" stroke-width="1.5"/>
+    <text x="350" y="144" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 80)" font-weight="700">ISR</text>
+    <text x="350" y="162" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 80)">Cached for N seconds</text>
+    <text x="350" y="178" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 80)">re-generated in bg</text>
+    <text x="350" y="192" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-subtle)">best of both worlds</text>
+    <!-- Option C: SSR / Dynamic -->
+    <rect x="488" y="120" width="196" height="80" rx="6" fill="oklch(0.93 0.06 320)" stroke="oklch(0.55 0.12 320)" stroke-width="1.5"/>
+    <text x="586" y="144" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 320)" font-weight="700">SSR / Dynamic</text>
+    <text x="586" y="162" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 320)">Never cached</text>
+    <text x="586" y="178" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 320)">fresh per request</text>
+    <text x="586" y="192" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-subtle)">personalized / real-time</text>
+    <!-- outcomes -->
+    <rect x="16" y="224" width="196" height="40" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="114" y="244" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">Static HTML served from CDN</text>
+    <rect x="252" y="224" width="196" height="40" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="350" y="244" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">Stale-while-revalidate</text>
+    <rect x="488" y="224" width="196" height="40" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="586" y="244" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">Fresh HTML every request</text>
+    <line x1="114" y1="200" x2="114" y2="224" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr6)"/>
+    <line x1="350" y1="200" x2="350" y2="224" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr6)"/>
+    <line x1="586" y1="200" x2="586" y2="224" stroke="var(--fg-muted)" stroke-width="1" marker-end="url(#arr6)"/>
+  </svg>
+  <figcaption>Three <code>fetch()</code> cache options determine the rendering strategy: <code>force-cache</code> → SSG, <code>next.revalidate</code> → ISR, <code>no-store</code> → SSR (dynamic).</figcaption>
+</figure>
+
 <h4 class="g-h4">Example — fetch with revalidate: 60 (ISR)</h4>
 <div class="cb"><pre>// app/products/page.tsx
 // Cached at build time. After 60 seconds, the NEXT request triggers a background refresh.
@@ -806,6 +1124,41 @@ export default async function DashboardPage() {
     &lt;/div&gt;
   );
 }</pre></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data fetching cache layers: Request Memoization, Data Cache, Full Route Cache, Router Cache">
+    <defs>
+      <marker id="arr5" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="arr5d" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+    </defs>
+    <!-- Layer 1: Request Memoization -->
+    <rect x="8" y="16" width="684" height="52" rx="6" fill="oklch(0.92 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="20" y="38" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 200)" font-weight="700">1. Request Memoization</text>
+    <text x="20" y="56" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 200)">Deduplicates identical fetch() calls within a single render tree. Lives for one request.</text>
+    <!-- Layer 2: Data Cache -->
+    <rect x="8" y="84" width="684" height="52" rx="6" fill="oklch(0.92 0.06 80)" stroke="oklch(0.55 0.12 80)" stroke-width="1.5"/>
+    <text x="20" y="106" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 80)" font-weight="700">2. Data Cache</text>
+    <text x="20" y="124" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 80)">Persistent server-side cache for fetch() responses. Survives requests and deployments.</text>
+    <!-- Layer 3: Full Route Cache -->
+    <rect x="8" y="152" width="684" height="52" rx="6" fill="oklch(0.92 0.06 140)" stroke="oklch(0.55 0.12 140)" stroke-width="1.5"/>
+    <text x="20" y="174" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 140)" font-weight="700">3. Full Route Cache</text>
+    <text x="20" y="192" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 140)">Caches rendered HTML + RSC payload on the server. Built at build time for static routes.</text>
+    <!-- Layer 4: Router Cache -->
+    <rect x="8" y="220" width="684" height="52" rx="6" fill="oklch(0.92 0.06 320)" stroke="oklch(0.55 0.12 320)" stroke-width="1.5"/>
+    <text x="20" y="242" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.45 0.12 320)" font-weight="700">4. Router Cache</text>
+    <text x="20" y="260" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="oklch(0.45 0.12 320)">Client-side cache of visited route segments. Lives in memory for the browser session.</text>
+    <!-- Invalidation arrows -->
+    <text x="480" y="105" font-family="var(--f-mono),monospace" font-size="10" fill="var(--danger)">revalidateTag()</text>
+    <line x1="570" y1="108" x2="690" y2="108" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr5d)"/>
+    <text x="480" y="174" font-family="var(--f-mono),monospace" font-size="10" fill="var(--danger)">revalidatePath()</text>
+    <line x1="578" y1="177" x2="690" y2="177" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr5d)"/>
+  </svg>
+  <figcaption>Next.js has four cache layers, from innermost (per-render dedup) to outermost (client session). <code>revalidateTag</code> busts the Data Cache; <code>revalidatePath</code> also invalidates the Full Route Cache.</figcaption>
+</figure>
 
 <h3 class="g-h3">revalidatePath vs revalidateTag</h3>
 <div class="cb"><pre>// revalidatePath: purge cache for a specific URL path
@@ -886,6 +1239,53 @@ export default function Page() {
 <strong>Client-side reasons:</strong> User interactions (search, filters), real-time updates, dynamic data after initial load.</p>
 
 <h2 class="g-h2">8. Server Actions</h2>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 713.01 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Server Action round-trip: form submit to server action to revalidatePath to new HTML">
+    <defs>
+      <marker id="arr7" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+    <!-- Step boxes -->
+    <!-- 1: Browser form -->
+    <rect x="8" y="80" width="130" height="80" rx="6" fill="oklch(0.93 0.06 320)" stroke="oklch(0.55 0.12 320)" stroke-width="1.5"/>
+    <text x="73" y="114" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="oklch(0.40 0.12 320)" font-weight="700">Browser</text>
+    <text x="73" y="130" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="oklch(0.45 0.12 320)">&lt;form action={fn}&gt;</text>
+    <text x="73" y="148" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">user submits</text>
+    <!-- 2: HTTP POST -->
+    <text x="170" y="124" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">HTTP POST</text>
+    <line x1="140" y1="120" x2="196" y2="120" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr7)"/>
+    <!-- 3: Server Action -->
+    <rect x="198" y="80" width="152" height="80" rx="6" fill="oklch(0.93 0.06 200)" stroke="oklch(0.55 0.12 200)" stroke-width="1.5"/>
+    <text x="274" y="110" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="oklch(0.40 0.12 200)" font-weight="700">Server Action</text>
+    <text x="274" y="126" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="oklch(0.45 0.12 200)">'use server'</text>
+    <text x="274" y="142" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">runs on server</text>
+    <text x="274" y="155" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">DB write, validation</text>
+    <!-- 4: revalidatePath -->
+    <line x1="350" y1="120" x2="398" y2="120" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr7)"/>
+    <text x="374" y="112" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="var(--fg-muted)">calls</text>
+    <rect x="400" y="80" width="152" height="80" rx="6" fill="oklch(0.93 0.06 80)" stroke="oklch(0.55 0.12 80)" stroke-width="1.5"/>
+    <text x="476" y="110" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="oklch(0.40 0.12 80)" font-weight="700">revalidatePath()</text>
+    <text x="476" y="128" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">purges cached HTML</text>
+    <text x="476" y="144" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">for the given path</text>
+    <!-- 5: stream back -->
+    <line x1="554" y1="120" x2="606" y2="120" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr7)"/>
+    <text x="580" y="112" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="var(--fg-muted)">streams</text>
+    <rect x="608" y="80" width="84" height="80" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="650" y="114" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg)" font-weight="700">New HTML</text>
+    <text x="650" y="130" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">page updates</text>
+    <text x="650" y="146" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="9" fill="var(--fg-muted)">without full reload</text>
+    <!-- step labels at top -->
+    <text x="73" y="72" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">1. Submit</text>
+    <text x="274" y="72" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">2. Execute</text>
+    <text x="476" y="72" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">3. Invalidate</text>
+    <text x="650" y="72" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-subtle)">4. Respond</text>
+    <!-- bottom note -->
+    <text x="350" y="196" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">No API endpoint needed — looks like a function call, is actually an HTTP POST under the hood (RPC pattern)</text>
+  </svg>
+  <figcaption>A Server Action form submit triggers an HTTP POST to the server function, which runs mutations and calls <code>revalidatePath()</code>; fresh HTML then streams back to the client.</figcaption>
+</figure>
 
 <h3 class="g-h3">Definition</h3>
 <p>A Server Action is an <strong>async function marked with <code>"use server"</code></strong> that runs on the server and can be called directly from Client Components or forms. Also called "Server Functions."</p>
@@ -1172,6 +1572,57 @@ export default function SignupForm() {
 
 <h2 class="g-h2">9. Rendering Strategies: SSR, SSG, ISR, CSR</h2>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rendering strategies timeline comparing SSG, ISR, SSR, and CSR">
+    <defs>
+      <marker id="arr4" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- timeline axis -->
+    <text x="12" y="20" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg-muted)" font-weight="700">Strategy</text>
+    <text x="200" y="20" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg-muted)" font-weight="700">Build time</text>
+    <text x="420" y="20" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg-muted)" font-weight="700">Deploy / CDN edge</text>
+    <text x="620" y="20" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg-muted)" font-weight="700">Request</text>
+    <!-- vertical guide lines -->
+    <line x1="180" y1="28" x2="180" y2="272" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>
+    <line x1="400" y1="28" x2="400" y2="272" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>
+    <line x1="610" y1="28" x2="610" y2="272" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>
+
+    <!-- SSG row -->
+    <text x="12" y="64" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.50 0.12 200)" font-weight="700">SSG</text>
+    <rect x="180" y="46" width="200" height="32" rx="4" fill="oklch(0.70 0.10 200)" opacity="0.55"/>
+    <text x="280" y="67" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--bg)" font-weight="700">HTML generated here</text>
+    <!-- cached marker -->
+    <rect x="400" y="50" width="340" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="570" y="66" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">served from CDN (no regeneration)</text>
+
+    <!-- ISR row -->
+    <text x="12" y="124" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.50 0.12 80)" font-weight="700">ISR</text>
+    <rect x="180" y="106" width="200" height="32" rx="4" fill="oklch(0.70 0.10 80)" opacity="0.55"/>
+    <text x="280" y="127" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--bg)" font-weight="700">initial HTML</text>
+    <rect x="400" y="110" width="200" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="500" y="126" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">cached until TTL expires</text>
+    <rect x="610" y="110" width="130" height="24" rx="4" fill="oklch(0.70 0.10 80)" opacity="0.45"/>
+    <text x="675" y="126" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--bg)" font-weight="700">re-gen in background</text>
+
+    <!-- SSR row -->
+    <text x="12" y="184" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.50 0.12 320)" font-weight="700">SSR</text>
+    <rect x="180" y="166" width="420" height="32" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="390" y="182" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">waiting (no pre-rendering)</text>
+    <rect x="610" y="166" width="130" height="32" rx="4" fill="oklch(0.70 0.10 320)" opacity="0.55"/>
+    <text x="675" y="187" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--bg)" font-weight="700">HTML here</text>
+
+    <!-- CSR row -->
+    <text x="12" y="244" font-family="var(--f-mono),monospace" font-size="12" fill="oklch(0.50 0.12 140)" font-weight="700">CSR</text>
+    <rect x="180" y="226" width="420" height="32" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="390" y="242" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">empty shell (no HTML yet)</text>
+    <rect x="610" y="226" width="130" height="32" rx="4" fill="oklch(0.70 0.10 140)" opacity="0.55"/>
+    <text x="675" y="247" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--bg)" font-weight="700">JS renders in browser</text>
+  </svg>
+  <figcaption>SSG and ISR generate HTML at build time (fast CDN delivery); SSR generates per-request; CSR renders entirely in the browser after JS loads.</figcaption>
+</figure>
+
 <h3 class="g-h3">Quick Reference</h3>
 <div class="tw"><table>
   <thead><tr><th>Strategy</th><th>When rendered</th><th>Cached?</th><th>Data freshness</th><th>fetch option</th></tr></thead>
@@ -1262,6 +1713,60 @@ export async function updateProduct(formData: FormData) {
 <h3 class="g-h3">What is Streaming?</h3>
 <p>Streaming allows the server to send parts of a dynamic route to the client <strong>as soon as they're ready</strong>, rather than waiting for the entire route to render. Users see content sooner.</p>
 <p><strong>Built into Next.js App Router by default.</strong></p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 710 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Streaming with Suspense: fast chunk renders first, slow component shows skeleton then swaps in">
+    <defs>
+      <marker id="arr8" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- Timeline axis -->
+    <line x1="100" y1="30" x2="692" y2="30" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr8)"/>
+    <text x="396" y="20" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg-muted)">time</text>
+    <!-- tick marks -->
+    <line x1="160" y1="24" x2="160" y2="36" stroke="var(--fg-muted)" stroke-width="1"/>
+    <text x="160" y="50" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">0ms</text>
+    <line x1="320" y1="24" x2="320" y2="36" stroke="var(--fg-muted)" stroke-width="1"/>
+    <text x="320" y="50" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">~50ms</text>
+    <line x1="560" y1="24" x2="560" y2="36" stroke="var(--fg-muted)" stroke-width="1"/>
+    <text x="560" y="50" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="10" fill="var(--fg-muted)">~1200ms</text>
+
+    <!-- Row 1: Layout + fast component -->
+    <text x="8" y="90" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Layout &amp;</text>
+    <text x="8" y="104" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Fast Data</text>
+    <rect x="100" y="70" width="220" height="44" rx="4" fill="var(--success)" opacity="0.5"/>
+    <text x="210" y="97" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg)" font-weight="700">Chunk 1: HTML ready</text>
+    <!-- fast stays green to end -->
+    <rect x="320" y="70" width="360" height="44" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="500" y="97" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">rendered, interactive</text>
+
+    <!-- Row 2: Slow component -->
+    <text x="8" y="158" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Slow</text>
+    <text x="8" y="172" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Component</text>
+    <rect x="100" y="138" width="220" height="44" rx="4" fill="var(--warning)" opacity="0.4"/>
+    <text x="210" y="165" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)">Suspense fallback</text>
+    <text x="210" y="179" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="var(--fg-muted)">&lt;Skeleton /&gt; shown</text>
+    <!-- awaiting -->
+    <rect x="320" y="138" width="240" height="44" rx="4" fill="var(--warning)" opacity="0.25"/>
+    <text x="440" y="165" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">fetching data...</text>
+    <!-- swaps in -->
+    <rect x="560" y="138" width="120" height="44" rx="4" fill="var(--success)" opacity="0.5"/>
+    <text x="620" y="159" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Chunk 2</text>
+    <text x="620" y="174" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="var(--fg-muted)">swaps in</text>
+
+    <!-- Row 3: User experience -->
+    <text x="8" y="238" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">User sees</text>
+    <rect x="100" y="218" width="220" height="44" rx="4" fill="var(--accent)" opacity="0.35"/>
+    <text x="210" y="245" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="11" fill="var(--fg)" font-weight="700">Page + skeleton instantly</text>
+    <rect x="320" y="218" width="240" height="44" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="440" y="245" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg-muted)">page still usable</text>
+    <rect x="560" y="218" width="120" height="44" rx="4" fill="var(--accent)" opacity="0.35"/>
+    <text x="620" y="239" text-anchor="middle" font-family="var(--f-body),'Atkinson Hyperlegible',sans-serif" font-size="10" fill="var(--fg)" font-weight="700">Full content</text>
+    <text x="620" y="254" text-anchor="middle" font-family="var(--f-mono),monospace" font-size="9" fill="var(--fg-muted)">appears</text>
+  </svg>
+  <figcaption>Streaming sends an initial HTML chunk immediately (layout + fast data), while slow components show a Suspense fallback skeleton until their data arrives and swaps in.</figcaption>
+</figure>
 
 <h3 class="g-h3">loading.tsx — Automatic Streaming</h3>
 <p>Creating <code>loading.tsx</code> in a folder automatically wraps <code>page.tsx</code> in a <code>&lt;Suspense&gt;</code> boundary:</p>

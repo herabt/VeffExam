@@ -38,6 +38,70 @@
   </tbody>
 </table></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 790 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="this binding decision flowchart">
+    <defs>
+      <marker id="arr-this" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Start diamond -->
+    <polygon points="80,40 140,70 80,100 20,70" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="80" y="66" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">Arrow</text>
+    <text x="80" y="79" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">function?</text>
+    <!-- Yes branch → lexical -->
+    <line x1="80" y1="100" x2="80" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="86" y="120" fill="var(--success)" font-family="var(--f-mono)" font-size="10">yes</text>
+    <rect x="22" y="130" width="116" height="36" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="80" y="150" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">lexical this</text>
+    <text x="80" y="163" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(enclosing scope)</text>
+    <!-- No → called with new? -->
+    <line x1="140" y1="70" x2="230" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="182" y="64" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">no</text>
+    <polygon points="300,40 360,70 300,100 240,70" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="300" y="66" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">Called</text>
+    <text x="300" y="79" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">with new?</text>
+    <!-- Yes → new instance -->
+    <line x1="300" y1="100" x2="300" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="306" y="120" fill="var(--success)" font-family="var(--f-mono)" font-size="10">yes</text>
+    <rect x="230" y="130" width="140" height="36" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="300" y="150" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">new instance</text>
+    <text x="300" y="163" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(fresh object)</text>
+    <!-- No → call/bind/apply? -->
+    <line x1="360" y1="70" x2="450" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="402" y="64" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">no</text>
+    <polygon points="520,40 580,70 520,100 460,70" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="520" y="59" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="9">.call / .apply</text>
+    <text x="520" y="72" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="9">/ .bind ?</text>
+    <!-- Yes → explicit -->
+    <line x1="520" y1="100" x2="520" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="526" y="120" fill="var(--success)" font-family="var(--f-mono)" font-size="10">yes</text>
+    <rect x="448" y="130" width="144" height="36" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="520" y="150" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">explicit this</text>
+    <text x="520" y="163" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(first argument)</text>
+    <!-- No → obj.fn()? -->
+    <line x1="580" y1="70" x2="660" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="618" y="64" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">no</text>
+    <polygon points="720,40 770,70 720,100 670,70" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="720" y="66" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="9">obj.fn()</text>
+    <text x="720" y="79" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="9">call?</text>
+    <!-- Yes → implicit -->
+    <line x1="720" y1="100" x2="720" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-this)"/>
+    <text x="726" y="120" fill="var(--success)" font-family="var(--f-mono)" font-size="10">yes</text>
+    <rect x="655" y="130" width="130" height="36" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="720" y="150" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">implicit this</text>
+    <text x="720" y="163" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(obj before dot)</text>
+    <!-- No → global/undefined -->
+    <line x1="720" y1="100" x2="720" y2="240" stroke="var(--fg)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="720" y1="240" x2="420" y2="240" stroke="var(--fg)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr-this)"/>
+    <text x="648" y="236" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">no</text>
+    <rect x="282" y="222" width="136" height="36" rx="6" fill="var(--surface)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="350" y="242" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="11" font-weight="700">global / undef</text>
+    <text x="350" y="255" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(window or strict undefined)</text>
+  </svg>
+  <figcaption>Decision flowchart for determining <code>this</code>: check arrow → new → explicit → implicit → default, in that priority order.</figcaption>
+</figure>
+
 <h3 class="g-h3">Rule 1: Global Binding (Default)</h3>
 <div class="cb"><pre>function greet() {
     console.log(this); // window (in non-strict mode)
@@ -414,6 +478,53 @@ Dog.prototype = Object.create(Animal.prototype);</pre></div>
         .toString = function() { ... }
         .__proto__ = null</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 778.88 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prototype chain from dog instance to null">
+    <defs>
+      <marker id="arr-proto" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Box 1: instance -->
+    <rect x="8" y="40" width="140" height="60" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="78" y="63" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="12" font-weight="700">rex</text>
+    <text x="78" y="79" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">instance</text>
+    <text x="78" y="93" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">name, breed</text>
+    <!-- Arrow 1 -->
+    <line x1="148" y1="70" x2="190" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-proto)"/>
+    <text x="169" y="64" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">__proto__</text>
+    <!-- Box 2: Dog.prototype -->
+    <rect x="190" y="40" width="160" height="60" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="270" y="63" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="12" font-weight="700">Dog.prototype</text>
+    <text x="270" y="79" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">constructor: Dog</text>
+    <text x="270" y="93" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">bark()</text>
+    <!-- Arrow 2 -->
+    <line x1="350" y1="70" x2="392" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-proto)"/>
+    <text x="371" y="64" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">__proto__</text>
+    <!-- Box 3: Animal.prototype -->
+    <rect x="392" y="40" width="172" height="60" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="478" y="63" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="12" font-weight="700">Animal.prototype</text>
+    <text x="478" y="79" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">constructor: Animal</text>
+    <text x="478" y="93" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">speak()</text>
+    <!-- Arrow 3 -->
+    <line x1="564" y1="70" x2="604" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-proto)"/>
+    <text x="584" y="64" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">__proto__</text>
+    <!-- Box 4: Object.prototype -->
+    <rect x="604" y="40" width="108" height="60" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="658" y="58" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">Object</text>
+    <text x="658" y="71" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">.prototype</text>
+    <text x="658" y="87" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">toString()…</text>
+    <!-- Arrow 4 -->
+    <line x1="712" y1="70" x2="742" y2="70" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-proto)"/>
+    <text x="727" y="64" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">__proto__</text>
+    <!-- null -->
+    <text x="754" y="74" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="12" font-weight="700">null</text>
+    <!-- Label: property lookup direction -->
+    <text x="378" y="122" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">JS walks right until property found or null is reached</text>
+  </svg>
+  <figcaption>The prototype chain for a <code>Dog</code> instance: JS looks up the chain from left to right until the property is found or <code>null</code> is reached.</figcaption>
+</figure>
+
 <h4 class="g-h4">Example — __proto__ lookups and overriding on an instance</h4>
 <div class="cb"><pre>function Vehicle(type) {
     this.type = type;
@@ -486,6 +597,41 @@ console.log(other.category);     // Output: "transport" ← still inherited, not
   </tbody>
 </table></div>
 <p>A Promise that has left <code>pending</code> is called <strong>settled</strong>. A settled Promise's value/reason is <strong>immutable</strong>.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 550 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Promise state machine: pending to fulfilled or rejected">
+    <defs>
+      <marker id="arr-pm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Pending circle -->
+    <circle cx="130" cy="110" r="60" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="130" y="105" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="14" font-weight="700">pending</text>
+    <text x="130" y="122" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">initial state</text>
+    <!-- Fulfilled circle -->
+    <circle cx="390" cy="55" r="52" fill="var(--surface)" stroke="var(--success)" stroke-width="2"/>
+    <text x="390" y="50" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="13" font-weight="700">fulfilled</text>
+    <text x="390" y="66" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">terminal — locked</text>
+    <!-- Rejected circle -->
+    <circle cx="390" cy="165" r="52" fill="var(--surface)" stroke="var(--danger)" stroke-width="2"/>
+    <text x="390" y="160" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="13" font-weight="700">rejected</text>
+    <text x="390" y="176" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">terminal — locked</text>
+    <!-- Arrow pending → fulfilled -->
+    <line x1="185" y1="82" x2="335" y2="42" stroke="var(--success)" stroke-width="2" marker-end="url(#arr-pm)"/>
+    <text x="257" y="50" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="11" font-weight="600">resolve()</text>
+    <!-- Arrow pending → rejected -->
+    <line x1="185" y1="138" x2="335" y2="158" stroke="var(--danger)" stroke-width="2" marker-end="url(#arr-pm)"/>
+    <text x="257" y="173" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="11" font-weight="600">reject()</text>
+    <!-- "settled" brace -->
+    <line x1="448" y1="55" x2="468" y2="55" stroke="var(--border)" stroke-width="1"/>
+    <line x1="468" y1="55" x2="468" y2="165" stroke="var(--border)" stroke-width="1"/>
+    <line x1="468" y1="165" x2="448" y2="165" stroke="var(--border)" stroke-width="1"/>
+    <line x1="468" y1="110" x2="478" y2="110" stroke="var(--border)" stroke-width="1"/>
+    <text x="485" y="114" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">settled</text>
+  </svg>
+  <figcaption>A Promise starts <em>pending</em> and transitions exactly once — to <em>fulfilled</em> via <code>resolve()</code> or <em>rejected</em> via <code>reject()</code>; both terminal states are immutable.</figcaption>
+</figure>
 
 <h3 class="g-h3">Creating a Promise</h3>
 <div class="cb"><pre>const myPromise = new Promise((resolve, reject) =&gt; {
@@ -577,6 +723,67 @@ console.log('W');                // 3rd (sync)
   <li><code>any</code> = optimist — first success is good enough</li>
   <li><code>allSettled</code> = patient waiter — collects every result, no matter what</li>
 </ul>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 730 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Promise.all vs allSettled vs race vs any comparison matrix">
+    <defs>
+      <marker id="arr-comb" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Header row -->
+    <rect x="8" y="8" width="704" height="36" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="192" y="31" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11" font-weight="700">Resolves when</text>
+    <text x="440" y="31" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11" font-weight="700">Rejects when</text>
+    <text x="628" y="31" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11" font-weight="700">Use case</text>
+    <!-- Vertical dividers -->
+    <line x1="130" y1="8" x2="130" y2="252" stroke="var(--border)" stroke-width="1"/>
+    <line x1="370" y1="8" x2="370" y2="252" stroke="var(--border)" stroke-width="1"/>
+    <line x1="550" y1="8" x2="550" y2="252" stroke="var(--border)" stroke-width="1"/>
+    <!-- Row 1: Promise.all -->
+    <rect x="8" y="44" width="704" height="48" rx="0" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="69" y="65" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">Promise</text>
+    <text x="69" y="80" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">.all</text>
+    <text x="248" y="65" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10">ALL fulfill</text>
+    <text x="248" y="79" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(array of values)</text>
+    <text x="459" y="65" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">ANY one rejects</text>
+    <text x="459" y="79" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(immediately, fast-fail)</text>
+    <text x="634" y="65" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">Need all results</text>
+    <text x="634" y="79" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">at the same time</text>
+    <!-- Row 2: allSettled -->
+    <rect x="8" y="92" width="704" height="48" rx="0" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="69" y="113" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">Promise</text>
+    <text x="69" y="128" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">.allSettled</text>
+    <text x="248" y="113" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10">ALL settle</text>
+    <text x="248" y="127" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(always, no fail)</text>
+    <text x="459" y="120" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">Never rejects</text>
+    <text x="634" y="113" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">Need all outcomes</text>
+    <text x="634" y="127" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(partial success ok)</text>
+    <!-- Row 3: race -->
+    <rect x="8" y="140" width="704" height="48" rx="0" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="69" y="161" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">Promise</text>
+    <text x="69" y="176" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">.race</text>
+    <text x="248" y="161" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10">First to SETTLE</text>
+    <text x="248" y="175" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(fulfill or reject)</text>
+    <text x="459" y="161" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">First to SETTLE</text>
+    <text x="459" y="175" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(same winner)</text>
+    <text x="634" y="161" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">Timeout patterns</text>
+    <text x="634" y="175" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">first across line</text>
+    <!-- Row 4: any -->
+    <rect x="8" y="188" width="704" height="56" rx="0" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+    <text x="69" y="213" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">Promise</text>
+    <text x="69" y="228" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">.any</text>
+    <text x="248" y="213" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10">First to FULFILL</text>
+    <text x="248" y="227" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(ignores rejections)</text>
+    <text x="459" y="208" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="10">ALL reject</text>
+    <text x="459" y="222" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">(AggregateError)</text>
+    <text x="634" y="208" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="10">First success wins</text>
+    <text x="634" y="222" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">try multiple sources</text>
+    <!-- outer border -->
+    <rect x="8" y="8" width="704" height="236" rx="6" fill="none" stroke="var(--border-strong)" stroke-width="1.5"/>
+  </svg>
+  <figcaption>The four Promise combinators at a glance: <code>all</code> fast-fails, <code>allSettled</code> always waits, <code>race</code> mirrors the first settler, <code>any</code> ignores rejections until all fail.</figcaption>
+</figure>
 
 <h3 class="g-h3">Promise.all — Code Example</h3>
 <div class="cb"><pre>const p1 = new Promise(resolve =&gt; setTimeout(resolve, 1000, '1 second'));
@@ -734,6 +941,61 @@ foo();             // starts execution...
 console.log('E'); // 3. Sync — control returned from foo when it hit await
 // Output: D, A, E, B, C</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 690 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="async/await execution order lane diagram">
+    <defs>
+      <marker id="arr-aw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- time axis -->
+    <line x1="100" y1="210" x2="668" y2="210" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-aw)"/>
+    <text x="380" y="225" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">time</text>
+    <!-- Tick marks -->
+    <line x1="160" y1="205" x2="160" y2="215" stroke="var(--fg)" stroke-width="1"/>
+    <line x1="280" y1="205" x2="280" y2="215" stroke="var(--fg)" stroke-width="1"/>
+    <line x1="400" y1="205" x2="400" y2="215" stroke="var(--fg)" stroke-width="1"/>
+    <line x1="520" y1="205" x2="520" y2="215" stroke="var(--fg)" stroke-width="1"/>
+    <line x1="640" y1="205" x2="640" y2="215" stroke="var(--fg)" stroke-width="1"/>
+    <!-- Lane labels -->
+    <text x="8" y="50" fill="var(--fg)" font-family="var(--f-body)" font-size="10" font-weight="700">Sync</text>
+    <text x="8" y="110" fill="var(--fg)" font-family="var(--f-body)" font-size="10" font-weight="700">await</text>
+    <text x="8" y="170" fill="var(--fg)" font-family="var(--f-body)" font-size="10" font-weight="700">after</text>
+    <!-- Sync code: D, then A -->
+    <rect x="100" y="30" width="60" height="30" rx="4" fill="oklch(0.70 0.10 200)" stroke="none"/>
+    <text x="130" y="50" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">D (sync)</text>
+    <rect x="160" y="30" width="120" height="30" rx="4" fill="oklch(0.70 0.10 200)" stroke="none"/>
+    <text x="220" y="50" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">A (in foo)</text>
+    <!-- E (sync after calling foo) -->
+    <rect x="280" y="30" width="120" height="30" rx="4" fill="oklch(0.70 0.10 200)" stroke="none"/>
+    <text x="340" y="50" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">E (sync)</text>
+    <!-- await suspends — dashed line from A end to resume -->
+    <line x1="280" y1="45" x2="280" y2="90" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="290" y="80" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">await suspends foo</text>
+    <!-- awaited task (microtask / async op) -->
+    <rect x="280" y="90" width="120" height="30" rx="4" fill="oklch(0.70 0.10 80)" stroke="none"/>
+    <text x="340" y="110" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">Promise resolves</text>
+    <!-- Resume foo as microtask -->
+    <line x1="400" y1="105" x2="400" y2="150" stroke="var(--fg-muted)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="410" y="140" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">foo resumes</text>
+    <rect x="400" y="150" width="120" height="30" rx="4" fill="oklch(0.70 0.10 140)" stroke="none"/>
+    <text x="460" y="170" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">B, C (micro)</text>
+    <!-- Legend -->
+    <rect x="108" y="195" width="12" height="8" rx="2" fill="oklch(0.70 0.10 200)"/>
+    <text x="124" y="203" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">sync</text>
+    <rect x="160" y="195" width="12" height="8" rx="2" fill="oklch(0.70 0.10 80)"/>
+    <text x="176" y="203" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">awaited task</text>
+    <rect x="248" y="195" width="12" height="8" rx="2" fill="oklch(0.70 0.10 140)"/>
+    <text x="264" y="203" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">continuation (microtask)</text>
+    <!-- Code order labels below timeline -->
+    <text x="130" y="194" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">①D</text>
+    <text x="220" y="194" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">②A</text>
+    <text x="340" y="194" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">③E</text>
+    <text x="460" y="194" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">④B,C</text>
+  </svg>
+  <figcaption>Inside an <code>async</code> function, code before <code>await</code> runs synchronously; after <code>await</code>, control returns to the caller and the continuation is queued as a microtask — output order: D, A, E, B, C.</figcaption>
+</figure>
+
 <h3 class="g-h3">async/await vs .then() — Same Thing Different Syntax</h3>
 <div class="cb"><pre>// With .then():
 function fetchData() {
@@ -840,6 +1102,69 @@ async function good() {
 │ queueMicrotask()│   │ I/O callbacks         │
 └─────────────────┘   └──────────────────────┘</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Event loop architecture: Call Stack, Web APIs, Microtask Queue, Macrotask Queue">
+    <defs>
+      <marker id="arr-el" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Call Stack -->
+    <rect x="16" y="16" width="200" height="140" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="116" y="36" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">CALL STACK</text>
+    <text x="116" y="50" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(LIFO)</text>
+    <rect x="28" y="60" width="176" height="28" rx="3" fill="var(--accent)" opacity="0.25" stroke="var(--accent)" stroke-width="1"/>
+    <text x="116" y="79" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="10">currently running fn</text>
+    <rect x="28" y="92" width="176" height="20" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="116" y="106" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">caller frame</text>
+    <rect x="28" y="116" width="176" height="20" rx="3" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="116" y="130" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">outer frame</text>
+    <text x="116" y="150" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">← pushes / pops</text>
+    <!-- Web APIs -->
+    <rect x="270" y="16" width="220" height="140" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="380" y="36" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">WEB APIs</text>
+    <text x="380" y="50" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">(off main thread)</text>
+    <text x="380" y="72" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">setTimeout</text>
+    <text x="380" y="90" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">fetch / XHR</text>
+    <text x="380" y="108" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">DOM events</text>
+    <text x="380" y="126" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">setInterval</text>
+    <!-- Microtask Queue -->
+    <rect x="16" y="200" width="200" height="108" rx="6" fill="var(--surface)" stroke="var(--success)" stroke-width="2"/>
+    <text x="116" y="220" text-anchor="middle" fill="var(--success)" font-family="var(--f-body)" font-size="11" font-weight="700">MICROTASK QUEUE</text>
+    <text x="116" y="234" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">HIGH PRIORITY — drain all</text>
+    <text x="116" y="252" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">Promise .then/.catch</text>
+    <text x="116" y="267" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">Promise .finally</text>
+    <text x="116" y="282" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">queueMicrotask()</text>
+    <!-- Macrotask Queue -->
+    <rect x="270" y="200" width="220" height="108" rx="6" fill="var(--surface)" stroke="var(--warning)" stroke-width="2"/>
+    <text x="380" y="220" text-anchor="middle" fill="var(--warning)" font-family="var(--f-body)" font-size="11" font-weight="700">MACROTASK QUEUE</text>
+    <text x="380" y="234" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">LOWER — one at a time</text>
+    <text x="380" y="252" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">setTimeout callbacks</text>
+    <text x="380" y="267" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">setInterval callbacks</text>
+    <text x="380" y="282" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">DOM event handlers</text>
+    <!-- Event Loop box -->
+    <rect x="548" y="100" width="196" height="116" rx="6" fill="var(--bg-raised)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="646" y="120" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11" font-weight="700">EVENT LOOP</text>
+    <text x="646" y="137" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">1. Sync stack drains</text>
+    <text x="646" y="152" text-anchor="middle" fill="var(--success)" font-family="var(--f-body)" font-size="9">2. ALL microtasks run</text>
+    <text x="646" y="167" text-anchor="middle" fill="var(--warning)" font-family="var(--f-body)" font-size="9">3. ONE macrotask</text>
+    <text x="646" y="182" text-anchor="middle" fill="var(--success)" font-family="var(--f-body)" font-size="9">4. ALL microtasks run</text>
+    <text x="646" y="197" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">5. Repeat ...</text>
+    <!-- Arrows: Web APIs → queues -->
+    <line x1="380" y1="156" x2="116" y2="198" stroke="var(--success)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-el)"/>
+    <text x="220" y="180" fill="var(--success)" font-family="var(--f-body)" font-size="9">Promise cb</text>
+    <line x1="380" y1="156" x2="380" y2="198" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-el)"/>
+    <text x="400" y="180" fill="var(--warning)" font-family="var(--f-body)" font-size="9">timer cb</text>
+    <!-- Arrows: queues → stack (via event loop) -->
+    <line x1="216" y1="254" x2="548" y2="165" stroke="var(--success)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-el)"/>
+    <line x1="490" y1="254" x2="548" y2="185" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-el)"/>
+    <!-- Stack → Web APIs arrow -->
+    <line x1="216" y1="86" x2="270" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr-el)"/>
+    <text x="243" y="80" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">registers async op</text>
+  </svg>
+  <figcaption>The event loop architecture: the call stack runs sync code; Web APIs handle async work off-thread; callbacks are queued in microtask (high priority) or macrotask (lower priority) queues for the event loop to dispatch.</figcaption>
+</figure>
+
 <h3 class="g-h3">The Event Loop Algorithm (Exact Execution Order)</h3>
 <div class="cb"><pre>1. Run all synchronous code (Call Stack empties)
 2. Run ALL microtasks (drain entire Microtask Queue)
@@ -848,6 +1173,50 @@ async function good() {
 5. Run ONE macrotask
 6. Repeat...</pre></div>
 <p><strong>The golden rule:</strong> <strong>Microtasks (Promises) ALWAYS run before macrotasks (setTimeout)</strong></p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 748.8 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Event loop execution timeline showing sync, microtask, and macrotask segments">
+    <defs>
+      <marker id="arr-tl" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+    </defs>
+    <!-- Time axis -->
+    <line x1="60" y1="100" x2="706" y2="100" stroke="var(--fg)" stroke-width="2" marker-end="url(#arr-tl)"/>
+    <text x="714" y="104" fill="var(--fg)" font-family="var(--f-body)" font-size="10">time</text>
+    <!-- Sync block 1: "1", "4" -->
+    <rect x="60" y="68" width="130" height="30" rx="4" fill="oklch(0.70 0.10 200)"/>
+    <text x="125" y="88" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">sync: log 1, log 4</text>
+    <!-- Tick after sync -->
+    <line x1="190" y1="95" x2="190" y2="105" stroke="var(--fg)" stroke-width="1.5"/>
+    <text x="190" y="118" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">stack empty</text>
+    <!-- Microtask block: "3" -->
+    <rect x="190" y="68" width="130" height="30" rx="4" fill="oklch(0.70 0.10 140)"/>
+    <text x="255" y="88" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">microtask: log 3</text>
+    <!-- Tick after microtasks -->
+    <line x1="320" y1="95" x2="320" y2="105" stroke="var(--fg)" stroke-width="1.5"/>
+    <text x="320" y="118" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">queue empty</text>
+    <!-- Macrotask block: "2" -->
+    <rect x="320" y="68" width="160" height="30" rx="4" fill="oklch(0.70 0.10 80)"/>
+    <text x="400" y="88" text-anchor="middle" fill="var(--bg)" font-family="var(--f-mono)" font-size="11" font-weight="700">macrotask: log 2</text>
+    <!-- Tick after macrotask -->
+    <line x1="480" y1="95" x2="480" y2="105" stroke="var(--fg)" stroke-width="1.5"/>
+    <!-- Output labels -->
+    <text x="125" y="60" text-anchor="middle" fill="oklch(0.70 0.10 200)" font-family="var(--f-mono)" font-size="13" font-weight="700">① ②</text>
+    <text x="255" y="60" text-anchor="middle" fill="oklch(0.70 0.10 140)" font-family="var(--f-mono)" font-size="13" font-weight="700">③</text>
+    <text x="400" y="60" text-anchor="middle" fill="oklch(0.70 0.10 80)" font-family="var(--f-mono)" font-size="13" font-weight="700">④</text>
+    <!-- output line -->
+    <text x="383" y="155" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="700">Output: 1, 4, 3, 2</text>
+    <!-- Legend -->
+    <rect x="60" y="170" width="10" height="8" rx="2" fill="oklch(0.70 0.10 200)"/>
+    <text x="74" y="178" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">sync</text>
+    <rect x="106" y="170" width="10" height="8" rx="2" fill="oklch(0.70 0.10 140)"/>
+    <text x="120" y="178" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">microtask (Promise)</text>
+    <rect x="216" y="170" width="10" height="8" rx="2" fill="oklch(0.70 0.10 80)"/>
+    <text x="230" y="178" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">macrotask (setTimeout)</text>
+  </svg>
+  <figcaption>Execution timeline for the classic event loop example: sync runs first, then all microtasks drain, then one macrotask — even <code>setTimeout(0)</code> runs last.</figcaption>
+</figure>
 
 <h3 class="g-h3">Basic Example — The Classic</h3>
 <div class="cb"><pre>console.log('1');           // Sync — runs 1st
@@ -1187,6 +1556,61 @@ function assertNever(x: never): never {
     throw new Error('Unexpected value: ' + x);
 }</pre></div>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 570 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TypeScript type hierarchy from any down to never">
+    <defs>
+      <marker id="arr-th" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+    </defs>
+    <!-- any -->
+    <rect x="200" y="10" width="160" height="40" rx="6" fill="var(--surface-alt)" stroke="var(--warning)" stroke-width="2"/>
+    <text x="280" y="35" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="14" font-weight="700">any</text>
+    <text x="280" y="24" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="8">assignable to / from everything — escape hatch</text>
+    <!-- unknown -->
+    <rect x="200" y="78" width="160" height="36" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="280" y="102" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="13" font-weight="700">unknown</text>
+    <!-- arrow any → unknown -->
+    <line x1="280" y1="50" x2="280" y2="76" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <text x="290" y="68" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">narrower</text>
+    <!-- Concrete types row -->
+    <rect x="18" y="146" width="96" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="66" y="169" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12">string</text>
+    <rect x="126" y="146" width="96" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="174" y="169" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12">number</text>
+    <rect x="234" y="146" width="96" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="282" y="169" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12">boolean</text>
+    <rect x="342" y="146" width="72" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="378" y="169" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12">null</text>
+    <rect x="426" y="146" width="100" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="476" y="165" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11">undefined</text>
+    <text x="476" y="178" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">…object, symbol</text>
+    <!-- arrows unknown → concrete types -->
+    <line x1="255" y1="114" x2="100" y2="144" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="265" y1="114" x2="194" y2="144" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="280" y1="114" x2="282" y2="144" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="295" y1="114" x2="360" y2="144" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="310" y1="114" x2="450" y2="144" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <!-- never -->
+    <rect x="200" y="220" width="160" height="36" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="2"/>
+    <text x="280" y="244" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="13" font-weight="700">never</text>
+    <!-- arrows concrete → never -->
+    <line x1="110" y1="182" x2="244" y2="218" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="200" y1="182" x2="258" y2="218" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="282" y1="182" x2="280" y2="218" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="368" y1="182" x2="306" y2="218" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <line x1="462" y1="182" x2="324" y2="218" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#arr-th)"/>
+    <!-- Labels -->
+    <text x="536" y="40" text-anchor="end" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">← top type</text>
+    <text x="536" y="102" text-anchor="end" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">← safe top type</text>
+    <text x="536" y="168" text-anchor="end" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">← concrete types</text>
+    <text x="536" y="244" text-anchor="end" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">← bottom type</text>
+    <!-- Arrow direction note -->
+    <text x="280" y="300" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="9">arrows show assignability: a type is assignable to everything above it</text>
+  </svg>
+  <figcaption>TypeScript type hierarchy: <code>any</code> and <code>unknown</code> are top types (accept everything); concrete types sit in the middle; <code>never</code> is the bottom type (assignable to everything, but nothing is assignable to it).</figcaption>
+</figure>
+
 <h4 class="g-h4">Example — any vs unknown vs never: concrete runnable comparison</h4>
 <div class="cb"><pre>// --- any: opts OUT of type checking entirely ---
 function dangerousAny(value: any) {
@@ -1456,6 +1880,57 @@ type ReadonlyUser = Readonly&lt;User&gt;;
 // Record&lt;K, V&gt; — object with keys of type K, values of type V
 type UserMap = Record&lt;string, User&gt;;
 // { [key: string]: User }</pre></div>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TypeScript utility type transformations of a User interface">
+    <!-- Source User box -->
+    <rect x="8" y="8" width="136" height="130" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="76" y="27" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11" font-weight="700">User</text>
+    <line x1="8" y1="33" x2="144" y2="33" stroke="var(--border)" stroke-width="1"/>
+    <text x="76" y="50" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">id: number</text>
+    <text x="76" y="66" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">name: string</text>
+    <text x="76" y="82" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">email: string</text>
+    <text x="76" y="98" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">age: number</text>
+    <text x="76" y="130" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="9">source type</text>
+    <!-- Partial<User> -->
+    <rect x="184" y="8" width="136" height="130" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="252" y="27" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="11" font-weight="700">Partial&lt;User&gt;</text>
+    <line x1="184" y1="33" x2="320" y2="33" stroke="var(--border)" stroke-width="1"/>
+    <text x="252" y="50" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">id?: number</text>
+    <text x="252" y="66" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">name?: string</text>
+    <text x="252" y="82" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">email?: string</text>
+    <text x="252" y="98" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">age?: number</text>
+    <text x="252" y="118" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="9">all optional</text>
+    <!-- Pick<User,'id'|'name'> -->
+    <rect x="360" y="8" width="168" height="130" rx="6" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="444" y="24" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10" font-weight="700">Pick&lt;User,'id'|'name'&gt;</text>
+    <line x1="360" y1="33" x2="528" y2="33" stroke="var(--border)" stroke-width="1"/>
+    <text x="444" y="54" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11" font-weight="600">id: number</text>
+    <text x="444" y="70" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11" font-weight="600">name: string</text>
+    <text x="444" y="90" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">email  ✗</text>
+    <text x="444" y="104" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">age  ✗</text>
+    <text x="444" y="122" text-anchor="middle" fill="var(--success)" font-family="var(--f-body)" font-size="9">keep only listed keys</text>
+    <!-- Omit<User,'email'|'age'> -->
+    <rect x="540" y="8" width="212" height="130" rx="6" fill="var(--surface)" stroke="var(--warning)" stroke-width="1.5"/>
+    <text x="646" y="24" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="10" font-weight="700">Omit&lt;User,'email'|'age'&gt;</text>
+    <line x1="540" y1="33" x2="752" y2="33" stroke="var(--border)" stroke-width="1"/>
+    <text x="646" y="54" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11" font-weight="600">id: number</text>
+    <text x="646" y="70" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11" font-weight="600">name: string</text>
+    <text x="646" y="90" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">email  ✗</text>
+    <text x="646" y="104" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">age  ✗</text>
+    <text x="646" y="122" text-anchor="middle" fill="var(--warning)" font-family="var(--f-body)" font-size="9">drop listed keys</text>
+    <!-- Readonly<User> -->
+    <rect x="184" y="158" width="136" height="120" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="1.5"/>
+    <text x="252" y="177" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="11" font-weight="700">Readonly&lt;User&gt;</text>
+    <line x1="184" y1="183" x2="320" y2="183" stroke="var(--border)" stroke-width="1"/>
+    <text x="252" y="200" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">readonly id: number</text>
+    <text x="252" y="216" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">readonly name: string</text>
+    <text x="252" y="232" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">readonly email: string</text>
+    <text x="252" y="248" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">readonly age: number</text>
+    <text x="252" y="268" text-anchor="middle" fill="var(--danger)" font-family="var(--f-body)" font-size="9">all properties frozen</text>
+  </svg>
+  <figcaption>Utility type transformations on a <code>User</code> interface: <code>Partial</code> makes all fields optional, <code>Pick</code> keeps only named keys, <code>Omit</code> drops named keys, and <code>Readonly</code> prevents reassignment.</figcaption>
+</figure>
 
 <h4 class="g-h4">Example — every utility type with its transformation shown</h4>
 <div class="cb"><pre>interface User {

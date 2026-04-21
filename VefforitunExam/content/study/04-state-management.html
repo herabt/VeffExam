@@ -19,6 +19,62 @@
 <p>React's built-in solution for passing data through the component tree without prop drilling. No extra library needed.</p>
 
 <h3 class="g-h3">The Three Core APIs</h3>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 754 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Context propagation: Provider wraps the app tree; consumers at various depths subscribe and re-render together">
+    <defs>
+      <marker id="ctx-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+      <marker id="ctx-acc" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- Provider box -->
+    <rect x="12" y="12" width="676" height="256" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="350" y="34" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="12" font-weight="700">Context.Provider  value={{ theme, user }}</text>
+
+    <!-- App level -->
+    <rect x="260" y="48" width="180" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="350" y="71" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12">App</text>
+
+    <!-- Mid level -->
+    <rect x="120" y="120" width="160" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="200" y="143" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12">Layout</text>
+
+    <rect x="420" y="120" width="160" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="500" y="143" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12">Sidebar</text>
+
+    <!-- Deep consumers -->
+    <rect x="56" y="200" width="140" height="40" rx="6" fill="var(--bg-raised)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="126" y="218" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="11" font-weight="700">ThemeButton</text>
+    <text x="126" y="233" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">useContext</text>
+
+    <rect x="224" y="200" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="294" y="225" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="11">NavItem</text>
+
+    <rect x="400" y="200" width="140" height="40" rx="6" fill="var(--bg-raised)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="470" y="218" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="11" font-weight="700">UserAvatar</text>
+    <text x="470" y="233" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">useContext</text>
+
+    <!-- Tree lines -->
+    <line x1="350" y1="84" x2="200" y2="120" stroke="var(--border)" stroke-width="1" marker-end="url(#ctx-arr)"/>
+    <line x1="350" y1="84" x2="500" y2="120" stroke="var(--border)" stroke-width="1" marker-end="url(#ctx-arr)"/>
+    <line x1="200" y1="156" x2="126" y2="200" stroke="var(--border)" stroke-width="1" marker-end="url(#ctx-arr)"/>
+    <line x1="200" y1="156" x2="294" y2="200" stroke="var(--border)" stroke-width="1" marker-end="url(#ctx-arr)"/>
+    <line x1="500" y1="156" x2="470" y2="200" stroke="var(--border)" stroke-width="1" marker-end="url(#ctx-arr)"/>
+
+    <!-- Broadcast arrows from Provider to consumers -->
+    <line x1="40" y1="34" x2="56" y2="196" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ctx-acc)"/>
+    <line x1="650" y1="34" x2="540" y2="196" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ctx-acc)"/>
+
+    <text x="18" y="120" fill="var(--accent)" font-family="var(--f-mono)" font-size="10" transform="rotate(-72,18,120)">re-renders</text>
+    <text x="682" y="120" fill="var(--accent)" font-family="var(--f-mono)" font-size="10" transform="rotate(72,682,120)">re-renders</text>
+  </svg>
+  <figcaption>Provider wraps the entire subtree; every component calling useContext re-renders whenever the Provider's value changes, regardless of depth.</figcaption>
+</figure>
+
 <div class="tw"><table>
   <thead><tr><th>API</th><th>Purpose</th></tr></thead>
   <tbody>
@@ -183,7 +239,97 @@ Reducers are pure functions: <code>(state, action) =&gt; newState</code>. Same i
 <div class="cb"><pre>View → Action → Dispatch → Reducer → Store → View</pre></div>
 <p>This cycle goes in ONE direction only — never backwards. This is what makes Redux state predictable and debuggable.</p>
 
+<figure class="fig-dia">
+  <svg viewBox="0 0 810 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flux unidirectional data flow: Action to Dispatcher to Store to View and back">
+    <defs>
+      <marker id="flux-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+    <!-- Boxes -->
+    <rect x="12" y="72" width="100" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="62" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="13" font-weight="600">Action</text>
+
+    <rect x="172" y="72" width="120" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="232" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="13" font-weight="600">Dispatcher</text>
+
+    <rect x="352" y="72" width="100" height="40" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="402" y="96" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="13" font-weight="600">Store</text>
+
+    <rect x="512" y="72" width="100" height="40" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="562" y="96" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="13" font-weight="700">View</text>
+
+    <!-- Forward arrows -->
+    <line x1="114" y1="92" x2="168" y2="92" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#flux-arr)"/>
+    <line x1="294" y1="92" x2="348" y2="92" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#flux-arr)"/>
+    <line x1="454" y1="92" x2="508" y2="92" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#flux-arr)"/>
+
+    <!-- Return arc: View → user intent → Action -->
+    <path d="M562,112 Q562,165 400,165 Q240,165 62,165 Q62,148 62,115" stroke="var(--fg-muted)" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#flux-arr)"/>
+    <text x="320" y="180" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">user intent triggers new action</text>
+
+    <!-- Labels -->
+    <text x="62" y="64" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">{ type, payload }</text>
+    <text x="402" y="64" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">single source</text>
+    <text x="562" y="64" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">re-renders</text>
+  </svg>
+  <figcaption>Flux unidirectional loop: data flows Action → Dispatcher → Store → View; user gestures restart the cycle from the top.</figcaption>
+</figure>
+
 <h3 class="g-h3">Core Concepts Defined</h3>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 810 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Redux architecture: Component dispatches Action through optional Middleware to Reducer which produces new State in the Store then back to Component">
+    <defs>
+      <marker id="rdx-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="rdx-acc" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- Component (left) -->
+    <rect x="12" y="80" width="110" height="48" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="67" y="100" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="12" font-weight="700">Component</text>
+    <text x="67" y="118" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">dispatch(action)</text>
+
+    <!-- Arrow: Component → Middleware -->
+    <line x1="124" y1="104" x2="175" y2="104" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#rdx-arr)"/>
+    <text x="150" y="96" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">Action</text>
+
+    <!-- Middleware (optional, dashed) -->
+    <rect x="178" y="68" width="110" height="72" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <text x="233" y="92" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11" font-weight="600">Middleware</text>
+    <text x="233" y="108" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">thunk / logger</text>
+    <text x="233" y="124" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">(optional)</text>
+
+    <!-- Arrow: Middleware → Reducer -->
+    <line x1="290" y1="104" x2="345" y2="104" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#rdx-arr)"/>
+
+    <!-- Reducer -->
+    <rect x="348" y="68" width="130" height="72" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="413" y="92" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">Reducer</text>
+    <text x="413" y="108" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">(state, action)</text>
+    <text x="413" y="122" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="10">pure function</text>
+
+    <!-- Arrow: Reducer → Store -->
+    <line x1="480" y1="104" x2="538" y2="104" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#rdx-arr)"/>
+    <text x="510" y="96" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="10">newState</text>
+
+    <!-- Store -->
+    <rect x="541" y="68" width="110" height="72" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="596" y="92" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">Store</text>
+    <text x="596" y="108" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">getState()</text>
+    <text x="596" y="122" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">single tree</text>
+
+    <!-- Arrow: Store → Component (return, bottom arc) -->
+    <path d="M651,140 Q780,140 780,180 Q780,200 596,200 Q400,200 67,200 Q67,165 67,130" stroke="var(--accent)" stroke-width="2" fill="none" marker-end="url(#rdx-acc)"/>
+    <text x="430" y="195" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="11">re-render via useSelector</text>
+  </svg>
+  <figcaption>Redux data flow: a Component dispatches an Action optionally through Middleware before reaching the pure Reducer, which computes new State stored in the Store; useSelector triggers re-renders.</figcaption>
+</figure>
+
 <p><strong>Store</strong><br>
 The single source of truth. Holds the entire application state tree. Provides:</p>
 <ul>
@@ -307,6 +453,68 @@ export type AppDispatch = typeof store.dispatch;</pre></div>
 
 <h3 class="g-h3">3.2 createSlice</h3>
 <p>Creates a slice of state — reducer logic + action creators + action types in one place. Uses Immer internally.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="createSlice anatomy: initialState and reducers and extraReducers feed into createSlice which outputs action creators and a reducer">
+    <defs>
+      <marker id="sl-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="sl-acc" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- Inputs (left column) -->
+    <!-- initialState -->
+    <rect x="12" y="40" width="170" height="48" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="97" y="61" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="600">initialState</text>
+    <text x="97" y="79" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">{ value: 0, … }</text>
+
+    <!-- reducers -->
+    <rect x="12" y="122" width="170" height="64" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="97" y="144" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="600">reducers</text>
+    <text x="97" y="161" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">increment(state)</text>
+    <text x="97" y="176" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">decrement(state)</text>
+
+    <!-- extraReducers -->
+    <rect x="12" y="218" width="170" height="64" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <text x="97" y="239" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="12" font-weight="600">extraReducers</text>
+    <text x="97" y="256" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">thunk.pending</text>
+    <text x="97" y="271" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">thunk.fulfilled</text>
+
+    <!-- Arrows to createSlice -->
+    <line x1="184" y1="64" x2="283" y2="140" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#sl-arr)"/>
+    <line x1="184" y1="154" x2="283" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#sl-arr)"/>
+    <line x1="184" y1="250" x2="283" y2="170" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#sl-arr)"/>
+
+    <!-- createSlice central box -->
+    <rect x="286" y="96" width="190" height="116" rx="6" fill="var(--bg-raised)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="381" y="124" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="14" font-weight="700">createSlice</text>
+    <text x="381" y="142" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-body)" font-size="11">name: 'counter'</text>
+    <line x1="310" y1="150" x2="452" y2="150" stroke="var(--border)" stroke-width="1"/>
+    <text x="381" y="168" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">uses Immer internally</text>
+    <text x="381" y="184" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">auto-generates types</text>
+
+    <!-- Outputs (right column) -->
+    <!-- actions -->
+    <rect x="570" y="60" width="180" height="80" rx="6" fill="var(--surface-alt)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="660" y="82" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="12" font-weight="700">slice.actions</text>
+    <text x="660" y="99" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11">increment()</text>
+    <text x="660" y="115" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11">decrement()</text>
+    <text x="660" y="131" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">action creators</text>
+
+    <!-- reducer -->
+    <rect x="570" y="180" width="180" height="56" rx="6" fill="var(--surface-alt)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="660" y="202" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12" font-weight="700">slice.reducer</text>
+    <text x="660" y="220" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">→ add to configureStore</text>
+
+    <!-- Arrows: createSlice → outputs -->
+    <line x1="477" y1="130" x2="566" y2="105" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#sl-acc)"/>
+    <line x1="477" y1="154" x2="566" y2="208" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#sl-arr)"/>
+  </svg>
+  <figcaption>createSlice composes initialState, reducers, and optional extraReducers into a single slice object that exports both ready-to-use action creators and a reducer function.</figcaption>
+</figure>
 <div class="cb"><pre>// features/counter/counterSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -352,6 +560,73 @@ export default counterSlice.reducer;</pre></div>
 
 <h3 class="g-h3">3.3 Immer Integration</h3>
 <p>Immer is a library that lets you write "mutating" code while producing immutable state behind the scenes. RTK uses it automatically inside <code>createSlice</code> — you do NOT need to import it separately.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Immer copy-on-write: left side shows three-level manual spread copying; right side shows Immer proxy allowing direct assignment while producing new immutable state">
+    <defs>
+      <marker id="imm-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="imm-suc" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+    </defs>
+
+    <!-- Divider -->
+    <line x1="380" y1="12" x2="380" y2="268" stroke="var(--border)" stroke-width="1" stroke-dasharray="6,4"/>
+
+    <!-- LEFT: Without Immer -->
+    <text x="190" y="28" text-anchor="middle" fill="var(--warning)" font-family="var(--f-body)" font-size="13" font-weight="700">Without Immer — manual spread</text>
+
+    <!-- Original state nodes (left) -->
+    <rect x="60" y="48" width="100" height="36" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="110" y="71" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11">state</text>
+
+    <rect x="36" y="120" width="100" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="86" y="143" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11">state.first</text>
+
+    <rect x="20" y="192" width="116" height="36" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="78" y="215" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="11">state.first.second</text>
+
+    <!-- Spread copy arrows (left) -->
+    <text x="178" y="68" text-anchor="start" fill="var(--warning)" font-family="var(--f-mono)" font-size="10">{ ...state,</text>
+    <text x="178" y="82" text-anchor="start" fill="var(--warning)" font-family="var(--f-mono)" font-size="10">  first: {</text>
+    <text x="178" y="140" text-anchor="start" fill="var(--warning)" font-family="var(--f-mono)" font-size="10">    ...state.first,</text>
+    <text x="178" y="154" text-anchor="start" fill="var(--warning)" font-family="var(--f-mono)" font-size="10">    second: {</text>
+    <text x="178" y="212" text-anchor="start" fill="var(--warning)" font-family="var(--f-mono)" font-size="10">      ...state.first.second,</text>
+    <text x="178" y="226" text-anchor="start" fill="var(--warning)" font-family="var(--f-mono)" font-size="10">      value: newVal } } }</text>
+
+    <!-- Copy indicators -->
+    <line x1="110" y1="84" x2="86" y2="120" stroke="var(--warning)" stroke-width="1" stroke-dasharray="4,2"/>
+    <line x1="86" y1="156" x2="78" y2="192" stroke="var(--warning)" stroke-width="1" stroke-dasharray="4,2"/>
+
+    <text x="110" y="262" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">3 levels of manual copies</text>
+
+    <!-- RIGHT: With Immer -->
+    <text x="570" y="28" text-anchor="middle" fill="var(--success)" font-family="var(--f-body)" font-size="13" font-weight="700">With Immer — proxy draft</text>
+
+    <!-- Draft proxy box -->
+    <rect x="414" y="48" width="280" height="56" rx="6" fill="var(--surface-alt)" stroke="var(--success)" stroke-width="2"/>
+    <text x="554" y="72" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="12" font-weight="600">Immer draft (proxy)</text>
+    <text x="554" y="89" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="11">tracks mutations transparently</text>
+
+    <!-- Mutation line -->
+    <rect x="414" y="136" width="280" height="40" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="554" y="161" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="12">state.first.second.value = 1</text>
+
+    <!-- Arrow: draft → mutation -->
+    <line x1="554" y1="105" x2="554" y2="132" stroke="var(--success)" stroke-width="1.5" marker-end="url(#imm-suc)"/>
+
+    <!-- New state result -->
+    <rect x="414" y="210" width="280" height="48" rx="6" fill="var(--bg-raised)" stroke="var(--success)" stroke-width="2"/>
+    <text x="554" y="231" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="12" font-weight="600">new immutable state</text>
+    <text x="554" y="249" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">original untouched</text>
+
+    <!-- Arrow: mutation → result -->
+    <line x1="554" y1="177" x2="554" y2="207" stroke="var(--success)" stroke-width="1.5" marker-end="url(#imm-suc)"/>
+  </svg>
+  <figcaption>Without Immer every nested update requires spreading every ancestor; Immer wraps state in a proxy so you write direct assignment and it produces the correctly structured new immutable object.</figcaption>
+</figure>
 <p><strong>How Immer works:</strong> It provides a <code>produce</code> function that accepts your original state and a callback. Inside the callback, Immer gives you a "draft proxy" of the state. Any mutations you make to the draft are tracked and used to produce a new immutable state. The original state is never touched.</p>
 <div class="cb"><pre>// Inside createSlice reducers — all safe thanks to Immer:
 reducers: {
@@ -394,6 +669,67 @@ updateFourth(state, action) {
 
 <h3 class="g-h3">3.4 createAsyncThunk</h3>
 <p>Used for async logic (API calls). Automatically generates <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code> action types.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Thunk lifecycle: dispatch triggers pending state then either fulfilled or rejected with their corresponding reducer cases">
+    <defs>
+      <marker id="thk-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg)"/>
+      </marker>
+      <marker id="thk-suc" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--success)"/>
+      </marker>
+      <marker id="thk-err" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--danger)"/>
+      </marker>
+    </defs>
+
+    <!-- dispatch call -->
+    <rect x="12" y="88" width="130" height="44" rx="6" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+    <text x="77" y="107" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">dispatch(thunk)</text>
+    <text x="77" y="123" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">component calls</text>
+
+    <!-- Arrow → pending -->
+    <line x1="144" y1="110" x2="210" y2="110" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#thk-arr)"/>
+
+    <!-- pending state -->
+    <rect x="213" y="72" width="140" height="76" rx="6" fill="var(--surface-alt)" stroke="var(--warning)" stroke-width="2"/>
+    <text x="283" y="97" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="13" font-weight="700">.pending</text>
+    <text x="283" y="113" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">loading = 'pending'</text>
+    <text x="283" y="129" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">show spinner</text>
+
+    <!-- Fork: success path -->
+    <line x1="355" y1="92" x2="455" y2="56" stroke="var(--success)" stroke-width="1.5" marker-end="url(#thk-suc)"/>
+    <!-- Fork: error path -->
+    <line x1="355" y1="130" x2="455" y2="166" stroke="var(--danger)" stroke-width="1.5" marker-end="url(#thk-err)"/>
+
+    <!-- Async API call label -->
+    <text x="403" y="95" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">await fetch()</text>
+    <text x="403" y="150" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">throws / !ok</text>
+
+    <!-- fulfilled -->
+    <rect x="457" y="24" width="160" height="72" rx="6" fill="var(--surface)" stroke="var(--success)" stroke-width="2"/>
+    <text x="537" y="48" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="13" font-weight="700">.fulfilled</text>
+    <text x="537" y="64" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">payload = data</text>
+    <text x="537" y="80" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">loading = 'succeeded'</text>
+
+    <!-- rejected -->
+    <rect x="457" y="140" width="160" height="72" rx="6" fill="var(--surface)" stroke="var(--danger)" stroke-width="2"/>
+    <text x="537" y="164" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="13" font-weight="700">.rejected</text>
+    <text x="537" y="180" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">error message</text>
+    <text x="537" y="196" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">loading = 'failed'</text>
+
+    <!-- Reducer label -->
+    <rect x="626" y="80" width="122" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="5,3"/>
+    <text x="687" y="104" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">extraReducers</text>
+    <text x="687" y="120" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">handles all 3</text>
+
+    <line x1="619" y1="60" x2="628" y2="96" stroke="var(--success)" stroke-width="1" stroke-dasharray="4,2"/>
+    <line x1="619" y1="176" x2="628" y2="120" stroke="var(--danger)" stroke-width="1" stroke-dasharray="4,2"/>
+  </svg>
+  <figcaption>createAsyncThunk dispatches pending immediately, then fulfilled on success or rejected on error; extraReducers handles all three cases to update loading and data state.</figcaption>
+</figure>
+
 <p><strong>The three-step pattern for data fetching:</strong></p>
 <ol>
   <li>A "start" action is dispatched to indicate the request is in progress (show loading spinner)</li>
@@ -649,6 +985,69 @@ const useBearStore = create&lt;BearState&gt;((set, get) =&gt; ({
 
 <h3 class="g-h3">4.2 Selectors — Preventing Unnecessary Re-renders</h3>
 <p>Use selectors to subscribe to only the slice of state you need. A component only re-renders when its selected value changes.</p>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 773.8 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zustand subscription model: external store holds bears and fish state; components subscribe via selectors; only the selected slice triggers re-render">
+    <defs>
+      <marker id="zus-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--fg-muted)"/>
+      </marker>
+      <marker id="zus-acc" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="zus-muted" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--border)"/>
+      </marker>
+    </defs>
+
+    <!-- Store (centre) -->
+    <rect x="280" y="88" width="200" height="104" rx="6" fill="var(--bg-raised)" stroke="var(--border-strong)" stroke-width="2"/>
+    <text x="380" y="112" text-anchor="middle" fill="var(--fg)" font-family="var(--f-mono)" font-size="13" font-weight="700">Zustand Store</text>
+    <text x="380" y="130" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="11">bears: 3</text>
+    <text x="380" y="146" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="11">fish: 10</text>
+    <text x="380" y="163" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="11">increasePopulation()</text>
+    <text x="380" y="179" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">external — no Provider</text>
+
+    <!-- "External store" label at top -->
+    <text x="380" y="76" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">lives outside the React tree</text>
+
+    <!-- Component A — subscribes to bears -->
+    <rect x="24" y="48" width="190" height="72" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="119" y="70" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="12" font-weight="700">BearCounter</text>
+    <text x="119" y="87" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">useStore(s =&gt; s.bears)</text>
+    <text x="119" y="102" text-anchor="middle" fill="var(--success)" font-family="var(--f-body)" font-size="10">re-renders when bears changes</text>
+
+    <!-- Component B — subscribes to fish -->
+    <rect x="24" y="164" width="190" height="72" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="119" y="186" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">FishCounter</text>
+    <text x="119" y="203" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">useStore(s =&gt; s.fish)</text>
+    <text x="119" y="218" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">silent when bears changes</text>
+
+    <!-- Component C — no Provider needed note -->
+    <rect x="546" y="88" width="200" height="80" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="646" y="110" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">AnyComponent</text>
+    <text x="646" y="127" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">useStore(s =&gt; s.increasePopulation)</text>
+    <text x="646" y="143" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">dispatch-like — calls set()</text>
+    <text x="646" y="158" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="10">no re-render from fn selector</text>
+
+    <!-- Arrows: Store → BearCounter (selector subscribe) -->
+    <line x1="280" y1="116" x2="216" y2="88" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#zus-acc)"/>
+    <text x="240" y="95" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)" font-size="9">bears slice</text>
+
+    <!-- Arrows: Store → FishCounter -->
+    <line x1="280" y1="164" x2="216" y2="200" stroke="var(--fg-muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#zus-arr)"/>
+    <text x="240" y="185" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">fish slice</text>
+
+    <!-- Arrow: AnyComponent → Store (mutation) -->
+    <line x1="546" y1="128" x2="482" y2="140" stroke="var(--fg-muted)" stroke-width="1.5" marker-end="url(#zus-arr)"/>
+    <text x="514" y="122" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-mono)" font-size="9">set(state)</text>
+
+    <!-- Object.is note at bottom -->
+    <rect x="200" y="238" width="360" height="32" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+    <text x="380" y="258" text-anchor="middle" fill="var(--fg-muted)" font-family="var(--f-body)" font-size="11">Zustand uses Object.is() to compare old vs new selected value</text>
+  </svg>
+  <figcaption>Zustand's external store broadcasts state changes; each component's selector determines whether it re-renders — only components whose selected slice actually changed are re-rendered.</figcaption>
+</figure>
 <div class="cb"><pre>// Select individual values — most performant
 const bears = useBearStore((state) =&gt; state.bears);
 const increasePopulation = useBearStore((state) =&gt; state.increasePopulation);
@@ -857,6 +1256,95 @@ addItem: (item) =&gt; set((state) =&gt; ({
 </table></div>
 
 <h2 class="g-h2">5. Comparison Table</h2>
+
+<figure class="fig-dia">
+  <svg viewBox="0 0 770 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="State library comparison chart showing Context, Redux, Redux Toolkit, and Zustand rated on Boilerplate, Bundle size, DX, and Async support">
+    <!-- Header row background -->
+    <rect x="12" y="12" width="736" height="36" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>
+
+    <!-- Column headers -->
+    <text x="110" y="35" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">Library</text>
+    <text x="276" y="35" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">Boilerplate</text>
+    <text x="420" y="35" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">Bundle</text>
+    <text x="564" y="35" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">DX / DevTools</text>
+    <text x="700" y="35" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="700">Async built-in</text>
+
+    <!-- Column dividers -->
+    <line x1="186" y1="12" x2="186" y2="268" stroke="var(--border)" stroke-width="1"/>
+    <line x1="360" y1="12" x2="360" y2="268" stroke="var(--border)" stroke-width="1"/>
+    <line x1="500" y1="12" x2="500" y2="268" stroke="var(--border)" stroke-width="1"/>
+    <line x1="636" y1="12" x2="636" y2="268" stroke="var(--border)" stroke-width="1"/>
+
+    <!-- Row: Context API -->
+    <rect x="12" y="48" width="736" height="52" rx="0" fill="var(--surface)" stroke="var(--border)" stroke-width="0.5"/>
+    <text x="110" y="70" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">Context API</text>
+    <text x="110" y="86" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">built-in React</text>
+    <!-- Boilerplate: low (2 dots) -->
+    <circle cx="256" cy="71" r="7" fill="var(--success)"/><circle cx="276" cy="71" r="7" fill="var(--success)"/><circle cx="296" cy="71" r="7" fill="var(--border)"/>
+    <text x="276" y="88" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">low</text>
+    <!-- Bundle: 0KB -->
+    <text x="420" y="68" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="13" font-weight="700">0 KB</text>
+    <text x="420" y="85" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">built-in</text>
+    <!-- DX -->
+    <circle cx="544" cy="71" r="7" fill="var(--success)"/><circle cx="564" cy="71" r="7" fill="var(--border)"/><circle cx="584" cy="71" r="7" fill="var(--border)"/>
+    <text x="564" y="88" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">basic</text>
+    <!-- Async built-in -->
+    <text x="700" y="74" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="12">no</text>
+
+    <!-- Row: Redux (plain) -->
+    <rect x="12" y="100" width="736" height="52" rx="0" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="0.5"/>
+    <text x="110" y="122" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">Redux</text>
+    <text x="110" y="138" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">plain / legacy</text>
+    <!-- Boilerplate: high (3 dots red) -->
+    <circle cx="256" cy="123" r="7" fill="var(--danger)"/><circle cx="276" cy="123" r="7" fill="var(--danger)"/><circle cx="296" cy="123" r="7" fill="var(--danger)"/>
+    <text x="276" y="140" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">high</text>
+    <!-- Bundle -->
+    <text x="420" y="120" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="13" font-weight="700">~10 KB</text>
+    <text x="420" y="137" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">core only</text>
+    <!-- DX -->
+    <circle cx="544" cy="123" r="7" fill="var(--success)"/><circle cx="564" cy="123" r="7" fill="var(--success)"/><circle cx="584" cy="123" r="7" fill="var(--success)"/>
+    <text x="564" y="140" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">time-travel</text>
+    <!-- Async -->
+    <text x="700" y="126" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="12">thunk</text>
+
+    <!-- Row: Redux Toolkit -->
+    <rect x="12" y="152" width="736" height="52" rx="0" fill="var(--surface)" stroke="var(--border)" stroke-width="0.5"/>
+    <text x="110" y="174" text-anchor="middle" fill="var(--accent)" font-family="var(--f-body)" font-size="12" font-weight="700">RTK</text>
+    <text x="110" y="190" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">recommended</text>
+    <!-- Boilerplate: medium -->
+    <circle cx="256" cy="175" r="7" fill="var(--warning)"/><circle cx="276" cy="175" r="7" fill="var(--warning)"/><circle cx="296" cy="175" r="7" fill="var(--border)"/>
+    <text x="276" y="192" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">medium</text>
+    <!-- Bundle -->
+    <text x="420" y="172" text-anchor="middle" fill="var(--warning)" font-family="var(--f-mono)" font-size="13" font-weight="700">~14 KB</text>
+    <text x="420" y="189" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">incl. Immer</text>
+    <!-- DX -->
+    <circle cx="544" cy="175" r="7" fill="var(--success)"/><circle cx="564" cy="175" r="7" fill="var(--success)"/><circle cx="584" cy="175" r="7" fill="var(--success)"/>
+    <text x="564" y="192" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">best-in-class</text>
+    <!-- Async -->
+    <text x="700" y="178" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="12">thunk + Query</text>
+
+    <!-- Row: Zustand -->
+    <rect x="12" y="204" width="736" height="52" rx="0" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="0.5"/>
+    <text x="110" y="226" text-anchor="middle" fill="var(--fg)" font-family="var(--f-body)" font-size="12" font-weight="600">Zustand</text>
+    <text x="110" y="242" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">pragmatic default</text>
+    <!-- Boilerplate: very low -->
+    <circle cx="256" cy="227" r="7" fill="var(--success)"/><circle cx="276" cy="227" r="7" fill="var(--border)"/><circle cx="296" cy="227" r="7" fill="var(--border)"/>
+    <text x="276" y="244" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">very low</text>
+    <!-- Bundle -->
+    <text x="420" y="224" text-anchor="middle" fill="var(--success)" font-family="var(--f-mono)" font-size="13" font-weight="700">~2 KB</text>
+    <text x="420" y="241" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="10">tiny</text>
+    <!-- DX -->
+    <circle cx="544" cy="227" r="7" fill="var(--success)"/><circle cx="564" cy="227" r="7" fill="var(--success)"/><circle cx="584" cy="227" r="7" fill="var(--border)"/>
+    <text x="564" y="244" text-anchor="middle" fill="var(--fg-subtle)" font-family="var(--f-mono)" font-size="9">no time-travel</text>
+    <!-- Async -->
+    <text x="700" y="230" text-anchor="middle" fill="var(--danger)" font-family="var(--f-mono)" font-size="12">manual</text>
+
+    <!-- Outer border -->
+    <rect x="12" y="12" width="736" height="244" rx="4" fill="none" stroke="var(--border-strong)" stroke-width="1.5"/>
+  </svg>
+  <figcaption>Comparison at a glance: filled dots indicate higher rating for the column; RTK leads on DX and async but costs more in bundle and boilerplate; Zustand wins on size and simplicity.</figcaption>
+</figure>
+
 <div class="tw"><table>
   <thead><tr><th>Feature</th><th>Context API</th><th>Redux Toolkit</th><th>Zustand</th></tr></thead>
   <tbody>
