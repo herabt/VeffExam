@@ -59,7 +59,7 @@ Item 3: 100 + 90×3 = 370px</pre></div>
 
 <p>The <code>fr</code> unit represents a fraction of the available space. <code>1fr 2fr</code> = first column gets 1/3, second gets 2/3.</p>
 
-<p><code>repeat(auto-fit, minmax(250px, 1fr))</code> creates a responsive grid without media queries — fits as many columns as possible.</p>
+<p><code>repeat(auto-fit, minmax(250px, 1fr))</code> creates a responsive grid without media queries. <strong>auto-fit</strong> collapses empty tracks so items stretch to fill the row. <strong>auto-fill</strong> keeps empty tracks, leaving blank space. With few items: auto-fit makes items grow, auto-fill leaves gaps.</p>
 
 <p>Grid terminology: a <strong>grid line</strong> is a dividing line (numbered from 1). A <strong>grid track</strong> is a full row or column. A <strong>grid cell</strong> is a single box. A <strong>grid area</strong> is a rectangular group of cells. All areas must be rectangular or the layout breaks.</p>
 
@@ -78,6 +78,14 @@ Item 3: 100 + 90×3 = 370px</pre></div>
 <p>A <strong>Block</strong> is a standalone entity (e.g., <code>.card</code>). An <strong>Element</strong> is a part of a block, separated by double underscore (e.g., <code>.card__title</code>). A <strong>Modifier</strong> is a variation, separated by double dash (e.g., <code>.card__title--active</code>).</p>
 
 <p>Rules: lowercase letters, digits, and dashes only. No camelCase. No PascalCase. Blocks use class selectors only — no tag names, no IDs.</p>
+
+<div class="cb"><pre>/* Source: summer-vacation-css3/styles/base.css */
+.nav { height: var(--navigation-bar-height); }     /* Block */
+.nav__list { display: grid; list-style: none; }     /* Element */
+.nav__item { position: relative; }                  /* Element */
+.features__image { border-radius: 50%; }            /* Element */
+.promo--purple { background: purple; }              /* Modifier */
+.promo--reverse { flex-direction: row-reverse; }    /* Modifier */</pre></div>
 
 <hr>
 
@@ -115,6 +123,11 @@ Item 3: 100 + 90×3 = 370px</pre></div>
 
 <p><code>border-box</code>: padding and border are included inside the width. Total is always exactly what you set. Content area shrinks to make room. Width: 100px = <strong>100px total</strong>. Content becomes 60px.</p>
 
+<div class="cb"><pre>/* Best practice — apply globally */
+*, *::before, *::after {
+  box-sizing: border-box;
+}</pre></div>
+
 <hr>
 
 <h2 class="g-h2">7. JavaScript <code>this</code></h2>
@@ -131,6 +144,14 @@ Item 3: 100 + 90×3 = 370px</pre></div>
 <tr><td><code>setTimeout(fn)</code></td><td>window</td><td>Callback is detached — loses context</td></tr>
 <tr><td>Arrow function</td><td>inherits from parent</td><td>No own this. Good inside setTimeout. Bad as object method.</td></tr>
 </tbody></table>
+
+<div class="cb"><pre>// Mock exam Q23 pattern (from teacher's answer key)
+var gameOne = VideoGame('Zelda', 1998);     // this = window (no new)
+var gameTwo = new Game('Fallout', 1997);    // this = gameTwo
+var gameThree = new VideoGame('MI2', 1991); // this = gameThree
+gameTwo.play();                              // this = gameTwo
+gameTwo.play.bind(empty).call();             // this = empty (bind wins)
+setTimeout(gameThree.play, 1000);            // this = window (lost)</pre></div>
 
 <hr>
 
@@ -162,10 +183,10 @@ function Rectangle(position, width, height) {
     this.width = width;
     this.height = height;
 }
-Rectangle.prototype = Object.create(Shape.prototype);  // 2. Link prototype chain
+Rectangle.prototype = Object.create(Shape.prototype);  // 2. Link chain (NOT new Shape()!)
 Rectangle.prototype.constructor = Rectangle;            // 3. Fix constructor reference</pre></div>
 
-<p>Step 1 copies properties. Step 2 links methods. Step 3 is cleanup — without it, <code>Rectangle.prototype.constructor</code> would point to Shape instead of Rectangle.</p>
+<p>Step 1 runs parent setup code on the child. Step 2 links the prototype chain — we use <code>Object.create()</code> instead of <code>new Shape()</code> because new would run the constructor (which expects arguments and would create unwanted properties on the prototype). Step 3 is cleanup — without it, <code>Rectangle.prototype.constructor</code> would point to Shape instead of Rectangle.</p>
 
 <p><strong>Objects are mutable and passed by reference</strong> (from slides). <code>var a = obj</code> — both point to the SAME object. Changing <code>a.x</code> changes <code>obj.x</code>.</p>
 
@@ -238,11 +259,22 @@ console.log('4');                          // sync → 4
 
 <p><strong>Type inference:</strong> TypeScript can guess types without you writing them: <code>let x = 3</code> → TypeScript knows x is a number.</p>
 
-<p><strong>Interfaces:</strong> Define a shape that objects must follow. <code>interface User { name: string; age: number; }</code></p>
+<p><strong>Interfaces:</strong> Define a shape that objects must follow. <code>interface User { name: string; age: number; }</code>. Can be extended with <code>extends</code> and re-opened (declaring same interface twice merges them).</p>
+
+<p><strong>type vs interface:</strong> Both define shapes. <code>interface</code> is for object shapes that may be extended. <code>type</code> can also define unions, intersections, primitives — not just objects. The teacher uses both: <code>type RaceState = "idle" | "racing"</code> (union) and <code>interface IRacer { ... }</code> (object shape).</p>
 
 <p><strong>Union types:</strong> A value can be multiple types: <code>string | number</code> (pipe = "or")</p>
 
-<p><strong>Partial&lt;T&gt;</strong> makes all properties optional. <strong>Type assertion</strong> = <code>value as Type</code>. <strong>Nullable</strong> = <code>string | null</code>.</p>
+<p><strong>Utility types:</strong></p>
+<ul>
+<li><code>Partial&lt;T&gt;</code> — makes ALL properties optional</li>
+<li><code>Required&lt;T&gt;</code> — makes ALL properties required</li>
+<li><code>Pick&lt;T, K&gt;</code> — creates type with only specified keys</li>
+<li><code>Omit&lt;T, K&gt;</code> — creates type excluding specified keys</li>
+</ul>
+<p><strong>Type assertion</strong> = tell TS to treat a value as a specific type: <code>value as Type</code>.</p>
+<p><strong>Nullable</strong> = a type that can be a value or null: <code>string | null</code>.</p>
+<p><strong>Optional properties</strong> = <code>last?: string</code> — the property can be missing entirely.</p>
 
 <p><strong>Structural typing:</strong> "Type checking focuses on the shape the values have" (from slides). If an object has the required properties, it satisfies the type — extra properties are OK.</p>
 
@@ -254,7 +286,27 @@ console.log('4');                          // sync → 4
 
 <p><strong>Duck typing</strong> (from slides): structural typing is "commonly referred to as duck typing" — if it has the right shape, it satisfies the type.</p>
 
-<p><strong>Strictness:</strong> <code>"strict": true</code> in tsconfig.json enables noImplicitAny, noImplicitThis, strictFunctionTypes, etc. You can opt out of individual checks.</p>
+<div class="cb"><pre>// From teacher's workshops/w2/src/main.ts
+type RaceState = "idle" | "racing" | "finished";  // Union type
+
+interface IRacer {                                  // Interface
+  name: string;
+  position: number;
+  move(): void;
+}
+
+abstract class Driver implements IRacer {            // Abstract class
+  name: string;
+  position: number = 0;
+  speed: number = Math.random() * 0.5 + 0.2;
+}</pre></div>
+
+<p><strong>Strictness:</strong> <code>"strict": true</code> in tsconfig.json enables all strict checks. You can opt out individually. Key flags:</p>
+<ul>
+<li><code>noImplicitAny</code> — errors when TS can't infer a type and would default to <code>any</code>. Forces you to explicitly type function parameters.</li>
+<li><code>noImplicitThis</code> — errors when <code>this</code> has an implicit <code>any</code> type</li>
+<li><code>strictFunctionTypes</code> — stricter checking of function parameter types</li>
+</ul>
 
 <hr>
 
@@ -264,11 +316,11 @@ console.log('4');                          // sync → 4
 
 <p><strong>useState</strong> — holds state. The setter triggers a re-render. Use functional updater <code>setCount(prev =&gt; prev + 1)</code> when new state depends on previous — this avoids stale closures.</p>
 
-<p><strong>useEffect</strong> — runs side effects after render.</p>
+<p><strong>useEffect</strong> — runs side effects after render. A side effect is anything outside pure rendering: fetching data, timers, subscriptions, DOM manipulation, localStorage.</p>
 <ul>
 <li><code>useEffect(fn, [])</code> — once on mount</li>
 <li><code>useEffect(fn, [x])</code> — mount + when x changes</li>
-<li><code>useEffect(fn)</code> — every render (usually a bug!)</li>
+<li><code>useEffect(fn)</code> — every render (usually a bug! If it calls setState, that triggers a re-render, which runs the effect again → infinite loop)</li>
 <li>Return a cleanup function: <code>return () =&gt; clearInterval(id)</code> — runs before unmount and before re-run</li>
 </ul>
 
@@ -276,21 +328,37 @@ console.log('4');                          // sync → 4
 
 <p><strong>useRef</strong> — a mutable value that persists across renders but does NOT trigger re-renders. Good for: DOM refs, timer IDs, previous values. NOT for: triggering renders, sharing state between components.</p>
 
-<p><strong>useCallback</strong> — caches a function reference between re-renders. Prevents child components (wrapped in React.memo) from re-rendering unnecessarily.</p>
+<p><strong>useCallback</strong> — caches a <strong>function reference</strong> between re-renders. Without it, a new function is created on every render, which means child components see a "new" prop and re-render even if nothing actually changed.</p>
+
+<p><strong>React.memo</strong> — wraps a component to skip re-renders when its props haven't changed (shallow comparison). It only works if the props are actually the same references — that's why you pair it with useCallback (for function props) and useMemo (for object/array props).</p>
 
 <p><strong>useMemo</strong> — caches a computed value. Avoids expensive recalculations on every render. "By default React will re-run the entire body of your component every time it re-renders" (from slides).</p>
 
-<p><strong>Rules of Hooks:</strong> (1) Only call at the top level — never inside if/loops/nested functions. (2) Only from React function components or custom hooks.</p>
+<p><strong>Rules of Hooks:</strong> (1) Only at the top level — never inside if/loops. React tracks hooks by call order; if a hook is inside an if, it might not run on some renders, shifting the order and causing bugs. (2) Only from function components or custom hooks.</p>
+
+<div class="cb"><pre>// Source: React/using-fetch/src/components/App/App.js
+const [petrolStations, setPetrolStations] = useState([]);
+
+useEffect(() =&gt; {
+  async function getPetrolStations() {
+    const data = await getAllPetrolStations();
+    setPetrolStations(data);
+  }
+  getPetrolStations();
+}, []);  // empty array = runs once on mount</pre></div>
 
 <hr>
 
 <h2 class="g-h2">13. Context API</h2>
 
-<p>React's built-in way to share state without passing props through every level (solves <strong>prop drilling</strong>).</p>
+<p>React's built-in way to share state without passing props through every level. <strong>Prop drilling</strong> = passing data through multiple intermediate components that don't use it, just so a deeply nested child can access it. Context eliminates this.</p>
 
 <p>Three steps: <code>createContext()</code> creates it, <code>Provider</code> wraps the tree and holds the value, <code>useContext()</code> reads it in any child.</p>
 
-<div class="cb"><pre>// Source: workshops/w5/context/cart-context.tsx
+<div class="cb"><pre>// STEP 1: Define — Source: workshops/w5/context/cart-context.tsx
+"use client";
+import { createContext, useContext, useState } from "react";
+
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
@@ -308,6 +376,24 @@ export function useCart() {
   const ctx = useContext(CartContext);
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
+}
+
+// STEP 2: Wrap your app — Source: workshops/w5/app/layout.tsx
+import { CartProvider } from "@/context/cart-context";
+export default function RootLayout({ children }) {
+  return &lt;CartProvider&gt;{children}&lt;/CartProvider&gt;;
+}
+
+// STEP 3: Use in ANY child component
+import { useCart } from "@/context/cart-context";
+function ProductCard({ product }) {
+  const { addItem } = useCart();  // access cart anywhere inside CartProvider
+  return &lt;button onClick={() =&gt; addItem(product)}&gt;Add to cart&lt;/button&gt;;
+}
+
+function NavBar() {
+  const { cart } = useCart();  // same hook, different component
+  return &lt;span&gt;Cart: {cart.length} items&lt;/span&gt;;
 }</pre></div>
 
 <p><strong>Downside:</strong> When the context value changes, ALL consumers re-render — even if they only use part of the value. Bad for frequently changing state.</p>
@@ -334,14 +420,29 @@ export const useCartStore = create()(
   )
 );
 
-// Usage — anywhere, no Provider needed:
-const { cart, addItem } = useCartStore();</pre></div>
+// USING IT — anywhere, no Provider needed:
+// In a product card:
+function ProductCard({ product }) {
+  const addItem = useCartStore((state) =&gt; state.addItem);  // selector = no wasted re-renders
+  return &lt;button onClick={() =&gt; addItem(product)}&gt;Add&lt;/button&gt;;
+}
 
-<p><code>persist</code> middleware saves state to localStorage automatically. Three main middlewares: <code>persist</code>, <code>devtools</code>, <code>immer</code>.</p>
+// In the navbar:
+function NavBar() {
+  const cart = useCartStore((state) =&gt; state.cart);  // only re-renders when cart changes
+  return &lt;span&gt;{cart.length} items&lt;/span&gt;;
+}
 
-<p><strong>Selectors prevent re-renders:</strong> Use <code>useCartStore((state) =&gt; state.cart)</code> to select specific values — NOT <code>const { cart, addItem } = useCartStore()</code> which re-renders on ANY change. For computed selectors that return new arrays, use <code>useShallow</code> for shallow comparison.</p>
+// In a non-React file (utility, service, test):
+const currentCart = useCartStore.getState().cart;  // read state outside React
+useCartStore.setState({ cart: [] });                // write state outside React
+// This is unique to Zustand — Context and Redux cannot do this</pre></div>
 
-<p><strong>Zustand requires immutable updates</strong> (unlike Redux which has Immer). You must spread or create new references manually: <code>set((state) =&gt; ({ cart: [...state.cart, item] }))</code>.</p>
+<p><code>persist</code> middleware saves state to localStorage automatically. Three main middlewares: <code>persist</code> (saves to localStorage), <code>devtools</code> (connects to Redux DevTools for inspecting state), <code>immer</code> (lets you write mutation-style updates like Redux).</p>
+
+<p><strong>Selectors prevent re-renders:</strong> Use <code>useCartStore((state) =&gt; state.cart)</code> to select specific values — NOT <code>const { cart, addItem } = useCartStore()</code> which re-renders on ANY change. For selectors that create new arrays (e.g., <code>.map()</code> or <code>.filter()</code>), JavaScript sees a new reference every render and triggers a re-render even if contents are identical. <code>useShallow</code> compares each element instead of the outer reference, preventing unnecessary re-renders.</p>
+
+<p><strong>Zustand requires manual immutable updates.</strong> Redux Toolkit has Immer built in so you can write <code>state.cart.push(item)</code> and it handles immutability for you. Zustand does NOT — you must create new references yourself: <code>set((state) =&gt; ({ cart: [...state.cart, item] }))</code>. Unless you add the <code>immer</code> middleware.</p>
 
 <hr>
 
@@ -364,13 +465,39 @@ const cartSlice = createSlice({
     },
   },
 });
-export const { addItem, removeItem } = cartSlice.actions;</pre></div>
+export const { addItem, removeItem } = cartSlice.actions;
+export default cartSlice.reducer;
 
-<p><strong>configureStore</strong> sets up the store — automatically combines reducers, adds Redux Thunk middleware, and enables DevTools.</p>
+// STORE — Source: workshops/w5/store/store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cart-slice";
+export const store = configureStore({ reducer: { cart: cartReducer } });
+
+// PROVIDER — Source: workshops/w5/app/providers.tsx (must be "use client")
+"use client";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+export function Providers({ children }) {
+  return &lt;Provider store={store}&gt;{children}&lt;/Provider&gt;;
+}
+
+// USING IT — Source: workshops/w5/components/product-card.tsx
+import { useSelector, useDispatch } from "react-redux";
+import { addItem } from "@/store/cart-slice";
+function ProductCard({ product }) {
+  const dispatch = useDispatch();
+  return &lt;button onClick={() =&gt; dispatch(addItem(product))}&gt;Add&lt;/button&gt;;
+}
+function CartCount() {
+  const cart = useSelector((state) =&gt; state.cart.cart);
+  return &lt;span&gt;{cart.length} items&lt;/span&gt;;
+}</pre></div>
+
+<p><strong>configureStore</strong> sets up the store — automatically combines reducers, adds <strong>Redux Thunk</strong> middleware, and enables DevTools. Thunk lets you dispatch functions (not just plain objects) — needed for async operations like API calls. Without Thunk, Redux only accepts <code>{ type, payload }</code> objects.</p>
 
 <p><strong>4 concepts to know:</strong> Connected Components (linked via useSelector/useDispatch), Actions (plain objects: {type, payload}), Reducers (pure functions: (state, action) → newState), Dispatch (sends actions to the store).</p>
 
-<p><strong>TypeScript:</strong> Use <code>PayloadAction&lt;Product&gt;</code> to type action payloads. Export <code>RootState</code> and <code>AppDispatch</code> types from the store for typed hooks.</p>
+<p><strong>TypeScript:</strong> <code>PayloadAction&lt;Product&gt;</code> types the action's payload — so TypeScript knows <code>action.payload</code> is a <code>Product</code>, not <code>any</code>. Export <code>RootState</code> (= type of entire store state) and <code>AppDispatch</code> (= type of dispatch function) for typed <code>useSelector</code>/<code>useDispatch</code> hooks.</p>
 
 <p><strong>Provider pattern in Next.js:</strong> Redux needs <code>&lt;Provider store={store}&gt;</code> wrapping the app — this must be in a <code>"use client"</code> component. The teacher creates a separate <code>providers.tsx</code> file (from w5/app/providers.tsx).</p>
 
@@ -389,19 +516,21 @@ export const { addItem, removeItem } = cartSlice.actions;</pre></div>
 
 <p>Small app with rarely-changing state (theme, locale) → Context. Most apps → Zustand. Large team, complex state, need debugging → Redux.</p>
 
+<p><strong>Re-render issue explained:</strong> When a Context value changes, EVERY component using <code>useContext()</code> re-renders — even if it only reads a part that didn't change. Zustand and Redux avoid this because selectors let each component subscribe to only the specific piece of state it needs.</p>
+
 <hr>
 
 <h2 class="g-h2">17. Next.js Routing</h2>
 
 <p>Next.js uses <strong>file-system routing</strong>: folders = URL segments. A <code>page.tsx</code> file makes a route publicly accessible.</p>
 
-<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, persists across navigation), <code>loading.tsx</code> (loading UI, wraps page in Suspense), <code>error.tsx</code> (error boundary, must be "use client"), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint — cannot coexist with page.tsx).</p>
+<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, stays mounted when navigating between child routes — preserves state like sidebar open/closed), <code>loading.tsx</code> (loading UI, wraps page in Suspense), <code>error.tsx</code> (error boundary, must be "use client"), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint — cannot coexist with page.tsx).</p>
 
-<p><strong>Component hierarchy:</strong> Layout → Template → Error → Loading → Page.</p>
+<p><strong>Component hierarchy:</strong> Layout → Template → Error → Loading → Page. (<code>template.tsx</code> is like layout but creates a new instance on every navigation — does NOT preserve state. Use for enter/exit animations or resetting forms.)</p>
 
-<p><strong>Dynamic routes:</strong> <code>[slug]</code> = one segment. <code>[...slug]</code> = catch-all (1+ segments). <code>[[...slug]]</code> = optional catch-all (0+). Route groups <code>(name)</code> organize without adding URL segments.</p>
+<p><strong>Dynamic routes:</strong> <code>[slug]</code> = one segment. <code>[...slug]</code> = catch-all (1+ segments). <code>[[...slug]]</code> = optional catch-all (0+). Route groups <code>(name)</code> organize routes into folders without adding to the URL. Example: <code>(marketing)/about/page.tsx</code> → URL is just <code>/about</code>. Useful for different layouts per section.</p>
 
-<p><strong>Prefetching:</strong> <code>&lt;Link&gt;</code> auto-prefetches routes when they enter the viewport. <code>&lt;a&gt;</code> does not.</p>
+<p><strong>&lt;Link&gt; vs &lt;a&gt;:</strong> <code>&lt;Link&gt;</code> does <strong>client-side navigation</strong> (no full page reload, preserves React state, prefetches routes). <code>&lt;a&gt;</code> causes a full page reload and destroys all client state.</p>
 
 <hr>
 
@@ -411,24 +540,49 @@ export const { addItem, removeItem } = cartSlice.actions;</pre></div>
 
 <p><strong>Client Component</strong>: add <code>"use client"</code> at the top of the file. Runs in the browser. CAN: use hooks, handle events, access browser APIs. CANNOT: access databases or server resources directly.</p>
 
-<p>Server Components reduce the JavaScript bundle size. They can render Client Components as children. The boundary is the <code>"use client"</code> directive.</p>
+<p>Server Components reduce the JavaScript bundle size. They can render Client Components as children. <strong>Boundary rule:</strong> once you add <code>"use client"</code>, everything that component <strong>imports</strong> also becomes a Client Component. A Client Component cannot import a Server Component directly. But it CAN receive one as <code>children</code> props — this is the composition pattern: <code>&lt;ClientWrapper&gt;&lt;ServerContent /&gt;&lt;/ClientWrapper&gt;</code>.</p>
+
+<div class="cb"><pre>// Server Component (default) — Source: workshops/w4/app/page.tsx
+export default function HomePage() {
+  // Can fetch data directly, no useEffect needed
+  return &lt;h1&gt;Welcome&lt;/h1&gt;;
+}
+
+// Client Component — Source: workshops/w4/app/_components/side-bar.tsx
+"use client";
+import { usePathname } from "next/navigation";
+export function SideBar() {
+  const pathname = usePathname();  // hooks need "use client"
+  return &lt;nav&gt;...&lt;/nav&gt;;
+}</pre></div>
 
 <hr>
 
 <h2 class="g-h2">19. Server Action vs API Route</h2>
 
-<p><strong>Server Action</strong> = an async function marked with <code>"use server"</code>. It runs on the server and can be called directly from a Client Component or form. Use for: form submissions, data mutations, revalidating data.</p>
+<p><strong>Server Action</strong> = an async function marked with <code>"use server"</code>. It runs on the server and can be called directly from a Client Component or form. Use for: form submissions, data mutations, revalidating data (= telling Next.js to re-fetch cached data after a change, e.g., <code>revalidatePath('/bookings')</code>).</p>
 
 <p><strong>API Route</strong> = an HTTP endpoint defined in <code>route.ts</code>. Use when an external service needs to call your backend: Stripe webhooks, mobile apps, public REST APIs.</p>
 
 <p>The decision rule: <strong>Who calls it?</strong> Your React app → Server Action. External service → API Route.</p>
 
-<div class="cb"><pre>// Source: concert-arena/actions/booking.ts
+<div class="cb"><pre>// DEFINE — Source: concert-arena/actions/booking.ts
 "use server";
-
 export async function submitBooking(data) {
   const bookingRef = crypto.randomUUID();
   return { success: true, bookingRef };
+}
+
+// USE in a Client Component — Source: concert-arena/app/booking/review/page.tsx
+"use client";
+import { submitBooking } from "@/actions/booking";
+function ReviewPage() {
+  const { handleSubmit, getValues } = useFormContext();
+  const onSubmit = async (data) =&gt; {
+    const result = await submitBooking(data);  // calls the server directly
+    if (result.success) router.push(`/confirmation?ref=${result.bookingRef}`);
+  };
+  return &lt;button onClick={handleSubmit(onSubmit)}&gt;Submit&lt;/button&gt;;
 }</pre></div>
 
 <hr>
@@ -439,7 +593,7 @@ export async function submitBooking(data) {
 
 <p>Key methods: <code>useForm()</code> initializes, <code>register("field")</code> connects an input, <code>handleSubmit(fn)</code> wraps the submit handler, <code>formState.errors</code> has the validation errors.</p>
 
-<p>Set <code>mode: "onChange"</code> to validate as the user types. Use <code>resolver: zodResolver(schema)</code> to integrate Zod for schema validation.</p>
+<p>Validation modes: <code>"onSubmit"</code> (default — only on submit), <code>"onBlur"</code> (when user leaves field), <code>"onChange"</code> (every keystroke — most feedback but more re-renders). Use <code>resolver: zodResolver(schema)</code> to integrate Zod. Zod lets you define validation as a schema: <code>z.object({ email: z.string().email(), age: z.number().min(18) })</code>. Same schema works for both client and server validation. TypeScript infers the form type from it with <code>z.infer&lt;typeof schema&gt;</code>.</p>
 
 <p>Valid built-in rules: required, minLength, maxLength, pattern, validate. NOT valid: type, sanitize.</p>
 
@@ -451,7 +605,47 @@ export async function submitBooking(data) {
 
 <p><strong>Controlled vs Uncontrolled:</strong> Controlled = useState + onChange (re-renders every keystroke). Uncontrolled = refs (no re-render). react-hook-form uses uncontrolled — that's why it's fast.</p>
 
-<p><strong>Server Actions with forms</strong> (alternative to react-hook-form): Function signature is <code>(prevState, formData: FormData) =&gt; Promise</code>. Extract data with <code>formData.get("fieldName")</code>. Use with <code>useActionState</code> hook for pending state.</p>
+<div class="cb"><pre>// FULL FORM — Source: concert-arena/app/booking/personal/page.tsx
+"use client";
+import { useFormContext } from "react-hook-form";
+
+export default function PersonalPage() {
+  const { register, trigger, formState: { errors } } = useFormContext();
+  const router = useRouter();
+
+  const handleNext = async () =&gt; {
+    const valid = await trigger(["fullName", "email", "phone"]); // validate these fields only
+    if (valid) router.push("/booking/review");                   // advance to next step
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;input {...register("fullName")} /&gt;                      {/* register connects input */}
+      {errors.fullName &amp;&amp; &lt;p&gt;{errors.fullName.message}&lt;/p&gt;}  {/* show error */}
+
+      &lt;input {...register("email")} /&gt;
+      {errors.email &amp;&amp; &lt;p&gt;{errors.email.message}&lt;/p&gt;}
+
+      &lt;button onClick={handleNext}&gt;Next Step&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+// LAYOUT wraps all steps — Source: concert-arena/app/booking/layout.tsx
+"use client";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { bookingSchema } from "@/types/booking";
+
+export default function BookingLayout({ children }) {
+  const methods = useForm({ resolver: zodResolver(bookingSchema) });
+  return &lt;FormProvider {...methods}&gt;{children}&lt;/FormProvider&gt;;
+  // All child pages share the same form state via useFormContext()
+}</pre></div>
+
+<p><strong>Server Actions with forms</strong> (alternative to react-hook-form): Function signature is <code>(prevState, formData: FormData) =&gt; Promise</code>. Extract data with <code>formData.get("fieldName")</code>. Call directly: <code>await submitBooking(data)</code> or as form action: <code>&lt;form action={submitBooking}&gt;</code>.</p>
+
+<p><strong>useActionState</strong> wraps a Server Action: <code>const [state, formAction, isPending] = useActionState(loginAction, null)</code>. <code>isPending</code> is true while running — use to disable buttons and show spinners.</p>
 
 <hr>
 
@@ -463,11 +657,21 @@ export async function submitBooking(data) {
 
 <p><strong>querySelectorAll()</strong> is the most powerful selector — accepts any CSS selector. Returns a static NodeList (snapshot). <code>getElementsByClassName()</code> returns a live HTMLCollection that updates when the DOM changes.</p>
 
-<p><strong>innerHTML</strong> renders HTML markup. <strong>textContent</strong> renders as plain text. From the slides: textContent "renderast ekki sem HTML heldur strengur".</p>
+<p><strong>innerHTML</strong> renders HTML markup. <strong>textContent</strong> renders as plain text. From the slides: textContent "renderast ekki sem HTML heldur strengur". <strong>Security:</strong> <code>innerHTML</code> with user input is an XSS risk — injected <code>&lt;script&gt;</code> tags will execute. Always use <code>textContent</code> for user-provided text.</p>
 
 <p><strong>Creating elements:</strong> <code>createElement()</code> creates, <code>appendChild()</code> adds to end, <code>insertBefore(new, ref)</code> adds before a reference node, <code>removeChild()</code> removes (called on parent), <code>replaceChild(new, old)</code> replaces.</p>
 
-<p><strong>Events:</strong> <code>addEventListener(event, handler)</code> attaches a handler. Events <strong>bubble</strong> up from the target to the root. <code>stopPropagation()</code> stops bubbling. <code>preventDefault()</code> prevents default behavior (form submit, link navigation).</p>
+<div class="cb"><pre>// DOM manipulation basics
+const el = document.querySelector('.card');         // returns first match
+const all = document.querySelectorAll('.card');      // returns static NodeList
+const byClass = document.getElementsByClassName('card'); // returns LIVE HTMLCollection
+
+const div = document.createElement('div');           // create
+document.body.appendChild(div);                      // add to end
+parent.removeChild(child);                            // remove (called on parent)
+parent.insertBefore(newNode, refNode);                // insert before</pre></div>
+
+<p><strong>Events:</strong> <code>addEventListener(event, handler)</code> attaches a handler. Events <strong>bubble</strong> up from the target to the root. This enables <strong>event delegation</strong>: attach ONE handler to the parent instead of one per child. Use <code>event.target</code> to find which child was clicked. Benefits: works for dynamically added children, uses less memory, simpler to manage. <code>stopPropagation()</code> stops bubbling. <code>preventDefault()</code> prevents default behavior.</p>
 
 <hr>
 
@@ -501,16 +705,23 @@ export async function submitBooking(data) {
 
 <p><strong>Combinators:</strong> <code>A B</code> = anywhere inside (descendant). <code>A &gt; B</code> = direct child only. <code>A + B</code> = immediately after (adjacent sibling). <code>A ~ B</code> = any sibling after (general sibling).</p>
 
+<div class="cb"><pre>/* Selector examples */
+a[href^="http"]::after { content: " (" attr(href) ")"; }  /* add URL after external links */
+p:first-child { }     /* NOTHING if first child is a div */
+p:first-of-type { }   /* finds first p regardless */
+div &gt; p { }           /* direct child p only */
+div p { }             /* any p at any depth */</pre></div>
+
 <hr>
 
 <h2 class="g-h2">24. Socket.io</h2>
 
-<p>Enables real-time, bidirectional communication between client and server. Unlike HTTP (request-response), Socket.io keeps a persistent connection open.</p>
+<p>Enables real-time, bidirectional communication. Uses <strong>WebSockets</strong> under the hood — a persistent open connection so the server can push data anytime without the client asking. Unlike HTTP (request-response), where the client must initiate every interaction. Without WebSockets, you'd need polling (repeated fetch calls), which wastes resources.</p>
 
 <table class="tw"><tbody>
 <tr><th>Method</th><th>Who receives</th></tr>
 <tr><td><code>io.emit()</code></td><td>ALL clients</td></tr>
-<tr><td><code>socket.emit()</code></td><td>Server: back to sender. Client: to server.</td></tr>
+<tr><td><code>socket.emit()</code></td><td>Server: sends to THAT specific client only (each socket = one client's connection). Client: sends to the server.</td></tr>
 <tr><td><code>socket.broadcast.emit()</code></td><td>ALL EXCEPT sender</td></tr>
 <tr><td><code>io.to(room).emit()</code></td><td>All in that room</td></tr>
 </tbody></table>
@@ -518,6 +729,25 @@ export async function submitBooking(data) {
 <p><strong>Rooms:</strong> <code>socket.join(roomId)</code> adds a socket to a room. Used for chat channels/groups. <code>io.to(room).emit()</code> sends to everyone in the room.</p>
 
 <p><strong>Middleware:</strong> <code>io.use((socket, next) =&gt; { ... })</code> runs before every connection. Used for authentication. Call <code>next()</code> to allow, <code>next(new Error())</code> to reject.</p>
+
+<div class="cb"><pre>// Source: Socket.io/signup-sheet/server/index.js
+io.on('connection', socket =&gt; {
+  console.log(`New client connected: ${socket.id}`);
+
+  socket.on('newevent', event =&gt; {
+    io.emit('newevent', event);             // ALL clients
+  });
+
+  socket.on('usersignup', async (eventId, user) =&gt; {
+    if (await addUserToEvent(eventId, user)) {
+      io.emit('usersignup', eventId, user); // ALL clients
+    }
+  });
+
+  socket.on('disconnect', () =&gt; {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});</pre></div>
 
 <p><strong>Listening:</strong> <code>socket.on(event, callback)</code> listens for events on both client and server.</p>
 
@@ -533,21 +763,50 @@ export async function submitBooking(data) {
 <tr><td>Singleton</td><td>Creational</td><td>Only one instance ever exists</td><td>getInstance() checks if already created, returns same instance</td></tr>
 <tr><td>Decorator</td><td>Structural</td><td>Adds behavior to a specific object (not prototype)</td><td>MacBook(997) + Memory(+75) + Insurance(+250) = 1322. Uses closures to wrap cost function.</td></tr>
 <tr><td>Facade</td><td>Structural</td><td>Simple interface hiding complex code</td><td>One function handles addEventListener/attachEvent/on-event</td></tr>
-<tr><td>Flyweight</td><td>Structural</td><td>Shares data to save memory</td><td>30 copies of same book — BookFlyweight (intrinsic, shared) + BookRecordManager (extrinsic, per-copy). Factory caches by ISBN.</td></tr>
+<tr><td>Flyweight</td><td>Structural</td><td>Shares data to save memory</td><td>30 copies of same book — <strong>Intrinsic</strong> = shared, unchanging data (title, author, ISBN — same for all 30 copies, stored ONCE). <strong>Extrinsic</strong> = unique per-instance data (checkout date, borrower — stored separately per copy). Saves memory: 30 copies share 1 flyweight object instead of duplicating book data 30 times. Factory checks cache by ISBN before creating.</td></tr>
 <tr><td>Observer</td><td>Behavioral</td><td>Subscribers watch a publisher (Pub/Sub)</td><td>Redux depends on this. Pros: loose coupling. Cons: hard to debug, publishers don't know if subscribers fail.</td></tr>
-<tr><td>Mediator</td><td>Behavioral</td><td>Central hub for module communication</td><td>A shared subject in the observer pattern. Promotes loose coupling through central point.</td></tr>
-<tr><td>Iterator</td><td>Behavioral</td><td>Sequential access without exposing structure</td><td>jQuery's <code>$.each()</code>. Similar to facade but deals with iteration.</td></tr>
+<tr><td>Mediator</td><td>Behavioral</td><td>Central hub — modules never talk directly to each other</td><td>Unlike Observer (direct pub/sub), all communication goes through one mediator. Like a chat room: users send to room, room forwards to recipients. Reduces N-to-N connections to N-to-1.</td></tr>
+<tr><td>Iterator</td><td>Behavioral</td><td>Loop through a collection without knowing its internal structure</td><td>jQuery's <code>$.each()</code>. Whether data is array, tree, or graph — iterator exposes the same next/hasNext interface.</td></tr>
 </tbody></table>
+
+<div class="cb"><pre>// Decorator pattern — from slides
+function MacBook() {
+  this.cost = function() { return 997; };
+}
+function Memory(macBook) {
+  var cost = macBook.cost();
+  macBook.cost = function() { return cost + 75; };  // closure wraps original
+}
+function Insurance(macBook) {
+  var cost = macBook.cost();
+  macBook.cost = function() { return cost + 250; };
+}
+var mb = new MacBook();
+Memory(mb);
+Insurance(mb);
+console.log(mb.cost()); // 1322 (997 + 75 + 250)</pre></div>
 
 <hr>
 
 <h2 class="g-h2">26. Web APIs</h2>
 
-<p><strong>Web Components:</strong> <code>customElements.define('tag-name', Class)</code> registers a custom HTML element. Must extend <code>HTMLElement</code>. Tag names must contain a hyphen. Shadow DOM (<code>attachShadow({mode: "open"})</code>) encapsulates CSS — styles don't leak in or out. <code>connectedCallback()</code> fires when added to DOM. Use <code>&lt;template&gt;</code> elements for the HTML structure, clone with <code>templateContent.cloneNode(true)</code>. Read attributes with getters: <code>get imageUrl() { return this.getAttribute("image-url"); }</code></p>
+<p><strong>Web Components:</strong> <code>customElements.define('tag-name', Class)</code> registers a custom HTML element. Must extend <code>HTMLElement</code>. Tag names must contain a hyphen. Shadow DOM (<code>attachShadow({mode: "open"})</code>) encapsulates CSS — styles don't leak in or out. <code>connectedCallback()</code> fires when added to DOM. <code>disconnectedCallback()</code> fires when removed (cleanup). <code>attributeChangedCallback(name, old, new)</code> fires when an observed attribute changes. Use <code>&lt;template&gt;</code> elements for the HTML structure, clone with <code>templateContent.cloneNode(true)</code>. Read attributes with getters: <code>get imageUrl() { return this.getAttribute("image-url"); }</code></p>
 
-<p><strong>Web Workers:</strong> Run JavaScript in a background thread. Cannot access the DOM. Communicate with the main thread via <code>postMessage()</code>. Good for CPU-intensive calculations.</p>
+<div class="cb"><pre>// Source: Code sessions/Web Components &amp; Fetch/food-card/food-card.js
+class FoodCard extends HTMLElement {
+  get imageUrl() { return this.getAttribute("image-url"); }
+  constructor() {
+    super();
+    let template = document.getElementById("food-card-template");
+    const shadowRoot = this.attachShadow({ mode: "open" });
+    shadowRoot.appendChild(template.content.cloneNode(true));
+  }
+}
+customElements.define("food-card", FoodCard);</pre></div>
 
-<p><strong>Drag and Drop:</strong> Set <code>draggable="true"</code> on the element. Handle <code>dragstart</code> (set data), <code>dragover</code> (must <code>preventDefault()</code> or drop won't work), and <code>drop</code> (get data). Use <code>dataTransfer.setData()</code> / <code>getData()</code>.</p>
+<p><strong>Web Workers:</strong> Run JavaScript in a separate thread. Cannot access the DOM (not thread-safe). Communication: main thread calls <code>worker.postMessage(data)</code>, worker listens with <code>self.onmessage</code>, worker sends back with <code>self.postMessage(result)</code>. Data is copied between threads, not shared.</p>
+
+<p><strong>Drag and Drop:</strong> Set <code>draggable="true"</code> on the element. Handle <code>dragstart</code> (set data), <code>dragover</code> (must <code>preventDefault()</code> — the browser's default is to CANCEL drops, so you must override this to allow dropping), and <code>drop</code> (get data). Use <code>dataTransfer.setData()</code> / <code>getData()</code>.</p>
 
 <p><strong>localStorage:</strong> Persistent key-value storage. Survives browser close. ~5MB limit. Same-origin only. API: <code>setItem(key, value)</code>, <code>getItem(key)</code>. Must <code>JSON.stringify()</code> objects.</p>
 
