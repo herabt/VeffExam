@@ -110,17 +110,7 @@ console.log(first.nextElementSibling);  // <li>Item 2</li>
 
 ### innerHTML vs textContent
 
-`innerHTML` gets or sets the HTML markup contained within an element. It **parses HTML** and can introduce XSS vulnerabilities if used with untrusted user input. Always prefer `textContent` for plain text, or use a sanitizer library (e.g., DOMPurify) when HTML rendering is needed.
-
-```javascript
-const div = document.querySelector('div');
-
-// textContent -- treats everything as plain text (SAFE)
-div.textContent = '<strong>Bold text</strong>';
-// Result: <strong>Bold text</strong> (visible as literal text)
-```
-
-> **Security note:** Never set innerHTML with untrusted user input -- it can execute injected scripts or event handlers (XSS attack). Use textContent for plain text or a sanitizer for HTML.
+From slides: `innerHTML` renders HTML markup. `textContent`/`innerText` renders as plain text — "renderast ekki sem HTML heldur strengur" (not rendered as HTML but as a string).
 
 ### createElement + appendChild pattern
 
@@ -249,17 +239,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 ```
 
-### Centralized event handling (Flyweight DOM pattern from slides)
+### Centralized event handling
 
-From the slides, event bubbling can be used to create a centralized event handling mechanism -- attach one handler to a parent instead of many handlers to children:
-
-```javascript
-document.getElementById('container').addEventListener('click', function(event) {
-  if (event.target.matches('a.toggle')) {
-    handleClick(event.target);
-  }
-});
-```
+*Note: The "Flyweight DOM pattern" label was previously used here but that term is not from the teacher's slides. The concept of event delegation (attaching one handler to a parent) is standard DOM knowledge.*
 
 ---
 
@@ -510,10 +492,9 @@ obj.delayedGreet();
 | **Interfaces** | Define the shape/structure that an object must conform to. Interfaces can be extended and are open (can be declared multiple times and merged). |
 | **Union types** | Allow a value to be one of several types, using the pipe `\|` operator: `string \| number`. |
 | **Generics** | Allow creating reusable components that work with any type while maintaining type safety. Use angle brackets: `<T>`. |
-| **Structural type system** | TypeScript uses a structural type system (not nominal). Two types are compatible if their structure (shape) is compatible -- if they have the same properties with the same types. |
-| **Duck typing** | "If it walks like a duck and quacks like a duck, it is a duck." In TypeScript, if an object has all the required properties of a type, it satisfies that type regardless of its actual class/name. This is a consequence of the structural type system. |
-| **Compilation** | TypeScript code must be compiled (transpiled) to JavaScript before it can run in a browser or Node.js. The TypeScript compiler (`tsc`) performs type checking and emits JavaScript. |
-| **Downleveling** | The TypeScript compiler can emit JavaScript targeting older ECMAScript versions (e.g., ES5, ES3). It rewrites newer syntax (template strings, `async/await`, optional chaining) into equivalent older syntax. Default target is ES3. |
+| **Structural type system** | From slides: "type checking focuses on the shape the values have." Two types are compatible if their structure is compatible. If an object has all the required properties of a type, it satisfies that type. Extra properties are OK. |
+| **Compilation** | From slides: "Type annotations are not a part of JS and therefore browsers aren't equipped to handle TypeScript code. Therefore non-JS features are stripped out during compilation." |
+| **Downleveling** | From slides: "By default TypeScript targets ES3 (an old version of JS)" which during compilation transpiles to ES3 standards. Template literals changed to concat() in compiled output. |
 | **Strictness** | TypeScript has multiple strictness flags that can be enabled. The `strict` flag in `tsconfig.json` enables all strict checks at once. Key strict checks: `noImplicitAny` (error when type is implicitly `any`), `strictNullChecks` (null/undefined are not assignable to other types). |
 | **tsconfig.json** | The configuration file for a TypeScript project. Specifies compiler options (target, module, strict, etc.), include/exclude patterns, and project settings. Created via `tsc --init`. |
 
@@ -643,7 +624,7 @@ logPoint(myObj);  // OK! Structural typing -- has x and y, so it's a Point
 ### useCallback vs useMemo — when to use each
 - **useCallback**: caches a **function reference** — use when passing callbacks to child components wrapped in `memo`
 - **useMemo**: caches a **computed value** — use when you have expensive calculations that shouldn't re-run on every render
-- They are equivalent: `useCallback(fn, deps)` === `useMemo(() => fn, deps)`
+- *Note: the equivalence `useCallback(fn, deps) === useMemo(() => fn, deps)` is from React docs, not from the teacher's slides*
 - **When NOT to use**: don't memoize everything — only when there's a measurable performance problem
 
 ### Expensive calculations (from slides)

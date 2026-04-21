@@ -53,11 +53,8 @@ Based on teacher's slides (Glaerur (3).pdf). Page numbers reference slide pages.
 
 ### justify-content
 - **Definition:** Defines how flex items are distributed along the **main axis**.
-- **Values:** `flex-start` | `flex-end` | `center` | `space-between` | `space-around` | `space-evenly`
+- **Values (from slides):** `flex-start` | `center` | `space-around` | `space-between` | `flex-end`
 - **Default:** `flex-start`
-- `space-between` -- first item at start, last item at end, space distributed evenly between items.
-- `space-around` -- equal space around each item (items have half-size space on edges).
-- `space-evenly` -- equal space between all items and edges.
 - **Page:** ~17-22
 ```css
 .container {
@@ -69,7 +66,7 @@ Based on teacher's slides (Glaerur (3).pdf). Page numbers reference slide pages.
 - **Definition:** Defines how flex items are aligned along the **cross axis**.
 - **Values:** `stretch` | `flex-start` | `flex-end` | `center` | `baseline`
 - **Default:** `stretch`
-- `stretch` -- items stretch to fill the container (respecting min/max constraints).
+- `stretch` -- items stretch to fill the container.
 - `baseline` -- items aligned by their text baselines.
 - **Page:** ~23-27
 ```css
@@ -133,13 +130,14 @@ Based on teacher's slides (Glaerur (3).pdf). Page numbers reference slide pages.
 }
 ```
 
-**Growth factor calculation example:**
-- Container: 600px, three items each 100px wide.
-- Remaining space: 600 - 300 = 300px.
-- If flex-grow values are 1, 2, 1 (total = 4):
-  - Item 1: 100 + (300 * 1/4) = 175px
-  - Item 2: 100 + (300 * 2/4) = 250px
-  - Item 3: 100 + (300 * 1/4) = 175px
+**Growth factor calculation (from slides):**
+- Container: 750px, three items each 100px wide.
+- Remaining space: 750 - 300 = 450px.
+- flex-grow values: 1, 1, 3 (total = 5):
+  - 1 unit = 450 / 5 = 90px
+  - Item 1: 100 + 90 * 1 = 190px
+  - Item 2: 100 + 90 * 1 = 190px
+  - Item 3: 100 + 90 * 3 = 370px
 
 ### flex-shrink
 - **Definition:** Defines how much a flex item should **shrink** relative to the other flex items when there is not enough space.
@@ -152,13 +150,14 @@ Based on teacher's slides (Glaerur (3).pdf). Page numbers reference slide pages.
 }
 ```
 
-**Shrink factor calculation example:**
-- Container: 600px, three items each 300px wide.
-- Overflow: 900 - 600 = 300px.
-- If flex-shrink values are 1, 2, 1 (total = 4):
-  - Item 1: 300 - (300 * 1/4) = 225px
-  - Item 2: 300 - (300 * 2/4) = 150px
-  - Item 3: 300 - (300 * 1/4) = 225px
+**Shrink factor calculation (from slides):**
+- Container: 750px, three items each 300px wide.
+- Overflow: 900 - 750 = 150px.
+- flex-shrink values: 1, 1, 3 (total = 5):
+  - 1 unit = 150 / 5 = 30px
+  - Item 1: 300 - 30 * 1 = 270px
+  - Item 2: 300 - 30 * 1 = 270px
+  - Item 3: 300 - 30 * 3 = 210px
 
 ### flex-basis
 - **Definition:** Defines the default size of a flex item before remaining space is distributed. Sets the initial main size.
@@ -1174,7 +1173,7 @@ body {
 
 ### Double dash (--) definition
 - "To define a CSS variable one option is to use a double dash prefix (--) followed by the property name, e.g. `--main-color`."
-- "Like other properties this must be placed within a ruleset, e.g. `root:` for global reference."
+- "Like other properties this must be placed within a ruleset, e.g. `:root` for global reference."
 - "Rulesets define scopes for CSS variables, meaning that CSS variables written inside the `aside` ruleset are only applicable to the `<aside>` element and its descendants in the DOM tree."
 - "Custom property names are case sensitive, therefore `--Main-color` and `--main-color` are treated as separate properties."
 - **Page:** ~245

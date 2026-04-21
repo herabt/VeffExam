@@ -767,42 +767,28 @@ export default function NotFound() {
 
 ### Redux Core Concepts (Mock Exam Appendix A1 — 6 pts)
 
-These are the EXACT terms the teacher tests. Know these definitions:
+The mock exam asks to describe these 4 concepts. These are the answers from the teacher's answer key:
 
-**Connected Components:** Components linked to the Redux store via `useSelector` / `useDispatch` (or legacy `connect()`). They read state and dispatch actions without prop drilling.
+**Connected Components:** Components linked to the Redux store via `useSelector` / `useDispatch` (or `connect()`). They read state and dispatch actions without prop drilling.
 
-**Actions:** Plain objects describing *what happened*: `{ type: 'cart/add', payload: item }`. The ONLY way to signal a state change.
+**Actions:** Plain objects describing *what happened*: `{ type: 'cart/add', payload: item }`. The only way to signal a state change.
 
 **Reducers:** Pure functions `(state, action) => newState` that define how state changes for each action type. No side effects allowed.
 
 **Dispatch:** The method that sends an action to the store: `dispatch(action)`. Routes the action through reducers to produce new state.
-
-**Flux / Unidirectional Data Flow:**
-View/UI → Action → dispatch() → Reducer → Store → View/UI (one direction only, never backwards)
-
-**Middleware:** Functions that intercept dispatched actions before they reach the reducer. Used for async logic (thunks), logging, etc. `configureStore` automatically adds `redux-thunk` middleware.
-
-**Thunk:** A function that returns another function instead of an action object. Used for async operations (API calls). The inner function receives `dispatch` and `getState` as arguments:
-```typescript
-const fetchUser = createAsyncThunk('user/fetch', async (userId) => {
-  const response = await fetch(`/api/users/${userId}`);
-  return response.json();
-});
-```
 
 ### configureStore
 
 **Definition:** `configureStore` wraps `createStore` to provide simplified configuration options and good defaults. It automatically combines slice reducers, adds Redux middleware (including `redux-thunk`), and enables the Redux DevTools Extension.
 
 ```tsx
-import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from './features/counter/counterSlice';
-import todosReducer from './features/todos/todosSlice';
+// Source: WebProgrammingIIRU/workshops/w5/store/store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cart-slice";
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
-    todos: todosReducer,
+    cart: cartReducer,
   },
 });
 
@@ -815,34 +801,33 @@ export type AppDispatch = typeof store.dispatch;
 **Definition:** `createSlice` accepts an object of reducer functions, a slice name, and an initial state value, and automatically generates a **slice reducer** with corresponding **action creators** and **action types**. It uses **Immer** internally, so you can write "mutating" logic in reducers.
 
 ```tsx
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+// Source: WebProgrammingIIRU/workshops/w5/store/cart-slice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Product } from "@/data/products";
 
-interface CounterState {
-  value: number;
-}
-
-const initialState: CounterState = {
-  value: 0,
+type CartState = {
+  cart: Product[];
 };
 
-const counterSlice = createSlice({
-  name: 'counter',
+const initialState: CartState = {
+  cart: [],
+};
+
+const cartSlice = createSlice({
+  name: "cart",
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1; // "Mutating" is OK thanks to Immer
+    addItem(state, action: PayloadAction<Product>) {
+      state.cart.push(action.payload); // "Mutating" is OK thanks to Immer
     },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.value += action.payload;
+    removeItem(state, action: PayloadAction<number>) {
+      state.cart = state.cart.filter((p) => p.id !== action.payload);
     },
   },
 });
 
-export const { increment, decrement, incrementByAmount } = counterSlice.actions;
-export default counterSlice.reducer;
+export const { addItem, removeItem } = cartSlice.actions;
+export default cartSlice.reducer;
 ```
 
 ### Immer
@@ -1084,117 +1069,42 @@ const unsub = useBearStore.subscribe(
 );
 ```
 
-### CRITICAL: Zustand Shopping Cart (mock Q14 = 8 points!)
+### Zustand Shopping Cart (from teacher's code — mock Q14 = 8 points!)
 
 ```typescript
-// Store definition with persist
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+// Source: WebProgrammingIIRU/workshops/w5/store/cart-store.ts
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { Product } from "@/data/products";
 
-interface CartItem { id: number; name: string; price: number; quantity: number; }
+type State = {
+  cart: Product[];
+};
 
-interface CartStore {
-  cart: CartItem[];
-  addItem: (item: CartItem) => void;
+type Action = {
+  addItem: (item: Product) => void;
   removeItem: (id: number) => void;
-  clearCart: () => void;
-  total: () => number;
-}
+};
 
-const useCartStore = create<CartStore>()(
+export const useCartStore = create<State & Action>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       cart: [],
-      addItem: (item) => set((state) => {
-        const existing = state.cart.find(i => i.id === item.id);
-        if (existing) {
-          return { cart: state.cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i) };
-        }
-        return { cart: [...state.cart, { ...item, quantity: 1 }] };
-      }),
-      removeItem: (id) => set((state) => ({ cart: state.cart.filter(i => i.id !== id) })),
-      clearCart: () => set({ cart: [] }),
-      total: () => get().cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      addItem: (item) => set((state) => ({ cart: [...state.cart, item] })),
+      removeItem: (id) =>
+        set((state) => ({ cart: state.cart.filter((p) => p.id !== id) })),
     }),
-    { name: 'cart-storage' }  // persists to localStorage
+    {
+      name: "cart-storage",
+      storage: createJSONStorage(() => localStorage),
+    }
   )
 );
 ```
 
-```tsx
-// Component using selectors (each selector = separate subscription = no unnecessary re-renders)
-function CartPage() {
-  const cart = useCartStore((s) => s.cart);
-  const removeItem = useCartStore((s) => s.removeItem);
-  const total = useCartStore((s) => s.total);
+Note: The teacher's actual cart store uses a simple `Product[]` array with `addItem` (spread) and `removeItem` (filter). The mock exam answer key adds `updateQuantity` — but the teacher's code in the repo does not have quantity tracking.
 
-  return (
-    <div>
-      {cart.map(item => (
-        <div key={item.id}>
-          {item.name} x{item.quantity} - ${item.price * item.quantity}
-          <button onClick={() => removeItem(item.id)}>Remove</button>
-        </div>
-      ))}
-      <p>Total: ${total()}</p>
-    </div>
-  );
-}
-```
-
-### Zustand Slices Pattern (from slides)
-
-Split large stores into "slices" and combine them:
-
-```typescript
-const createCartSlice = (set, get) => ({
-  cart: [],
-  addItem: (item) => set((state) => ({ cart: [...state.cart, item] })),
-});
-
-const createCheckoutSlice = (set, get) => ({
-  step: 1,
-  nextStep: () => set((state) => ({ step: state.step + 1 })),
-  // Cross-slice action using get():
-  addItemAndCheckout: (item) => {
-    get().addItem(item);  // call cart slice action
-    get().nextStep();
-  },
-});
-
-const useStore = create((...a) => ({
-  ...createCartSlice(...a),
-  ...createCheckoutSlice(...a),
-}));
-```
-
-### Zustand: Map/Set Update Gotcha (from slides)
-
-When using `Map` or `Set` as state, you MUST create a new instance:
-
-```typescript
-// WRONG - mutates existing Map, same reference, NO re-render
-addItem: (item) => set((state) => {
-  state.cart.set(item.id, item);  // mutation!
-  return { cart: state.cart };     // same reference!
-}),
-
-// CORRECT - creates new Map, triggers re-render
-addItem: (item) => set((state) => ({
-  cart: new Map(state.cart).set(item.id, item),  // new reference
-})),
-```
-
-### Zustand: Module-level Actions (from slides)
-
-Actions can be defined outside the store:
-
-```typescript
-// Instead of inside create():
-export const addItem = (item) => useCartStore.setState((state) => ({
-  cart: [...state.cart, item],
-}));
-```
+*Note: The following Zustand topics (slices pattern, Map/Set updates, module-level actions) were previously included but are NOT from the teacher's slides, code repo, or mock exam. They have been removed to avoid confusion.*
 
 ---
 
