@@ -18,8 +18,17 @@ export default async function ExamPage({ params }: { params: Promise<{ slug: str
   const topic = findTopic("exam", slug);
   if (!topic) notFound();
   return (
-    <ExamShell topicKey={`exam-${slug}`} title={topic.title}>
-      <FragmentView topic={topic} />
-    </ExamShell>
+    <section className="content">
+      <div className="content-inner">
+        <ExamShell
+          topicKey={`exam-${slug}`}
+          topicKind="exam"
+          topicSlug={slug}
+          title={topic.title}
+        >
+          <FragmentView topic={topic} />
+        </ExamShell>
+      </div>
+    </section>
   );
 }

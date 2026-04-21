@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { FragmentView } from "@/components/FragmentView";
+import { ReaderShell } from "@/components/ReaderShell";
 import { findTopic, topicsByKind } from "@/lib/registry";
 
 export function generateStaticParams() {
@@ -16,5 +17,14 @@ export default async function GlossaryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const topic = findTopic("glossary", slug);
   if (!topic) notFound();
-  return <FragmentView topic={topic} />;
+  return (
+    <>
+      <section className="content">
+        <div className="content-inner">
+          <FragmentView topic={topic} />
+        </div>
+      </section>
+      <ReaderShell kind="glossary" slug={slug} />
+    </>
+  );
 }

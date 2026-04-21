@@ -3,7 +3,6 @@ import { readFragment } from "@/lib/content";
 
 interface Props {
   topic: Topic;
-  /** id to apply to the rendered wrapper — useful for scoping search & exam shell */
   rootId?: string;
 }
 
@@ -12,7 +11,9 @@ export async function FragmentView({ topic, rootId }: Props) {
   return (
     <article
       id={rootId}
-      className="fragment"
+      className="fragment prose"
+      data-topic-kind={topic.kind}
+      data-topic-slug={topic.slug}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

@@ -18,8 +18,17 @@ export default async function BonusPage({ params }: { params: Promise<{ slug: st
   const topic = findTopic("bonus", slug);
   if (!topic) notFound();
   return (
-    <ExamShell topicKey={`bonus-${slug}`} title={topic.title}>
-      <FragmentView topic={topic} />
-    </ExamShell>
+    <section className="content">
+      <div className="content-inner">
+        <ExamShell
+          topicKey={`bonus-${slug}`}
+          topicKind="bonus"
+          topicSlug={slug}
+          title={topic.title}
+        >
+          <FragmentView topic={topic} />
+        </ExamShell>
+      </div>
+    </section>
   );
 }
