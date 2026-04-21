@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Answers + Slide Images</title>
+<style>
+:root { --bg:#0f0f0f; --card:#1a1a2e; --accent:#e94560; --accent2:#0f3460; --text:#eaeaea; --muted:#888; --border:#2a2a4a; --success:#2ecc71; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+.topbar { position:sticky; top:0; z-index:100; background:rgba(15,15,15,.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0.6rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+.topbar h1 { font-size:1.1rem; color:var(--accent); }
+.topbar select { background:var(--card); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.8rem; border-radius:6px; font-size:0.9rem; }
+.topbar input { background:var(--card); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.8rem; border-radius:6px; font-size:0.9rem; width:200px; }
+.container { max-width:1100px; margin:0 auto; padding:1.5rem; }
+.slide-browser { display:flex; gap:1rem; margin-top:1rem; }
+.slide-nav { width:250px; flex-shrink:0; max-height:calc(100vh - 100px); overflow-y:auto; }
+.slide-nav .topic { background:var(--card); border:1px solid var(--border); border-radius:8px; margin-bottom:0.5rem; overflow:hidden; }
+.slide-nav .topic-header { padding:0.6rem 0.8rem; cursor:pointer; font-weight:600; font-size:0.85rem; color:var(--accent); }
+.slide-nav .topic-header:hover { background:var(--accent2); }
+.slide-nav .topic-pages { display:none; padding:0 0.5rem 0.5rem; }
+.slide-nav .topic-pages.open { display:block; }
+.slide-nav .page-link { display:block; padding:0.3rem 0.5rem; font-size:0.8rem; color:var(--muted); cursor:pointer; border-radius:4px; }
+.slide-nav .page-link:hover { background:var(--accent2); color:var(--text); }
+.slide-nav .page-link.active { background:var(--accent); color:#fff; }
+.slide-content { flex:1; }
+.slide-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(400px, 1fr)); gap:1rem; }
+.slide-card { background:var(--card); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.slide-card img { width:100%; display:block; cursor:pointer; }
+.slide-card img:hover { opacity:0.9; }
+.slide-card .slide-label { padding:0.4rem 0.6rem; font-size:0.75rem; color:var(--muted); }
+.section-header { background:linear-gradient(135deg,var(--accent2),#1a1a3e); padding:0.8rem 1.2rem; border-radius:8px; margin:1.5rem 0 1rem; font-size:1rem; font-weight:700; }
+.enlarged-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.9); z-index:998; cursor:pointer; justify-content:center; align-items:center; }
+.enlarged-overlay.show { display:flex; }
+.enlarged-overlay img { max-width:95vw; max-height:95vh; border-radius:8px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Slide Image Viewer - All Exam Answers</h1>
+  <select id="topicSelect" onchange="showTopic(this.value)">
+    <option value="all">All Topics</option>
+    <option value="1-20">CSS3 Overview / History</option>
+    <option value="21-40">CSS Animations + Media Queries</option>
+    <option value="41-65">Gradients + Shadows</option>
+    <option value="66-100">Transitions + Perspective</option>
+    <option value="100-130">Transforms</option>
+    <option value="131-170">Rounded Corners + Box Sizing</option>
+    <option value="170-240">Backgrounds + Selectors</option>
+    <option value="241-270">CSS Variables + BEM + Tailwind</option>
+    <option value="271-340">DOM Selectors + Traversal + Events</option>
+    <option value="341-400">JS Objects + Prototypes + this</option>
+    <option value="401-430">TypeScript</option>
+    <option value="431-480">useCallback + useMemo</option>
+    <option value="481-560">Next.js Routing + Design Patterns</option>
+    <option value="561-640">Server/Client Components + Data Fetching + Server Actions</option>
+    <option value="641-730">Redux Toolkit + Zustand</option>
+    <option value="731-780">Error Handling + Assets + Forms</option>
+    <option value="781-830">Promises + Event Loop + More Patterns</option>
+  </select>
+  <input type="text" id="searchInput" placeholder="Search slide #..." oninput="searchSlide(this.value)">
+</div>
+
+<div class="container">
+  <div id="slideGrid" class="slide-grid"></div>
+</div>
+
+<div class="enlarged-overlay" id="overlay" onclick="this.classList.remove('show')">
+  <img id="enlargedImg" src="">
+</div>
+
+<script>
+const SLIDE_DIR = 'slide-images/';
+
+function getSlideFilename(page) {
+  const padded = String(page).padStart(3, '0');
+  return 'slide-' + page + '-' + padded + '.png';
+}
+
+function getAllPages() {
+  // Based on extracted images (every 2-3 pages across 830)
+  const pages = [];
+  // CSS3 (2-40 every 3)
+  for (let p=2;p<=40;p+=3) pages.push(p);
+  // Flexbox key pages
+  [10,22,23,24,26,27,29,30,31,37,38,39,41,42,43,47,48].forEach(p=>{ if(!pages.includes(p)) pages.push(p); });
+  // Gradients+shadows (42-80 every 3)
+  for (let p=42;p<=80;p+=3) pages.push(p);
+  // Perspective+transforms (82-130 every 3)
+  for (let p=82;p<=130;p+=3) pages.push(p);
+  // Corners+boxsizing+backgrounds+selectors (132-240 every 4)
+  for (let p=132;p<=240;p+=4) pages.push(p);
+  // CSS Variables+BEM+Tailwind (243-268 every 2)
+  for (let p=243;p<=268;p+=2) pages.push(p);
+  // DOM (271-340 every 3)
+  for (let p=271;p<=340;p+=3) pages.push(p);
+  // JS Objects (341-400 every 2)
+  for (let p=341;p<=400;p+=2) pages.push(p);
+  // TypeScript (401-430 every 2)
+  for (let p=401;p<=430;p+=2) pages.push(p);
+  // useCallback+useMemo (431-480 every 2)
+  for (let p=431;p<=480;p+=2) pages.push(p);
+  // Design patterns+NextJS routing (481-560 every 2)
+  for (let p=481;p<=560;p+=2) pages.push(p);
+  // Server/Client+DataFetching+ServerActions (561-640 every 2)
+  for (let p=561;p<=640;p+=2) pages.push(p);
+  // Redux+Zustand (641-730 every 2)
+  for (let p=641;p<=730;p+=2) pages.push(p);
+  // Error handling+assets (731-780 every 2)
+  for (let p=731;p<=780;p+=2) pages.push(p);
+  // Promises+patterns (781-830 every 2)
+  for (let p=781;p<=830;p+=2) pages.push(p);
+  // Grid key page
+  [64,65,66].forEach(p=>{ if(!pages.includes(p)) pages.push(p); });
+  return [...new Set(pages)].sort((a,b)=>a-b);
+}
+
+const ALL_PAGES = getAllPages();
+
+const TOPIC_MAP = {
+  '1-20': 'CSS3 Overview / History',
+  '21-40': 'CSS Animations + Media Queries',
+  '41-65': 'Gradients + Shadows',
+  '66-100': 'Transitions + Perspective',
+  '100-130': 'Transforms',
+  '131-170': 'Rounded Corners + Box Sizing',
+  '170-240': 'Backgrounds + Selectors',
+  '241-270': 'CSS Variables + BEM + Tailwind',
+  '271-340': 'DOM Selectors + Traversal + Events',
+  '341-400': 'JS Objects + Prototypes + this',
+  '401-430': 'TypeScript',
+  '431-480': 'useCallback + useMemo',
+  '481-560': 'Next.js Routing + Design Patterns',
+  '561-640': 'Server/Client Components + Fetching + Server Actions',
+  '641-730': 'Redux Toolkit + Zustand',
+  '731-780': 'Error Handling + Assets + Forms',
+  '781-830': 'Promises + Event Loop + More Patterns',
+};
+
+function renderSlides(pages, label) {
+  const grid = document.getElementById('slideGrid');
+  grid.textContent = '';
+  if (label) {
+    const h = document.createElement('div');
+    h.className = 'section-header';
+    h.textContent = label;
+    grid.appendChild(h);
+  }
+  pages.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'slide-card';
+    const img = document.createElement('img');
+    img.src = SLIDE_DIR + getSlideFilename(p);
+    img.alt = 'Slide ' + p;
+    img.loading = 'lazy';
+    img.addEventListener('click', function() {
+      document.getElementById('enlargedImg').src = this.src;
+      document.getElementById('overlay').classList.add('show');
+    });
+    img.onerror = function() { card.style.display='none'; };
+    const lbl = document.createElement('div');
+    lbl.className = 'slide-label';
+    lbl.textContent = 'Slide ' + p;
+    card.appendChild(img);
+    card.appendChild(lbl);
+    grid.appendChild(card);
+  });
+}
+
+function showTopic(range) {
+  if (range === 'all') {
+    renderAllTopics();
+    return;
+  }
+  const parts = range.split('-');
+  const lo = parseInt(parts[0]), hi = parseInt(parts[1]);
+  const pages = ALL_PAGES.filter(p => p >= lo && p <= hi);
+  renderSlides(pages, TOPIC_MAP[range] || ('Slides ' + range));
+}
+
+function renderAllTopics() {
+  const grid = document.getElementById('slideGrid');
+  grid.textContent = '';
+  for (const [range, label] of Object.entries(TOPIC_MAP)) {
+    const parts = range.split('-');
+    const lo = parseInt(parts[0]), hi = parseInt(parts[1]);
+    const pages = ALL_PAGES.filter(p => p >= lo && p <= hi);
+    if (pages.length === 0) continue;
+    const h = document.createElement('div');
+    h.className = 'section-header';
+    h.textContent = label + ' (slides ' + range + ')';
+    grid.appendChild(h);
+    pages.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'slide-card';
+      const img = document.createElement('img');
+      img.src = SLIDE_DIR + getSlideFilename(p);
+      img.alt = 'Slide ' + p;
+      img.loading = 'lazy';
+      img.addEventListener('click', function() {
+        document.getElementById('enlargedImg').src = this.src;
+        document.getElementById('overlay').classList.add('show');
+      });
+      img.onerror = function() { card.style.display='none'; };
+      const lbl = document.createElement('div');
+      lbl.className = 'slide-label';
+      lbl.textContent = 'Slide ' + p;
+      card.appendChild(img);
+      card.appendChild(lbl);
+      grid.appendChild(card);
+    });
+  }
+}
+
+function searchSlide(val) {
+  const num = parseInt(val);
+  if (isNaN(num) || num < 1 || num > 830) {
+    if (val === '') renderAllTopics();
+    return;
+  }
+  // Find closest pages
+  const nearby = ALL_PAGES.filter(p => Math.abs(p - num) <= 3);
+  if (nearby.length > 0) {
+    renderSlides(nearby, 'Slides near page ' + num);
+  }
+}
+
+// Initial render
+renderAllTopics();
+</script>
+</body>
+</html>

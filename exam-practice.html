@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Programming II - Exam Practice</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --card: #1a1a2e;
+    --card-hover: #1f1f35;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --muted: #888;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --border: #2a2a4a;
+    --input-bg: #16162a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  /* NAV */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,15,15,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .topbar h1 { font-size: 1.1rem; color: var(--accent); }
+  .topbar .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .topbar .progress-info { font-size: 0.85rem; color: var(--muted); }
+  .btn {
+    padding: 0.45rem 1rem; border: none; border-radius: 6px;
+    font-size: 0.85rem; cursor: pointer; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #d63050; }
+  .btn-secondary { background: var(--accent2); color: #fff; }
+  .btn-secondary:hover { background: #0a2848; }
+  .btn-success { background: var(--success); color: #000; }
+  .btn-success:hover { background: #27ae60; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* TABS */
+  .tab-bar {
+    display: flex; gap: 0; border-bottom: 2px solid var(--border);
+    padding: 0 1.5rem; background: var(--card);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 0.75rem 1.5rem; cursor: pointer;
+    color: var(--muted); font-size: 0.9rem; font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s; white-space: nowrap;
+    position: relative; bottom: -2px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab .badge {
+    background: var(--accent2); color: var(--text);
+    font-size: 0.7rem; padding: 1px 6px; border-radius: 10px;
+    margin-left: 6px;
+  }
+  .tab .badge.done { background: var(--success); color: #000; }
+
+  /* CONTENT */
+  .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+  .exam-panel { display: none; }
+  .exam-panel.active { display: block; }
+
+  /* SECTIONS */
+  .section-header {
+    background: linear-gradient(135deg, var(--accent2), #1a1a3e);
+    padding: 1rem 1.5rem; border-radius: 10px;
+    margin: 1.5rem 0 1rem; font-size: 1.1rem; font-weight: 700;
+  }
+
+  /* QUESTIONS */
+  .question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+  }
+  .question:hover { border-color: #3a3a5a; }
+  .question.answered { border-left: 3px solid var(--success); }
+  .question-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .question-num {
+    font-weight: 700; color: var(--accent);
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .question-pts {
+    font-size: 0.75rem; color: var(--muted);
+    background: var(--input-bg); padding: 2px 8px; border-radius: 4px;
+  }
+  .question-text { margin-bottom: 1rem; font-size: 0.95rem; }
+  .question-text strong { color: var(--accent); }
+
+  /* CODE BLOCKS */
+  pre {
+    background: #0d0d1a; border: 1px solid var(--border);
+    border-radius: 6px; padding: 1rem; overflow-x: auto;
+    font-size: 0.85rem; margin: 0.75rem 0; line-height: 1.5;
+  }
+  code { font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; }
+  .inline-code {
+    background: var(--input-bg); padding: 1px 5px;
+    border-radius: 3px; font-family: monospace; font-size: 0.9em;
+  }
+
+  /* INPUTS */
+  .fill-blank {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem;
+  }
+  .fill-blank label {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.85rem; color: var(--muted);
+  }
+  .fill-blank input {
+    background: var(--input-bg); border: 1px solid var(--border);
+    color: var(--text); padding: 0.35rem 0.6rem; border-radius: 4px;
+    font-size: 0.85rem; width: 180px;
+    transition: border-color 0.2s;
+  }
+  .fill-blank input:focus { outline: none; border-color: var(--accent); }
+
+  /* RADIO / CHECKBOX */
+  .options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+  .option {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    padding: 0.6rem 0.8rem; border-radius: 6px;
+    cursor: pointer; transition: background 0.2s;
+    font-size: 0.9rem;
+  }
+  .option:hover { background: var(--card-hover); }
+  .option input[type="radio"],
+  .option input[type="checkbox"] {
+    accent-color: var(--accent); margin-top: 3px; flex-shrink: 0;
+  }
+
+  /* TEXTAREA */
+  .answer-area {
+    width: 100%; min-height: 140px;
+    background: var(--input-bg); border: 1px solid var(--border);
+    color: var(--text); padding: 0.75rem; border-radius: 6px;
+    font-family: inherit; font-size: 0.9rem; resize: vertical;
+    margin-top: 0.5rem; line-height: 1.5;
+  }
+  .answer-area:focus { outline: none; border-color: var(--accent); }
+  .answer-area.code-area {
+    font-family: 'Fira Code', monospace; font-size: 0.85rem;
+    min-height: 200px;
+  }
+
+  /* GLOSSARY TAB */
+  .glossary-section { margin-bottom: 2rem; }
+  .glossary-section h3 {
+    color: var(--accent); margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+  }
+  .glossary-table {
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+  }
+  .glossary-table th {
+    text-align: left; padding: 0.5rem 0.75rem;
+    background: var(--accent2); color: var(--text);
+    font-weight: 600;
+  }
+  .glossary-table td {
+    padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .glossary-table tr:hover td { background: var(--card-hover); }
+  .glossary-table td:first-child {
+    font-weight: 600; color: var(--warning);
+    white-space: nowrap; width: 200px;
+  }
+
+  /* STATUS */
+  .save-status {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--success); color: #000;
+    padding: 0.6rem 1.2rem; border-radius: 8px;
+    font-weight: 600; font-size: 0.85rem;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s ease;
+  }
+  .save-status.show { transform: translateY(0); opacity: 1; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .container { padding: 0.75rem; }
+    .question { padding: 1rem; }
+    .tab { padding: 0.6rem 0.8rem; font-size: 0.8rem; }
+    .fill-blank input { width: 140px; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* GRADING */
+  .grade-result {
+    margin-top: 1rem; padding: 1rem; border-radius: 8px;
+    font-size: 0.88rem; line-height: 1.6;
+    border-left: 3px solid var(--border);
+  }
+  .grade-result.correct {
+    background: rgba(46,204,113,0.08);
+    border-left-color: var(--success);
+  }
+  .grade-result.wrong {
+    background: rgba(233,69,96,0.08);
+    border-left-color: var(--accent);
+  }
+  .grade-result.unanswered {
+    background: rgba(243,156,18,0.08);
+    border-left-color: var(--warning);
+  }
+  .grade-label {
+    font-weight: 700; font-size: 0.8rem;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+  }
+  .grade-label.correct { color: var(--success); }
+  .grade-label.wrong { color: var(--accent); }
+  .grade-label.unanswered { color: var(--warning); }
+  .grade-row { margin: 0.3rem 0; }
+  .grade-row strong { color: var(--muted); font-size: 0.8rem; }
+  .grade-your { color: var(--accent); }
+  .grade-correct { color: var(--success); white-space: pre-wrap; }
+  .grade-explanation { color: var(--muted); font-style: italic; margin-top: 0.4rem; font-size: 0.85rem; white-space: pre-wrap; font-family: 'Fira Code', monospace; line-height: 1.5; }
+  .grade-slides { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+  .grade-slides img { max-width: 420px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
+  .grade-slides img:hover { transform: scale(1.02); }
+  .grade-slides img.enlarged { max-width: 95vw; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(1); z-index: 999; border: 3px solid var(--accent); }
+  .img-overlay { display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:rgba(0,0,0,.8); z-index:998; cursor:pointer; }
+  .question.graded-correct { border-left: 3px solid var(--success); }
+  .question.graded-wrong { border-left: 3px solid var(--accent); }
+  .question.graded-unanswered { border-left: 3px solid var(--warning); }
+
+  .grade-summary {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem;
+  }
+  .grade-summary h3 { color: var(--accent); margin-bottom: 0.5rem; }
+  .grade-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
+  .grade-stat { text-align: center; }
+  .grade-stat .num { font-size: 2rem; font-weight: 700; }
+  .grade-stat .label { font-size: 0.75rem; color: var(--muted); }
+  .btn-grade { background: #9b59b6; color: #fff; }
+  .btn-grade:hover { background: #8e44ad; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Web Programming II - Exam Practice</h1>
+  <span class="progress-info" id="progressInfo">0 / 58 answered</span>
+  <div class="actions">
+    <button class="btn btn-grade" onclick="gradeAll()">Grade My Answers</button>
+    <button class="btn btn-outline" onclick="clearGrading()">Clear Grading</button>
+    <button class="btn btn-outline" onclick="clearAll()">Clear All</button>
+    <button class="btn btn-secondary" onclick="loadAnswers()">Load Answers</button>
+    <button class="btn btn-primary" onclick="saveAnswers()">Save Answers (.json)</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('exam1')">Exam 1: CSS & JS <span class="badge" id="badge-exam1">0</span></div>
+  <div class="tab" onclick="showTab('exam2')">Exam 2: React & Next.js <span class="badge" id="badge-exam2">0</span></div>
+  <div class="tab" onclick="showTab('exam3')">Exam 3: Redux & APIs <span class="badge" id="badge-exam3">0</span></div>
+  <div class="tab" onclick="showTab('glossary')">Glossary</div>
+</div>
+
+<div class="container">
+
+<!-- ==================== EXAM 1 ==================== -->
+<div class="exam-panel active" id="panel-exam1">
+
+<div class="section-header">Section A: CSS Flexbox & Grid</div>
+
+<div class="question" data-q="e1q1">
+  <div class="question-header">
+    <span class="question-num">Question 1</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    Complete the following sentences about Flexbox:<br><br>
+    The <span class="inline-code">flex-direction</span> property defaults to <strong>1.</strong> _____, which lays items out horizontally.
+    The property <span class="inline-code">align-items</span> defaults to <strong>2.</strong> _____, which is why flex items stretch to fill the container's cross-axis.
+    The shorthand property <strong>3.</strong> _____ combines both <span class="inline-code">flex-direction</span> and <span class="inline-code">flex-wrap</span>.
+    On a flex item, the <strong>4.</strong> _____ property overrides the container's <span class="inline-code">align-items</span> for that specific item.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e1q1_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e1q1_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e1q1_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e1q1_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q2">
+  <div class="question-header">
+    <span class="question-num">Question 2</span>
+    <span class="question-pts">Multiple choice</span>
+  </div>
+  <div class="question-text">What does <span class="inline-code">justify-content</span> control in a flex container?</div>
+  <div class="options">
+    <label class="option"><input type="radio" name="e1q2" value="A"> A) How flex items are aligned along the cross-axis</label>
+    <label class="option"><input type="radio" name="e1q2" value="B"> B) How flex items are distributed along the main-axis</label>
+    <label class="option"><input type="radio" name="e1q2" value="C"> C) How flex lines are distributed when there is extra space</label>
+    <label class="option"><input type="radio" name="e1q2" value="D"> D) The order in which flex items appear</label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q3">
+  <div class="question-header">
+    <span class="question-num">Question 3</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which of the following statements about Flexbox are correct?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e1q3_a"> Flex containers only affect their immediate children, not deeper descendants</label>
+    <label class="option"><input type="checkbox" data-field="e1q3_b"> The <span class="inline-code">float</span> property has an effect on flex items</label>
+    <label class="option"><input type="checkbox" data-field="e1q3_c"> <span class="inline-code">align-content</span> only has an effect when <span class="inline-code">flex-wrap</span> is set to <span class="inline-code">wrap</span></label>
+    <label class="option"><input type="checkbox" data-field="e1q3_d"> By default, flex items will wrap to the next line when they overflow</label>
+    <label class="option"><input type="checkbox" data-field="e1q3_e"> <span class="inline-code">flex-grow: 0</span> means the item will not grow to fill available space</label>
+    <label class="option"><input type="checkbox" data-field="e1q3_f"> <span class="inline-code">vertical-align</span> affects flex items</label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q4">
+  <div class="question-header">
+    <span class="question-num">Question 4</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    Complete the following about CSS Grid:<br><br>
+    The property <strong>1.</strong> _____ is used to define named layout regions.
+    To make a responsive grid without media queries, use <span class="inline-code">repeat()</span> with <strong>2.</strong> _____ and <span class="inline-code">minmax()</span>.
+    The <strong>3.</strong> _____ unit represents a fraction of available space.
+    The property <strong>4.</strong> _____ sets spacing between grid items.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e1q4_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e1q4_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e1q4_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e1q4_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q5">
+  <div class="question-header">
+    <span class="question-num">Question 5</span>
+    <span class="question-pts">Multiple choice</span>
+  </div>
+  <div class="question-text">750px container, three items at 100px each. First two: <span class="inline-code">flex-grow: 1</span>, third: <span class="inline-code">flex-grow: 3</span>. Final width of the third item?</div>
+  <div class="options">
+    <label class="option"><input type="radio" name="e1q5" value="A"> A) 250px</label>
+    <label class="option"><input type="radio" name="e1q5" value="B"> B) 370px</label>
+    <label class="option"><input type="radio" name="e1q5" value="C"> C) 550px</label>
+    <label class="option"><input type="radio" name="e1q5" value="D"> D) 450px</label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q6">
+  <div class="question-header">
+    <span class="question-num">Question 6</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">Explain the difference between <span class="inline-code">align-items</span> and <span class="inline-code">align-content</span> in Flexbox. When would each be useful? Give a concrete example for each.</div>
+  <textarea class="answer-area" data-field="e1q6" placeholder="Write your answer here..."></textarea>
+</div>
+
+<div class="question" data-q="e1q7">
+  <div class="question-header">
+    <span class="question-num">Question 7</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which follow BEM naming conventions?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e1q7_a"> <span class="inline-code">.nav__item--active</span></label>
+    <label class="option"><input type="checkbox" data-field="e1q7_b"> <span class="inline-code">.nav-item-active</span></label>
+    <label class="option"><input type="checkbox" data-field="e1q7_c"> <span class="inline-code">.Nav__Item--Active</span></label>
+    <label class="option"><input type="checkbox" data-field="e1q7_d"> <span class="inline-code">.navigation__link--disabled</span></label>
+    <label class="option"><input type="checkbox" data-field="e1q7_e"> <span class="inline-code">.navItemActive</span></label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q8">
+  <div class="question-header">
+    <span class="question-num">Question 8</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">A colleague says: "CSS Grid and Flexbox do the same thing, just pick one." Explain why this is wrong. Describe what each is best for and how they complement each other.</div>
+  <textarea class="answer-area" data-field="e1q8" placeholder="Write your answer here..."></textarea>
+</div>
+
+<div class="section-header">Section B: JavaScript Fundamentals</div>
+
+<div class="question" data-q="e1q9">
+  <div class="question-header">
+    <span class="question-num">Question 9</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    When a function is called with <span class="inline-code">new</span>, <span class="inline-code">this</span> refers to the <strong>1.</strong> _____.
+    <span class="inline-code">.bind()</span> returns a <strong>2.</strong> _____ with <span class="inline-code">this</span> permanently set.
+    When a function is passed to <span class="inline-code">setTimeout</span>, <span class="inline-code">this</span> will be <strong>3.</strong> _____.
+    To call a parent constructor from a child, you use <strong>4.</strong> _____.call(this, args).
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e1q9_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e1q9_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e1q9_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e1q9_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q10">
+  <div class="question-header">
+    <span class="question-num">Question 10</span>
+    <span class="question-pts">6 points — Code Analysis</span>
+  </div>
+  <div class="question-text">Study the code and state what <span class="inline-code">this</span> is for each numbered line:</div>
+  <pre><code>function Animal(name) {
+    this.name = name;
+    console.log(this);
+}
+Animal.prototype.speak = function() {
+    console.log('Speak!');
+    console.log(this);
+};
+function Dog(name, breed) {
+    Animal.call(this, name);
+    this.breed = breed;
+    console.log(this);
+}
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+var stray = {};
+
+var a = Animal('Cat');            // 1
+var b = new Animal('Parrot');     // 2
+var c = new Dog('Rex', 'Lab');    // 3 (two logs)
+b.speak();                        // 4
+b.speak.bind(stray).call();       // 5
+setTimeout(b.speak, 1000);        // 6</code></pre>
+  <textarea class="answer-area" data-field="e1q10" placeholder="1. this = ...&#10;2. this = ...&#10;3. first log: this = ... / second log: this = ...&#10;4. this = ...&#10;5. this = ...&#10;6. this = ..."></textarea>
+</div>
+
+<div class="question" data-q="e1q11">
+  <div class="question-header">
+    <span class="question-num">Question 11</span>
+    <span class="question-pts">Multiple choice</span>
+  </div>
+  <div class="question-text">What is the difference between <span class="inline-code">.call()</span> and <span class="inline-code">.apply()</span>?</div>
+  <div class="options">
+    <label class="option"><input type="radio" name="e1q11" value="A"> A) .call() is for constructors; .apply() is for regular functions</label>
+    <label class="option"><input type="radio" name="e1q11" value="B"> B) .call() takes arguments individually; .apply() takes them as an array</label>
+    <label class="option"><input type="radio" name="e1q11" value="C"> C) .call() creates a new function; .apply() invokes it immediately</label>
+    <label class="option"><input type="radio" name="e1q11" value="D"> D) There is no difference; they are aliases</label>
+  </div>
+</div>
+
+<div class="section-header">Section C: Async JavaScript & TypeScript</div>
+
+<div class="question" data-q="e1q12">
+  <div class="question-header">
+    <span class="question-num">Question 12</span>
+    <span class="question-pts">Multiple choice</span>
+  </div>
+  <div class="question-text">Which correctly describes the Event Loop execution order?</div>
+  <div class="options">
+    <label class="option"><input type="radio" name="e1q12" value="A"> A) Macrotasks first, then microtasks, then rendering</label>
+    <label class="option"><input type="radio" name="e1q12" value="B"> B) Call stack, then macrotasks and microtasks in FIFO order</label>
+    <label class="option"><input type="radio" name="e1q12" value="C"> C) Call stack empties, then ALL microtasks run, then ONE macrotask runs</label>
+    <label class="option"><input type="radio" name="e1q12" value="D"> D) Microtasks and macrotasks alternate one-by-one</label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q13">
+  <div class="question-header">
+    <span class="question-num">Question 13</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which statements about Promises are correct?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e1q13_a"> <span class="inline-code">Promise.all()</span> rejects immediately if any one promise rejects</label>
+    <label class="option"><input type="checkbox" data-field="e1q13_b"> <span class="inline-code">Promise.race()</span> resolves when ALL promises have resolved</label>
+    <label class="option"><input type="checkbox" data-field="e1q13_c"> <span class="inline-code">Promise.allSettled()</span> waits for all promises to settle</label>
+    <label class="option"><input type="checkbox" data-field="e1q13_d"> <span class="inline-code">Promise.any()</span> resolves when the first promise resolves</label>
+    <label class="option"><input type="checkbox" data-field="e1q13_e"> Microtask queue (Promises) is processed before macrotask queue (setTimeout)</label>
+    <label class="option"><input type="checkbox" data-field="e1q13_f"> <span class="inline-code">await</span> can be used at the top level of any JavaScript file</label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q14">
+  <div class="question-header">
+    <span class="question-num">Question 14</span>
+    <span class="question-pts">4 points — Code Analysis</span>
+  </div>
+  <div class="question-text">
+    <strong>a)</strong> Identify two bugs in this code and explain why.<br>
+    <strong>b)</strong> Rewrite correctly with an interface and error handling.
+  </div>
+  <pre><code>async function fetchProducts(category: string) {
+    const response = await fetch(`/api/products/${category}`);
+    const data = response.json();
+    return data.filter(p => p.price > 0);
+}</code></pre>
+  <textarea class="answer-area code-area" data-field="e1q14" placeholder="a) Bug 1: ...&#10;   Bug 2: ...&#10;&#10;b) Corrected code:&#10;interface Product { ... }&#10;..."></textarea>
+</div>
+
+<div class="question" data-q="e1q15">
+  <div class="question-header">
+    <span class="question-num">Question 15</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    The keyword <strong>1.</strong> _____ defines a contract for classes/objects.
+    The utility type <strong>2.</strong> _____ makes all properties optional.
+    To tell TS a value is a certain type, use a type <strong>3.</strong> _____.
+    When a type can be <span class="inline-code">string | null</span>, it's called a <strong>4.</strong> _____ type.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e1q15_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e1q15_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e1q15_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e1q15_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e1q16">
+  <div class="question-header">
+    <span class="question-num">Question 16</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">Explain the Event Loop: Call Stack, Web APIs, Microtask Queue, and Macrotask Queue. Give an example showing execution order of <span class="inline-code">console.log</span>, <span class="inline-code">Promise.then()</span>, and <span class="inline-code">setTimeout(..., 0)</span>.</div>
+  <textarea class="answer-area" data-field="e1q16" placeholder="Write your answer here..."></textarea>
+</div>
+
+<div class="question" data-q="e1q17">
+  <div class="question-header">
+    <span class="question-num">Question 17</span>
+    <span class="question-pts">4 points — Code Output</span>
+  </div>
+  <div class="question-text">What is the output and in what order? Explain why.</div>
+  <pre><code>console.log('1');
+setTimeout(() => { console.log('2'); }, 0);
+Promise.resolve().then(() => { console.log('3'); });
+console.log('4');</code></pre>
+  <textarea class="answer-area" data-field="e1q17" placeholder="Output order: ...&#10;Explanation: ..."></textarea>
+</div>
+
+<div class="question" data-q="e1q18">
+  <div class="question-header">
+    <span class="question-num">Question 18</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which are correct about <span class="inline-code">fetch()</span>?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e1q18_a"> <span class="inline-code">fetch()</span> returns a Promise</label>
+    <label class="option"><input type="checkbox" data-field="e1q18_b"> <span class="inline-code">response.json()</span> returns the parsed data directly (not a Promise)</label>
+    <label class="option"><input type="checkbox" data-field="e1q18_c"> A 404 response will cause <span class="inline-code">fetch()</span> to reject the Promise</label>
+    <label class="option"><input type="checkbox" data-field="e1q18_d"> You should check <span class="inline-code">response.ok</span> to verify the request succeeded</label>
+    <label class="option"><input type="checkbox" data-field="e1q18_e"> The browser handles <span class="inline-code">fetch()</span> via Web APIs, not the main thread</label>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== EXAM 2 ==================== -->
+<div class="exam-panel" id="panel-exam2">
+
+<div class="section-header">Section A: React Core</div>
+
+<div class="question" data-q="e2q1">
+  <div class="question-header">
+    <span class="question-num">Question 1</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    A React component is a reusable piece of <strong>1.</strong> _____.
+    It accepts inputs called <strong>2.</strong> _____ and manages internal data called <strong>3.</strong> _____.
+    When state changes, React schedules a <strong>4.</strong> _____ of the component.
+    The virtual <strong>5.</strong> _____ is React's in-memory representation of the actual browser DOM.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e2q1_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e2q1_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e2q1_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e2q1_4" placeholder="..."></label>
+    <label>5. <input type="text" data-field="e2q1_5" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q2">
+  <div class="question-header">
+    <span class="question-num">Question 2</span>
+    <span class="question-pts">Multiple choice</span>
+  </div>
+  <div class="question-text"><span class="inline-code">useEffect</span> with dependency array <span class="inline-code">[userId]</span> runs when?</div>
+  <div class="options">
+    <label class="option"><input type="radio" name="e2q2" value="A"> A) Only once, on mount</label>
+    <label class="option"><input type="radio" name="e2q2" value="B"> B) After every render</label>
+    <label class="option"><input type="radio" name="e2q2" value="C"> C) On mount, and whenever userId changes</label>
+    <label class="option"><input type="radio" name="e2q2" value="D"> D) Only when userId is set by the user</label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q3">
+  <div class="question-header">
+    <span class="question-num">Question 3</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Correct use cases for <span class="inline-code">useRef</span>?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e2q3_a"> Storing a reference to a DOM element to measure its dimensions</label>
+    <label class="option"><input type="checkbox" data-field="e2q3_b"> Triggering a re-render when its value changes</label>
+    <label class="option"><input type="checkbox" data-field="e2q3_c"> Keeping track of a previous state value between renders</label>
+    <label class="option"><input type="checkbox" data-field="e2q3_d"> Replacing useState for form input values</label>
+    <label class="option"><input type="checkbox" data-field="e2q3_e"> Storing a WebSocket connection instance</label>
+    <label class="option"><input type="checkbox" data-field="e2q3_f"> Storing a timer ID from setInterval</label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q4">
+  <div class="question-header">
+    <span class="question-num">Question 4</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    <strong>1.</strong> _____ memoizes a function reference.
+    <strong>2.</strong> _____ memoizes a computed value.
+    <strong>3.</strong> _____ is an alternative to useState for complex state logic.
+    To read Context, use the <strong>4.</strong> _____ hook.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e2q4_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e2q4_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e2q4_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e2q4_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q5">
+  <div class="question-header">
+    <span class="question-num">Question 5</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text"><strong>a)</strong> Identify the performance problem. <strong>b)</strong> Fix it.</div>
+  <pre><code>function UserProfile({ userId }) {
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+        fetch(`/api/users/${userId}`)
+            .then(res => res.json())
+            .then(data => setUser(data));
+    });
+    return &lt;div&gt;{user?.name}&lt;/div&gt;;
+}</code></pre>
+  <textarea class="answer-area" data-field="e2q5" placeholder="a) Problem: ...&#10;b) Fix: ..."></textarea>
+</div>
+
+<div class="question" data-q="e2q6">
+  <div class="question-header">
+    <span class="question-num">Question 6</span>
+    <span class="question-pts">4 points — Code Analysis</span>
+  </div>
+  <div class="question-text">What is wrong with this Timer component? Fix it.</div>
+  <pre><code>function Timer() {
+    const [seconds, setSeconds] = useState(0);
+    const intervalId = useState(null);
+    useEffect(() => {
+        intervalId = setInterval(() => {
+            setSeconds(seconds + 1);
+        }, 1000);
+        return () => clearInterval(intervalId);
+    }, []);
+    return &lt;div&gt;Time: {seconds}s&lt;/div&gt;;
+}</code></pre>
+  <textarea class="answer-area code-area" data-field="e2q6" placeholder="Issues:&#10;1. ...&#10;2. ...&#10;&#10;Corrected code:&#10;..."></textarea>
+</div>
+
+<div class="section-header">Section B: State Management</div>
+
+<div class="question" data-q="e2q7">
+  <div class="question-header">
+    <span class="question-num">Question 7</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which are true about global state management?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e2q7_a"> Zustand requires wrapping your app in a Provider component</label>
+    <label class="option"><input type="checkbox" data-field="e2q7_b"> RTK's createSlice auto-generates action creators</label>
+    <label class="option"><input type="checkbox" data-field="e2q7_c"> Context API re-renders all consumers when context value changes</label>
+    <label class="option"><input type="checkbox" data-field="e2q7_d"> Zustand stores can be accessed from outside React components</label>
+    <label class="option"><input type="checkbox" data-field="e2q7_e"> Redux requires class-based components</label>
+    <label class="option"><input type="checkbox" data-field="e2q7_f"> Context API is optimized for high-frequency updates</label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q8">
+  <div class="question-header">
+    <span class="question-num">Question 8</span>
+    <span class="question-pts">6 points</span>
+  </div>
+  <div class="question-text">Describe these Redux concepts: <strong>Store</strong>, <strong>Actions</strong>, <strong>Reducers</strong>, <strong>Dispatch</strong>. Explain what each does and how it fits within Redux/Flux.</div>
+  <textarea class="answer-area" data-field="e2q8" placeholder="Store: ...&#10;&#10;Actions: ...&#10;&#10;Reducers: ...&#10;&#10;Dispatch: ..."></textarea>
+</div>
+
+<div class="question" data-q="e2q9">
+  <div class="question-header">
+    <span class="question-num">Question 9</span>
+    <span class="question-pts">8 points</span>
+  </div>
+  <div class="question-text">
+    Building a <strong>shopping cart</strong> for Next.js. Must: be accessible from multiple pages, support add/remove/update quantities, persist across navigation.<br><br>
+    <strong>a)</strong> Compare Context API, Zustand, and Redux Toolkit — one advantage and one disadvantage each. (4 pts)<br>
+    <strong>b)</strong> Choose one approach, sketch the state shape, actions, and how a component reads/updates the cart. (4 pts)
+  </div>
+  <textarea class="answer-area code-area" data-field="e2q9" placeholder="a) Context API:&#10;  Advantage: ...&#10;  Disadvantage: ...&#10;&#10;Zustand:&#10;  Advantage: ...&#10;  Disadvantage: ...&#10;&#10;Redux Toolkit:&#10;  Advantage: ...&#10;  Disadvantage: ...&#10;&#10;b) Chosen approach: ...&#10;State shape: ...&#10;Implementation sketch: ..."></textarea>
+</div>
+
+<div class="section-header">Section C: Next.js App Router</div>
+
+<div class="question" data-q="e2q10">
+  <div class="question-header">
+    <span class="question-num">Question 10</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which are true about Server Components?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e2q10_a"> Can directly <span class="inline-code">await fetch()</span> without useEffect</label>
+    <label class="option"><input type="checkbox" data-field="e2q10_b"> Can use <span class="inline-code">onClick</span> event handlers</label>
+    <label class="option"><input type="checkbox" data-field="e2q10_c"> Reduce JavaScript sent to the browser</label>
+    <label class="option"><input type="checkbox" data-field="e2q10_d"> Can import and render Client Components</label>
+    <label class="option"><input type="checkbox" data-field="e2q10_e"> Can use <span class="inline-code">useState</span></label>
+    <label class="option"><input type="checkbox" data-field="e2q10_f"> Can read environment variables and access databases</label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q11">
+  <div class="question-header">
+    <span class="question-num">Question 11</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    To mark a Client Component, add <strong>1.</strong> _____ at the top of the file.
+    A Server Action uses <strong>2.</strong> _____.
+    The file <strong>3.</strong> _____ defines shared UI that wraps child pages.
+    Dynamic routes use <strong>4.</strong> _____ brackets in folder names.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e2q11_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e2q11_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e2q11_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e2q11_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q12">
+  <div class="question-header">
+    <span class="question-num">Question 12</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">When should you use an <strong>API Route</strong> instead of a Server Action?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e2q12_a"> Stripe webhook needs to notify your app</label>
+    <label class="option"><input type="checkbox" data-field="e2q12_b"> Mobile app needs to fetch user data</label>
+    <label class="option"><input type="checkbox" data-field="e2q12_c"> Client Component submits a form to create a blog post</label>
+    <label class="option"><input type="checkbox" data-field="e2q12_d"> Building a public REST API for third-party developers</label>
+    <label class="option"><input type="checkbox" data-field="e2q12_e"> A like button updating the database</label>
+    <label class="option"><input type="checkbox" data-field="e2q12_f"> External monitoring service health check</label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q13">
+  <div class="question-header">
+    <span class="question-num">Question 13</span>
+    <span class="question-pts">8 points</span>
+  </div>
+  <div class="question-text">
+    Building a <strong>user registration form</strong> (name, email, password) in Next.js.<br><br>
+    <strong>a)</strong> How would you implement it with react-hook-form? Key methods, validation, error display? (3 pts)<br>
+    <strong>b)</strong> Server Action or API Route for submission? Justify and describe the data flow. (3 pts)<br>
+    <strong>c)</strong> Why is server-side validation still necessary? Give a concrete example. (2 pts)
+  </div>
+  <textarea class="answer-area code-area" data-field="e2q13" placeholder="a) react-hook-form implementation:&#10;...&#10;&#10;b) Server Action vs API Route:&#10;...&#10;&#10;c) Why server-side validation:&#10;..."></textarea>
+</div>
+
+<div class="section-header">Section D: Forms (react-hook-form)</div>
+
+<div class="question" data-q="e2q14">
+  <div class="question-header">
+    <span class="question-num">Question 14</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    The core hook is <strong>1.</strong> _____.
+    Connect inputs with <strong>2.</strong> _____.
+    Validate on typing: set mode to <strong>3.</strong> _____.
+    Password errors: <strong>4.</strong> _____.
+    Zod integration via <strong>5.</strong> _____ option.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e2q14_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e2q14_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e2q14_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e2q14_4" placeholder="..."></label>
+    <label>5. <input type="text" data-field="e2q14_5" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q15">
+  <div class="question-header">
+    <span class="question-num">Question 15</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Valid built-in validation rules for <span class="inline-code">register()</span>?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e2q15_a"> required</label>
+    <label class="option"><input type="checkbox" data-field="e2q15_b"> minLength</label>
+    <label class="option"><input type="checkbox" data-field="e2q15_c"> type</label>
+    <label class="option"><input type="checkbox" data-field="e2q15_d"> pattern</label>
+    <label class="option"><input type="checkbox" data-field="e2q15_e"> sanitize</label>
+    <label class="option"><input type="checkbox" data-field="e2q15_f"> validate</label>
+    <label class="option"><input type="checkbox" data-field="e2q15_g"> maxLength</label>
+  </div>
+</div>
+
+<div class="question" data-q="e2q16">
+  <div class="question-header">
+    <span class="question-num">Question 16</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">What is a React component? What principles should it follow? What are the benefits?</div>
+  <textarea class="answer-area" data-field="e2q16" placeholder="1. What is a component: ...&#10;2. Principles: ...&#10;3. Benefits: ..."></textarea>
+</div>
+
+</div>
+
+<!-- ==================== EXAM 3 ==================== -->
+<div class="exam-panel" id="panel-exam3">
+
+<div class="section-header">Section A: this Binding Deep Dive</div>
+
+<div class="question" data-q="e3q1">
+  <div class="question-header">
+    <span class="question-num">Question 1</span>
+    <span class="question-pts">8 points — Code Analysis</span>
+  </div>
+  <div class="question-text">State what <span class="inline-code">this</span> is for each numbered line:</div>
+  <pre><code>function Hero(name) {
+    this.name = name;
+    console.log(this);
+}
+Hero.prototype.attack = function() {
+    console.log('Attack!');
+    console.log(this);
+};
+function SuperHero(name, power) {
+    Hero.call(this, name);
+    this.power = power;
+    console.log(this);
+}
+SuperHero.prototype = Object.create(Hero.prototype);
+SuperHero.prototype.constructor = SuperHero;
+SuperHero.prototype.fly = function() {
+    console.log(this.name + ' flies!');
+    console.log(this);
+};
+var nobody = {};
+
+var h1 = Hero('Thor');                     // 1
+var h2 = new Hero('Iron Man');             // 2
+var h3 = new SuperHero('Spider-Man','web');// 3 (two logs)
+h2.attack();                               // 4
+h2.attack.call(nobody);                    // 5
+var attackFn = h2.attack;
+attackFn();                                // 6
+setTimeout(h3.fly, 500);                   // 7
+h3.fly.bind(h2)();                         // 8</code></pre>
+  <textarea class="answer-area" data-field="e3q1" placeholder="1. this = ...&#10;2. this = ...&#10;3. first: this = ... / second: this = ...&#10;4. this = ...&#10;5. this = ...&#10;6. this = ...&#10;7. this = ...&#10;8. this = ..."></textarea>
+</div>
+
+<div class="question" data-q="e3q2">
+  <div class="question-header">
+    <span class="question-num">Question 2</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">Explain these four calling patterns and what <span class="inline-code">this</span> becomes:</div>
+  <pre><code>greet();                  // Pattern 1
+obj.greet();              // Pattern 2
+greet.call(otherObj);     // Pattern 3
+new greet();              // Pattern 4</code></pre>
+  <textarea class="answer-area" data-field="e3q2" placeholder="Pattern 1 — this = ...&#10;Pattern 2 — this = ...&#10;Pattern 3 — this = ...&#10;Pattern 4 — this = ..."></textarea>
+</div>
+
+<div class="section-header">Section B: Redux in Depth</div>
+
+<div class="question" data-q="e3q3">
+  <div class="question-header">
+    <span class="question-num">Question 3</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    Entire state is held in a single <strong>1.</strong> _____.
+    Changes are triggered by dispatching <strong>2.</strong> _____.
+    The <strong>3.</strong> _____ is a pure function: (state, action) => newState.
+    RTK bundles reducer logic into a <strong>4.</strong> _____.
+    Read state with <strong>5.</strong> _____ hook.
+    Dispatch actions with <strong>6.</strong> _____ hook.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e3q3_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e3q3_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e3q3_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e3q3_4" placeholder="..."></label>
+    <label>5. <input type="text" data-field="e3q3_5" placeholder="..."></label>
+    <label>6. <input type="text" data-field="e3q3_6" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e3q4">
+  <div class="question-header">
+    <span class="question-num">Question 4</span>
+    <span class="question-pts">4 points — Code Analysis</span>
+  </div>
+  <div class="question-text">
+    <strong>a)</strong> A student says the reducers below are impure because they mutate state directly. Is this correct? Explain. (2 pts)<br>
+    <strong>b)</strong> State is <span class="inline-code">{ value: 5, history: [0, 1, 3] }</span>. After <span class="inline-code">incrementByAmount(10)</span>, what is the new state? (2 pts)
+  </div>
+  <pre><code>const counterSlice = createSlice({
+    name: 'counter',
+    initialState: { value: 0, history: [] },
+    reducers: {
+        increment(state) {
+            state.history.push(state.value);
+            state.value += 1;
+        },
+        incrementByAmount(state, action) {
+            state.history.push(state.value);
+            state.value += action.payload;
+        },
+    },
+});</code></pre>
+  <textarea class="answer-area" data-field="e3q4" placeholder="a) Is the student correct? ...&#10;&#10;b) New state: { value: ..., history: [...] }"></textarea>
+</div>
+
+<div class="question" data-q="e3q5">
+  <div class="question-header">
+    <span class="question-num">Question 5</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">Explain the complete Redux data flow using a user adding a product to a shopping cart. Cover: component, action, dispatch, reducer, store, and UI update.</div>
+  <textarea class="answer-area" data-field="e3q5" placeholder="1. User clicks 'Add to Cart'...&#10;2. ...&#10;3. ..."></textarea>
+</div>
+
+<div class="section-header">Section C: Socket.io</div>
+
+<div class="question" data-q="e3q6">
+  <div class="question-header">
+    <span class="question-num">Question 6</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    Socket.io enables <strong>1.</strong> _____, bidirectional communication.
+    Send to ALL clients: <strong>2.</strong> _____.
+    Send to all EXCEPT sender: <strong>3.</strong> _____.
+    Listen for events: <strong>4.</strong> _____ method.
+    Functions that run before connection: <strong>5.</strong> _____.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e3q6_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e3q6_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e3q6_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e3q6_4" placeholder="..."></label>
+    <label>5. <input type="text" data-field="e3q6_5" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e3q7">
+  <div class="question-header">
+    <span class="question-num">Question 7</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">Explain the difference between these three and give a chat-app example for each:</div>
+  <pre><code>io.emit('message', data);
+socket.emit('message', data);
+socket.broadcast.emit('message', data);</code></pre>
+  <textarea class="answer-area" data-field="e3q7" placeholder="io.emit: ...&#10;socket.emit: ...&#10;socket.broadcast.emit: ..."></textarea>
+</div>
+
+<div class="section-header">Section D: Web APIs</div>
+
+<div class="question" data-q="e3q8">
+  <div class="question-header">
+    <span class="question-num">Question 8</span>
+    <span class="question-pts">Fill in the blanks</span>
+  </div>
+  <div class="question-text">
+    Define custom elements with <strong>1.</strong> _____.
+    <strong>2.</strong> _____ provides encapsulated DOM/CSS.
+    Lifecycle callback when added to DOM: <strong>3.</strong> _____.
+    Custom tag names must contain a <strong>4.</strong> _____.
+  </div>
+  <div class="fill-blank">
+    <label>1. <input type="text" data-field="e3q8_1" placeholder="..."></label>
+    <label>2. <input type="text" data-field="e3q8_2" placeholder="..."></label>
+    <label>3. <input type="text" data-field="e3q8_3" placeholder="..."></label>
+    <label>4. <input type="text" data-field="e3q8_4" placeholder="..."></label>
+  </div>
+</div>
+
+<div class="question" data-q="e3q9">
+  <div class="question-header">
+    <span class="question-num">Question 9</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which are true about Web Workers?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e3q9_a"> Can access the DOM directly</label>
+    <label class="option"><input type="checkbox" data-field="e3q9_b"> Communicate via <span class="inline-code">postMessage()</span></label>
+    <label class="option"><input type="checkbox" data-field="e3q9_c"> Run on a separate thread</label>
+    <label class="option"><input type="checkbox" data-field="e3q9_d"> Share memory with the main thread by default</label>
+    <label class="option"><input type="checkbox" data-field="e3q9_e"> Useful for CPU-intensive calculations</label>
+    <label class="option"><input type="checkbox" data-field="e3q9_f"> Can use <span class="inline-code">fetch()</span></label>
+  </div>
+</div>
+
+<div class="question" data-q="e3q10">
+  <div class="question-header">
+    <span class="question-num">Question 10</span>
+    <span class="question-pts">Select all that apply</span>
+  </div>
+  <div class="question-text">Which are true about Web Storage?</div>
+  <div class="options">
+    <label class="option"><input type="checkbox" data-field="e3q10_a"> localStorage persists after browser close</label>
+    <label class="option"><input type="checkbox" data-field="e3q10_b"> sessionStorage persists after browser close</label>
+    <label class="option"><input type="checkbox" data-field="e3q10_c"> Both use setItem/getItem/removeItem</label>
+    <label class="option"><input type="checkbox" data-field="e3q10_d"> localStorage can store JS objects directly</label>
+    <label class="option"><input type="checkbox" data-field="e3q10_e"> Limited to same origin</label>
+    <label class="option"><input type="checkbox" data-field="e3q10_f"> ~5MB storage limit</label>
+  </div>
+</div>
+
+<div class="question" data-q="e3q11">
+  <div class="question-header">
+    <span class="question-num">Question 11</span>
+    <span class="question-pts">4 points</span>
+  </div>
+  <div class="question-text">Explain the HTML5 Drag and Drop API. What attributes and events are needed? Describe the minimum setup.</div>
+  <textarea class="answer-area" data-field="e3q11" placeholder="Drag and Drop setup:&#10;1. ...&#10;2. ..."></textarea>
+</div>
+
+<div class="section-header">Section E: Mixed Review</div>
+
+<div class="question" data-q="e3q12">
+  <div class="question-header">
+    <span class="question-num">Question 12</span>
+    <span class="question-pts">4 points — Code Output</span>
+  </div>
+  <div class="question-text">What is the output order? Explain.</div>
+  <pre><code>console.log('A');
+setTimeout(() => console.log('B'), 0);
+Promise.resolve()
+    .then(() => console.log('C'))
+    .then(() => console.log('D'));
+queueMicrotask(() => console.log('E'));
+console.log('F');</code></pre>
+  <textarea class="answer-area" data-field="e3q12" placeholder="Output order: ...&#10;Explanation: ..."></textarea>
+</div>
+
+<div class="question" data-q="e3q13">
+  <div class="question-header">
+    <span class="question-num">Question 13</span>
+    <span class="question-pts">6 points</span>
+  </div>
+  <div class="question-text">For each scenario, recommend the best technology and explain why:<br><br>
+    <strong>a)</strong> Real-time stock prices updating every second to all users (2 pts)<br>
+    <strong>b)</strong> Multi-step registration form with complex validation (2 pts)<br>
+    <strong>c)</strong> Dashboard with database data + interactive filter dropdown (2 pts)
+  </div>
+  <textarea class="answer-area" data-field="e3q13" placeholder="a) Stock prices: ...&#10;&#10;b) Multi-step form: ...&#10;&#10;c) Dashboard: ..."></textarea>
+</div>
+
+</div>
+
+<!-- ==================== GLOSSARY ==================== -->
+<div class="exam-panel" id="panel-glossary">
+
+<div class="section-header">Key Defaults to Remember (MEMORIZE THESE)</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Property</th><th>Default Value</th></tr>
+<tr><td>flex-direction</td><td>row</td></tr>
+<tr><td>flex-wrap</td><td>nowrap</td></tr>
+<tr><td>justify-content</td><td>flex-start</td></tr>
+<tr><td>align-items</td><td>stretch</td></tr>
+<tr><td>align-content</td><td>stretch</td></tr>
+<tr><td>flex-grow</td><td>0</td></tr>
+<tr><td>flex-shrink</td><td>1</td></tr>
+<tr><td>order</td><td>0</td></tr>
+<tr><td>useEffect with []</td><td>runs once on mount</td></tr>
+<tr><td>useEffect with no array</td><td>runs every render</td></tr>
+<tr><td>react-hook-form mode</td><td>"onSubmit"</td></tr>
+<tr><td>Next.js components</td><td>Server Components (by default)</td></tr>
+</table>
+</div>
+
+<div class="section-header">Flexbox (from slides)</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition (from slides)</th></tr>
+<tr><td>Flexbox</td><td>Makes the once-difficult task of laying out your page, widget, application, or gallery almost simple. Provides functionality for equal height columns which is easy to implement</td></tr>
+<tr><td>display: flex</td><td>In order to create a flex container you must apply the display CSS property with the value flex. Every nested elements are a part of that flow</td></tr>
+<tr><td>flex container</td><td>When an element is a flex container it will only flex its <strong>immediate children</strong>, and not further descendants. These descendants can be made as flex containers as well</td></tr>
+<tr><td>Axis system</td><td>Flexbox works on an axis grid system. Flex items are laid along the <strong>main-axis</strong>. Flex lines are added in the direction of the <strong>cross-axis</strong></td></tr>
+<tr><td>flex-direction</td><td>Values: <code>row</code> (default), <code>row-reverse</code>, <code>column</code>, <code>column-reverse</code></td></tr>
+<tr><td>flex-wrap</td><td>If flex-items do not fit within the flex container we need to control that. By default flex containers don't wrap. Values: <code>nowrap</code> (default), <code>wrap</code>, <code>wrap-reverse</code>. Height of line is determined by tallest/widest element</td></tr>
+<tr><td>flex-flow</td><td>flex-flow combines both flex-direction and flex-wrap in a shorthand syntax</td></tr>
+<tr><td>justify-content</td><td>It gives us control on how flex items in a flex line are distributed along the <strong>main-axis</strong>. Values: <code>flex-start</code> (default), <code>center</code>, <code>space-around</code>, <code>space-between</code>, <code>flex-end</code></td></tr>
+<tr><td>align-items</td><td>The align-items CSS property defines how flex items are aligned along it's flex line's <strong>cross-axis</strong>. Values: <code>flex-start</code>, <code>center</code>, <code>baseline</code>, <code>stretch</code> (default), <code>flex-end</code></td></tr>
+<tr><td>align-content</td><td>align-content aligns a flex container's <strong>lines</strong> within a flex container that has extra space in the cross-axis direction. Only works with wrap. Values: <code>stretch</code> (default), <code>flex-start</code>, <code>center</code>, <code>space-around</code>, <code>space-between</code>, <code>flex-end</code></td></tr>
+<tr><td>flex-grow</td><td>Defines whether a flex item is allowed to grow when there is available space. Determines how much proportionally relative to siblings. Accepts non-negative numbers. Default: <code>0</code></td></tr>
+<tr><td>Growth factor</td><td>750px container, 3 items at 100px, grow values 1+1+3=5 total. Remaining 450px / 5 = 90px/unit. Item 1&2: 100+90=190px. Item 3: 100+270=370px</td></tr>
+<tr><td>flex-shrink</td><td>Determines how much a flex item will shrink relative to siblings when there isn't enough space. Defines how negative space is distributed. Default: <code>1</code></td></tr>
+<tr><td>flex-basis</td><td>Defines the initial or default size of flex items, before extra or negative space is distributed. Accepts same values as width. When both flex-basis and width are set, basis trumps width. Default: <code>auto</code></td></tr>
+<tr><td>flex (shorthand)</td><td>Shorthand for flex-grow, flex-shrink and flex-basis. Example: <code>flex: 1 0 100%</code></td></tr>
+<tr><td>align-self</td><td>Used to override the align-items property on a per-flex-item basis. Default: <code>auto</code></td></tr>
+<tr><td>order</td><td>Provides more granular control of visual ordering. Accepts integer. Default: <code>0</code>. Ignored on non flex items</td></tr>
+<tr><td>No effect on flex items</td><td><code>float</code>, <code>clear</code>, and <code>vertical-align</code> don't have an effect on flex items. <code>absolute</code> positioning takes them out of the flow</td></tr>
+</table>
+</div>
+
+<div class="section-header">this Binding Rules</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Context</th><th>this =</th></tr>
+<tr><td>func()</td><td>window (global)</td></tr>
+<tr><td>new Func()</td><td>new instance</td></tr>
+<tr><td>obj.method()</td><td>obj (before the dot)</td></tr>
+<tr><td>.bind(x)</td><td>x (permanent)</td></tr>
+<tr><td>.call(x) / .apply(x)</td><td>x (immediate)</td></tr>
+<tr><td>setTimeout(fn)</td><td>window (context lost)</td></tr>
+<tr><td>Arrow function</td><td>inherits from enclosing scope</td></tr>
+</table>
+</div>
+
+<div class="section-header">Promises</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Method</th><th>Behavior</th></tr>
+<tr><td>Promise.all()</td><td>Resolves when ALL resolve. Rejects if ANY rejects</td></tr>
+<tr><td>Promise.race()</td><td>First to settle (resolve OR reject) wins</td></tr>
+<tr><td>Promise.any()</td><td>First to RESOLVE wins. Rejects only if ALL reject</td></tr>
+<tr><td>Promise.allSettled()</td><td>Waits for ALL to settle. Never short-circuits</td></tr>
+</table>
+</div>
+
+<div class="section-header">React Hooks</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Hook</th><th>Purpose</th></tr>
+<tr><td>useState</td><td>State variable. Setter triggers re-render</td></tr>
+<tr><td>useEffect(fn, [])</td><td>Side effects. [] = mount only, [x] = on x change, none = every render</td></tr>
+<tr><td>useRef</td><td>Mutable ref, persists across renders, NO re-render on change</td></tr>
+<tr><td>useCallback</td><td>Memoizes function reference</td></tr>
+<tr><td>useMemo</td><td>Memoizes computed value</td></tr>
+<tr><td>useReducer</td><td>Complex state: (state, action) => newState</td></tr>
+<tr><td>useContext</td><td>Read Context value</td></tr>
+</table>
+</div>
+
+<div class="section-header">State Management Comparison</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Feature</th><th>Context API</th><th>Redux Toolkit</th><th>Zustand</th></tr>
+<tr><td>Boilerplate</td><td>Low</td><td>Medium</td><td>Very low</td></tr>
+<tr><td>High-freq updates</td><td>Poor</td><td>Good</td><td>Good</td></tr>
+<tr><td>Devtools</td><td>None</td><td>Excellent</td><td>Basic</td></tr>
+<tr><td>Outside React</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Needs Provider</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>Persistence</td><td>Manual</td><td>Manual</td><td>Built-in</td></tr>
+</table>
+</div>
+
+<div class="section-header">Next.js: Server Action vs API Route</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Use Case</th><th>Best Choice</th></tr>
+<tr><td>Form submission from React</td><td>Server Action</td></tr>
+<tr><td>Button click mutation</td><td>Server Action</td></tr>
+<tr><td>Webhook from Stripe</td><td>API Route</td></tr>
+<tr><td>Mobile app endpoint</td><td>API Route</td></tr>
+<tr><td>Public REST API</td><td>API Route</td></tr>
+<tr><td>Revalidating data</td><td>Server Action</td></tr>
+</table>
+</div>
+
+<div class="section-header">react-hook-form</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Purpose</th></tr>
+<tr><td>useForm()</td><td>Initialize form</td></tr>
+<tr><td>register("name")</td><td>Connect input to form</td></tr>
+<tr><td>handleSubmit(fn)</td><td>Wrap submit handler, validates first</td></tr>
+<tr><td>errors.fieldName</td><td>Access validation errors</td></tr>
+<tr><td>mode: "onChange"</td><td>Validate as user types</td></tr>
+<tr><td>resolver</td><td>Integrate Zod/Yup</td></tr>
+<tr><td>Valid rules</td><td>required, minLength, maxLength, pattern, validate, min, max</td></tr>
+<tr><td>NOT valid rules</td><td>type, sanitize, format (none of these exist in register())</td></tr>
+</table>
+</div>
+
+<div class="section-header">Socket.io Emit Methods</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Method</th><th>Who Receives</th></tr>
+<tr><td>io.emit()</td><td>ALL connected clients</td></tr>
+<tr><td>socket.emit()</td><td><strong>Server</strong>: back to the <strong>sender</strong>. <strong>Client</strong>: to the server</td></tr>
+<tr><td>socket.broadcast.emit()</td><td>ALL EXCEPT sender</td></tr>
+<tr><td>io.to(room).emit()</td><td>All clients in that room</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Gradients</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>linear-gradient()</td><td>Applied to <strong>background-image</strong> property. Creates a gradient along a line. Default direction: top to bottom</td></tr>
+<tr><td>Gradient direction</td><td>First argument: direction keyword (<code>to right</code>, <code>to right bottom</code>) or angle (<code>90deg</code>, <code>180deg</code>). 0deg = bottom to top, 90deg = left to right, 180deg = top to bottom</td></tr>
+<tr><td>Multiple colors</td><td>Can accept many color stops. If no angle given, defaults to <strong>top to bottom</strong></td></tr>
+<tr><td>Stacking gradients</td><td>Multiple gradients comma-separated on same background-image. First listed is on top. Use rgba with alpha for transparency layers</td></tr>
+<tr><td>radial-gradient()</td><td>Radiates outward from a central point. Default: inner to outer (center outward)</td></tr>
+<tr><td>Radial shape</td><td>Can be <strong>circle</strong> or <strong>ellipse</strong>. Syntax: <code>radial-gradient(circle, ...)</code></td></tr>
+<tr><td>Radial position</td><td><code>radial-gradient(circle at 75% 75%, ...)</code> — sets the center point</td></tr>
+<tr><td>repeating-linear-gradient</td><td>Repeats the gradient pattern. Uses color stops with px values: <code>repeating-linear-gradient(-45deg, black 5px, black 10px, yellow 15px, yellow 20px)</code></td></tr>
+<tr><td>repeating-radial-gradient</td><td>Same concept but for radial gradients</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Shadows</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>box-shadow</td><td>Creates drop shadows on elements. Can also replicate elements using shadows</td></tr>
+<tr><td>Syntax</td><td><code>box-shadow: offset-x offset-y blur-radius spread-radius color</code></td></tr>
+<tr><td>offset-x</td><td>Horizontal shadow offset. Positive = right, negative = left</td></tr>
+<tr><td>offset-y</td><td>Vertical shadow offset. Positive = down, negative = up</td></tr>
+<tr><td>blur-radius</td><td>How blurry the shadow is. 0 = sharp edge. Higher = more blur</td></tr>
+<tr><td>spread-radius</td><td>How much the shadow expands beyond the element</td></tr>
+<tr><td>inset</td><td>Keyword that makes the shadow appear <strong>inside</strong> the element: <code>box-shadow: inset 5px 5px 10px 10px color</code></td></tr>
+<tr><td>Multiple shadows</td><td>Comma-separated values. Can create element "copies" with zero blur: <code>box-shadow: 20px 0, 40px 0, 60px 0</code></td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Transitions vs Animations</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>Transitions</td><td>Only take effect when the property they are applied to <strong>changes</strong> (e.g., on :hover). Smooth change from state A to state B</td></tr>
+<tr><td>Animations</td><td>Can be <strong>executed independently</strong> — they change the state of properties themselves. Can have multiple keyframes, loop, etc.</td></tr>
+<tr><td>transition shorthand</td><td><code>transition: property duration timing-function delay</code></td></tr>
+<tr><td>transition-property</td><td>Which CSS property to animate (e.g., <code>background-color</code>, <code>width</code>, <code>all</code>)</td></tr>
+<tr><td>transition-duration</td><td>How long the transition takes (e.g., <code>1s</code>, <code>200ms</code>)</td></tr>
+<tr><td>transition-timing-function</td><td>Speed curve: <code>ease</code>, <code>ease-in</code>, <code>ease-out</code>, <code>ease-in-out</code>, <code>linear</code></td></tr>
+<tr><td>transition-delay</td><td>Wait time before transition starts (e.g., <code>0s</code>)</td></tr>
+<tr><td>Multiple transitions</td><td>Comma-separated: <code>transition: background-color 1s, width 2s, height 3s</code></td></tr>
+<tr><td>@keyframes</td><td>Define animation steps: <code>@keyframes name { from { } to { } }</code> or using percentages: <code>0% { } 50% { } 100% { }</code></td></tr>
+<tr><td>animation shorthand</td><td><code>animation: name duration timing-function delay iteration-count direction</code></td></tr>
+<tr><td>animation-iteration-count</td><td><code>infinite</code> or a number. How many times the animation plays</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Transforms</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>transform</td><td>CSS property to apply 2D or 3D transformations to elements</td></tr>
+<tr><td>rotate()</td><td><code>rotate(45deg)</code> — rotates around Z-axis. Same as <code>rotateZ(45deg)</code></td></tr>
+<tr><td>rotateX() / rotateY()</td><td>Rotates around X-axis (tilts forward/back) or Y-axis (tilts left/right). 3D effect requires perspective</td></tr>
+<tr><td>rotate3d()</td><td><code>rotate3d(x, y, z, angle)</code> — rotate around a custom axis vector</td></tr>
+<tr><td>scale()</td><td><code>scale(2)</code> — doubles size. <code>scaleX(2)</code> / <code>scaleY(2)</code> / <code>scaleZ(2)</code> / <code>scale3d(1.5, 2, 2)</code></td></tr>
+<tr><td>skew()</td><td><code>skew(30deg, 30deg)</code> — slants element. <code>skewX()</code> / <code>skewY()</code></td></tr>
+<tr><td>translate()</td><td><code>translate(10px)</code> = translateX(10px). <code>translate(10px, 10px)</code> = both X and Y. Does NOT affect surrounding elements</td></tr>
+<tr><td>translateZ()</td><td>Moves element toward/away from viewer (needs perspective). <code>translate3d(x, y, z)</code></td></tr>
+<tr><td>transform-origin</td><td>Sets the point around which transforms occur. Default: <code>50% 50%</code> (center). Example: <code>transform-origin: 50px 70px</code></td></tr>
+<tr><td>Multiple transforms</td><td><strong>Space-separated</strong> (not comma!): <code>transform: rotate(180deg) translateY(20px)</code>. <strong>Order matters!</strong> rotate(180deg) then translateY(20px) moves UP because Y-axis is flipped</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Perspective</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>perspective (property)</td><td>CSS property on the <strong>parent/container</strong>. Creates a shared 3D space for all children. Applies to all child elements. Example: <code>.wrapper { perspective: 1000px; }</code></td></tr>
+<tr><td>perspective (transform value)</td><td>Used inside <code>transform</code> on the <strong>element itself</strong>. Only applies to that element. Example: <code>transform: perspective(500px) rotateX(50deg)</code></td></tr>
+<tr><td>Key difference</td><td>Property = shared vanishing point for all children (realistic cards fanning out). Transform value = each element has its own vanishing point (all look identical)</td></tr>
+<tr><td>perspective-origin</td><td>Sets the viewpoint position. Default: <code>50% 50%</code>. Takes x-position (left/right/center/%) and y-position (top/bottom/center/%)</td></tr>
+<tr><td>Depth value</td><td>Lower value = more dramatic 3D effect. Higher value = subtler. Defaults to 0</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Rounded Corners (border-radius)</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>border-radius</td><td>Creates rounded corners. Accepts px, em, %</td></tr>
+<tr><td>4 values</td><td><code>border-radius: TL TR BR BL</code> (top-left, top-right, bottom-right, bottom-left)</td></tr>
+<tr><td>Circle</td><td><code>border-radius: 50%</code> on a square element makes a circle</td></tr>
+<tr><td>Elliptical corners</td><td><code>border-radius: 20px / 100%</code> — first set = horizontal radius, after <code>/</code> = vertical radius</td></tr>
+<tr><td>Leaf shape</td><td><code>border-radius: 50% 0 50% 0</code> — rounds only top-left and bottom-right</td></tr>
+<tr><td>How it works</td><td>The radius defines a circle at each corner. The corner is rounded by the arc of that circle. E.g., 100px = a quarter circle with 100px radius</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Box Sizing</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>box-sizing</td><td>Defines how the browser calculates the total width and height of an element</td></tr>
+<tr><td>content-box (default)</td><td><strong>Default behavior</strong>. Width/height apply only to content. Padding and border are added on <strong>both sides</strong>. Example: width 100px + padding 10px&times;2 sides + border 10px&times;2 sides = <strong>140px total</strong> (from slides DevTools)</td></tr>
+<tr><td>border-box</td><td>Padding and border are <strong>included inside</strong> the width/height. Element is always exactly the stated width/height. Content area shrinks to fit. Example: width 100px with padding 10px + border 10px = <strong>100px total</strong> (content shrinks)</td></tr>
+<tr><td>Box Model</td><td>Uses width, height, padding, margin, and border to determine element size</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Background Sizing</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>background-image</td><td>Can be an image URL (<code>url('...')</code>) or a gradient (linear-gradient/radial-gradient). <strong>More control</strong> than &lt;img&gt; tag</td></tr>
+<tr><td>background-size: cover</td><td>Image fills the entire container. May <strong>crop</strong> parts that overflow. Aspect ratio maintained</td></tr>
+<tr><td>background-size: contain</td><td>Image fits entirely inside container. May leave <strong>empty space</strong>. Aspect ratio maintained</td></tr>
+<tr><td>background-size: 200px 200px</td><td>Explicit size. First value = width, second = height</td></tr>
+<tr><td>background-position</td><td>Where the image is placed within the element. Example: <code>50% 50%</code> (centered), <code>0 0</code> (top-left), <code>200px bottom</code></td></tr>
+<tr><td>background-repeat</td><td><code>repeat</code> (default — tiles both axes), <code>no-repeat</code>, <code>repeat-x</code>, <code>repeat-y</code></td></tr>
+<tr><td>Multiple backgrounds</td><td>Comma-separated URLs. First image is on <strong>top</strong>, last is on <strong>bottom</strong>. Each can have its own size/position/repeat</td></tr>
+<tr><td>Comma-separated sizing</td><td><code>background-size: 100px, cover</code> — first size for first image, second for second image</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Selectors</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Selector</th><th>Meaning</th></tr>
+<tr><td colspan="2" style="color:var(--accent);font-weight:700">Attribute Selectors</td></tr>
+<tr><td>a[href]</td><td><strong>Has</strong> — selects all &lt;a&gt; elements that have an href attribute (any value)</td></tr>
+<tr><td>a[href="value"]</td><td><strong>Exactly</strong> — attribute equals exactly "value"</td></tr>
+<tr><td>a[title~="title"]</td><td><strong>Within</strong> — attribute contains "title" as a space-separated word</td></tr>
+<tr><td>a[href^="http"]</td><td><strong>Begins with</strong> — attribute starts with "http"</td></tr>
+<tr><td>a[href$="pdf"]</td><td><strong>Ends with</strong> — attribute ends with "pdf"</td></tr>
+<tr><td>a[href*="facebook"]</td><td><strong>Substring/wildcard</strong> — attribute contains "facebook" anywhere</td></tr>
+<tr><td colspan="2" style="color:var(--accent);font-weight:700">Structural Pseudo-classes</td></tr>
+<tr><td>:nth-child(2n+1)</td><td>Selects odd children (same as <code>:nth-child(odd)</code>). Counts ALL children regardless of type</td></tr>
+<tr><td>:nth-child(even)</td><td>Selects even children</td></tr>
+<tr><td>:nth-child(3)</td><td>Selects the 3rd child specifically</td></tr>
+<tr><td>:nth-of-type()</td><td>Like nth-child but only counts elements of the <strong>same type</strong> (e.g., only &lt;p&gt; elements)</td></tr>
+<tr><td>:first-child</td><td>First child of its parent. <code>p:first-child</code> will NOT match if first child is a &lt;div&gt; — "droppar bvi first-child er her div" (from slides)</td></tr>
+<tr><td>:last-child</td><td>Last child of its parent</td></tr>
+<tr><td>:first-of-type</td><td>First element of its type among siblings. WILL find the first &lt;p&gt; even if a &lt;div&gt; comes before it — "skodar utfra sertinni a akvedi typu" (from slides)</td></tr>
+<tr><td>:last-of-type</td><td>Last element of its type among siblings</td></tr>
+<tr><td>:empty</td><td>Elements with no children</td></tr>
+<tr><td>Practical use</td><td><code>table > tbody > tr:nth-child(even)</code> — zebra-striped table rows (from slides)</td></tr>
+<tr><td colspan="2" style="color:var(--accent);font-weight:700">Negation</td></tr>
+<tr><td>:not(selector)</td><td>It is a functional notation taking a simple selector as an argument. It represents an element that is not represented by its argument. Can be useful to exclude styles on specific DOM elements (from slides)</td></tr>
+<tr><td colspan="2" style="color:var(--accent);font-weight:700">Pseudo-elements (from slides)</td></tr>
+<tr><td>Pseudo-elements</td><td>Pseudo-elements provide authors a way to refer to content that does not exist in the source document. There are four: ::first-line, ::first-letter, ::before, ::after</td></tr>
+<tr><td>::before</td><td>Inserts generated content BEFORE element. <code>content</code> property is <strong>mandatory</strong> — "baeta vid contenti sem er ekki til" (from slides)</td></tr>
+<tr><td>::after</td><td>Inserts generated content AFTER element. <code>content</code> property is <strong>mandatory</strong></td></tr>
+<tr><td>::first-line</td><td>Styles the first line. Example: <code>p::first-line { font-variant: small-caps; }</code> (from slides)</td></tr>
+<tr><td>::first-letter</td><td>Styles the first letter (drop caps). Example: <code>p::first-letter { font-size: 6em; font-weight: bold; }</code> (from slides)</td></tr>
+<tr><td>attr() function</td><td>Used in content: <code>content: " (" attr(href) ") "</code> — inserts attribute value as text (from slides)</td></tr>
+<tr><td>A single div</td><td>Using ::after and ::before to the max to create masterpieces with only a single &lt;div&gt; (from slides)</td></tr>
+</table>
+</div>
+
+<div class="section-header">CSS3: Media Queries</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>@media</td><td>Apply styles conditionally based on device/viewport characteristics</td></tr>
+<tr><td>Breakpoints</td><td>The viewport widths where layout changes. Common: 768px (tablet), 1024px (desktop)</td></tr>
+<tr><td>Syntax</td><td><code>@media (max-width: 768px) { ... }</code> — styles apply when viewport is 768px or narrower</td></tr>
+<tr><td>repeat()</td><td>Repeats a pattern of grid tracks. First arg = how many, second arg = size. Can be used within declarations: <code>40px repeat(1, 1fr) 40px</code>. Can repeat patterns: <code>repeat(1, 0.5fr 1fr 1fr)</code>. Works on both rows and columns (from slides). Note: auto-fit/auto-fill are NOT in these slides.</td></tr>
+</table>
+</div>
+
+<div class="section-header">Grid (Extended Details from Slides)</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>grid-template-areas</td><td>Define named regions: <code>"header header" "sidebar main" "footer footer"</code>. Use <code>.</code> for empty cells (null cell token)</td></tr>
+<tr><td>grid-area</td><td>Place an item by name: <code>grid-area: header</code>. Or shorthand: <code>grid-area: row-start / col-start / row-end / col-end</code></td></tr>
+<tr><td>grid-column / grid-row</td><td>Place items: <code>grid-column: 1 / 3</code> (spans columns 1-2). <code>grid-row: 1 / span 2</code> (spans 2 rows)</td></tr>
+<tr><td>span keyword</td><td>Shorthand: <code>grid-column: span 2</code> — item spans 2 columns from its auto-placed position</td></tr>
+<tr><td>min-content / max-content</td><td>Intrinsic sizing: <code>min-content</code> = smallest size without overflow. <code>max-content</code> = natural full-width size</td></tr>
+<tr><td>grid-auto-flow</td><td><code>row</code> (default), <code>column</code>, <code>dense</code> (can combine: <code>row dense</code>). Dense fills holes in the grid</td></tr>
+<tr><td>Named grid lines</td><td>Name lines in template: <code>grid-template-columns: [start] 1fr [mid] 1fr [end]</code></td></tr>
+</table>
+</div>
+
+<div class="section-header">Flexbox Item Properties (Extended)</div>
+<div class="glossary-section">
+<table class="glossary-table">
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>flex shorthand</td><td><code>flex: grow shrink basis</code>. Example: <code>flex: 1 0 200px</code> = grow:1, shrink:0, basis:200px</td></tr>
+<tr><td>flex: 1</td><td>Shorthand for <code>flex: 1 1 0%</code> — item grows and shrinks equally</td></tr>
+<tr><td>Shrink factor calculation</td><td>When items overflow: total shrink = sum of (basis * shrink-factor). Each item shrinks proportionally to its basis * factor</td></tr>
+<tr><td>Growth factor calculation</td><td>Remaining space / total grow values = 1 unit. Each item gets: basis + (unit * its grow value)</td></tr>
+<tr><td>float, clear, vertical-align</td><td>These properties have <strong>NO effect</strong> on flex items</td></tr>
+</table>
+</div>
+
+</div>
+
+</div><!-- /container -->
+
+<div class="save-status" id="saveStatus">Answers saved!</div>
+<div class="img-overlay" id="imgOverlay" onclick="document.querySelectorAll('.grade-slides img.enlarged').forEach(i=>i.classList.remove('enlarged'));this.style.display='none';"></div>
+
+<script>
+// ─── Tab switching ───
+function showTab(tabId) {
+  document.querySelectorAll('.exam-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + tabId).classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  const tabMap = ['exam1', 'exam2', 'exam3', 'glossary'];
+  tabs[tabMap.indexOf(tabId)].classList.add('active');
+}
+
+// ─── Collect all answers ───
+function collectAnswers() {
+  const answers = { timestamp: new Date().toISOString(), answers: {} };
+
+  // Text inputs
+  document.querySelectorAll('input[data-field]').forEach(input => {
+    if (input.type === 'checkbox') {
+      answers.answers[input.dataset.field] = input.checked;
+    } else {
+      if (input.value.trim()) answers.answers[input.dataset.field] = input.value.trim();
+    }
+  });
+
+  // Radio buttons
+  document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+    answers.answers[radio.name] = radio.value;
+  });
+
+  // Textareas
+  document.querySelectorAll('textarea[data-field]').forEach(ta => {
+    if (ta.value.trim()) answers.answers[ta.dataset.field] = ta.value.trim();
+  });
+
+  return answers;
+}
+
+// ─── Save to file ───
+function saveAnswers() {
+  const data = collectAnswers();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'exam-answers-' + new Date().toISOString().slice(0, 16).replace(':', '-') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Also save to localStorage
+  localStorage.setItem('examAnswers', JSON.stringify(data));
+  showSaveStatus('Answers saved!');
+}
+
+// ─── Load from file ───
+function loadAnswers() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        applyAnswers(data.answers || data);
+        showSaveStatus('Answers loaded!');
+      } catch (err) {
+        alert('Invalid file format');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function applyAnswers(answers) {
+  for (const [key, value] of Object.entries(answers)) {
+    // Checkbox
+    const cb = document.querySelector(`input[data-field="${key}"][type="checkbox"]`);
+    if (cb) { cb.checked = value; continue; }
+
+    // Text input
+    const input = document.querySelector(`input[data-field="${key}"]`);
+    if (input) { input.value = value; continue; }
+
+    // Radio
+    const radio = document.querySelector(`input[name="${key}"][value="${value}"]`);
+    if (radio) { radio.checked = true; continue; }
+
+    // Textarea
+    const ta = document.querySelector(`textarea[data-field="${key}"]`);
+    if (ta) { ta.value = value; continue; }
+  }
+  updateProgress();
+  markAnswered();
+}
+
+function clearAll() {
+  if (!confirm('Clear all answers?')) return;
+  document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
+  document.querySelectorAll('.question').forEach(q => q.classList.remove('answered'));
+  localStorage.removeItem('examAnswers');
+  updateProgress();
+}
+
+// ─── Progress tracking ───
+function updateProgress() {
+  const questions = document.querySelectorAll('.question');
+  let total = 0, answered = 0;
+  const counts = { exam1: { total: 0, done: 0 }, exam2: { total: 0, done: 0 }, exam3: { total: 0, done: 0 } };
+
+  questions.forEach(q => {
+    const panel = q.closest('.exam-panel');
+    if (!panel) return;
+    const examId = panel.id.replace('panel-', '');
+    if (!counts[examId]) return;
+
+    total++;
+    counts[examId].total++;
+
+    const hasAnswer = checkQuestionAnswered(q);
+    if (hasAnswer) {
+      answered++;
+      counts[examId].done++;
+    }
+  });
+
+  document.getElementById('progressInfo').textContent = `${answered} / ${total} answered`;
+
+  for (const [exam, c] of Object.entries(counts)) {
+    const badge = document.getElementById('badge-' + exam);
+    if (badge) {
+      badge.textContent = `${c.done}/${c.total}`;
+      badge.className = c.done === c.total && c.total > 0 ? 'badge done' : 'badge';
+    }
+  }
+}
+
+function checkQuestionAnswered(q) {
+  const texts = q.querySelectorAll('input[type="text"][data-field]');
+  const radios = q.querySelectorAll('input[type="radio"]');
+  const checks = q.querySelectorAll('input[type="checkbox"]');
+  const areas = q.querySelectorAll('textarea[data-field]');
+
+  if (texts.length > 0) return Array.from(texts).some(t => t.value.trim());
+  if (radios.length > 0) return Array.from(radios).some(r => r.checked);
+  if (areas.length > 0) return Array.from(areas).some(a => a.value.trim());
+  if (checks.length > 0) return Array.from(checks).some(c => c.checked);
+  return false;
+}
+
+function markAnswered() {
+  document.querySelectorAll('.question').forEach(q => {
+    if (checkQuestionAnswered(q)) {
+      q.classList.add('answered');
+    } else {
+      q.classList.remove('answered');
+    }
+  });
+}
+
+function showSaveStatus(msg) {
+  const el = document.getElementById('saveStatus');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ─── Auto-save to localStorage + track progress ───
+document.addEventListener('input', () => {
+  updateProgress();
+  markAnswered();
+  localStorage.setItem('examAnswers', JSON.stringify(collectAnswers()));
+});
+document.addEventListener('change', () => {
+  updateProgress();
+  markAnswered();
+  localStorage.setItem('examAnswers', JSON.stringify(collectAnswers()));
+});
+
+// ─── ANSWER KEY ───
+const ANSWER_KEY = {
+  e1q1: { type:'fill', slides:['slide-10-010.png'], fields: {
+    e1q1_1:{answer:'row',explanation:'flex-direction defaults to row (from slides)'},
+    e1q1_2:{answer:'stretch',explanation:'align-items defaults to stretch (from slides)'},
+    e1q1_3:{answer:'flex-flow',explanation:'flex-flow combines both flex-direction and flex-wrap in a shorthand syntax (from slides)'},
+    e1q1_4:{answer:'align-self',explanation:'align-self overrides align-items on a per-flex-item basis (from slides)'},
+  }},
+  e1q2: {type:'radio',name:'e1q2',answer:'B',explanation:'justify-content gives us control on how flex items in a flex line are distributed along the main-axis (from slides).',slides:['slide-23-023.png','slide-24-024.png']},
+  e1q3: {type:'checkbox', slides:['slide-41-041.png','slide-42-042.png','slide-47-047.png','slide-48-048.png'], fields: {
+    e1q3_a:{answer:true,explanation:'Correct: flex container only flexes immediate children (from slides)'},
+    e1q3_b:{answer:false,explanation:'float and clear don\'t have an effect on flex items (from slides)'},
+    e1q3_c:{answer:true,explanation:'align-content only works with wrap (from slides: wirkar bara pegar vid erum ad nota wrap)'},
+    e1q3_d:{answer:false,explanation:'By default flex containers don\'t wrap; nowrap is default (from slides)'},
+    e1q3_e:{answer:true,explanation:'flex-grow: 0 means item will not grow. Default is 0 (from slides)'},
+    e1q3_f:{answer:false,explanation:'vertical-align does not have an effect on flex items (from slides)'},
+  }},
+  e1q4: {type:'fill', slides:['slide-64-064.png','slide-43-043.png'], fields: {
+    e1q4_1:{answer:'grid-template-areas',explanation:'Defines named layout regions (from slides)'},
+    e1q4_2:{answer:'repeat',explanation:'repeat() repeats a pattern of grid tracks. From slides: "When you want to repeat a pattern independent on how many grid items are within the container you can use repeat()". Note: auto-fit/auto-fill are NOT in the slides.'},
+    e1q4_3:{answer:'fr',explanation:'fr unit stands for fraction (from slides)'},
+    e1q4_4:{answer:'grid-gap',explanation:'grid-gap sets spacing between grid items. Slides use grid-gap, grid-row-gap, grid-column-gap (prefixed versions)'},
+  }},
+  e1q5: {type:'radio',name:'e1q5',answer:'B',explanation:'Growth factor from slides:\nRemaining: 750 - 300 = 450px\nTotal grow: 1+1+3 = 5\nUnit: 450/5 = 90px\nItem 3: 100 + 90*3 = 370px',slides:['slide-37-037.png','slide-38-038.png','slide-39-039.png']},
+  e1q6: {type:'written',explanation:'align-items: defines how flex items are aligned along the cross-axis (from slides). Default: stretch.\nalign-content: aligns a flex container\'s LINES within a container that has extra space in the cross-axis direction. Only works with wrap ("wirkar bara pegar vid erum ad nota wrap"). Default: stretch.',slides:['slide-26-026.png','slide-27-027.png','slide-30-030.png','slide-31-031.png']},
+  e1q7: {type:'checkbox', fields: {
+    e1q7_a:{answer:true,explanation:'.nav__item--active = correct BEM'},
+    e1q7_b:{answer:false,explanation:'Single dashes, not BEM'},
+    e1q7_c:{answer:false,explanation:'Capitals, BEM uses lowercase'},
+    e1q7_d:{answer:true,explanation:'.navigation__link--disabled = correct BEM'},
+    e1q7_e:{answer:false,explanation:'camelCase, not BEM'},
+  }},
+  e1q8: {type:'written',explanation:'From slides: CSS Grid Layout enables more complex layouts with full control (two-dimensional). Flexbox makes laying out pages almost simple (one-dimensional). Grid for page-level layouts (header/sidebar/main/footer). Flexbox for component-level. They complement each other.',slides:['slide-10-010.png','slide-29-029.png','slide-64-064.png']},
+  e1q9: {type:'fill', fields: {
+    e1q9_1:{answer:'newly created object',explanation:'new keyword creates a new instance, this = that object'},
+    e1q9_2:{answer:'new function',explanation:'.bind() returns a new function with this permanently set'},
+    e1q9_3:{answer:'window',explanation:'setTimeout loses this context, defaults to window'},
+    e1q9_4:{answer:'Parent',explanation:'Parent.call(this, args) for inheritance'},
+  }},
+  e1q10: {type:'written',explanation:'HOW was the function CALLED? That determines this.\n\n1. Animal(\'Cat\')      \u2192 no new  \u2192 this = window\n2. new Animal(\'Parrot\') \u2192 new    \u2192 this = Animal{name:Parrot}\n3. new Dog(\'Rex\',\'Lab\') \u2192 new    \u2192 Animal.call(this,name):\n   1st log: Dog{name:Rex}\n   2nd log: Dog{name:Rex, breed:Lab}\n4. b.speak()           \u2192 dot    \u2192 this = b = Animal{name:Parrot}\n5. b.speak.bind(stray) \u2192 bind wins! \u2192 this = stray = {}\n   .call() CANNOT override .bind()\n6. setTimeout(b.speak) \u2192 context LOST \u2192 this = window\n\nRULE CHART:\nfunc()          \u2192 window\nnew Func()      \u2192 new object\nobj.func()      \u2192 obj\n.call(x)/.apply(x) \u2192 x\n.bind(x)        \u2192 x (PERMANENT)\nsetTimeout(fn)  \u2192 window'},
+  e1q11: {type:'radio',name:'e1q11',answer:'B',explanation:'.call() takes args individually; .apply() takes them as array. Apply=Array'},
+  e1q12: {type:'radio',name:'e1q12',answer:'C',explanation:'Call stack empties, ALL microtasks (Promises), then ONE macrotask (setTimeout).\n\nEVENT LOOP ORDER:\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 1. CALL STACK \u2502 \u2190 All sync code runs first\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n       \u2193\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 2. MICROTASKS \u2502 \u2190 ALL Promises .then/.catch\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n       \u2193\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 3. MACROTASK  \u2502 \u2190 ONE setTimeout/setInterval\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n       \u2193 back to step 2\n\nKEY: Microtasks (Promises) ALWAYS before Macrotasks (setTimeout)'},
+  e1q13: {type:'checkbox', fields: {
+    e1q13_a:{answer:true,explanation:'Promise.all rejects if ANY one rejects'},
+    e1q13_b:{answer:false,explanation:'Promise.race settles on FIRST (not all)'},
+    e1q13_c:{answer:true,explanation:'Promise.allSettled waits for all to settle'},
+    e1q13_d:{answer:true,explanation:'Promise.any resolves on first resolve'},
+    e1q13_e:{answer:true,explanation:'Microtasks processed before macrotasks'},
+    e1q13_f:{answer:false,explanation:'await needs async context'},
+  }},
+  e1q14: {type:'written',explanation:'Bug 1: Missing await before response.json() (returns Promise, not data)\nBug 2: No error handling, no response.ok check\nFix: await response.json(), add interface, try/catch, check response.ok'},
+  e1q15: {type:'fill', fields: {
+    e1q15_1:{answer:'interface',explanation:'interface defines a contract for objects in TypeScript'},
+    e1q15_2:{answer:'Partial',explanation:'Partial<T> makes all properties optional'},
+    e1q15_3:{answer:'assertion',explanation:'Type assertion: value as Type'},
+    e1q15_4:{answer:'nullable',explanation:'string | null = nullable type (not optional)'},
+  }},
+  e1q16: {type:'written',explanation:'Event Loop: Call Stack (sync code) -> Web APIs (browser handles async) -> Microtask Queue (Promise .then, ALL processed) -> Macrotask Queue (setTimeout, ONE per cycle). Sync first, then Promises, then setTimeout.'},
+  e1q17: {type:'written',explanation:'Output: 1, 4, 3, 2\n\nExecution trace:\nconsole.log(1)     \u2192 SYNC  \u2192 prints "1" immediately\nsetTimeout(()=>2)  \u2192 sent to Web APIs \u2192 callback goes to MACROTASK queue\nPromise.then(()=>3)\u2192 resolved \u2192 callback goes to MICROTASK queue\nconsole.log(4)     \u2192 SYNC  \u2192 prints "4" immediately\n\nCall stack empty. Process queues:\nMICROTASK: console.log(3) \u2192 prints "3"\nMACROTASK: console.log(2) \u2192 prints "2"\n\nFinal: 1 \u2192 4 \u2192 3 \u2192 2'},
+  e1q18: {type:'checkbox', fields: {
+    e1q18_a:{answer:true,explanation:'fetch() returns a Promise'},
+    e1q18_b:{answer:false,explanation:'response.json() returns a Promise, must await it'},
+    e1q18_c:{answer:false,explanation:'fetch only rejects on network errors, not HTTP 404'},
+    e1q18_d:{answer:true,explanation:'Check response.ok for 200-299'},
+    e1q18_e:{answer:true,explanation:'Browser handles fetch via Web APIs'},
+  }},
+  e2q1: {type:'fill', fields: {
+    e2q1_1:{answer:'UI',explanation:'Component = reusable piece of UI'},
+    e2q1_2:{answer:'props',explanation:'Props = read-only inputs from parent'},
+    e2q1_3:{answer:'state',explanation:'State = internal mutable data'},
+    e2q1_4:{answer:'re-render',explanation:'State change triggers re-render'},
+    e2q1_5:{answer:'DOM',explanation:'Virtual DOM = in-memory representation'},
+  }},
+  e2q2: {type:'radio',name:'e2q2',answer:'C',explanation:'useEffect with [userId] runs on mount AND whenever userId changes'},
+  e2q3: {type:'checkbox', fields: {
+    e2q3_a:{answer:true,explanation:'useRef stores DOM references'},
+    e2q3_b:{answer:false,explanation:'useRef does NOT trigger re-renders'},
+    e2q3_c:{answer:true,explanation:'useRef tracks previous values'},
+    e2q3_d:{answer:false,explanation:'Not a replacement for useState'},
+    e2q3_e:{answer:true,explanation:'useRef stores WebSocket connections'},
+    e2q3_f:{answer:true,explanation:'useRef stores timer IDs for cleanup'},
+  }},
+  e2q4: {type:'fill', fields: {
+    e2q4_1:{answer:'useCallback',explanation:'Memoizes function reference'},
+    e2q4_2:{answer:'useMemo',explanation:'Memoizes computed value'},
+    e2q4_3:{answer:'useReducer',explanation:'(state, action) => newState pattern'},
+    e2q4_4:{answer:'useContext',explanation:'Reads Context value'},
+  }},
+  e2q5: {type:'written',explanation:'Problem: useEffect has NO dependency array, runs every render \u2192 infinite loop.\n\nuseEffect dependency array rules:\nuseEffect(() => {}, [])     \u2192 runs ONCE on mount\nuseEffect(() => {}, [x])    \u2192 runs on mount + when x changes\nuseEffect(() => {})         \u2192 runs EVERY render \u2190 THIS IS THE BUG\n\nWhat happens:\nrender \u2192 useEffect fires \u2192 fetch \u2192 setUser \u2192 re-render \u2192 useEffect fires \u2192 fetch \u2192 setUser \u2192 \u221e\n\nFix: Add [userId] as dependency:\nuseEffect(() => { fetch(...).then(...) }, [userId]);'},
+  e2q6: {type:'written',explanation:'3 bugs:\n\n1. intervalId = useState(null) should be useRef(null)\n   useState: triggers re-render on change\n   useRef: mutable, persists across renders, NO re-render\n   Timer IDs don\'t need re-renders \u2192 use useRef\n\n2. setSeconds(seconds + 1) = STALE CLOSURE\n   seconds is captured from initial render (always 0)\n   0+1=1, 0+1=1, 0+1=1... counter stuck at 1\n   Fix: setSeconds(prev => prev + 1) \u2190 functional update\n\n3. intervalId = setInterval(...) won\'t work with useState\n   useState returns [value, setter], not a variable\n   Fix: intervalRef.current = setInterval(...)'},
+  e2q7: {type:'checkbox', fields: {
+    e2q7_a:{answer:false,explanation:'Zustand does NOT need Provider'},
+    e2q7_b:{answer:true,explanation:'createSlice auto-generates action creators'},
+    e2q7_c:{answer:true,explanation:'Context re-renders all consumers'},
+    e2q7_d:{answer:true,explanation:'Zustand accessible outside React'},
+    e2q7_e:{answer:false,explanation:'Redux works with hooks, not just classes'},
+    e2q7_f:{answer:false,explanation:'Context NOT optimized for high-frequency updates'},
+  }},
+  e2q8: {type:'written',explanation:'REDUX / FLUX PATTERN:\n\nView \u2192 Action \u2192 Dispatch \u2192 Reducer \u2192 Store \u2192 View\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   dispatch()   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   new state   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 ACTION \u2502 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2192 \u2502 REDUCER \u2502 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2192 \u2502 STORE \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518              \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518             \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n{type,payload}    (state,action)=>newState    single source of truth\n\nStore: Holds entire app state. ONE store only.\nActions: Plain objects describing what happened. Must have type.\nReducers: PURE function. Same input = same output. No side effects.\nDispatch: Method to send actions to store. dispatch(action)\n\nIn RTK: createSlice bundles reducer + actions. configureStore sets up store.\nHooks: useSelector (read state), useDispatch (send actions)'},
+  e2q9: {type:'written',explanation:'STATE MANAGEMENT COMPARISON:\n\n              Context API    Redux Toolkit    Zustand\nBoilerplate:  Low            Medium           Very low\nHigh-freq:    POOR           Good             Good\nDevtools:     None           Excellent        Basic\nOutside React:No             Yes              Yes\nNeeds Provider:Yes           Yes              NO\nPersistence:  Manual         Manual           Built-in\n\nContext API:\n+ Built into React, no extra deps\n- Re-renders ALL consumers on any value change (bad for frequent updates)\nBest for: theme, auth, locale\n\nZustand:\n+ Simple API, selector-based re-renders, persist middleware built-in\n+ Can be accessed outside React components\n- Fewer devtools than Redux\n\nRedux Toolkit:\n+ Excellent devtools, middleware support\n+ createSlice auto-generates action creators\n+ Uses Immer for immutable updates with mutable syntax\n- More boilerplate setup'},
+  e2q10: {type:'checkbox', fields: {
+    e2q10_a:{answer:true,explanation:'Server Components can await fetch directly'},
+    e2q10_b:{answer:false,explanation:'Cannot use onClick'},
+    e2q10_c:{answer:true,explanation:'Reduce JS sent to browser'},
+    e2q10_d:{answer:true,explanation:'Can render Client Components as children'},
+    e2q10_e:{answer:false,explanation:'Cannot use useState'},
+    e2q10_f:{answer:true,explanation:'Can access env vars and databases'},
+  }},
+  e2q11: {type:'fill', fields: {
+    e2q11_1:{answer:'"use client"',explanation:'Client Component directive'},
+    e2q11_2:{answer:'"use server"',explanation:'Server Action directive'},
+    e2q11_3:{answer:'layout.tsx',explanation:'Shared wrapping UI'},
+    e2q11_4:{answer:'square',explanation:'Dynamic routes use [brackets]'},
+  }},
+  e2q12: {type:'checkbox', fields: {
+    e2q12_a:{answer:true,explanation:'Stripe webhooks = API Route'},
+    e2q12_b:{answer:true,explanation:'Mobile apps = API Route'},
+    e2q12_c:{answer:false,explanation:'Form submissions = Server Action'},
+    e2q12_d:{answer:true,explanation:'Public REST API = API Route'},
+    e2q12_e:{answer:false,explanation:'Like button = Server Action'},
+    e2q12_f:{answer:true,explanation:'Health checks = API Route'},
+  }},
+  e2q13: {type:'written',explanation:'a) react-hook-form:\nconst {register,handleSubmit,formState:{errors}} = useForm({mode:"onBlur"});\nregister("email",{required:"Required", pattern:{value:/regex/,message:"Invalid"}})\nerrors.email && <p>{errors.email.message}</p>\nValid rules: required,minLength,maxLength,pattern,validate,min,max\nNOT valid: type, sanitize, format\nAdvantage: reduces re-renders using uncontrolled inputs\n\nb) Server Action ("use server") because:\nWHO calls it? React component = Server Action. External service = API Route.\nServer Action: form submissions, data mutations from React\nAPI Route: webhooks (Stripe), mobile apps, public REST APIs\n\nc) Server validation REQUIRED because client can be bypassed:\n- DevTools: remove required attributes\n- Disable JavaScript\n- Postman/curl: send password:"1" directly to API'},
+  e2q14: {type:'fill', fields: {
+    e2q14_1:{answer:'useForm',explanation:'Core hook'},
+    e2q14_2:{answer:'register',explanation:'Connects input to form'},
+    e2q14_3:{answer:'"onChange"',explanation:'Validates as user types'},
+    e2q14_4:{answer:'errors.password',explanation:'Access errors via errors.fieldName'},
+    e2q14_5:{answer:'resolver',explanation:'Zod integration via resolver'},
+  }},
+  e2q15: {type:'checkbox', fields: {
+    e2q15_a:{answer:true,explanation:'required = valid'},
+    e2q15_b:{answer:true,explanation:'minLength = valid'},
+    e2q15_c:{answer:false,explanation:'type = NOT valid'},
+    e2q15_d:{answer:true,explanation:'pattern = valid'},
+    e2q15_e:{answer:false,explanation:'sanitize = NOT valid'},
+    e2q15_f:{answer:true,explanation:'validate = valid'},
+    e2q15_g:{answer:true,explanation:'maxLength = valid'},
+  }},
+  e2q16: {type:'written',explanation:'1. Reusable, self-contained UI building block returning JSX\n2. Single Responsibility, Reusable, Composable, Declarative\n3. Code reuse, easier testing, separation of concerns, maintainability'},
+  e3q1: {type:'written',explanation:'1. window (no new)\n2. Hero {name:Iron Man} (new)\n3. SuperHero {name:Spider-Man} then SuperHero {name:Spider-Man,power:web}\n4. Hero {name:Iron Man} (method on h2)\n5. {} nobody (.call)\n6. window (extracted, no context)\n7. window (setTimeout)\n8. Hero {name:Iron Man} (.bind(h2) permanent)'},
+  e3q2: {type:'written',explanation:'1. greet() -> this=window\n2. obj.greet() -> this=obj\n3. greet.call(otherObj) -> this=otherObj\n4. new greet() -> this=new object'},
+  e3q3: {type:'fill', fields: {
+    e3q3_1:{answer:'store',explanation:'Single source of truth'},
+    e3q3_2:{answer:'actions',explanation:'Plain objects with type'},
+    e3q3_3:{answer:'reducer',explanation:'Pure function (state,action)=>newState'},
+    e3q3_4:{answer:'slice',explanation:'RTK bundles reducer+actions'},
+    e3q3_5:{answer:'useSelector',explanation:'Read state hook'},
+    e3q3_6:{answer:'useDispatch',explanation:'Dispatch actions hook'},
+  }},
+  e3q4: {type:'written',explanation:'a) Student is WRONG. Redux Toolkit uses Immer under the hood.\nYou write "mutating" code but Immer creates a DRAFT PROXY:\n\nstate.value += 1  \u2192 looks like mutation\nImmer intercepts \u2192 produces new immutable state object\n\nThis is one of RTK\'s biggest advantages over classic Redux:\nClassic: return { ...state, value: state.value + 1 }  (manual spread)\nRTK:     state.value += 1  (Immer handles immutability)\n\nb) State: {value:5, history:[0,1,3]}\nAction: incrementByAmount(10)\nStep 1: state.history.push(state.value) \u2192 push 5 \u2192 [0,1,3,5]\nStep 2: state.value += action.payload \u2192 5+10 = 15\nNew state: {value: 15, history: [0,1,3,5]}'},
+  e3q5: {type:'written',explanation:'User clicks -> dispatch(addToCart({...})) -> action {type,payload} -> reducer returns new state -> store updates -> useSelector components re-render. Flux: View->Action->Dispatch->Reducer->Store->View'},
+  e3q6: {type:'fill', fields: {
+    e3q6_1:{answer:'real-time',explanation:'Real-time bidirectional communication'},
+    e3q6_2:{answer:'io.emit()',explanation:'Sends to ALL clients'},
+    e3q6_3:{answer:'socket.broadcast.emit()',explanation:'All EXCEPT sender'},
+    e3q6_4:{answer:'.on()',explanation:'Listens for events'},
+    e3q6_5:{answer:'middleware',explanation:'Runs before connection'},
+  }},
+  e3q7: {type:'written',explanation:'Socket.io emit methods (from course code):\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\nio.emit("msg",data)           \u2192 ALL clients\n[A\u2713] [B\u2713] [C\u2713] [sender\u2713]\nChat example: "Server maintenance in 5 min"\n\u2502\nsocket.emit("msg",data)       \u2192 ONLY sender\n[A ] [B ] [C ] [sender\u2713]\nChat example: "Your message was delivered"\n(Server: back to sender. Client: to server)\n\u2502\nsocket.broadcast.emit("msg")  \u2192 ALL EXCEPT sender\n[A\u2713] [B\u2713] [C\u2713] [sender ]\nChat example: "User X sent: hello"\n\u2502\nio.to(room).emit("msg")       \u2192 ALL in that room\nOnly users who joined the room receive it\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518'},
+  e3q8: {type:'fill', fields: {
+    e3q8_1:{answer:'customElements.define()',explanation:'Register custom elements'},
+    e3q8_2:{answer:'Shadow DOM',explanation:'Encapsulated DOM/CSS'},
+    e3q8_3:{answer:'connectedCallback',explanation:'Called when added to DOM'},
+    e3q8_4:{answer:'hyphen',explanation:'Custom tags need a hyphen'},
+  }},
+  e3q9: {type:'checkbox', fields: {
+    e3q9_a:{answer:false,explanation:'Cannot access DOM'},
+    e3q9_b:{answer:true,explanation:'Communicate via postMessage()'},
+    e3q9_c:{answer:true,explanation:'Separate thread'},
+    e3q9_d:{answer:false,explanation:'Don\'t share memory by default'},
+    e3q9_e:{answer:true,explanation:'Good for CPU-intensive work'},
+    e3q9_f:{answer:true,explanation:'Can use fetch()'},
+  }},
+  e3q10: {type:'checkbox', fields: {
+    e3q10_a:{answer:true,explanation:'localStorage persists after close'},
+    e3q10_b:{answer:false,explanation:'sessionStorage cleared on tab close'},
+    e3q10_c:{answer:true,explanation:'Same API: setItem/getItem/removeItem'},
+    e3q10_d:{answer:false,explanation:'Must JSON.stringify/parse'},
+    e3q10_e:{answer:true,explanation:'Same-origin policy'},
+    e3q10_f:{answer:true,explanation:'~5MB limit'},
+  }},
+  e3q11: {type:'written',explanation:'1. draggable="true" on element\n2. dragstart: e.dataTransfer.setData()\n3. dragover on target: e.preventDefault() (REQUIRED)\n4. drop: e.preventDefault(), getData()'},
+  e3q12: {type:'written',explanation:'Output: A, F, C, E, D, B\n\nStep-by-step trace:\nlog("A")              \u2192 SYNC           \u2192 prints A\nsetTimeout(()=>B)     \u2192 MACROTASK queue\nPromise.then(()=>C)   \u2192 MICROTASK queue\n  .then(()=>D)        \u2192 chained, queued AFTER C resolves\nqueueMicrotask(()=>E) \u2192 MICROTASK queue\nlog("F")              \u2192 SYNC           \u2192 prints F\n\nCall stack empty. Process:\nMICROTASK 1: C (Promise.then)\nMICROTASK 2: E (queueMicrotask) \nMICROTASK 3: D (chained .then, queued after C ran)\nMACROTASK:   B (setTimeout)\n\nA \u2192 F \u2192 C \u2192 E \u2192 D \u2192 B'},
+  e3q13: {type:'written',explanation:'a) Real-time stock prices \u2192 Socket.io\nWhy: Need server to PUSH updates every second to ALL clients.\nHTTP polling = wasteful (request/response every second).\nSocket.io: persistent connection, server pushes when data changes.\nio.emit("stockUpdate", prices) broadcasts to everyone.\n\nb) Multi-step form \u2192 react-hook-form with Zod resolver\nWhy: Complex validation needs schema-based validation (Zod).\nreact-hook-form: uncontrolled inputs = performance.\nresolver: zodResolver(schema) for each step.\nwatch() for conditional fields.\nmode:"onChange" for real-time feedback.\n\nc) Dashboard with DB data + filter \u2192 Server Component + Client Component\nPage = Server Component: fetches data directly from DB (no API needed, no JS sent to client).\nFilter dropdown = Client Component ("use client"): uses useState, onChange.\nWhy split: Server Components can\'t use hooks/events, Client Components can\'t access DB directly.'},
+};
+
+function gradeAll() {
+  clearGrading();
+  let correct=0,wrong=0,unanswered=0,total=0;
+  const ua = collectAnswers().answers;
+  for (const [qId,key] of Object.entries(ANSWER_KEY)) {
+    const qEl = document.querySelector('[data-q="'+qId+'"]');
+    if (!qEl) continue;
+    total++;
+    let r;
+    if (key.type==='fill') r=gradeFill(qId,key,ua);
+    else if (key.type==='radio') r=gradeRadio(qId,key,ua);
+    else if (key.type==='checkbox') r=gradeCheckbox(qId,key,ua);
+    else r=gradeWritten(qId,key,ua);
+    if (r.status==='correct'){correct++;qEl.classList.add('graded-correct');}
+    else if (r.status==='wrong'){wrong++;qEl.classList.add('graded-wrong');}
+    else {unanswered++;qEl.classList.add('graded-unanswered');}
+    const fd = document.createElement('div');
+    fd.className = 'grade-result '+r.status;
+    fd.textContent = ''; // clear
+    fd.appendChild(buildGradeHTML(r));
+    qEl.appendChild(fd);
+  }
+  // summary
+  document.querySelectorAll('.exam-panel:not(#panel-glossary)').forEach(panel => {
+    const old = panel.querySelector('.grade-summary');
+    if (old) old.remove();
+    const s = document.createElement('div');
+    s.className='grade-summary';
+    const h = document.createElement('h3');
+    h.textContent='Grading Results';
+    s.appendChild(h);
+    const st = document.createElement('div');
+    st.className='grade-stats';
+    [{n:correct,l:'Correct',c:'var(--success)'},{n:wrong,l:'Wrong',c:'var(--accent)'},{n:unanswered,l:'Unanswered',c:'var(--warning)'},{n:total,l:'Total',c:'var(--text)'},{n:total>0?Math.round(correct/total*100)+'%':'0%',l:'Score',c:'var(--success)'}].forEach(x=>{
+      const d=document.createElement('div');d.className='grade-stat';
+      const num=document.createElement('div');num.className='num';num.style.color=x.c;num.textContent=x.n;
+      const lab=document.createElement('div');lab.className='label';lab.textContent=x.l;
+      d.appendChild(num);d.appendChild(lab);st.appendChild(d);
+    });
+    s.appendChild(st);
+    panel.insertBefore(s,panel.firstChild);
+  });
+  showSaveStatus('Grading complete!');
+}
+
+function buildGradeHTML(r) {
+  const frag = document.createDocumentFragment();
+  r.items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'grade-row';
+    const icon = document.createTextNode(item.icon+' ');
+    row.appendChild(icon);
+    if (item.label) {
+      const b = document.createElement('strong');
+      b.textContent = item.label+': ';
+      row.appendChild(b);
+    }
+    if (item.yourAnswer) {
+      const y = document.createElement('span');
+      y.className='grade-your';
+      y.textContent = 'Your answer: "'+item.yourAnswer+'"';
+      row.appendChild(y);
+      row.appendChild(document.createTextNode(' \u2192 '));
+    }
+    if (item.correctAnswer) {
+      const c = document.createElement('span');
+      c.className='grade-correct';
+      c.textContent = 'Correct: "'+item.correctAnswer+'"';
+      row.appendChild(c);
+    }
+    if (item.statusText) {
+      const s = document.createElement('span');
+      s.className='grade-correct';
+      s.textContent = item.statusText;
+      row.appendChild(s);
+    }
+    frag.appendChild(row);
+    if (item.explanation) {
+      const ex = document.createElement('div');
+      ex.className='grade-explanation';
+      ex.textContent = item.explanation;
+      frag.appendChild(ex);
+    }
+  });
+  // slide images
+  if (r.slides && r.slides.length > 0) {
+    const slideLabel = document.createElement('div');
+    slideLabel.className = 'grade-row';
+    slideLabel.style.marginTop = '0.75rem';
+    const b = document.createElement('strong');
+    b.textContent = 'From the slides:';
+    b.style.color = 'var(--warning)';
+    slideLabel.appendChild(b);
+    frag.appendChild(slideLabel);
+    const slideWrap = document.createElement('div');
+    slideWrap.className = 'grade-slides';
+    r.slides.forEach(src => {
+      const img = document.createElement('img');
+      img.src = 'slide-images/' + src;
+      img.alt = 'Slide: ' + src;
+      img.loading = 'lazy';
+      img.addEventListener('click', function() {
+        if (this.classList.contains('enlarged')) {
+          this.classList.remove('enlarged');
+          document.getElementById('imgOverlay').style.display='none';
+        } else {
+          document.querySelectorAll('.grade-slides img.enlarged').forEach(i=>i.classList.remove('enlarged'));
+          this.classList.add('enlarged');
+          document.getElementById('imgOverlay').style.display='block';
+        }
+      });
+      slideWrap.appendChild(img);
+    });
+    frag.appendChild(slideWrap);
+  }
+  // header
+  const hdr = document.createElement('div');
+  hdr.className = 'grade-label '+r.status;
+  hdr.textContent = r.status==='correct'?'ALL CORRECT':r.status==='wrong'?'NEEDS REVIEW':'NOT ANSWERED';
+  const wrap = document.createDocumentFragment();
+  wrap.appendChild(hdr);
+  wrap.appendChild(frag);
+  return wrap;
+}
+
+function clearGrading() {
+  document.querySelectorAll('.grade-result,.grade-summary').forEach(e=>e.remove());
+  document.querySelectorAll('.question').forEach(q=>q.classList.remove('graded-correct','graded-wrong','graded-unanswered'));
+}
+
+function gradeFill(qId,key,ua) {
+  let allOk=true,anyAns=false;
+  const items=[];
+  for (const [f,info] of Object.entries(key.fields)) {
+    const uv=(ua[f]||'').trim().toLowerCase();
+    const cv=info.answer.toLowerCase();
+    const ans=uv.length>0;
+    if(ans)anyAns=true;
+    const ok=ans&&(uv===cv||cv.includes(uv)||uv.includes(cv));
+    if(!ok)allOk=false;
+    const num=f.split('_')[1];
+    if(!ans) items.push({icon:'\u2610',label:num,correctAnswer:info.answer,explanation:info.explanation});
+    else if(ok) items.push({icon:'\u2705',label:num,statusText:ua[f]+' (correct)',explanation:info.explanation});
+    else items.push({icon:'\u274C',label:num,yourAnswer:ua[f],correctAnswer:info.answer,explanation:info.explanation});
+  }
+  const st=!anyAns?'unanswered':allOk?'correct':'wrong';
+  return {status:st,items,slides:key.slides||[]};
+}
+
+function gradeRadio(qId,key,ua) {
+  const uv=ua[key.name]||'';
+  const ans=uv.length>0;
+  const ok=uv===key.answer;
+  const items=[];
+  if(!ans) items.push({icon:'\u2610',correctAnswer:key.answer,explanation:key.explanation});
+  else if(ok) items.push({icon:'\u2705',statusText:'You chose: '+uv+' (correct)',explanation:key.explanation});
+  else items.push({icon:'\u274C',yourAnswer:uv,correctAnswer:key.answer,explanation:key.explanation});
+  return {status:!ans?'unanswered':ok?'correct':'wrong',items,slides:key.slides||[]};
+}
+
+function gradeCheckbox(qId,key,ua) {
+  let allOk=true,anyAns=false;
+  const items=[];
+  for (const [f,info] of Object.entries(key.fields)) {
+    const uv=ua[f]===true;
+    if(uv)anyAns=true;
+    const ok=uv===info.answer;
+    if(!ok)allOk=false;
+    const ck=uv?'checked':'unchecked';
+    const sb=info.answer?'should be CHECKED':'should be UNCHECKED';
+    if(ok) items.push({icon:'\u2705',label:f.split('_').pop(),statusText:ck+' (correct)',explanation:info.explanation});
+    else items.push({icon:'\u274C',label:f.split('_').pop(),yourAnswer:ck,correctAnswer:sb,explanation:info.explanation});
+  }
+  const anyTrue=Object.values(key.fields).some(f=>f.answer);
+  const st=(!anyAns&&anyTrue)?'unanswered':allOk?'correct':'wrong';
+  return {status:st,items,slides:key.slides||[]};
+}
+
+function gradeWritten(qId,key,ua) {
+  const uv=(ua[qId]||'').trim();
+  const ans=uv.length>0;
+  const items=[];
+  if(ans) items.push({icon:'\uD83D\uDCDD',label:'Your answer',statusText:uv});
+  items.push({icon:'\u2705',label:'Model answer',statusText:key.explanation});
+  return {status:ans?'wrong':'unanswered',items,slides:key.slides||[]};
+}
+
+// ─── Load from localStorage on page load ───
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('examAnswers');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      applyAnswers(data.answers || data);
+    } catch (e) {}
+  }
+  updateProgress();
+  markAnswered();
+});
+</script>
+</body>
+</html>

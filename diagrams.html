@@ -1,0 +1,390 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Visual Study Diagrams</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,serif;background:#fff;color:#222;line-height:1.7;font-size:15px}
+.topbar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid #ddd;padding:8px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.topbar h1{font-size:14px;font-family:'Segoe UI',sans-serif;color:#555}
+.container{max-width:900px;margin:0 auto;padding:20px 40px 60px}
+h2{font-size:22px;margin:35px 0 12px;padding:8px 0;border-bottom:2px solid #333;color:#1a1a2e}
+h3{font-size:17px;margin:25px 0 8px;color:#0f3460;border-left:3px solid #0f3460;padding-left:10px}
+.diagram{background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:20px;margin:12px 0 20px}
+.diagram-title{font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:#666;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+/* Flex demo */
+.flex-demo{display:flex;background:#e8e8e8;padding:8px;border-radius:4px;min-height:80px;gap:6px;position:relative}
+.flex-demo.col{flex-direction:column;min-height:200px}
+.flex-item{padding:12px 18px;border-radius:4px;font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;color:#fff;text-align:center;min-width:40px}
+.fi1{background:#5b8db8}.fi2{background:#8db85b}.fi3{background:#b85b5b}
+.label{font-family:'Segoe UI',sans-serif;font-size:11px;color:#888;margin-top:4px}
+.vs{display:flex;gap:20px;flex-wrap:wrap}
+.vs > div{flex:1;min-width:250px}
+/* Grid demo */
+.grid-demo{display:grid;gap:4px;background:#e8e8e8;padding:6px;border-radius:4px}
+.grid-cell{background:#5b8db8;color:#fff;padding:10px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;text-align:center}
+.grid-cell.header{background:#b85b5b}.grid-cell.sidebar{background:#8db85b}.grid-cell.footer{background:#8b5bb8}
+/* Box model */
+.box-model{display:inline-block;position:relative}
+.bm-margin{background:#f9cc9d;padding:15px;border-radius:4px}
+.bm-border{background:#fdd835;padding:12px;border-radius:3px}
+.bm-padding{background:#a5d6a7;padding:15px;border-radius:2px}
+.bm-content{background:#90caf9;padding:20px 30px;border-radius:2px;font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;text-align:center}
+.bm-label{position:absolute;font-family:'Segoe UI',sans-serif;font-size:10px;color:#555}
+/* Event loop */
+.el-box{border:2px solid #333;border-radius:8px;padding:12px 16px;text-align:center;font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600}
+.el-arrow{text-align:center;font-size:20px;color:#999;margin:4px 0}
+.el-row{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:8px 0}
+/* this binding */
+.this-table{width:100%;border-collapse:collapse;font-family:'Segoe UI',sans-serif;font-size:13px;margin:8px 0}
+.this-table th{background:#1a1a2e;color:#fff;padding:8px 12px;text-align:left}
+.this-table td{padding:8px 12px;border-bottom:1px solid #e0e0e0}
+.this-table td:nth-child(2){font-weight:700;color:#c0392b}
+.this-table tr:hover td{background:#f5f8ff}
+code{font-family:'Courier New',monospace;background:#f4f4f4;padding:1px 4px;border-radius:2px;font-size:13px}
+.code-block{background:#2d2d2d;color:#f8f8f2;padding:14px 16px;border-radius:6px;font-family:'Fira Code',monospace;font-size:12px;overflow-x:auto;line-height:1.5;margin:8px 0}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare > div{background:#f0f7ff;border:1px solid #cce0ff;border-radius:6px;padding:12px}
+.compare h4{margin:0 0 6px;font-size:14px;color:#0f3460}
+@media(max-width:600px){.compare{grid-template-columns:1fr}.vs{flex-direction:column}}
+</style></head><body>
+<div class="topbar"><h1>Visual Study Diagrams — All Topics</h1></div>
+<div class="container">
+
+<h2>1. Flexbox</h2>
+
+<h3>justify-content (main-axis distribution)</h3>
+<div class="diagram">
+<div class="diagram-title">flex-start (default)</div>
+<div class="flex-demo" style="justify-content:flex-start"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+<div class="label">Items packed at the start</div>
+</div>
+<div class="diagram">
+<div class="diagram-title">center</div>
+<div class="flex-demo" style="justify-content:center"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+</div>
+<div class="diagram">
+<div class="diagram-title">flex-end</div>
+<div class="flex-demo" style="justify-content:flex-end"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+</div>
+<div class="diagram">
+<div class="diagram-title">space-between</div>
+<div class="flex-demo" style="justify-content:space-between"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+<div class="label">First item at start, last at end, equal space between</div>
+</div>
+<div class="diagram">
+<div class="diagram-title">space-around</div>
+<div class="flex-demo" style="justify-content:space-around"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+<div class="label">Equal space around each item (half-size at edges)</div>
+</div>
+
+<h3>align-items (cross-axis alignment)</h3>
+<div class="diagram">
+<div class="diagram-title">stretch (default) — items fill the container height</div>
+<div class="flex-demo" style="align-items:stretch;height:100px"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+</div>
+<div class="diagram">
+<div class="diagram-title">flex-start — items at the top</div>
+<div class="flex-demo" style="align-items:flex-start;height:100px"><div class="flex-item fi1">1</div><div class="flex-item fi2" style="padding:20px 18px">2</div><div class="flex-item fi3">3</div></div>
+</div>
+<div class="diagram">
+<div class="diagram-title">center — items centered vertically</div>
+<div class="flex-demo" style="align-items:center;height:100px"><div class="flex-item fi1">1</div><div class="flex-item fi2" style="padding:20px 18px">2</div><div class="flex-item fi3">3</div></div>
+</div>
+<div class="diagram">
+<div class="diagram-title">flex-end — items at the bottom</div>
+<div class="flex-demo" style="align-items:flex-end;height:100px"><div class="flex-item fi1">1</div><div class="flex-item fi2" style="padding:20px 18px">2</div><div class="flex-item fi3">3</div></div>
+</div>
+
+<h3>flex-grow calculation (Mock Q5 — 370px answer)</h3>
+<div class="diagram">
+<div class="diagram-title">Container: 750px | Items: 3 × 100px = 300px | Remaining: 450px</div>
+<div style="display:flex;gap:2px;margin:8px 0">
+<div style="width:190px;background:#5b8db8;color:#fff;padding:8px;border-radius:3px;text-align:center;font-family:'Segoe UI',sans-serif;font-size:11px"><strong>Item 1</strong><br>grow:1<br>100+90=190px</div>
+<div style="width:190px;background:#8db85b;color:#fff;padding:8px;border-radius:3px;text-align:center;font-family:'Segoe UI',sans-serif;font-size:11px"><strong>Item 2</strong><br>grow:1<br>100+90=190px</div>
+<div style="flex:1;background:#b85b5b;color:#fff;padding:8px;border-radius:3px;text-align:center;font-family:'Segoe UI',sans-serif;font-size:11px"><strong>Item 3</strong><br>grow:3<br>100+270=<strong>370px</strong></div>
+</div>
+<div class="label">Total grow: 1+1+3=5 | 1 unit = 450÷5 = 90px | Each item gets: base + (unit × grow)</div>
+</div>
+
+<h3>flex-direction</h3>
+<div class="vs">
+<div>
+<div class="diagram">
+<div class="diagram-title">row (default) →</div>
+<div class="flex-demo"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+</div>
+</div>
+<div>
+<div class="diagram">
+<div class="diagram-title">column ↓</div>
+<div class="flex-demo col"><div class="flex-item fi1">1</div><div class="flex-item fi2">2</div><div class="flex-item fi3">3</div></div>
+</div>
+</div>
+</div>
+
+<h2>2. CSS Grid</h2>
+
+<h3>Grid Terminology</h3>
+<div class="diagram">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:60px 60px;gap:3px;background:#e8e8e8;padding:4px;border-radius:4px;position:relative">
+<div style="background:#d4e6f1;border:2px dashed #2980b9;padding:6px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center">Cell 1</div>
+<div style="background:#d5f5e3;border:2px dashed #27ae60;padding:6px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center">Cell 2</div>
+<div style="background:#fdebd0;border:2px dashed #e67e22;padding:6px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center">Cell 3</div>
+<div style="background:#d4e6f1;border:2px dashed #2980b9;padding:6px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center">Cell 4</div>
+<div style="background:#d5f5e3;border:2px dashed #27ae60;padding:6px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center">Cell 5</div>
+<div style="background:#fdebd0;border:2px dashed #e67e22;padding:6px;border-radius:3px;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center">Cell 6</div>
+</div>
+<div class="label"><strong>Grid line</strong> = dividing lines | <strong>Grid track</strong> = a full row or column | <strong>Grid cell</strong> = single box | <strong>Grid area</strong> = rectangular group of cells</div>
+</div>
+
+<h3>grid-template-areas (Mock Q1 blank 1)</h3>
+<div class="diagram">
+<div class="code-block">grid-template-areas:
+  "header header"
+  "sidebar main"
+  "footer footer";
+grid-template-columns: 250px 1fr;</div>
+<div class="grid-demo" style="grid-template-areas:'header header' 'sidebar main' 'footer footer';grid-template-columns:120px 1fr;grid-template-rows:40px 80px 40px">
+<div class="grid-cell header" style="grid-area:header">header</div>
+<div class="grid-cell sidebar" style="grid-area:sidebar">sidebar</div>
+<div class="grid-cell" style="grid-area:main">main (1fr)</div>
+<div class="grid-cell footer" style="grid-area:footer">footer</div>
+</div>
+<div class="label">Grid = <strong>macro</strong> layout (2D). Flexbox = <strong>micro</strong> layout (1D). They are complementary.</div>
+</div>
+
+<h2>3. Box Sizing</h2>
+<h3>content-box (default) vs border-box</h3>
+<div class="compare">
+<div>
+<h4>content-box (default)</h4>
+<div style="width:140px;height:60px;padding:10px;border:10px solid #fdd835;background:#90caf9;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center;box-sizing:content-box">
+width: 100px
+</div>
+<div class="label" style="margin-top:8px">Total = 100 + 10×2 (padding) + 10×2 (border) = <strong>140px</strong></div>
+</div>
+<div>
+<h4>border-box</h4>
+<div style="width:100px;height:60px;padding:10px;border:10px solid #fdd835;background:#a5d6a7;font-family:'Segoe UI',sans-serif;font-size:11px;text-align:center;box-sizing:border-box">
+width: 100px
+</div>
+<div class="label" style="margin-top:8px">Total = exactly <strong>100px</strong> (content shrinks to fit)</div>
+</div>
+</div>
+
+<h2>4. Box Model</h2>
+<div class="diagram">
+<div class="bm-margin">
+<div style="font-family:'Segoe UI',sans-serif;font-size:10px;color:#8d6e63;margin-bottom:4px">margin</div>
+<div class="bm-border">
+<div style="font-family:'Segoe UI',sans-serif;font-size:10px;color:#f57f17;margin-bottom:4px">border</div>
+<div class="bm-padding">
+<div style="font-family:'Segoe UI',sans-serif;font-size:10px;color:#2e7d32;margin-bottom:4px">padding</div>
+<div class="bm-content">content</div>
+</div></div></div>
+</div>
+
+<h2>5. BEM Naming</h2>
+<div class="diagram">
+<div class="code-block">.card              /* Block */
+.card__title       /* Element (double underscore) */
+.card__title--active  /* Modifier (double dash) */
+
+/* Format: .block__element--modifier */</div>
+<table class="this-table">
+<tr><th>Class</th><th>Valid BEM?</th><th>Why</th></tr>
+<tr><td><code>.card__title--active</code></td><td style="color:green">YES</td><td>block__element--modifier</td></tr>
+<tr><td><code>.cardTitleActive</code></td><td style="color:red">NO</td><td>camelCase</td></tr>
+<tr><td><code>.card-title-active</code></td><td style="color:red">NO</td><td>no __ or -- separators</td></tr>
+<tr><td><code>.Card__Title</code></td><td style="color:red">NO</td><td>uppercase (BEM = lowercase)</td></tr>
+</table>
+</div>
+
+<h2>6. Event Loop</h2>
+<div class="diagram">
+<div class="el-box" style="background:#e3f2fd;border-color:#1565c0">1. CALL STACK — sync code runs first</div>
+<div class="el-arrow">↓</div>
+<div class="el-box" style="background:#e8f5e9;border-color:#2e7d32">2. MICROTASKS — ALL Promise .then/.catch (run completely)</div>
+<div class="el-arrow">↓</div>
+<div class="el-box" style="background:#fff3e0;border-color:#e65100">3. ONE MACROTASK — setTimeout/setInterval</div>
+<div class="el-arrow">↓ back to 2</div>
+<div class="code-block">console.log('1');           // sync  → prints 1
+setTimeout(() => log('2')); // macro → last
+Promise.then(() => log('3')); // micro → before setTimeout
+console.log('4');           // sync  → prints 4
+
+Output: 1, 4, 3, 2</div>
+</div>
+
+<h2>7. this Binding</h2>
+<div class="diagram">
+<table class="this-table">
+<tr><th>How function is called</th><th>this =</th><th>Example</th></tr>
+<tr><td>Regular call</td><td>window</td><td><code>func()</code></td></tr>
+<tr><td>With <code>new</code></td><td>new object</td><td><code>new Func()</code></td></tr>
+<tr><td>Method call (dot)</td><td>object before dot</td><td><code>obj.func()</code></td></tr>
+<tr><td><code>.call(x)</code> / <code>.apply(x)</code></td><td>x</td><td><code>func.call(obj)</code></td></tr>
+<tr><td><code>.bind(x)</code></td><td>x (PERMANENT)</td><td><code>func.bind(obj)()</code></td></tr>
+<tr><td><code>setTimeout(fn)</code></td><td>window (lost!)</td><td>context detached</td></tr>
+<tr><td>Arrow function</td><td>inherits from parent</td><td>no own <code>this</code></td></tr>
+</table>
+<div class="label"><strong>Rule:</strong> .bind() is permanent — .call() CANNOT override it</div>
+</div>
+
+<h2>8. Server Action vs API Route</h2>
+<div class="diagram">
+<div class="compare">
+<div style="background:#e8f5e9">
+<h4>Server Action ("use server")</h4>
+<p style="font-size:13px">WHO calls it? → <strong>Your React app</strong></p>
+<ul style="font-size:12px">
+<li>Form submissions</li>
+<li>Button click mutations</li>
+<li>Revalidating data</li>
+</ul>
+</div>
+<div style="background:#fff3e0">
+<h4>API Route (route.ts)</h4>
+<p style="font-size:13px">WHO calls it? → <strong>External services</strong></p>
+<ul style="font-size:12px">
+<li>Stripe webhooks</li>
+<li>Mobile apps</li>
+<li>Public REST API</li>
+</ul>
+</div>
+</div>
+</div>
+
+<h2>9. Server vs Client Components</h2>
+<div class="diagram">
+<div class="compare">
+<div style="background:#e3f2fd">
+<h4>Server Component (default)</h4>
+<ul style="font-size:12px">
+<li>Runs on server</li>
+<li>NO JS sent to browser</li>
+<li>CAN: fetch data, access DB, env vars</li>
+<li>CANNOT: useState, useEffect, onClick</li>
+</ul>
+</div>
+<div style="background:#fce4ec">
+<h4>Client Component ("use client")</h4>
+<ul style="font-size:12px">
+<li>Runs in browser</li>
+<li>JS included in bundle</li>
+<li>CAN: hooks, events, browser APIs</li>
+<li>CANNOT: access DB directly</li>
+</ul>
+</div>
+</div>
+</div>
+
+<h2>10. State Management Comparison</h2>
+<div class="diagram">
+<table class="this-table">
+<tr><th>Feature</th><th>Context API</th><th>Redux Toolkit</th><th>Zustand</th></tr>
+<tr><td>Boilerplate</td><td>Low</td><td>Medium</td><td>Very low</td></tr>
+<tr><td>High-freq updates</td><td style="color:red">Poor</td><td style="color:green">Good</td><td style="color:green">Good</td></tr>
+<tr><td>DevTools</td><td>None</td><td style="color:green">Excellent</td><td>Basic</td></tr>
+<tr><td>Outside React</td><td style="color:red">No</td><td>Yes</td><td style="color:green">Yes</td></tr>
+<tr><td>Needs Provider</td><td>Yes</td><td>Yes</td><td style="color:green">No</td></tr>
+<tr><td>Persistence</td><td>Manual</td><td>Manual</td><td style="color:green">Built-in</td></tr>
+</table>
+</div>
+
+<h2>11. react-hook-form (Mock Q16 blanks)</h2>
+<div class="diagram">
+<div class="code-block">const { register, handleSubmit, formState: { errors } } = useForm({
+  resolver: zodResolver(schema),  // blank 5: resolver
+  mode: "onChange",               // blank 4: onChange
+});
+
+// blank 1: useForm    blank 2: register    blank 3: formState.errors
+// blank 6: handleSubmit</div>
+</div>
+
+<h2>12. Promises</h2>
+<div class="diagram">
+<table class="this-table">
+<tr><th>Method</th><th>Resolves when</th><th>Rejects when</th></tr>
+<tr><td>Promise.all()</td><td>ALL resolve</td><td style="color:red">ANY one rejects</td></tr>
+<tr><td>Promise.race()</td><td>FIRST settles</td><td>FIRST settles (if reject)</td></tr>
+<tr><td>Promise.any()</td><td>FIRST resolves</td><td style="color:red">ALL reject</td></tr>
+<tr><td>Promise.allSettled()</td><td>ALL settle</td><td>Never rejects</td></tr>
+</table>
+</div>
+
+<h2>13. border-radius</h2>
+<div class="diagram">
+<div class="vs">
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#5b8db8;border-radius:10px;display:inline-block"></div>
+<div class="label">border-radius: 10px</div>
+</div>
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#8db85b;border-radius:50%;display:inline-block"></div>
+<div class="label">border-radius: 50% = circle</div>
+</div>
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#b85b5b;border-radius:50% 0 50% 0;display:inline-block"></div>
+<div class="label">border-radius: 50% 0 50% 0 (leaf)</div>
+</div>
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#8b5bb8;border-radius:40px 10px;display:inline-block"></div>
+<div class="label">border-radius: 40px 10px</div>
+</div>
+</div>
+<div class="label" style="margin-top:8px">Order: TL TR BR BL (clockwise from top-left)</div>
+</div>
+
+<h2>14. background-size</h2>
+<div class="diagram">
+<div class="vs">
+<div style="text-align:center">
+<div style="width:120px;height:80px;background:linear-gradient(135deg,#5b8db8,#b85b5b);background-size:cover;border:2px dashed #999;display:inline-block"></div>
+<div class="label"><strong>cover</strong> — fills container, may crop</div>
+</div>
+<div style="text-align:center">
+<div style="width:120px;height:80px;background:linear-gradient(135deg,#5b8db8,#b85b5b);background-size:contain;background-repeat:no-repeat;background-position:center;border:2px dashed #999;display:inline-block"></div>
+<div class="label"><strong>contain</strong> — fits inside, may leave gaps</div>
+</div>
+</div>
+</div>
+
+<h2>15. CSS Gradients</h2>
+<div class="diagram">
+<div class="vs">
+<div style="text-align:center">
+<div style="width:120px;height:80px;background:linear-gradient(red,blue);border-radius:4px;display:inline-block"></div>
+<div class="label">linear-gradient (default: top→bottom)</div>
+</div>
+<div style="text-align:center">
+<div style="width:120px;height:80px;background:linear-gradient(90deg,red,blue);border-radius:4px;display:inline-block"></div>
+<div class="label">90deg (left→right)</div>
+</div>
+<div style="text-align:center">
+<div style="width:120px;height:80px;background:radial-gradient(circle,#fff,#5b8db8);border-radius:4px;display:inline-block"></div>
+<div class="label">radial-gradient (circle)</div>
+</div>
+</div>
+</div>
+
+<h2>16. box-shadow</h2>
+<div class="diagram">
+<div class="code-block">box-shadow: offset-x  offset-y  blur  spread  color;</div>
+<div class="vs">
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#fff;box-shadow:5px 5px 10px rgba(0,0,0,.3);display:inline-block;border-radius:4px;margin:15px"></div>
+<div class="label">5px 5px 10px</div>
+</div>
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#fff;box-shadow:inset 5px 5px 10px rgba(0,0,0,.3);display:inline-block;border-radius:4px;margin:15px"></div>
+<div class="label">inset 5px 5px 10px</div>
+</div>
+<div style="text-align:center">
+<div style="width:80px;height:80px;background:#5b8db8;box-shadow:90px 0 #8db85b, 180px 0 #b85b5b;display:inline-block;border-radius:4px;margin:15px"></div>
+<div class="label">Multiple: replicate elements</div>
+</div>
+</div>
+</div>
+
+</div></body></html>
