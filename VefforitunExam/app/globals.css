@@ -453,112 +453,85 @@ code {
 .cb .copy-btn[data-state="ok"] { opacity: 1; background: color-mix(in oklch, var(--success) 35%, transparent); color: #fff; }
 .cb .copy-btn[data-state="err"] { opacity: 1; background: color-mix(in oklch, var(--danger) 35%, transparent); color: #fff; }
 
-/* Runnable code playground */
-.cb .run-btn {
-  position: absolute;
-  top: 8px;
-  right: 60px;
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  padding: 3px 8px;
-  color: #fff;
-  background: color-mix(in oklch, var(--success) 55%, transparent);
-  border-radius: 4px;
-  opacity: 0;
-  transition: opacity var(--dur-micro) var(--ease-out-q),
-              background var(--dur-micro) var(--ease-out-q);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.cb:hover .run-btn { opacity: 1; }
-.cb .run-btn:hover { background: var(--success); }
-.cb .run-btn:focus-visible { opacity: 1; }
-.cb .run-btn:disabled { opacity: 0.6; cursor: wait; }
-
-.cb .reset-btn {
-  position: absolute;
-  top: 8px;
-  right: 108px;
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  padding: 3px 8px;
-  color: var(--code-fg);
-  background: color-mix(in oklch, var(--code-fg) 15%, transparent);
-  border-radius: 4px;
-  opacity: 0;
-  transition: opacity var(--dur-micro) var(--ease-out-q),
-              background var(--dur-micro) var(--ease-out-q);
-  font-weight: 500;
-}
-.cb:hover .reset-btn { opacity: 1; }
-.cb .reset-btn:hover { background: color-mix(in oklch, var(--code-fg) 25%, transparent); }
-.cb .reset-btn:focus-visible { opacity: 1; }
-
-/* Dual-element live code editor: highlighted <pre> under a transparent
-   <textarea> overlay. Both elements MUST share identical font metrics,
-   padding and line-height so characters align. */
-.cb .code-editor {
+/* ─────────── CodeMirror-backed playground ─────────── */
+.cp { margin: 0; }
+.cp-editor {
   position: relative;
-  display: grid;
   border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
   border-radius: var(--r-card);
   overflow: hidden;
   background: var(--code-bg);
-  min-height: 80px;
-  max-height: 560px;
 }
-.cb .code-editor:focus-within {
+.cp-editor:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-wash);
 }
-.cb-label + .code-editor { border-top-left-radius: 0; border-top-right-radius: 0; }
+.cb-label + .cp .cp-editor { border-top-left-radius: 0; border-top-right-radius: 0; }
 
-.cb .code-editor > * {
-  grid-area: 1 / 1;
+/* CodeMirror internal overrides */
+.cp-editor .cm-editor {
   font-family: var(--f-mono);
   font-size: 12.5px;
   line-height: 1.55;
-  tab-size: 2;
-  padding: var(--s-4);
-  margin: 0;
-  border: 0;
-  box-sizing: border-box;
-  white-space: pre;
-  overflow: auto;
-  scrollbar-width: thin;
 }
-.cb .code-editor pre.code-hl {
-  color: var(--code-fg);
-  background: transparent;
-  pointer-events: none;
-  word-break: normal;
-  letter-spacing: 0;
-  z-index: 1;
-  user-select: none;
+.cp-editor .cm-editor .cm-scroller {
+  font-family: var(--f-mono);
+  line-height: 1.55;
 }
-.cb .code-editor textarea.code-edit {
-  color: transparent;
-  background: transparent;
+.cp-editor .cm-editor .cm-content {
+  padding: var(--s-4) 0;
   caret-color: var(--code-fg);
-  -webkit-text-fill-color: transparent;
-  resize: none;
-  outline: none;
-  /* Identical letter metrics to the <pre> so highlighted spans align */
-  letter-spacing: 0;
-  word-break: normal;
-  z-index: 2;
-  position: relative;
 }
-.cb .code-editor textarea.code-edit::selection {
-  background: color-mix(in oklch, var(--accent) 45%, transparent);
-  -webkit-text-fill-color: transparent;
-}
-.cb .code-editor textarea.code-edit::-moz-selection {
-  background: color-mix(in oklch, var(--accent) 45%, transparent);
-  -webkit-text-fill-color: transparent;
-}
+.cp-editor .cm-editor .cm-line { padding: 0 var(--s-4); }
+.cp-editor .cm-editor.cm-focused { outline: none; }
+.cp-editor .cm-editor .cm-gutters { display: none; }
 
-.cb .code-output {
+/* Floating toolbar — appears on hover (or when focused within) */
+.cp-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--dur-micro) var(--ease-out-q);
+  z-index: 3;
+  pointer-events: none;
+}
+.cp-editor:hover .cp-toolbar,
+.cp-editor:focus-within .cp-toolbar { opacity: 1; pointer-events: auto; }
+
+.cp-btn {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+  border: 0;
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-out-q),
+              color var(--dur-micro) var(--ease-out-q);
+}
+.cp-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cp-btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+
+.cp-btn.cp-run {
+  color: #fff;
+  background: color-mix(in oklch, var(--success) 55%, transparent);
+}
+.cp-btn.cp-run:hover:not(:disabled) { background: var(--success); }
+
+.cp-btn.cp-reset,
+.cp-btn.cp-copy {
+  color: var(--code-fg);
+  background: color-mix(in oklch, var(--code-fg) 15%, transparent);
+}
+.cp-btn.cp-reset:hover:not(:disabled),
+.cp-btn.cp-copy:hover { background: color-mix(in oklch, var(--code-fg) 28%, transparent); }
+
+.cb .code-output,
+.cp .code-output {
   margin-top: 6px;
   padding: var(--s-3) var(--s-4);
   background: var(--bg-raised);
@@ -569,8 +542,10 @@ code {
   font-size: 12px;
   line-height: 1.55;
 }
-.cb .code-output[data-state="err"] { border-left-color: var(--danger); }
-.cb .code-output-title {
+.cb .code-output[data-state="err"],
+.cp .code-output.code-output-err { border-left-color: var(--danger); }
+.cb .code-output-title,
+.cp .code-output-title {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -581,17 +556,23 @@ code {
   color: var(--fg-subtle);
   margin-bottom: 4px;
 }
-.cb .code-output-title .meta { color: var(--fg-subtle); font-weight: 500; }
-.cb .code-output .line {
+.cb .code-output-title .meta,
+.cp .code-output-title .meta { color: var(--fg-subtle); font-weight: 500; }
+.cb .code-output .line,
+.cp .code-output .line {
   color: var(--fg);
   white-space: pre-wrap;
   word-break: break-word;
   padding: 1px 0;
 }
-.cb .code-output .line.lvl-error { color: var(--danger); }
-.cb .code-output .line.lvl-warn  { color: var(--warning); }
-.cb .code-output .line.lvl-info  { color: var(--accent); }
-.cb .code-output .empty { color: var(--fg-subtle); font-style: italic; }
+.cb .code-output .line.lvl-error,
+.cp .code-output .line.lvl-error { color: var(--danger); }
+.cb .code-output .line.lvl-warn,
+.cp .code-output .line.lvl-warn  { color: var(--warning); }
+.cb .code-output .line.lvl-info,
+.cp .code-output .line.lvl-info  { color: var(--accent); }
+.cb .code-output .empty,
+.cp .code-output .empty { color: var(--fg-subtle); font-style: italic; }
 
 /* ─────────── Tables ─────────── */
 .tw { overflow-x: auto; margin: var(--s-3) 0; border-radius: var(--r-card); border: 1px solid var(--border); }

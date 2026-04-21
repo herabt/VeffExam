@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import { highlight, looksLikeCode } from "@/lib/highlight";
-import { looksRunnable, runSnippet } from "@/lib/playground";
+import { looksRunnable } from "@/lib/playground";
 import { register, keys } from "@/lib/shortcuts";
+import { CodePlayground } from "./CodePlayground";
 
 interface Props {
   /** How long the article takes to read (computed server-side if we had word count, but we do it client-side). */
@@ -21,6 +23,7 @@ interface Props {
 export function StudyEnhancer(_: Props) {
   const [progress, setProgress] = useState(0);
   const [focus, setFocus] = useState(false);
+  const rootsRef = useRef<Root[]>([]);
 
   // Reading-progress scroll tracking
   useEffect(() => {
@@ -48,9 +51,17 @@ export function StudyEnhancer(_: Props) {
 
     syntaxHighlightAll(article);
     annotateCodeBlocks(article);
-    wireRunnableBlocks(article);
+    rootsRef.current = mountPlaygrounds(article);
     convertCallouts(article);
     injectMetaBar(article);
+
+    return () => {
+      // Defer unmount to next tick — unmounting synchronously inside React's
+      // own commit phase triggers a warning in React 19.
+      const roots = rootsRef.current;
+      rootsRef.current = [];
+      setTimeout(() => roots.forEach((r) => r.unmount()), 0);
+    };
   }, []);
 
   // Keyboard shortcuts
@@ -242,161 +253,27 @@ function escapeText(s: string): string {
 }
 
 // ─── Runnable code blocks ──────────────────────────────────────────────
+// For each <div class="cb"> whose <pre> looks like JS/TS, mount a React
+// <CodePlayground /> (CodeMirror-backed) into a fresh container. The original
+// <pre> is hidden but kept as the source-of-truth for the initial value.
 
-function wireRunnableBlocks(root: HTMLElement) {
+function mountPlaygrounds(root: HTMLElement): Root[] {
+  const roots: Root[] = [];
   root.querySelectorAll<HTMLDivElement>(".cb").forEach((block) => {
-    if (block.querySelector(".run-btn")) return;
+    if (block.querySelector(".cp-mount")) return; // already wired
     const pre = block.querySelector<HTMLPreElement>("pre");
     if (!pre) return;
     const text = pre.textContent ?? "";
     if (!looksRunnable(text)) return;
 
-    // Store original source on the block so editable textarea can fall back to it
-    block.dataset.src = text;
+    const mount = document.createElement("div");
+    mount.className = "cp-mount";
+    pre.style.display = "none";
+    block.insertBefore(mount, pre);
 
-    const runBtn = document.createElement("button");
-    runBtn.type = "button";
-    runBtn.className = "run-btn";
-    runBtn.textContent = "run ▶";
-    runBtn.setAttribute("aria-label", "Run this snippet");
-    block.appendChild(runBtn);
-
-    const resetBtn = document.createElement("button");
-    resetBtn.type = "button";
-    resetBtn.className = "reset-btn";
-    resetBtn.textContent = "reset ↺";
-    resetBtn.title = "Restore the original code";
-    resetBtn.setAttribute("aria-label", "Reset snippet to original");
-    block.appendChild(resetBtn);
+    const r = createRoot(mount);
+    r.render(<CodePlayground initialSource={text} />);
+    roots.push(r);
   });
-
-  // Delegate "run" clicks — survives StrictMode / re-mounts.
-  if ((window as unknown as { __runDelegated?: boolean }).__runDelegated) return;
-  (window as unknown as { __runDelegated?: boolean }).__runDelegated = true;
-
-  document.addEventListener("click", async (e) => {
-    const target = e.target as HTMLElement | null;
-
-    // Reset button — restore original source, drop output
-    const resetBtn = target?.closest<HTMLButtonElement>(".fragment .cb .reset-btn");
-    if (resetBtn) {
-      e.preventDefault();
-      const block = resetBtn.closest<HTMLDivElement>(".cb");
-      if (!block) return;
-      const src = block.dataset.src ?? "";
-      const ta = block.querySelector<HTMLTextAreaElement>("textarea.code-edit");
-      const hl = block.querySelector<HTMLElement>(".code-hl");
-      if (ta) {
-        ta.value = src;
-        ta.dispatchEvent(new Event("input", { bubbles: true }));
-        ta.focus();
-      } else if (hl) {
-        // No editor yet; nothing to reset.
-      }
-      const out = block.querySelector<HTMLElement>(".code-output");
-      out?.remove();
-      return;
-    }
-
-    const btn = target?.closest<HTMLButtonElement>(".fragment .cb .run-btn");
-    if (!btn) return;
-    e.preventDefault();
-    const block = btn.closest<HTMLDivElement>(".cb");
-    if (!block) return;
-
-    const editor = ensureEditor(block);
-    editor.focus({ preventScroll: true });
-    const source = editor.value;
-
-    btn.disabled = true;
-    btn.textContent = "running…";
-    const out = ensureOutput(block);
-    out.dataset.state = "running";
-    out.innerHTML = '<div class="code-output-title"><span>running…</span></div>';
-
-    const result = await runSnippet(source);
-    renderOutput(out, result);
-    btn.disabled = false;
-    btn.textContent = "run ▶";
-  });
-}
-
-/** Build a dual-element editor: a live-highlighted <pre> layered under a
- *  transparent <textarea> so the user sees syntax colouring while typing. */
-function ensureEditor(block: HTMLDivElement): HTMLTextAreaElement {
-  const existing = block.querySelector<HTMLTextAreaElement>("textarea.code-edit");
-  if (existing) return existing;
-  const pre = block.querySelector<HTMLPreElement>("pre");
-  const src = block.dataset.src ?? pre?.textContent ?? "";
-
-  const wrap = document.createElement("div");
-  wrap.className = "code-editor";
-
-  const hl = document.createElement("pre");
-  hl.className = "code-hl";
-  hl.setAttribute("aria-hidden", "true");
-  hl.innerHTML = highlight(src) + "\n"; // trailing newline so last row is sized
-
-  const ta = document.createElement("textarea");
-  ta.className = "code-edit";
-  ta.value = src;
-  ta.spellcheck = false;
-  ta.setAttribute("aria-label", "Editable code");
-
-  const sync = () => {
-    hl.innerHTML = highlight(ta.value) + "\n";
-  };
-  const syncScroll = () => {
-    hl.scrollTop = ta.scrollTop;
-    hl.scrollLeft = ta.scrollLeft;
-  };
-
-  ta.addEventListener("input", () => { sync(); syncScroll(); });
-  ta.addEventListener("scroll", syncScroll);
-  ta.addEventListener("keydown", (ev) => {
-    if (ev.key === "Tab" && !ev.shiftKey) {
-      ev.preventDefault();
-      const s = ta.selectionStart;
-      const e = ta.selectionEnd;
-      ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(e);
-      ta.selectionStart = ta.selectionEnd = s + 2;
-      sync();
-    }
-  });
-
-  wrap.appendChild(hl);
-  wrap.appendChild(ta);
-  if (pre) pre.replaceWith(wrap);
-  else block.appendChild(wrap);
-  return ta;
-}
-
-/** Ensure an output panel exists after the <cb> block. */
-function ensureOutput(block: HTMLDivElement): HTMLDivElement {
-  let out = block.querySelector<HTMLDivElement>(":scope > .code-output");
-  if (out) return out;
-  out = document.createElement("div");
-  out.className = "code-output";
-  block.appendChild(out);
-  return out;
-}
-
-function renderOutput(out: HTMLDivElement, r: { logs: Array<{ level: string; text: string }>; error: string | null; durationMs: number }) {
-  const title = `<div class="code-output-title"><span>output</span><span class="meta">${r.durationMs.toFixed(0)}ms</span></div>`;
-  let body = "";
-  if (r.logs.length === 0 && !r.error) {
-    body = '<div class="empty">(no console output)</div>';
-  } else {
-    body = r.logs
-      .map(
-        (l) =>
-          `<div class="line lvl-${l.level}">${escapeText(l.text)}</div>`,
-      )
-      .join("");
-    if (r.error) {
-      body += `<div class="line lvl-error">⚠ ${escapeText(r.error)}</div>`;
-    }
-  }
-  out.innerHTML = title + body;
-  out.dataset.state = r.error ? "err" : "ok";
+  return roots;
 }
