@@ -9,11 +9,54 @@
 
 <p>There are two axes. When <code>flex-direction: row</code> (the default), the main-axis runs horizontally and the cross-axis runs vertically. When <code>flex-direction: column</code>, they swap.</p>
 
-<p><code>justify-content</code> controls how items are spaced along the <strong>main-axis</strong>. Values: flex-start (default), center, flex-end, space-between, space-around.</p>
+<p><code>justify-content</code> controls how items are spaced along the <strong>main-axis</strong>:</p>
+<table class="tw"><tbody>
+<tr><th>Value</th><th>What it does</th></tr>
+<tr><td><code>flex-start</code></td><td>Items packed to the start (default)</td></tr>
+<tr><td><code>flex-end</code></td><td>Items packed to the end</td></tr>
+<tr><td><code>center</code></td><td>Items centered along the axis</td></tr>
+<tr><td><code>space-between</code></td><td>First item at start, last at end, equal gaps between</td></tr>
+<tr><td><code>space-around</code></td><td>Equal space around each item (half-size gap at edges)</td></tr>
+<tr><td><code>space-evenly</code></td><td>Equal space between all items AND at edges</td></tr>
+</tbody></table>
 
-<p><code>align-items</code> controls how items are positioned along the <strong>cross-axis</strong>. Default is <code>stretch</code> — items fill the full height. Other values: flex-start, center, flex-end, baseline.</p>
+<p><code>align-items</code> controls how items are positioned along the <strong>cross-axis</strong>:</p>
+<table class="tw"><tbody>
+<tr><th>Value</th><th>What it does</th></tr>
+<tr><td><code>stretch</code></td><td>Items fill the full cross-axis height/width (default)</td></tr>
+<tr><td><code>flex-start</code></td><td>Items aligned to the start of the cross-axis</td></tr>
+<tr><td><code>flex-end</code></td><td>Items aligned to the end of the cross-axis</td></tr>
+<tr><td><code>center</code></td><td>Items centered on the cross-axis</td></tr>
+<tr><td><code>baseline</code></td><td>Items aligned by their text baselines</td></tr>
+</tbody></table>
+
+<p><code>flex-direction</code> sets the main-axis direction:</p>
+<table class="tw"><tbody>
+<tr><th>Value</th><th>What it does</th></tr>
+<tr><td><code>row</code></td><td>Left to right (default)</td></tr>
+<tr><td><code>row-reverse</code></td><td>Right to left</td></tr>
+<tr><td><code>column</code></td><td>Top to bottom</td></tr>
+<tr><td><code>column-reverse</code></td><td>Bottom to top</td></tr>
+</tbody></table>
+
+<p><code>flex-wrap</code> controls whether items wrap to new lines:</p>
+<table class="tw"><tbody>
+<tr><th>Value</th><th>What it does</th></tr>
+<tr><td><code>nowrap</code></td><td>All items on one line, may overflow (default)</td></tr>
+<tr><td><code>wrap</code></td><td>Items wrap to next line when they overflow</td></tr>
+<tr><td><code>wrap-reverse</code></td><td>Items wrap to the line above (reversed cross-axis)</td></tr>
+</tbody></table>
 
 <p><code>align-content</code> controls how <strong>flex lines</strong> (not items) are distributed. It only has any effect when <code>flex-wrap: wrap</code> is set and there are multiple lines. Without wrap, it does nothing.</p>
+<table class="tw"><tbody>
+<tr><th>Value</th><th>What it does</th></tr>
+<tr><td><code>stretch</code></td><td>Lines stretch to fill the container (default)</td></tr>
+<tr><td><code>flex-start</code></td><td>Lines packed to the start</td></tr>
+<tr><td><code>flex-end</code></td><td>Lines packed to the end</td></tr>
+<tr><td><code>center</code></td><td>Lines centered in the container</td></tr>
+<tr><td><code>space-between</code></td><td>First line at start, last at end, equal gaps between</td></tr>
+<tr><td><code>space-around</code></td><td>Equal space around each line</td></tr>
+</tbody></table>
 
 <p><code>flex-grow</code> controls how items grow to fill remaining space. Default is 0 (don't grow). The remaining space is divided proportionally:</p>
 
@@ -59,7 +102,44 @@ Item 3: 100 + 90×3 = 370px</pre></div>
 
 <p>The <code>fr</code> unit represents a fraction of the available space. <code>1fr 2fr</code> = first column gets 1/3, second gets 2/3.</p>
 
+<p><strong>grid-template-areas skeleton</strong> -- how to define named areas:</p>
+<div class="cb"><pre>/* SKELETON: grid-template-areas */
+.container {
+  display: grid;
+  grid-template-columns: /* define column widths */;
+  grid-template-rows: /* define row heights (optional) */;
+  grid-template-areas:
+    "area1 area1 area2"    /* row 1: area1 spans 2 cols, area2 takes 1 */
+    "area3 area4 area4"    /* row 2: area3 takes 1 col, area4 spans 2 */
+    "area5 area5 area5";   /* row 3: area5 spans all 3 cols */
+  gap: 1rem;
+}
+/* Then assign children to areas: */
+.header  { grid-area: area1; }
+.sidebar { grid-area: area2; }
+.nav     { grid-area: area3; }
+.main    { grid-area: area4; }
+.footer  { grid-area: area5; }
+/* Rules:
+   - Each string = one row. Spaces separate columns.
+   - Use a dot (.) for an empty cell.
+   - All areas MUST be rectangular — L-shapes break the layout.
+   - Column count must match grid-template-columns.
+*/</pre></div>
+
 <p><code>repeat(auto-fit, minmax(250px, 1fr))</code> creates a responsive grid without media queries. <strong>auto-fit</strong> collapses empty tracks so items stretch to fill the row. <strong>auto-fill</strong> keeps empty tracks, leaving blank space. With few items: auto-fit makes items grow, auto-fill leaves gaps.</p>
+
+<p><strong>Grid alignment properties:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Property</th><th>Axis</th><th>Aligns what</th><th>Values</th></tr>
+<tr><td><code>justify-items</code></td><td>Row (inline)</td><td>All items within their cells</td><td>start, end, center, stretch (default)</td></tr>
+<tr><td><code>align-items</code></td><td>Column (block)</td><td>All items within their cells</td><td>start, end, center, stretch (default)</td></tr>
+<tr><td><code>justify-content</code></td><td>Row (inline)</td><td>The entire grid within the container</td><td>start, end, center, stretch, space-between, space-around, space-evenly</td></tr>
+<tr><td><code>align-content</code></td><td>Column (block)</td><td>The entire grid within the container</td><td>start, end, center, stretch, space-between, space-around, space-evenly</td></tr>
+<tr><td><code>justify-self</code></td><td>Row (inline)</td><td>A single item within its cell</td><td>start, end, center, stretch</td></tr>
+<tr><td><code>align-self</code></td><td>Column (block)</td><td>A single item within its cell</td><td>start, end, center, stretch</td></tr>
+<tr><td><code>place-items</code></td><td>Both</td><td>Shorthand for align-items / justify-items</td><td>e.g. <code>center center</code></td></tr>
+</tbody></table>
 
 <p>Grid terminology: a <strong>grid line</strong> is a dividing line (numbered from 1). A <strong>grid track</strong> is a full row or column. A <strong>grid cell</strong> is a single box. A <strong>grid area</strong> is a rectangular group of cells. All areas must be rectangular or the layout breaks.</p>
 
@@ -145,6 +225,14 @@ Item 3: 100 + 90×3 = 370px</pre></div>
 <tr><td>Arrow function</td><td>inherits from parent</td><td>No own this. Good inside setTimeout. Bad as object method.</td></tr>
 </tbody></table>
 
+<p><strong>call vs apply vs bind:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>Invokes immediately?</th><th>How args are passed</th><th>Can be overridden?</th></tr>
+<tr><td><code>fn.call(thisArg, a, b, c)</code></td><td>Yes</td><td>Individually, comma-separated</td><td>N/A (runs once)</td></tr>
+<tr><td><code>fn.apply(thisArg, [a, b, c])</code></td><td>Yes</td><td>As an array</td><td>N/A (runs once)</td></tr>
+<tr><td><code>fn.bind(thisArg, a, b)</code></td><td>No -- returns a new function</td><td>Partially applied (curried)</td><td>No -- .call()/.apply() CANNOT override bind</td></tr>
+</tbody></table>
+
 <div class="cb"><pre>// Mock exam Q23 pattern (from teacher's answer key)
 var gameOne = VideoGame('Zelda', 1998);     // this = window (no new)
 var gameTwo = new Game('Fallout', 1997);    // this = gameTwo
@@ -186,6 +274,47 @@ function Rectangle(position, width, height) {
 Rectangle.prototype = Object.create(Shape.prototype);  // 2. Link chain (NOT new Shape()!)
 Rectangle.prototype.constructor = Rectangle;            // 3. Fix constructor reference</pre></div>
 
+<p><strong>3-step inheritance skeleton (copy-paste template):</strong></p>
+<div class="cb"><pre>// === PARENT CONSTRUCTOR ===
+function Parent(sharedProp) {
+  this.sharedProp = sharedProp;
+}
+Parent.prototype.sharedMethod = function() {
+  return this.sharedProp;
+};
+
+// === CHILD CONSTRUCTOR ===
+function Child(sharedProp, ownProp) {
+  // STEP 1: Call parent constructor on this child
+  Parent.call(this, sharedProp);
+  this.ownProp = ownProp;
+}
+
+// STEP 2: Link prototype chain (NOT "new Parent()"!)
+Child.prototype = Object.create(Parent.prototype);
+
+// STEP 3: Fix constructor reference
+Child.prototype.constructor = Child;
+
+// Add child-specific methods AFTER step 2 (otherwise they get overwritten)
+Child.prototype.childMethod = function() {
+  return this.ownProp;
+};
+
+// === USAGE ===
+var c = new Child('inherited', 'own');
+c.sharedMethod();  // works -- found via prototype chain
+c.childMethod();   // works -- on Child.prototype
+c instanceof Child;  // true
+c instanceof Parent; // true</pre></div>
+
+<table class="tw"><tbody>
+<tr><th>Step</th><th>Code</th><th>What it does</th><th>What goes wrong without it</th></tr>
+<tr><td>1</td><td><code>Parent.call(this, ...)</code></td><td>Runs parent constructor, setting up inherited properties on this child</td><td>Child has no inherited properties (sharedProp is undefined)</td></tr>
+<tr><td>2</td><td><code>Child.prototype = Object.create(Parent.prototype)</code></td><td>Links prototype chain so child can access parent methods</td><td>Child cannot access sharedMethod or any parent prototype methods</td></tr>
+<tr><td>3</td><td><code>Child.prototype.constructor = Child</code></td><td>Fixes constructor reference (step 2 overwrote it to Parent)</td><td><code>c.constructor</code> points to Parent instead of Child</td></tr>
+</tbody></table>
+
 <p><strong>Method chaining</strong> (from teacher's warrior.js): returning <code>this</code> from every method enables chaining: <code>link.moveRight().moveRight().attack(ganon)</code>.</p>
 
 <p>Step 1 runs parent setup code on the child. Step 2 links the prototype chain — we use <code>Object.create()</code> instead of <code>new Shape()</code> because new would run the constructor (which expects arguments and would create unwanted properties on the prototype). Step 3 is cleanup — without it, <code>Rectangle.prototype.constructor</code> would point to Shape instead of Rectangle.</p>
@@ -194,7 +323,13 @@ Rectangle.prototype.constructor = Rectangle;            // 3. Fix constructor re
 
 <p><strong>Property attributes</strong> (from slides): every property has <code>writable</code>, <code>enumerable</code>, <code>configurable</code>. All default to <code>true</code> for regular assignment, but <code>false</code> when using <code>Object.defineProperty()</code>. This is why built-in methods like toString don't show in for/in loops — they're non-enumerable.</p>
 
-<p><strong>Testing properties:</strong> <code>hasOwnProperty()</code> = own only (not inherited). <code>"prop" in obj</code> = own AND inherited. <code>o.hasOwnProperty("toString")</code> → false (inherited), but <code>"toString" in o</code> → true.</p>
+<p><strong>Testing properties:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>Checks own?</th><th>Checks inherited?</th><th>Example</th></tr>
+<tr><td><code>obj.hasOwnProperty("x")</code></td><td>Yes</td><td>No</td><td><code>o.hasOwnProperty("toString")</code> → false</td></tr>
+<tr><td><code>"x" in obj</code></td><td>Yes</td><td>Yes</td><td><code>"toString" in o</code> → true</td></tr>
+<tr><td><code>obj.x !== undefined</code></td><td>Yes</td><td>Yes</td><td>Fails if property exists but is set to undefined</td></tr>
+</tbody></table>
 
 <p><strong>ES6 class</strong> is syntactic sugar over prototypes — same thing underneath. <code>extends</code> replaces <code>Object.create(Parent.prototype)</code>. <code>super()</code> replaces <code>Parent.call(this)</code>.</p>
 
@@ -204,7 +339,22 @@ Rectangle.prototype.constructor = Rectangle;            // 3. Fix constructor re
 
 <p>A Promise represents a value that doesn't exist yet — it will either <strong>resolve</strong> (success) or <strong>reject</strong> (failure) in the future.</p>
 
-<p><code>.then()</code> runs on success. <code>.catch()</code> runs on failure. <code>.finally()</code> runs either way.</p>
+<p><strong>Promise instance methods:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>When it runs</th><th>Receives</th><th>Returns</th></tr>
+<tr><td><code>.then(onFulfilled, onRejected)</code></td><td>On resolve (or reject if 2nd arg given)</td><td>The resolved value</td><td>A new Promise (enables chaining)</td></tr>
+<tr><td><code>.catch(onRejected)</code></td><td>On reject (or thrown error in chain)</td><td>The rejection reason / error</td><td>A new Promise (can recover the chain)</td></tr>
+<tr><td><code>.finally(onFinally)</code></td><td>Always -- resolve OR reject</td><td>Nothing (no arguments)</td><td>Passes through the previous value</td></tr>
+</tbody></table>
+
+<p><strong>Promise states:</strong></p>
+<table class="tw"><tbody>
+<tr><th>State</th><th>Meaning</th><th>Transitions to</th></tr>
+<tr><td><code>pending</code></td><td>Initial state, neither fulfilled nor rejected</td><td>fulfilled OR rejected</td></tr>
+<tr><td><code>fulfilled</code></td><td>Operation completed successfully (resolve was called)</td><td>Terminal -- cannot change</td></tr>
+<tr><td><code>rejected</code></td><td>Operation failed (reject was called or error thrown)</td><td>Terminal -- cannot change</td></tr>
+</tbody></table>
+<p>"Settled" means either fulfilled or rejected (no longer pending).</p>
 
 <p>The Promise constructor runs <strong>synchronously</strong>. Only the <code>.then()</code> callback is async (microtask).</p>
 
@@ -359,7 +509,44 @@ useEffect(() =&gt; {
 
 <p>React's built-in way to share state without passing props through every level. <strong>Prop drilling</strong> = passing data through multiple intermediate components that don't use it, just so a deeply nested child can access it. Context eliminates this.</p>
 
-<p>Three steps: <code>createContext()</code> creates it, <code>Provider</code> wraps the tree and holds the value, <code>useContext()</code> reads it in any child.</p>
+<p><strong>Skeleton — 3 files:</strong></p>
+
+<div class="cb"><pre>// FILE 1: context/my-context.tsx — DEFINE (must be "use client" in Next.js)
+"use client";
+import { createContext, useContext, useState } from "react";
+
+const MyContext = createContext(null);           // 1. Create (null = default when no Provider)
+
+export function MyProvider({ children }) {       // 2. Provider holds state
+  const [state, setState] = useState(initial);
+  function doSomething(args) {
+    setState((prev) =&gt; /* return new state */);  // functional updater
+  }
+  return (
+    &lt;MyContext.Provider value={{ state, doSomething }}&gt;
+      {children}
+    &lt;/MyContext.Provider&gt;
+  );
+}
+
+export function useMy() {                        // 3. Custom hook to consume
+  const ctx = useContext(MyContext);
+  if (!ctx) throw new Error("useMy must be within MyProvider");
+  return ctx;
+}
+
+// FILE 2: app/layout.tsx — WRAP
+import { MyProvider } from "@/context/my-context";
+export default function Layout({ children }) {
+  return &lt;MyProvider&gt;{children}&lt;/MyProvider&gt;;
+}
+
+// FILE 3: Any component — USE
+import { useMy } from "@/context/my-context";
+function AnyComponent() {
+  const { state, doSomething } = useMy();
+  return &lt;button onClick={() =&gt; doSomething(args)}&gt;...&lt;/button&gt;;
+}</pre></div>
 
 <div class="cb"><pre>// STEP 1: Define — Source: workshops/w5/context/cart-context.tsx
 "use client";
@@ -597,13 +784,92 @@ function ReviewPage() {
 
 <h2 class="g-h2">20. react-hook-form</h2>
 
-<p>A form library that uses <strong>uncontrolled inputs</strong> — the form doesn't re-render the component on every keystroke. It only re-renders on validation events. This is its primary advantage over managing forms with useState.</p>
+<p>A form library that uses <strong>uncontrolled inputs</strong> — doesn't re-render on every keystroke. Only re-renders on validation events. Primary advantage over useState forms.</p>
 
-<p>Key methods: <code>useForm()</code> initializes, <code>register("field")</code> connects an input, <code>handleSubmit(fn)</code> wraps the submit handler, <code>formState.errors</code> has the validation errors.</p>
+<p><strong>Skeleton — simple form:</strong></p>
 
-<p>Validation modes: <code>"onSubmit"</code> (default — only on submit), <code>"onBlur"</code> (when user leaves field), <code>"onChange"</code> (every keystroke — most feedback but more re-renders). Use <code>resolver: zodResolver(schema)</code> to integrate Zod. Zod lets you define validation as a schema: <code>z.object({ email: z.string().email(), age: z.number().min(18) })</code>. Same schema works for both client and server validation. TypeScript infers the form type from it with <code>z.infer&lt;typeof schema&gt;</code>.</p>
+<div class="cb"><pre>"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-<p>Valid built-in rules: required, minLength, maxLength, pattern, validate. NOT valid: type, sanitize.</p>
+// 1. SCHEMA — define validation rules
+const schema = z.object({
+  name: z.string().min(2, "Too short"),
+  email: z.string().email("Invalid"),
+});
+type FormData = z.infer&lt;typeof schema&gt;;  // TS infers type from schema
+
+// 2. COMPONENT
+export default function MyForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm&lt;FormData&gt;({
+    resolver: zodResolver(schema),      // Zod validates instead of per-field rules
+    mode: "onBlur",                     // when to validate (see modes below)
+  });
+
+  const onSubmit = (data: FormData) =&gt; { /* data is typed + validated */ };
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)}&gt;
+      &lt;input {...register("name")} /&gt;
+      {errors.name &amp;&amp; &lt;p&gt;{errors.name.message}&lt;/p&gt;}
+
+      &lt;input {...register("email")} /&gt;
+      {errors.email &amp;&amp; &lt;p&gt;{errors.email.message}&lt;/p&gt;}
+
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre></div>
+
+<p><strong>Skeleton — multi-step form (route-based):</strong></p>
+
+<div class="cb"><pre>// types/booking.ts — per-step schemas, merged
+const step1Schema = z.object({ name: z.string(), email: z.string().email() });
+const step2Schema = z.object({ address: z.string(), city: z.string() });
+export const bookingSchema = step1Schema.merge(step2Schema);
+
+// app/booking/layout.tsx — FormProvider wraps all steps ("use client")
+const methods = useForm({ resolver: zodResolver(bookingSchema) });
+return &lt;FormProvider {...methods}&gt;{children}&lt;/FormProvider&gt;;
+
+// app/booking/step1/page.tsx — each step uses useFormContext
+const { register, trigger, formState: { errors } } = useFormContext();
+const handleNext = async () =&gt; {
+  const valid = await trigger(["name", "email"]);  // validate only these
+  if (valid) router.push("/booking/step2");
+};
+
+// app/booking/review/page.tsx — read all values
+const { getValues, handleSubmit } = useFormContext();
+const values = getValues();  // read without submitting</pre></div>
+
+<p><strong>Validation modes:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Mode</th><th>When it validates</th><th>Use case</th></tr>
+<tr><td><code>"onSubmit"</code></td><td>Only on form submit</td><td>Default. Least intrusive.</td></tr>
+<tr><td><code>"onBlur"</code></td><td>When user leaves a field</td><td>Good balance — validates after finishing a field</td></tr>
+<tr><td><code>"onChange"</code></td><td>Every keystroke</td><td>Most feedback but more re-renders</td></tr>
+<tr><td><code>"onTouched"</code></td><td>First on blur, then onChange after</td><td>Best UX — doesn't nag until field is tried</td></tr>
+<tr><td><code>"all"</code></td><td>On blur AND onChange</td><td>Most aggressive</td></tr>
+</tbody></table>
+
+<p><strong>Valid built-in rules</strong> (for register): required, minLength, maxLength, pattern, validate, min, max. <strong>NOT valid:</strong> type, sanitize, format.</p>
+
+<p><strong>Key methods:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>Purpose</th></tr>
+<tr><td><code>useForm()</code></td><td>Initialize form</td></tr>
+<tr><td><code>register("field")</code></td><td>Connect native &lt;input&gt;</td></tr>
+<tr><td><code>handleSubmit(fn)</code></td><td>Wrap submit — only calls fn if valid</td></tr>
+<tr><td><code>formState.errors</code></td><td>Validation errors per field</td></tr>
+<tr><td><code>trigger(["field"])</code></td><td>Validate specific fields (multi-step)</td></tr>
+<tr><td><code>getValues()</code></td><td>Read current values without submitting</td></tr>
+<tr><td><code>reset()</code></td><td>Clear the form</td></tr>
+<tr><td><code>FormProvider</code></td><td>Share form across route-based steps</td></tr>
+<tr><td><code>useFormContext()</code></td><td>Access form in child components</td></tr>
+<tr><td><code>Controller</code></td><td>For non-native inputs (MUI, custom)</td></tr>
+</tbody></table>
 
 <p><strong>Why server-side validation is still needed:</strong> client validation can be bypassed entirely via curl, DevTools, or disabling JavaScript. The server must always re-validate.</p>
 
@@ -663,17 +929,46 @@ export default function BookingLayout({ children }) {
 
 <p><strong>children vs childNodes:</strong> <code>children</code> returns only elements. <code>childNodes</code> returns everything including text nodes (whitespace between tags). This is why <code>nextSibling</code> often returns a text node — use <code>nextElementSibling</code> to get the next element.</p>
 
-<p><strong>querySelectorAll()</strong> is the most powerful selector — accepts any CSS selector. Returns a static NodeList (snapshot). <code>getElementsByClassName()</code> returns a live HTMLCollection that updates when the DOM changes.</p>
+<p><strong>DOM selector methods:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>Returns</th><th>Live or static?</th><th>Notes</th></tr>
+<tr><td><code>document.getElementById("id")</code></td><td>Single Element (or null)</td><td>N/A</td><td>Fastest. Only works with IDs.</td></tr>
+<tr><td><code>document.querySelector(".css")</code></td><td>First matching Element (or null)</td><td>N/A</td><td>Accepts any CSS selector.</td></tr>
+<tr><td><code>document.querySelectorAll(".css")</code></td><td>Static NodeList</td><td>Static (snapshot)</td><td>Does NOT update when DOM changes. Supports forEach.</td></tr>
+<tr><td><code>document.getElementsByClassName("c")</code></td><td>Live HTMLCollection</td><td>Live (auto-updates)</td><td>Updates when DOM changes. No forEach (use for-loop or spread).</td></tr>
+<tr><td><code>document.getElementsByTagName("p")</code></td><td>Live HTMLCollection</td><td>Live (auto-updates)</td><td>Selects by tag name.</td></tr>
+<tr><td><code>document.getElementsByName("n")</code></td><td>Live NodeList</td><td>Live (auto-updates)</td><td>Selects by name attribute (forms).</td></tr>
+</tbody></table>
+<p><strong>Key difference:</strong> Static = snapshot at call time (safe to loop and modify DOM). Live = reflects current DOM (modifying DOM during loop causes bugs).</p>
 
 <p><strong>innerHTML</strong> renders HTML markup. <strong>textContent</strong> renders as plain text. From the slides: textContent "renderast ekki sem HTML heldur strengur". <strong>Security:</strong> <code>innerHTML</code> with user input is an XSS risk — injected <code>&lt;script&gt;</code> tags will execute. Always use <code>textContent</code> for user-provided text.</p>
 
-<p><strong>Creating elements:</strong> <code>createElement()</code> creates, <code>appendChild()</code> adds to end, <code>insertBefore(new, ref)</code> adds before a reference node, <code>removeChild()</code> removes (called on parent), <code>replaceChild(new, old)</code> replaces.</p>
+<p><strong>Creating and modifying elements:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>What it does</th><th>Called on</th></tr>
+<tr><td><code>document.createElement("div")</code></td><td>Creates a new element (not yet in DOM)</td><td>document</td></tr>
+<tr><td><code>parent.appendChild(node)</code></td><td>Adds node as the last child</td><td>Parent element</td></tr>
+<tr><td><code>parent.insertBefore(newNode, refNode)</code></td><td>Inserts newNode before refNode</td><td>Parent element</td></tr>
+<tr><td><code>parent.removeChild(child)</code></td><td>Removes child from parent and returns it</td><td>Parent element</td></tr>
+<tr><td><code>parent.replaceChild(newNode, oldNode)</code></td><td>Replaces oldNode with newNode</td><td>Parent element</td></tr>
+<tr><td><code>node.cloneNode(true)</code></td><td>Deep clone (true) or shallow clone (false)</td><td>Any node</td></tr>
+<tr><td><code>elem.remove()</code></td><td>Removes itself from the DOM (modern)</td><td>The element itself</td></tr>
+</tbody></table>
 
 <p><strong>Attributes:</strong> <code>setAttribute("class", "new")</code> / <code>getAttribute("href")</code>. Or dot notation: <code>elem.id = "newId"</code>, <code>elem.className = "newClass"</code>.</p>
 
 <p><strong>data- attributes</strong> (from slides): store custom data in HTML with <code>data-</code> prefix. Access in JS via <code>element.dataset.x</code>. Example: <code>&lt;div data-user-id="42"&gt;</code> → <code>elem.dataset.userId</code>.</p>
 
-<p><strong>classList</strong> (from slides): <code>classList.add('class')</code>, <code>classList.remove('class')</code>, <code>classList.toggle('class')</code>, <code>classList.contains('class')</code>. Better than <code>className</code> which overwrites all classes.</p>
+<p><strong>classList methods</strong> (from slides):</p>
+<table class="tw"><tbody>
+<tr><th>Method</th><th>What it does</th></tr>
+<tr><td><code>classList.add('x')</code></td><td>Adds class (no effect if already present)</td></tr>
+<tr><td><code>classList.remove('x')</code></td><td>Removes class (no error if missing)</td></tr>
+<tr><td><code>classList.toggle('x')</code></td><td>Adds if missing, removes if present. Returns true/false.</td></tr>
+<tr><td><code>classList.contains('x')</code></td><td>Returns true if class exists, false otherwise</td></tr>
+<tr><td><code>classList.replace('old', 'new')</code></td><td>Replaces old class with new</td></tr>
+</tbody></table>
+<p>Better than <code>className</code> which overwrites all classes.</p>
 
 <p><strong>Scripting CSS</strong> (from slides): <code>element.style.backgroundColor = 'red'</code>. CSS names are camelCased in JS. Values MUST be strings with units: <code>element.style.fontSize = '16px'</code>. This only reads/sets INLINE styles. For actual computed styles: <code>window.getComputedStyle(element)</code>.</p>
 
@@ -804,12 +1099,72 @@ div p { }             /* any p at any depth */</pre></div>
 
 <p>Enables real-time, bidirectional communication. Uses <strong>WebSockets</strong> under the hood — a persistent open connection so the server can push data anytime without the client asking. Unlike HTTP (request-response), where the client must initiate every interaction. Without WebSockets, you'd need polling (repeated fetch calls), which wastes resources.</p>
 
+<p><strong>Server setup skeleton (copy-paste template):</strong></p>
+<div class="cb"><pre>// === SERVER SETUP SKELETON ===
+// 1. Create HTTP server + attach Socket.io
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
+const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: { origin: 'http://localhost:3000' }  // allow client origin
+});
+
+// 2. Optional: Middleware (runs BEFORE connection)
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (isValid(token)) next();          // allow
+  else next(new Error('Unauthorized')); // reject
+});
+
+// 3. Handle connections
+io.on('connection', (socket) => {
+  console.log('Connected:', socket.id);
+
+  // Listen for events from THIS client
+  socket.on('chat-message', (data) => {
+    io.emit('chat-message', data);           // send to ALL
+    // socket.emit('x', data);               // send to THIS client only
+    // socket.broadcast.emit('x', data);     // send to ALL EXCEPT sender
+    // io.to('room1').emit('x', data);       // send to a room
+  });
+
+  // Rooms
+  socket.on('join-room', (roomId) => {
+    socket.join(roomId);
+  });
+
+  // Disconnect
+  socket.on('disconnect', () => {
+    console.log('Disconnected:', socket.id);
+  });
+});
+
+// 4. Start server
+server.listen(3001, () => console.log('Listening on 3001'));</pre></div>
+
+<div class="cb"><pre>// === CLIENT SETUP SKELETON ===
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+
+// Send to server
+socket.emit('chat-message', { text: 'Hello' });
+
+// Listen from server
+socket.on('chat-message', (data) => {
+  console.log(data);
+});</pre></div>
+
+<p><strong>Emit patterns -- who receives what:</strong></p>
 <table class="tw"><tbody>
-<tr><th>Method</th><th>Who receives</th></tr>
-<tr><td><code>io.emit()</code></td><td>ALL clients</td></tr>
-<tr><td><code>socket.emit()</code></td><td>Server: sends to THAT specific client only (each socket = one client's connection). Client: sends to the server.</td></tr>
-<tr><td><code>socket.broadcast.emit()</code></td><td>ALL EXCEPT sender</td></tr>
-<tr><td><code>io.to(room).emit()</code></td><td>All in that room</td></tr>
+<tr><th>Method</th><th>Who receives</th><th>Use case</th></tr>
+<tr><td><code>io.emit(event, data)</code></td><td>ALL connected clients</td><td>Broadcast to everyone (new message, global update)</td></tr>
+<tr><td><code>socket.emit(event, data)</code></td><td>Server-side: THAT specific client only. Client-side: the server.</td><td>Private response, send data to server</td></tr>
+<tr><td><code>socket.broadcast.emit(event, data)</code></td><td>ALL clients EXCEPT the sender</td><td>"User X is typing..." notifications</td></tr>
+<tr><td><code>io.to(room).emit(event, data)</code></td><td>All clients in that room</td><td>Chat rooms, game lobbies</td></tr>
+<tr><td><code>socket.to(room).emit(event, data)</code></td><td>All in room EXCEPT sender</td><td>Room notification excluding sender</td></tr>
 </tbody></table>
 
 <p><strong>Rooms:</strong> <code>socket.join(roomId)</code> adds a socket to a room. Used for chat channels/groups. <code>io.to(room).emit()</code> sends to everyone in the room.</p>
@@ -834,6 +1189,16 @@ io.on('connection', socket =&gt; {
     console.log(`Client disconnected: ${socket.id}`);
   });
 });</pre></div>
+
+<p><strong>Key Socket.io events:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Event</th><th>Where</th><th>When it fires</th></tr>
+<tr><td><code>io.on('connection', cb)</code></td><td>Server</td><td>A new client connects</td></tr>
+<tr><td><code>socket.on('disconnect', cb)</code></td><td>Server</td><td>That client disconnects</td></tr>
+<tr><td><code>socket.on('connect', cb)</code></td><td>Client</td><td>Successfully connected to server</td></tr>
+<tr><td><code>socket.on('connect_error', cb)</code></td><td>Client</td><td>Connection failed (auth rejected, server down)</td></tr>
+<tr><td><code>socket.on('custom-event', cb)</code></td><td>Both</td><td>When the other side emits 'custom-event'</td></tr>
+</tbody></table>
 
 <p><strong>Listening:</strong> <code>socket.on(event, callback)</code> listens for events on both client and server.</p>
 
