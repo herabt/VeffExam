@@ -490,6 +490,8 @@ abstract class Driver implements IRacer {            // Abstract class
 
 <p><strong>forwardRef</strong> — lets a parent pass a ref into a child component's DOM element. <strong>useImperativeHandle</strong> — customizes what the parent sees through the ref (expose only specific methods like focus(), not the full DOM node).</p>
 
+<p><strong>useReducer</strong> — alternative to useState for complex state logic: <code>const [state, dispatch] = useReducer(reducer, initialState)</code>. The reducer is a pure function <code>(state, action) =&gt; newState</code> — same pattern as Redux. Use when multiple related values change together or next state depends on previous. Redux is essentially a global useReducer with middleware.</p>
+
 <p><strong>Rules of Hooks:</strong> (1) Only at the top level — never inside if/loops. React tracks hooks by call order; if a hook is inside an if, it might not run on some renders, shifting the order and causing bugs. (2) Only from function components or custom hooks.</p>
 
 <div class="cb"><pre>// Source: React/using-fetch/src/components/App/App.js
