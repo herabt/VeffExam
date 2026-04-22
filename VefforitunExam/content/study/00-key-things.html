@@ -599,6 +599,89 @@ function NavBar() {
 
 <p>A tiny state management library. No Provider needed. No boilerplate. The store IS a hook.</p>
 
+<p><strong>Skeleton -- Basic Store (create &rarr; use with selectors):</strong></p>
+
+<div class="cb"><pre>// STEP 1: CREATE STORE — store/my-store.ts
+import { create } from "zustand";
+
+interface MyState {
+  items: Item[];                                       // state
+  count: number;
+  addItem: (item: Item) =&gt; void;                       // actions
+  reset: () =&gt; void;
+}
+
+export const useMyStore = create&lt;MyState&gt;()((set) =&gt; ({
+  // --- STATE ---
+  items: [],
+  count: 0,
+  // --- ACTIONS (set() merges the object you return into state) ---
+  addItem: (item) =&gt; set((state) =&gt; ({
+    items: [...state.items, item],                     // immutable update!
+    count: state.count + 1,
+  })),
+  reset: () =&gt; set({ items: [], count: 0 }),           // replace directly
+}));
+
+// STEP 2: USE IN COMPONENT — with SELECTORS (prevents wasted re-renders)
+import { useMyStore } from "@/store/my-store";
+
+function ItemList() {
+  const items = useMyStore((state) =&gt; state.items);    // only re-renders when items changes
+  return &lt;ul&gt;{items.map(i =&gt; &lt;li key={i.id}&gt;{i.name}&lt;/li&gt;)}&lt;/ul&gt;;
+}
+
+function AddButton({ item }) {
+  const addItem = useMyStore((state) =&gt; state.addItem); // only selects the action
+  return &lt;button onClick={() =&gt; addItem(item)}&gt;Add&lt;/button&gt;;
+}
+
+// BAD — destructuring without selector re-renders on ANY store change:
+// const { items, addItem } = useMyStore();  // DO NOT DO THIS
+
+// OUTSIDE REACT (tests, utilities, server):
+const currentItems = useMyStore.getState().items;      // read
+useMyStore.setState({ items: [] });                    // write</pre></div>
+
+<p><strong>Skeleton -- Store with Persist middleware:</strong></p>
+
+<div class="cb"><pre>// store/my-store.ts — with persist
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+export const useMyStore = create()(
+  persist(
+    (set) =&gt; ({
+      // --- state + actions go here (same as basic) ---
+      items: [],
+      addItem: (item) =&gt; set((state) =&gt; ({ items: [...state.items, item] })),
+    }),
+    {
+      name: "my-storage",                              // key in localStorage
+      storage: createJSONStorage(() =&gt; localStorage),  // or sessionStorage
+    }
+  )
+);</pre></div>
+
+<p><strong>Zustand Middleware Reference:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Middleware</th><th>What it does</th><th>Import from</th></tr>
+<tr><td><code>persist</code></td><td>Auto-saves/restores state to localStorage or sessionStorage</td><td><code>zustand/middleware</code></td></tr>
+<tr><td><code>devtools</code></td><td>Connects to Redux DevTools for state inspection</td><td><code>zustand/middleware</code></td></tr>
+<tr><td><code>immer</code></td><td>Lets you write mutation-style updates (like Redux Toolkit)</td><td><code>zustand/middleware/immer</code></td></tr>
+</tbody></table>
+
+<p><strong>Selector Patterns:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Pattern</th><th>When to use</th></tr>
+<tr><td><code>useStore((s) =&gt; s.field)</code></td><td>Select a single primitive or reference-stable value</td></tr>
+<tr><td><code>useStore((s) =&gt; s.action)</code></td><td>Select an action function (functions are reference-stable)</td></tr>
+<tr><td><code>useShallow((s) =&gt; ({ a: s.a, b: s.b }))</code></td><td>Select multiple values; shallow-compares each key to avoid re-renders</td></tr>
+<tr><td><code>useShallow((s) =&gt; s.items.filter(...))</code></td><td>Derived arrays (.map/.filter) create new refs every render -- useShallow prevents unnecessary re-renders</td></tr>
+</tbody></table>
+
+<p><strong>Teacher's example (with persist):</strong></p>
+
 <div class="cb"><pre>// Source: workshops/w5/store/cart-store.ts
 export const useCartStore = create()(
   persist(
@@ -644,6 +727,102 @@ useCartStore.setState({ cart: [] });                // write state outside React
 <p>State management with structure. The data flows in one direction: <strong>View → Action → dispatch() → Reducer → Store → View</strong>.</p>
 
 <p><strong>createSlice</strong> bundles a reducer + action creators. It uses <strong>Immer</strong> — you write code that looks like mutation (<code>state.cart.push(item)</code>) but Immer produces a new immutable state behind the scenes.</p>
+
+<p><strong>Skeleton -- Redux Toolkit (4 files: slice &rarr; store &rarr; provider &rarr; component):</strong></p>
+
+<div class="cb"><pre>// FILE 1: store/my-slice.ts — createSlice (reducer + actions)
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface MyState { items: Item[]; }
+const initialState: MyState = { items: [] };
+
+const mySlice = createSlice({
+  name: "my",                                          // prefix for action types
+  initialState,
+  reducers: {
+    addItem(state, action: PayloadAction&lt;Item&gt;) {
+      state.items.push(action.payload);                // Immer makes this safe!
+    },
+    removeItem(state, action: PayloadAction&lt;string&gt;) {
+      state.items = state.items.filter(i =&gt; i.id !== action.payload);
+    },
+    reset(state) {
+      state.items = [];
+    },
+  },
+});
+export const { addItem, removeItem, reset } = mySlice.actions;   // action creators
+export default mySlice.reducer;                                   // reducer
+
+// FILE 2: store/store.ts — configureStore
+import { configureStore } from "@reduxjs/toolkit";
+import myReducer from "./my-slice";
+
+export const store = configureStore({
+  reducer: {
+    my: myReducer,           // state.my.items
+    // other: otherReducer,  // add more slices here
+  },
+});
+export type RootState = ReturnType&lt;typeof store.getState&gt;;   // for typed useSelector
+export type AppDispatch = typeof store.dispatch;              // for typed useDispatch
+
+// FILE 3: app/providers.tsx — Provider wrapper (MUST be "use client")
+"use client";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+export function Providers({ children }) {
+  return &lt;Provider store={store}&gt;{children}&lt;/Provider&gt;;
+}
+
+// FILE 3b: app/layout.tsx — wrap children
+import { Providers } from "./providers";
+export default function RootLayout({ children }) {
+  return &lt;html&gt;&lt;body&gt;&lt;Providers&gt;{children}&lt;/Providers&gt;&lt;/body&gt;&lt;/html&gt;;
+}
+
+// FILE 4: Any component — useSelector + useDispatch
+import { useSelector, useDispatch } from "react-redux";
+import { addItem, removeItem } from "@/store/my-slice";
+import type { RootState } from "@/store/store";
+
+function MyComponent() {
+  const items = useSelector((state: RootState) =&gt; state.my.items);  // read
+  const dispatch = useDispatch();                                    // get dispatch
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; dispatch(addItem(newItem))}&gt;Add&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch(removeItem(id))}&gt;Remove&lt;/button&gt;
+      {items.map(i =&gt; &lt;p key={i.id}&gt;{i.name}&lt;/p&gt;)}
+    &lt;/div&gt;
+  );
+}</pre></div>
+
+<p><strong>Redux Data Flow:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Step</th><th>What happens</th><th>Code</th></tr>
+<tr><td>1. User acts</td><td>Click/submit triggers handler</td><td><code>onClick={...}</code></td></tr>
+<tr><td>2. Dispatch</td><td>Send action to the store</td><td><code>dispatch(addItem(payload))</code></td></tr>
+<tr><td>3. Reducer</td><td>Pure function computes new state</td><td><code>state.items.push(action.payload)</code></td></tr>
+<tr><td>4. Store updates</td><td>Store holds new state</td><td>(automatic)</td></tr>
+<tr><td>5. UI re-renders</td><td>useSelector picks up change</td><td><code>useSelector(s =&gt; s.my.items)</code></td></tr>
+</tbody></table>
+
+<p><strong>Key Redux Toolkit APIs:</strong></p>
+<table class="tw"><tbody>
+<tr><th>API</th><th>What it does</th></tr>
+<tr><td><code>createSlice()</code></td><td>Defines reducer + auto-generates action creators</td></tr>
+<tr><td><code>configureStore()</code></td><td>Creates store, adds Thunk middleware + DevTools automatically</td></tr>
+<tr><td><code>PayloadAction&lt;T&gt;</code></td><td>Types the action.payload so TS knows the shape</td></tr>
+<tr><td><code>useSelector(fn)</code></td><td>Read state (subscribe to specific slice)</td></tr>
+<tr><td><code>useDispatch()</code></td><td>Get the dispatch function to send actions</td></tr>
+<tr><td><code>Provider</code></td><td>Makes store available to all child components</td></tr>
+<tr><td><code>RootState</code></td><td>Type of entire store state (for typed selectors)</td></tr>
+<tr><td><code>AppDispatch</code></td><td>Type of dispatch (for typed dispatch)</td></tr>
+</tbody></table>
+
+<p><strong>Teacher's example:</strong></p>
 
 <div class="cb"><pre>// Source: workshops/w5/store/cart-slice.ts
 const cartSlice = createSlice({
@@ -717,13 +896,77 @@ function CartCount() {
 
 <p>Next.js uses <strong>file-system routing</strong>: folders = URL segments. A <code>page.tsx</code> file makes a route publicly accessible.</p>
 
-<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, stays mounted when navigating between child routes — preserves state like sidebar open/closed), <code>loading.tsx</code> (loading UI — automatically wraps page in React <code>&lt;Suspense&gt;</code> boundary so layout renders instantly while page data loads), <code>error.tsx</code> (error boundary, must be "use client", receives a <code>reset()</code> function to retry), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint — cannot coexist with page.tsx).</p>
+<p><strong>Skeleton -- App Router File Structure:</strong></p>
 
-<p><strong>Component hierarchy:</strong> Layout → Template → Error → Loading → Page. (<code>template.tsx</code> is like layout but creates a new instance on every navigation — does NOT preserve state. Use for enter/exit animations or resetting forms.)</p>
+<div class="cb"><pre>app/
+  layout.tsx              &larr; Root layout (wraps EVERYTHING, required)
+  page.tsx                &larr; Home page (/)
+  loading.tsx             &larr; Loading UI for / (optional)
+  error.tsx               &larr; Error boundary for / (optional, must be "use client")
+  not-found.tsx           &larr; Custom 404 page (optional)
 
-<p><strong>Dynamic routes:</strong> <code>[slug]</code> = one segment. <code>[...slug]</code> = catch-all (1+ segments). <code>[[...slug]]</code> = optional catch-all (0+). Route groups <code>(name)</code> organize routes into folders without adding to the URL. Example: <code>(marketing)/about/page.tsx</code> → URL is just <code>/about</code>. Useful for different layouts per section.</p>
+  about/
+    page.tsx              &larr; /about
 
-<p><strong>Static vs Dynamic rendering:</strong> By default, routes are statically rendered at build time (cached, served from CDN). Routes become dynamic when they use: <code>cookies()</code>, <code>headers()</code>, <code>searchParams</code>, or uncached data requests.</p>
+  blog/
+    page.tsx              &larr; /blog
+    layout.tsx            &larr; Shared layout for /blog and children
+    [slug]/
+      page.tsx            &larr; /blog/my-post (dynamic segment)
+
+  shop/
+    [...categories]/
+      page.tsx            &larr; /shop/a/b/c (catch-all, 1+ segments)
+
+  docs/
+    [[...slug]]/
+      page.tsx            &larr; /docs OR /docs/a/b (optional catch-all, 0+)
+
+  (marketing)/            &larr; Route group — NOT in URL
+    pricing/
+      page.tsx            &larr; /pricing (not /marketing/pricing)
+    layout.tsx            &larr; Layout only for marketing pages
+
+  api/
+    users/
+      route.ts            &larr; API route: GET /api/users
+
+  _components/            &larr; Private folder (underscore) — NOT a route
+    sidebar.tsx</pre></div>
+
+<p><strong>All Special Files:</strong></p>
+<table class="tw"><tbody>
+<tr><th>File</th><th>Purpose</th><th>Key behavior</th></tr>
+<tr><td><code>page.tsx</code></td><td>The page UI (makes route public)</td><td>Required for a route to be accessible</td></tr>
+<tr><td><code>layout.tsx</code></td><td>Shared UI wrapping child routes</td><td>Stays mounted on navigation -- preserves state</td></tr>
+<tr><td><code>template.tsx</code></td><td>Like layout but re-creates on navigation</td><td>Does NOT preserve state. Use for animations, form resets.</td></tr>
+<tr><td><code>loading.tsx</code></td><td>Loading UI (spinner, skeleton)</td><td>Auto-wraps page in <code>&lt;Suspense&gt;</code>. Layout renders instantly.</td></tr>
+<tr><td><code>error.tsx</code></td><td>Error boundary</td><td>Must be <code>"use client"</code>. Receives <code>reset()</code> to retry.</td></tr>
+<tr><td><code>not-found.tsx</code></td><td>404 page</td><td>Shown when <code>notFound()</code> is called or route doesn't exist</td></tr>
+<tr><td><code>route.ts</code></td><td>API endpoint (REST)</td><td>Cannot coexist with page.tsx in same folder</td></tr>
+<tr><td><code>default.tsx</code></td><td>Fallback for parallel routes</td><td>Shown when a slot has no matching content</td></tr>
+</tbody></table>
+
+<p><strong>Component Nesting Hierarchy:</strong> Layout &rarr; Template &rarr; Error &rarr; Loading &rarr; Page</p>
+
+<p><strong>Dynamic Route Syntax:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Syntax</th><th>Example folder</th><th>Matches</th><th>params</th></tr>
+<tr><td><code>[slug]</code></td><td><code>blog/[slug]/</code></td><td><code>/blog/hello</code> (exactly 1 segment)</td><td><code>{ slug: "hello" }</code></td></tr>
+<tr><td><code>[...slug]</code></td><td><code>shop/[...slug]/</code></td><td><code>/shop/a/b/c</code> (1 or more segments)</td><td><code>{ slug: ["a","b","c"] }</code></td></tr>
+<tr><td><code>[[...slug]]</code></td><td><code>docs/[[...slug]]/</code></td><td><code>/docs</code> OR <code>/docs/a/b</code> (0 or more)</td><td><code>{ slug: undefined }</code> or <code>{ slug: ["a","b"] }</code></td></tr>
+<tr><td><code>(name)</code></td><td><code>(marketing)/about/</code></td><td><code>/about</code> (group NOT in URL)</td><td>No params. Organizes code only.</td></tr>
+<tr><td><code>_folder</code></td><td><code>_components/</code></td><td>Not a route at all</td><td>Private folder, excluded from routing.</td></tr>
+</tbody></table>
+
+<p><strong>Rendering Modes:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Mode</th><th>When</th><th>How it works</th></tr>
+<tr><td>Static (default)</td><td>No dynamic functions used</td><td>Built at build time, cached, served from CDN</td></tr>
+<tr><td>Dynamic</td><td>Uses <code>cookies()</code>, <code>headers()</code>, <code>searchParams</code>, or uncached fetch</td><td>Rendered on every request</td></tr>
+</tbody></table>
+
+<p><strong>Special files:</strong> <code>layout.tsx</code> (shared UI, stays mounted when navigating between child routes -- preserves state like sidebar open/closed), <code>loading.tsx</code> (loading UI -- automatically wraps page in React <code>&lt;Suspense&gt;</code> boundary so layout renders instantly while page data loads), <code>error.tsx</code> (error boundary, must be "use client", receives a <code>reset()</code> function to retry), <code>not-found.tsx</code> (404 page), <code>route.ts</code> (API endpoint -- cannot coexist with page.tsx).</p>
 
 <p><strong>&lt;Link&gt; vs &lt;a&gt;:</strong> <code>&lt;Link&gt;</code> does <strong>client-side navigation</strong> (no full page reload, preserves React state, prefetches routes). <code>&lt;a&gt;</code> causes a full page reload and destroys all client state.</p>
 
@@ -735,7 +978,82 @@ function CartCount() {
 
 <p><strong>Client Component</strong>: add <code>"use client"</code> at the top of the file. Runs in the browser. CAN: use hooks, handle events, access browser APIs. CANNOT: access databases or server resources directly.</p>
 
-<p>Server Components reduce the JavaScript bundle size. They can render Client Components as children. <strong>Boundary rule:</strong> once you add <code>"use client"</code>, everything that component <strong>imports</strong> also becomes a Client Component. A Client Component cannot import a Server Component directly. But it CAN receive one as <code>children</code> props — this is the composition pattern: <code>&lt;ClientWrapper&gt;&lt;ServerContent /&gt;&lt;/ClientWrapper&gt;</code>.</p>
+<p>Server Components reduce the JavaScript bundle size. They can render Client Components as children. <strong>Boundary rule:</strong> once you add <code>"use client"</code>, everything that component <strong>imports</strong> also becomes a Client Component. A Client Component cannot import a Server Component directly. But it CAN receive one as <code>children</code> props -- this is the composition pattern: <code>&lt;ClientWrapper&gt;&lt;ServerContent /&gt;&lt;/ClientWrapper&gt;</code>.</p>
+
+<p><strong>Capabilities Table:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Capability</th><th>Server Component</th><th>Client Component</th></tr>
+<tr><td>Fetch data directly (async/await in component)</td><td>Yes</td><td>No (must use useEffect or Server Action)</td></tr>
+<tr><td>Access database, env vars, file system</td><td>Yes</td><td>No</td></tr>
+<tr><td>Use hooks (useState, useEffect, etc.)</td><td>No</td><td>Yes</td></tr>
+<tr><td>Handle events (onClick, onChange, etc.)</td><td>No</td><td>Yes</td></tr>
+<tr><td>Use browser APIs (localStorage, window)</td><td>No</td><td>Yes</td></tr>
+<tr><td>Sends JS to the browser</td><td>No (zero JS)</td><td>Yes</td></tr>
+<tr><td>Can be async function</td><td>Yes</td><td>No</td></tr>
+</tbody></table>
+
+<p><strong>Skeleton -- Server Component (default, no directive needed):</strong></p>
+
+<div class="cb"><pre>// app/products/page.tsx — Server Component (default)
+// NO "use client" = Server Component
+
+import { db } from "@/lib/db";      // can access database directly
+
+export default async function ProductsPage() {
+  // Can use async/await directly in the component
+  const products = await db.product.findMany();
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Products&lt;/h1&gt;
+      {products.map(p =&gt; &lt;p key={p.id}&gt;{p.name}&lt;/p&gt;)}
+      &lt;AddToCartButton /&gt;    {/* Client Component imported here */}
+    &lt;/div&gt;
+  );
+}</pre></div>
+
+<p><strong>Skeleton -- Client Component ("use client" at the top):</strong></p>
+
+<div class="cb"><pre>// app/_components/add-to-cart-button.tsx — Client Component
+"use client";                           // THIS LINE makes it a Client Component
+
+import { useState } from "react";       // can use hooks
+
+export function AddToCartButton({ product }) {
+  const [added, setAdded] = useState(false);
+
+  return (
+    &lt;button onClick={() =&gt; setAdded(true)}&gt;   {/* can handle events */}
+      {added ? "Added!" : "Add to cart"}
+    &lt;/button&gt;
+  );
+}</pre></div>
+
+<p><strong>Skeleton -- Composition Pattern (Server inside Client):</strong></p>
+
+<div class="cb"><pre>// A Client Component CANNOT import a Server Component.
+// But it CAN receive one as {children} props:
+
+// client-wrapper.tsx — Client Component
+"use client";
+export function ClientWrapper({ children }) {
+  const [open, setOpen] = useState(true);
+  return &lt;div&gt;{open &amp;&amp; children}&lt;/div&gt;;   {/* children can be Server Components */}
+}
+
+// page.tsx — Server Component (parent)
+import { ClientWrapper } from "./client-wrapper";
+import { ServerContent } from "./server-content";   // Server Component
+
+export default function Page() {
+  return (
+    &lt;ClientWrapper&gt;
+      &lt;ServerContent /&gt;    {/* Server Component passed as children = OK */}
+    &lt;/ClientWrapper&gt;
+  );
+}</pre></div>
+
+<p><strong>Teacher's examples:</strong></p>
 
 <div class="cb"><pre>// Server Component (default) — Source: workshops/w4/app/page.tsx
 export default function HomePage() {
@@ -759,7 +1077,106 @@ export function SideBar() {
 
 <p><strong>API Route</strong> = an HTTP endpoint defined in <code>route.ts</code>. Use when an external service needs to call your backend: Stripe webhooks, mobile apps, public REST APIs.</p>
 
-<p>The decision rule: <strong>Who calls it?</strong> Your React app → Server Action. External service → API Route.</p>
+<p>The decision rule: <strong>Who calls it?</strong> Your React app &rarr; Server Action. External service &rarr; API Route.</p>
+
+<p><strong>When to use which:</strong></p>
+<table class="tw"><tbody>
+<tr><th></th><th>Server Action</th><th>API Route</th></tr>
+<tr><td>Defined in</td><td>File with <code>"use server"</code> at top</td><td><code>app/.../route.ts</code></td></tr>
+<tr><td>Called by</td><td>Your own React components / forms</td><td>External services, mobile apps, webhooks</td></tr>
+<tr><td>How to call</td><td><code>await myAction(data)</code> or <code>&lt;form action={myAction}&gt;</code></td><td><code>fetch("/api/endpoint")</code> or external HTTP request</td></tr>
+<tr><td>Returns</td><td>Any serializable value</td><td><code>NextResponse.json(data)</code></td></tr>
+<tr><td>Use for</td><td>Form submissions, data mutations, revalidation</td><td>Stripe webhooks, public REST APIs, mobile backends</td></tr>
+</tbody></table>
+
+<p><strong>Skeleton -- Server Action ("use server" file + calling it):</strong></p>
+
+<div class="cb"><pre>// FILE 1: actions/my-action.ts — DEFINE the Server Action
+"use server";                                    // marks ALL exports as server-only
+
+import { revalidatePath } from "next/cache";
+
+// Option A: called directly from onClick handler
+export async function createItem(data: { name: string }) {
+  // runs on the server — can access DB, env vars, etc.
+  const item = await db.item.create({ data });
+  revalidatePath("/items");                      // bust cache so page shows new data
+  return { success: true, id: item.id };
+}
+
+// Option B: used as a form action (receives FormData)
+export async function createItemForm(prevState: any, formData: FormData) {
+  const name = formData.get("name") as string;   // extract from FormData
+  // validate on server (client validation can be bypassed!)
+  if (!name) return { error: "Name required" };
+  await db.item.create({ data: { name } });
+  revalidatePath("/items");
+  return { success: true };
+}
+
+// FILE 2: Component — CALL the Server Action
+
+// Way 1: await in onClick handler ("use client" component)
+"use client";
+import { createItem } from "@/actions/my-action";
+
+function MyComponent() {
+  const handleClick = async () =&gt; {
+    const result = await createItem({ name: "New" });  // direct call
+    if (result.success) router.push("/items");
+  };
+  return &lt;button onClick={handleClick}&gt;Create&lt;/button&gt;;
+}
+
+// Way 2: form action with useActionState
+"use client";
+import { useActionState } from "react";
+import { createItemForm } from "@/actions/my-action";
+
+function MyForm() {
+  const [state, formAction, isPending] = useActionState(createItemForm, null);
+  return (
+    &lt;form action={formAction}&gt;
+      &lt;input name="name" /&gt;
+      &lt;button disabled={isPending}&gt;
+        {isPending ? "Saving..." : "Create"}
+      &lt;/button&gt;
+      {state?.error &amp;&amp; &lt;p&gt;{state.error}&lt;/p&gt;}
+    &lt;/form&gt;
+  );
+}</pre></div>
+
+<p><strong>Skeleton -- API Route (route.ts):</strong></p>
+
+<div class="cb"><pre>// app/api/items/route.ts — API Route
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const items = await db.item.findMany();
+  return NextResponse.json(items);                // must return Response
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();              // parse JSON body
+  const item = await db.item.create({ data: body });
+  return NextResponse.json(item, { status: 201 });
+}
+
+// Available HTTP methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</pre></div>
+
+<p><strong>API Route HTTP Methods:</strong></p>
+<table class="tw"><tbody>
+<tr><th>Export name</th><th>HTTP method</th><th>Typical use</th></tr>
+<tr><td><code>GET</code></td><td>GET</td><td>Read/list data</td></tr>
+<tr><td><code>POST</code></td><td>POST</td><td>Create new resource</td></tr>
+<tr><td><code>PUT</code></td><td>PUT</td><td>Replace entire resource</td></tr>
+<tr><td><code>PATCH</code></td><td>PATCH</td><td>Partial update</td></tr>
+<tr><td><code>DELETE</code></td><td>DELETE</td><td>Delete resource</td></tr>
+<tr><td><code>HEAD</code></td><td>HEAD</td><td>Like GET but no body</td></tr>
+<tr><td><code>OPTIONS</code></td><td>OPTIONS</td><td>CORS preflight</td></tr>
+</tbody></table>
+
+<p><strong>Teacher's example:</strong></p>
 
 <div class="cb"><pre>// DEFINE — Source: concert-arena/actions/booking.ts
 "use server";
@@ -1099,72 +1516,12 @@ div p { }             /* any p at any depth */</pre></div>
 
 <p>Enables real-time, bidirectional communication. Uses <strong>WebSockets</strong> under the hood — a persistent open connection so the server can push data anytime without the client asking. Unlike HTTP (request-response), where the client must initiate every interaction. Without WebSockets, you'd need polling (repeated fetch calls), which wastes resources.</p>
 
-<p><strong>Server setup skeleton (copy-paste template):</strong></p>
-<div class="cb"><pre>// === SERVER SETUP SKELETON ===
-// 1. Create HTTP server + attach Socket.io
-import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-
-const app = express();
-const server = createServer(app);
-const io = new Server(server, {
-  cors: { origin: 'http://localhost:3000' }  // allow client origin
-});
-
-// 2. Optional: Middleware (runs BEFORE connection)
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (isValid(token)) next();          // allow
-  else next(new Error('Unauthorized')); // reject
-});
-
-// 3. Handle connections
-io.on('connection', (socket) => {
-  console.log('Connected:', socket.id);
-
-  // Listen for events from THIS client
-  socket.on('chat-message', (data) => {
-    io.emit('chat-message', data);           // send to ALL
-    // socket.emit('x', data);               // send to THIS client only
-    // socket.broadcast.emit('x', data);     // send to ALL EXCEPT sender
-    // io.to('room1').emit('x', data);       // send to a room
-  });
-
-  // Rooms
-  socket.on('join-room', (roomId) => {
-    socket.join(roomId);
-  });
-
-  // Disconnect
-  socket.on('disconnect', () => {
-    console.log('Disconnected:', socket.id);
-  });
-});
-
-// 4. Start server
-server.listen(3001, () => console.log('Listening on 3001'));</pre></div>
-
-<div class="cb"><pre>// === CLIENT SETUP SKELETON ===
-import { io } from 'socket.io-client';
-const socket = io('http://localhost:3001');
-
-// Send to server
-socket.emit('chat-message', { text: 'Hello' });
-
-// Listen from server
-socket.on('chat-message', (data) => {
-  console.log(data);
-});</pre></div>
-
-<p><strong>Emit patterns -- who receives what:</strong></p>
 <table class="tw"><tbody>
-<tr><th>Method</th><th>Who receives</th><th>Use case</th></tr>
-<tr><td><code>io.emit(event, data)</code></td><td>ALL connected clients</td><td>Broadcast to everyone (new message, global update)</td></tr>
-<tr><td><code>socket.emit(event, data)</code></td><td>Server-side: THAT specific client only. Client-side: the server.</td><td>Private response, send data to server</td></tr>
-<tr><td><code>socket.broadcast.emit(event, data)</code></td><td>ALL clients EXCEPT the sender</td><td>"User X is typing..." notifications</td></tr>
-<tr><td><code>io.to(room).emit(event, data)</code></td><td>All clients in that room</td><td>Chat rooms, game lobbies</td></tr>
-<tr><td><code>socket.to(room).emit(event, data)</code></td><td>All in room EXCEPT sender</td><td>Room notification excluding sender</td></tr>
+<tr><th>Method</th><th>Who receives</th></tr>
+<tr><td><code>io.emit()</code></td><td>ALL clients</td></tr>
+<tr><td><code>socket.emit()</code></td><td>Server: sends to THAT specific client only (each socket = one client's connection). Client: sends to the server.</td></tr>
+<tr><td><code>socket.broadcast.emit()</code></td><td>ALL EXCEPT sender</td></tr>
+<tr><td><code>io.to(room).emit()</code></td><td>All in that room</td></tr>
 </tbody></table>
 
 <p><strong>Rooms:</strong> <code>socket.join(roomId)</code> adds a socket to a room. Used for chat channels/groups. <code>io.to(room).emit()</code> sends to everyone in the room.</p>
@@ -1189,16 +1546,6 @@ io.on('connection', socket =&gt; {
     console.log(`Client disconnected: ${socket.id}`);
   });
 });</pre></div>
-
-<p><strong>Key Socket.io events:</strong></p>
-<table class="tw"><tbody>
-<tr><th>Event</th><th>Where</th><th>When it fires</th></tr>
-<tr><td><code>io.on('connection', cb)</code></td><td>Server</td><td>A new client connects</td></tr>
-<tr><td><code>socket.on('disconnect', cb)</code></td><td>Server</td><td>That client disconnects</td></tr>
-<tr><td><code>socket.on('connect', cb)</code></td><td>Client</td><td>Successfully connected to server</td></tr>
-<tr><td><code>socket.on('connect_error', cb)</code></td><td>Client</td><td>Connection failed (auth rejected, server down)</td></tr>
-<tr><td><code>socket.on('custom-event', cb)</code></td><td>Both</td><td>When the other side emits 'custom-event'</td></tr>
-</tbody></table>
 
 <p><strong>Listening:</strong> <code>socket.on(event, callback)</code> listens for events on both client and server.</p>
 
